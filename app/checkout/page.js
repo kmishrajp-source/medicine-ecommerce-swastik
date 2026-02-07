@@ -56,7 +56,7 @@ export default function Checkout() {
         }
 
         const options = {
-            key: "rzp_test_placeholder", // Enter the Key ID generated from the Dashboard
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
             amount: orderData.amount,
             currency: orderData.currency,
             name: "Swastik Medicare",
