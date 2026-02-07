@@ -9,6 +9,7 @@ export default function Checkout() {
     const { cart, cartTotal, clearCart, toggleCart, cartCount } = useCart();
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState('ONLINE');
     const { data: session } = useSession(); // Ensure import
 
     // Check if any item requires prescription
