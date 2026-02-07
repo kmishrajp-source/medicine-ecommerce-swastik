@@ -33,6 +33,12 @@ export default function Checkout() {
             return;
         }
 
+        // DEBUG: Check if key is available
+        if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+            alert("Error: NEXT_PUBLIC_RAZORPAY_KEY_ID is missing. Please add it to Vercel and Redeploy.");
+            return;
+        }
+
         setIsProcessing(true);
 
         const res = await loadRazorpay();
@@ -42,58 +48,69 @@ export default function Checkout() {
             return;
         }
 
-        // Create Order on Server
-        const orderRes = await fetch('/api/create-order', {
-            method: 'POST',
-            body: JSON.stringify({ amount: cartTotal }),
-        });
-        const orderData = await orderRes.json();
+        try {
+            // Create Order on Server
+            const orderRes = await fetch('/api/create-order', {
+                method: 'POST',
+                body: JSON.stringify({ amount: cartTotal }),
+            });
 
-        if (orderData.error) {
-            alert(orderData.error);
-            setIsProcessing(false);
-            return;
-        }
-
-        const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID, // Enter the Key ID generated from the Dashboard
-            amount: orderData.amount,
-            currency: orderData.currency,
-            name: "Swastik Medicare",
-            description: "Medicine Purchase",
-            order_id: orderData.id,
-            handler: async function (response) {
-                // Determine if Rx upload is needed (for now, just alerting)
-                // Save Order Locally (or to DB in real app)
-                const newOrder = {
-                    id: orderData.id, // Use Razorpay Order ID
-                    total: cartTotal,
-                    items: [...cart],
-                    status: 'Processing',
-                    date: new Date().toLocaleDateString(),
-                    userId: session.user.id
-                };
-
-                const orders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
-                orders.unshift(newOrder);
-                localStorage.setItem('swastik_orders', JSON.stringify(orders));
-
-                clearCart();
-                router.push('/profile'); // Redirect to profile
-            },
-            prefill: {
-                name: session.user.name,
-                email: session.user.email,
-                contact: "9999999999"
-            },
-            theme: {
-                color: "#0D8ABC"
+            if (!orderRes.ok) {
+                const errorText = await orderRes.text();
+                throw new Error(errorText || "Server responded with an error");
             }
-        };
 
-        const paymentObject = new window.Razorpay(options);
-        paymentObject.open();
-        setIsProcessing(false);
+            const orderData = await orderRes.json();
+
+            if (orderData.error) {
+                alert("Order Creation Failed: " + orderData.error);
+                setIsProcessing(false);
+                return;
+            }
+
+            const options = {
+                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+                amount: orderData.amount,
+                currency: orderData.currency,
+                name: "Swastik Medicare",
+                description: "Medicine Purchase",
+                order_id: orderData.id,
+                handler: async function (response) {
+                    // Success Handler
+                    const newOrder = {
+                        id: orderData.id,
+                        total: cartTotal,
+                        items: [...cart],
+                        status: 'Processing',
+                        date: new Date().toLocaleDateString(),
+                        userId: session.user.id
+                    };
+
+                    const orders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
+                    orders.unshift(newOrder);
+                    localStorage.setItem('swastik_orders', JSON.stringify(orders));
+
+                    clearCart();
+                    router.push('/profile');
+                },
+                prefill: {
+                    name: session.user.name,
+                    email: session.user.email,
+                    contact: "9999999999"
+                },
+                theme: {
+                    color: "#0D8ABC"
+                }
+            };
+
+            const paymentObject = new window.Razorpay(options);
+            paymentObject.open();
+        } catch (err) {
+            console.error(err);
+            alert("Something went wrong: " + err.message);
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     if (cart.length === 0) {
