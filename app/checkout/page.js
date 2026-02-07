@@ -150,12 +150,34 @@ export default function Checkout() {
                         )}
 
                         <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px' }}>Payment Method</h3>
-                        <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px', border: '1px solid var(--primary)', borderRadius: '8px', background: 'var(--secondary)', cursor: 'pointer' }}>
-                                <input type="radio" checked readOnly />
+                        <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            {/* Option 1: Razorpay */}
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px', border: `1px solid ${paymentMethod === 'ONLINE' ? 'var(--primary)' : '#ddd'}`, borderRadius: '8px', background: 'var(--secondary)', cursor: 'pointer' }}>
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="ONLINE"
+                                    checked={paymentMethod === 'ONLINE'}
+                                    onChange={() => setPaymentMethod('ONLINE')}
+                                />
                                 <div>
                                     <strong>Razorpay Secure Payment</strong>
-                                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>UPI (PhonePe, GPay), Cards, Netbanking, Wallets</div>
+                                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>UPI, Cards, Netbanking, Wallets</div>
+                                </div>
+                            </label>
+
+                            {/* Option 2: Cash on Delivery */}
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px', border: `1px solid ${paymentMethod === 'COD' ? 'var(--primary)' : '#ddd'}`, borderRadius: '8px', background: 'var(--secondary)', cursor: 'pointer' }}>
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="COD"
+                                    checked={paymentMethod === 'COD'}
+                                    onChange={() => setPaymentMethod('COD')}
+                                />
+                                <div>
+                                    <strong>Cash on Delivery (COD)</strong>
+                                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Pay cash upon delivery. Verify with Secret Code via SMS.</div>
                                 </div>
                             </label>
                         </div>
@@ -168,7 +190,7 @@ export default function Checkout() {
                         </div>
 
                         <button type="submit" className="btn btn-primary full-width" disabled={isProcessing} style={{ width: '100%' }}>
-                            {isProcessing ? 'Processing...' : 'Pay Now'}
+                            {isProcessing ? 'Processing...' : (paymentMethod === 'COD' ? 'Place Order with Cash' : 'Pay Now')}
                         </button>
                     </form>
                 </div>
