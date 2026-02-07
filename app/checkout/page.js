@@ -10,7 +10,31 @@ export default function Checkout() {
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('ONLINE');
-    const { data: session } = useSession(); // Ensure import
+    const { data: session } = useSession();
+
+    // Form State
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        phone: '',
+        address: ''
+    });
+
+    // Load user data if logged in
+    useEffect(() => {
+        if (session?.user) {
+            setFormData(prev => ({
+                ...prev,
+                name: session.user.name || '',
+                email: session.user.email || ''
+            }));
+        }
+    }, [session]);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
 
     // Check if any item requires prescription
     const hasRxItems = cart.some(item => item.requiresPrescription);
@@ -28,19 +52,55 @@ export default function Checkout() {
     const handleOrderSubmit = async (e) => {
         e.preventDefault();
 
-        if (!session) {
-            alert("Please login to place an order.");
-            router.push("/login");
-            return;
-        }
-
-        // DEBUG: Check if key is available
-        if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
-            alert("Error: NEXT_PUBLIC_RAZORPAY_KEY_ID is missing. Please add it to Vercel and Redeploy.");
+        // VALIDATION
+        if (!formData.name || !formData.phone || !formData.address) {
+            alert("Please fill in all required shipping details.");
             return;
         }
 
         setIsProcessing(true);
+
+        // --- HANDLE COD ---
+        if (paymentMethod === 'COD') {
+            try {
+                const res = await fetch('/api/create-cod-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: cartTotal,
+                        items: cart,
+                        guestName: formData.name,
+                        guestEmail: formData.email,
+                        guestPhone: formData.phone,
+                        address: formData.address
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert(`Order Placed Successfully! \n\nYour Secret Delivery Code is: ${data.deliveryCode}\n\nPlease save this code. You will need it to receive your delivery.`);
+                    clearCart();
+                    // If guest, maybe redirect to home or a thank you page. If user, profile.
+                    router.push(session ? '/profile' : '/');
+                } else {
+                    alert(data.error || "Failed to place COD order");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong with COD order.");
+            } finally {
+                setIsProcessing(false);
+            }
+            return;
+        }
+
+        // --- HANDLE RAZORPAY ---
+        if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
+            alert("Error: NEXT_PUBLIC_RAZORPAY_KEY_ID is missing. Please add it to Vercel and Redeploy.");
+            setIsProcessing(false);
+            return;
+        }
 
         const res = await loadRazorpay();
         if (!res) {
@@ -50,7 +110,15 @@ export default function Checkout() {
         }
 
         try {
-            // Create Order on Server
+            // Note: create-order API (Razorpay) might still need updates to handle guests if you want Razorpay for guests too.
+            // For now, let's assume Razorpay requires login or strictly follows logic:
+            if (!session) {
+                alert("For Online Payments (Razorpay), please Login first. Or choose Cash on Delivery for Guest Checkout.");
+                setIsProcessing(false);
+                return;
+            }
+
+            // ... (Existing Razorpay Logic - Assuming it uses session)
             const orderRes = await fetch('/api/create-order', {
                 method: 'POST',
                 body: JSON.stringify({ amount: cartTotal }),
@@ -95,9 +163,9 @@ export default function Checkout() {
                     router.push('/profile');
                 },
                 prefill: {
-                    name: session.user.name,
-                    email: session.user.email,
-                    contact: "9999999999"
+                    name: formData.name,
+                    email: formData.email,
+                    contact: formData.phone
                 },
                 theme: {
                     color: "#0D8ABC"
@@ -131,16 +199,50 @@ export default function Checkout() {
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
             <main className="container" style={{ marginTop: '100px', paddingBottom: '60px', maxWidth: '800px' }}>
-                <h2 style={{ marginBottom: '24px' }}>Checkout</h2>
+                <h2 style={{ marginBottom: '24px' }}>Checkout {session ? '' : '(Guest)'}</h2>
 
                 <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
                     <form onSubmit={handleOrderSubmit}>
                         <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Shipping Details</h3>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                            <input type="text" placeholder="Full Name" required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }} />
-                            <input type="tel" placeholder="Phone Number" required style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }} />
+                            <input
+                                type="text"
+                                name="name"
+                                placeholder="Full Name"
+                                value={formData.name}
+                                onChange={handleInputChange}
+                                required
+                                style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }}
+                            />
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Email (Optional)"
+                                value={formData.email}
+                                onChange={handleInputChange}
+                                style={{ padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }}
+                            />
                         </div>
-                        <input type="text" placeholder="Address" required style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '20px' }} />
+                        <div style={{ marginBottom: '20px' }}>
+                            <input
+                                type="tel"
+                                name="phone"
+                                placeholder="Phone Number"
+                                value={formData.phone}
+                                onChange={handleInputChange}
+                                required
+                                style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px' }}
+                            />
+                        </div>
+                        <input
+                            type="text"
+                            name="address"
+                            placeholder="Full Address (House, Street, City, Pincode)"
+                            value={formData.address}
+                            onChange={handleInputChange}
+                            required
+                            style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '20px' }}
+                        />
 
                         {hasRxItems && (
                             <div style={{ background: '#FFF3E0', padding: '20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #FFE0B2' }}>

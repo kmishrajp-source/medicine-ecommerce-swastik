@@ -6,37 +6,50 @@ import { authOptions } from "../auth/[...nextauth]/route";
 export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
-        if (!session) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
 
-        const { amount, items } = await req.json();
+        const { amount, items, guestName, guestEmail, guestPhone, address } = await req.json();
 
         // 1. Generate 4-digit Random Code
         const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();
 
-        // 2. Create Order in Database
-        const order = await prisma.order.create({
-            data: {
-                userId: session.user.id,
-                total: amount,
-                status: "Processing",
-                paymentMethod: "COD",
-                deliveryCode: deliveryCode, // Store the secret code
-                isPaid: false,
-                isDelivered: false,
-                items: {
-                    create: items.map(item => ({
-                        productId: item.id,
-                        quantity: item.quantity,
-                        price: item.price
-                    }))
-                }
+        // 2. Prepare Order Data
+        const orderData = {
+            total: amount,
+            status: "Processing",
+            paymentMethod: "COD",
+            deliveryCode: deliveryCode, // Store the secret code
+            isPaid: false,
+            isDelivered: false,
+            items: {
+                create: items.map(item => ({
+                    productId: item.id,
+                    quantity: item.quantity,
+                    price: item.price
+                }))
             }
+        };
+
+        // 3. Link User or Guest Details
+        if (session) {
+            orderData.userId = session.user.id;
+            // Address might come from profile later, but for now we trust the input if provided
+            if (address) orderData.address = address;
+        } else {
+            // Guest Checkout
+            orderData.guestName = guestName;
+            orderData.guestEmail = guestEmail;
+            orderData.guestPhone = guestPhone;
+            orderData.address = address;
+        }
+
+        // 4. Create Order in Database
+        const order = await prisma.order.create({
+            data: orderData
         });
 
-        // 3. Simulate Sending SMS
-        console.log(`[SMS MOCK] Sending to User: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
+        // 5. Simulate Sending SMS
+        const phone = session?.user?.phone || guestPhone || "Unknown";
+        console.log(`[SMS MOCK] Sending to ${phone}: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
 
         return NextResponse.json({
             success: true,
