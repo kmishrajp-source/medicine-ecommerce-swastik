@@ -149,10 +149,14 @@ export default function Checkout() {
                             </div>
                         )}
 
-                        <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px' }}>Payment</h3>
+                        <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px' }}>Payment Method</h3>
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px', border: '1px solid var(--primary)', borderRadius: '8px', background: 'var(--secondary)' }}>
-                                <input type="radio" checked readOnly /> Credit/Debit Card
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '15px', border: '1px solid var(--primary)', borderRadius: '8px', background: 'var(--secondary)', cursor: 'pointer' }}>
+                                <input type="radio" checked readOnly />
+                                <div>
+                                    <strong>Razorpay Secure Payment</strong>
+                                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>UPI (PhonePe, GPay), Cards, Netbanking, Wallets</div>
+                                </div>
                             </label>
                         </div>
 
@@ -164,7 +168,7 @@ export default function Checkout() {
                         </div>
 
                         <button type="submit" className="btn btn-primary full-width" disabled={isProcessing} style={{ width: '100%' }}>
-                            {isProcessing ? 'Processing...' : 'Place Order'}
+                            {isProcessing ? 'Processing...' : 'Pay Now'}
                         </button>
                     </form>
                 </div>
