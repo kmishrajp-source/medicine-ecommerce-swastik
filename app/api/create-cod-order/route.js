@@ -14,7 +14,7 @@ export async function POST(req) {
 
         // 2. Prepare Order Data
         const orderData = {
-            total: amount,
+            total: parseFloat(amount),
             status: "Processing",
             paymentMethod: "COD",
             deliveryCode: deliveryCode, // Store the secret code
@@ -23,8 +23,8 @@ export async function POST(req) {
             items: {
                 create: items.map(item => ({
                     productId: item.id,
-                    quantity: item.quantity,
-                    price: item.price
+                    quantity: parseInt(item.quantity),
+                    price: parseFloat(item.price)
                 }))
             }
         };
@@ -59,7 +59,13 @@ export async function POST(req) {
         });
 
     } catch (error) {
-        console.error("COD Order Error:", error);
-        return NextResponse.json({ error: "Failed to place order: " + error.message }, { status: 500 });
+        console.error("COD Order Error - Full Details:", JSON.stringify(error, null, 2));
+        console.error("COD Order Error - Message:", error.message);
+        // Return a more descriptive error if possible
+        const errorMessage = error.message || "Unknown Database Error";
+        return NextResponse.json({
+            error: `Failed: ${errorMessage}`,
+            details: error.toString()
+        }, { status: 500 });
     }
 }
