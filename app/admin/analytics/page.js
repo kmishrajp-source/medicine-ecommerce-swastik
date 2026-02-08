@@ -8,8 +8,7 @@ import Link from "next/link";
 export default function Analytics() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -28,16 +27,26 @@ export default function Analytics() {
             const json = await res.json();
             if (json.success) {
                 setData(json.analytics);
+            } else {
+                setError(json.error || "Unknown API Error");
             }
         } catch (error) {
             console.error("Analytics Load Error", error);
+            setError(error.message);
         } finally {
             setLoading(false);
         }
     };
 
     if (loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading Analytics...</div>;
-    if (!data) return <div style={{ padding: '100px', textAlign: 'center' }}>Failed to load data.</div>;
+    if (error) return (
+        <div style={{ padding: '100px', textAlign: 'center', color: 'red' }}>
+            <h2>Failed to load data</h2>
+            <p>Error: {error}</p>
+            <button onClick={() => window.location.reload()} className="btn btn-primary" style={{ marginTop: '20px' }}>Retry</button>
+        </div>
+    );
+    if (!data) return <div style={{ padding: '100px', textAlign: 'center' }}>No data available.</div>;
 
     return (
         <>

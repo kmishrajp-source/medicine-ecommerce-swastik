@@ -78,6 +78,10 @@ export async function GET(req) {
 
     } catch (error) {
         console.error("Analytics Error:", error);
-        return NextResponse.json({ error: "Failed to fetch analytics" }, { status: 500 });
+        return NextResponse.json({
+            error: "Failed to fetch analytics",
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }
