@@ -30,18 +30,35 @@ export async function GET(req) {
         // Approximate: Revenue - (SoldLimit * AvgBuyingPrice).
         // For now, let's just return Total Revenue and Total Investment.
 
-        // 5. Recent Sales
-        const recentSales = await prisma.order.findMany({
-            take: 5,
-            orderBy: { createdAt: 'desc' },
-            include: { user: { select: { name: true } } }
+        // 7. Detailed Sales Report
+        const allSales = await prisma.orderItem.findMany({
+            include: {
+                order: { select: { createdAt: true, status: true, deliveryCode: true } },
+                product: { select: { name: true, buyingPrice: true, stock: true } }
+            },
+            orderBy: { order: { createdAt: 'desc' } }
         });
 
-        // 6. Low Stock
-        const lowStockProducts = await prisma.product.findMany({
-            where: { stock: { lt: 10 } },
-            select: { name: true, stock: true }
+        const salesReport = allSales.map(item => {
+            const buyingPrice = item.product?.buyingPrice || 0;
+            const sellingPrice = item.price; // Price at time of sale
+            const profit = (sellingPrice - buyingPrice) * item.quantity;
+
+            return {
+                id: item.id,
+                date: item.order.createdAt,
+                productName: item.product?.name || "Unknown",
+                quantity: item.quantity,
+                buyingPrice: buyingPrice,
+                sellingPrice: sellingPrice,
+                profit: profit,
+                remainingStock: item.product?.stock || 0,
+                status: item.order.status
+            };
         });
+
+        // Recalculate Total Profit more accurately
+        const accurateProfit = salesReport.reduce((sum, item) => sum + item.profit, 0);
 
         return NextResponse.json({
             success: true,
@@ -50,11 +67,10 @@ export async function GET(req) {
                 totalProducts,
                 totalRevenue,
                 totalInvestment,
-                profit: totalRevenue - (totalRevenue * 0.7), // Dummy profit calc or based on investment? 
-                // Better Profit Calc: Revenue - Cost of items sold. 
-                // Let's rely on simple Revenue vs Investment for now as requested.
+                profit: accurateProfit, // Use accurate calc
                 recentSales,
-                lowStockProducts
+                lowStockProducts,
+                salesReport // New field
             }
         });
 

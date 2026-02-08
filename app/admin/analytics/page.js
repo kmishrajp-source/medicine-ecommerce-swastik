@@ -69,6 +69,57 @@ export default function Analytics() {
                     </div>
                 </div>
 
+                {/* Detailed Sales Report */}
+                <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)', marginBottom: '30px' }}>
+                    <h3>Detailed Sales Report</h3>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', marginTop: '15px', borderCollapse: 'collapse' }}>
+                            <thead style={{ background: '#f8f9fa' }}>
+                                <tr>
+                                    <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
+                                    <th style={{ padding: '12px', textAlign: 'left' }}>Product</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Qty</th>
+                                    <th style={{ padding: '12px', textAlign: 'right' }}>Buying Price</th>
+                                    <th style={{ padding: '12px', textAlign: 'right' }}>Selling Price</th>
+                                    <th style={{ padding: '12px', textAlign: 'right', color: 'green' }}>Profit</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Remaining Stock</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.salesReport?.length === 0 ? (
+                                    <tr><td colSpan="8" style={{ padding: '20px', textAlign: 'center' }}>No sales data found.</td></tr>
+                                ) : (
+                                    data.salesReport?.map(item => (
+                                        <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
+                                            <td style={{ padding: '12px', fontSize: '0.9rem' }}>{new Date(item.date).toLocaleDateString()}</td>
+                                            <td style={{ padding: '12px', fontWeight: '500' }}>{item.productName}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{item.quantity}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>₹{item.buyingPrice}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>₹{item.sellingPrice}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: item.profit >= 0 ? 'green' : 'red' }}>
+                                                ₹{item.profit.toFixed(2)}
+                                            </td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: item.remainingStock < 10 ? 'red' : 'inherit' }}>
+                                                {item.remainingStock}
+                                            </td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>
+                                                <span style={{
+                                                    padding: '4px 8px', borderRadius: '12px', fontSize: '0.75rem',
+                                                    background: item.status === 'Delivered' ? '#D1FAE5' : '#FEF3C7',
+                                                    color: item.status === 'Delivered' ? '#065F46' : '#92400E'
+                                                }}>
+                                                    {item.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                     {/* Recent Sales */}
                     <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
