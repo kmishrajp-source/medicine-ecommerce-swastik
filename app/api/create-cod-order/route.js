@@ -36,28 +36,25 @@ export async function POST(req) {
             if (address) orderData.address = address;
         } else {
             // Guest Checkout with Fallback User
-            // Try to find or create a generic guest user to satisfy DB constraints if schema update failed
-            let guestUser = await prisma.user.findUnique({ where: { email: 'guest@swastik.com' } });
+            // Use upsert to guarantee a guest user exists without race conditions
+            try {
+                const guestUser = await prisma.user.upsert({
+                    where: { email: 'guest@swastik.com' },
+                    update: {}, // No changes if exists
+                    create: {
+                        email: 'guest@swastik.com',
+                        name: 'Guest User',
+                        password: '$2a$10$GuestPlaceholderHash', // Placeholder
+                        role: 'CUSTOMER'
+                    }
+                });
 
-            if (!guestUser) {
-                try {
-                    // Create a guest user if it doesn't exist
-                    guestUser = await prisma.user.create({
-                        data: {
-                            email: 'guest@swastik.com',
-                            name: 'Guest User',
-                            password: '$2a$10$GuestPasswordHashPlaceholder', // Placeholder hash
-                            role: 'CUSTOMER'
-                        }
-                    });
-                } catch (createError) {
-                    console.error("Failed to create guest user:", createError);
-                    // If creation fails (race condition?), try finding again or just proceed without userId (and hope schema allows it)
+                if (guestUser) {
+                    orderData.userId = guestUser.id;
                 }
-            }
-
-            if (guestUser) {
-                orderData.userId = guestUser.id;
+            } catch (userError) {
+                console.error("Failed to upsert guest user:", userError);
+                // Continue, but this might fail if DB requires userId
             }
 
             // Still save specific guest details
