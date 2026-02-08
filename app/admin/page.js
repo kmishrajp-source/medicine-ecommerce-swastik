@@ -57,6 +57,7 @@ export default function AdminDashboard() {
                     <h2 style={{ fontSize: '2rem' }}>Delivery Management Dashboard</h2>
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <Link href="/admin/inventory" className="btn btn-primary">Manage Inventory</Link>
+                        <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>
                         <button
                             onClick={fetchOrders}
                             className="btn btn-secondary"

@@ -31,23 +31,44 @@ export async function POST(req) {
         }
 
         const body = await req.json();
-        const { name, description, price, category, image, requiresPrescription, stock } = body;
+        const { name, description, price, category, image, requiresPrescription, stock, buyingPrice } = body;
 
-        if (!name || !price || !category) {
+        if (!name || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        }
+
+        // Auto-calculate profit if price is not provided but buyingPrice is
+        let finalPrice = parseFloat(price);
+        let finalBuyingPrice = parseFloat(buyingPrice) || 0;
+
+        if (!finalPrice && finalBuyingPrice > 0) {
+            finalPrice = finalBuyingPrice * 1.18; // 18% Profit
         }
 
         const product = await prisma.product.create({
             data: {
                 name,
                 description: description || "",
-                price: parseFloat(price),
+                price: finalPrice || 0,
+                buyingPrice: finalBuyingPrice,
                 category,
-                image: image || "https://placehold.co/200", // Default placeholder
+                image: image || "https://placehold.co/200",
                 requiresPrescription: requiresPrescription || false,
                 stock: parseInt(stock) || 0
             }
         });
+
+        // Log initial stock
+        if (product.stock > 0) {
+            await prisma.stockLog.create({
+                data: {
+                    productId: product.id,
+                    quantity: product.stock,
+                    buyingPrice: finalBuyingPrice,
+                    type: "INITIAL_STOCK"
+                }
+            });
+        }
 
         return NextResponse.json({ success: true, product });
 
@@ -66,7 +87,7 @@ export async function PUT(req) {
         }
 
         const body = await req.json();
-        const { id, name, description, price, category, image, requiresPrescription, stock } = body;
+        const { id, name, description, price, category, image, requiresPrescription, stock, buyingPrice } = body;
 
         if (!id) {
             return NextResponse.json({ error: "Product ID required" }, { status: 400 });
@@ -78,6 +99,7 @@ export async function PUT(req) {
                 name,
                 description,
                 price: parseFloat(price),
+                buyingPrice: parseFloat(buyingPrice) || 0,
                 category,
                 image,
                 requiresPrescription,

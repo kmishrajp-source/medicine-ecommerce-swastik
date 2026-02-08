@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_URL") // Uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // Uses direct connection
+  provider  = "sqlite"
+  url       = env("DATABASE_URL")
 }
 
 model User {
@@ -29,6 +28,7 @@ model Product {
   stock       Int      @default(100)
   createdAt   DateTime @default(now())
   orderItems  OrderItem[]
+  stockLogs   StockLog[]
 }
 
 model Order {
@@ -57,4 +57,14 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   quantity  Int
   price     Float
+}
+
+model StockLog {
+  id          String   @id @default(cuid())
+  productId   String
+  product     Product  @relation(fields: [productId], references: [id])
+  quantity    Int
+  buyingPrice Float
+  type        String   @default("RESTOCK")
+  createdAt   DateTime @default(now())
 }

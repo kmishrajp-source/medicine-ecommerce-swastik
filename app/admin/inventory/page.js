@@ -18,6 +18,7 @@ export default function Inventory() {
         name: "",
         category: "General",
         price: "",
+        buyingPrice: "",
         stock: "",
         description: "",
         requiresPrescription: false,
@@ -71,6 +72,7 @@ export default function Inventory() {
             name: product.name,
             category: product.category,
             price: product.price,
+            buyingPrice: product.buyingPrice || "",
             stock: product.stock,
             description: product.description || "",
             requiresPrescription: product.requiresPrescription,
@@ -86,6 +88,7 @@ export default function Inventory() {
             name: "",
             category: "General",
             price: "",
+            buyingPrice: "",
             stock: "",
             description: "",
             requiresPrescription: false,
@@ -116,6 +119,25 @@ export default function Inventory() {
             }
         } catch (error) {
             console.error("Submit error", error);
+        }
+    };
+
+    const handleRestock = async (productId, quantity, buyingPrice) => {
+        try {
+            const res = await fetch('/api/admin/stock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ productId, quantity, buyingPrice })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Stock added successfully!");
+                fetchProducts();
+            } else {
+                alert("Failed: " + data.error);
+            }
+        } catch (error) {
+            console.error("Restock error", error);
         }
     };
 
@@ -162,7 +184,24 @@ export default function Inventory() {
                             </div>
 
                             <div>
-                                <label>Price (₹)</label>
+                                <label>Buying Price (₹)</label>
+                                <input
+                                    type="number"
+                                    value={formData.buyingPrice}
+                                    onChange={e => {
+                                        const bp = e.target.value;
+                                        setFormData({
+                                            ...formData,
+                                            buyingPrice: bp,
+                                            price: bp ? (parseFloat(bp) * 1.18).toFixed(2) : formData.price // Auto 18% profit
+                                        });
+                                    }}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label>Selling Price (₹) <small>(Auto: +18%)</small></label>
                                 <input
                                     type="number"
                                     value={formData.price}
@@ -227,8 +266,10 @@ export default function Inventory() {
                             <tr>
                                 <th style={{ padding: '16px' }}>Product</th>
                                 <th style={{ padding: '16px' }}>Category</th>
-                                <th style={{ padding: '16px' }}>Price</th>
+                                <th style={{ padding: '16px' }}>Buy Price</th>
+                                <th style={{ padding: '16px' }}>Sell Price</th>
                                 <th style={{ padding: '16px' }}>Stock</th>
+                                <th style={{ padding: '16px' }}>Restock</th>
                                 <th style={{ padding: '16px' }}>Actions</th>
                             </tr>
                         </thead>
@@ -246,11 +287,23 @@ export default function Inventory() {
                                             </div>
                                         </td>
                                         <td style={{ padding: '16px' }}>{product.category}</td>
-                                        <td style={{ padding: '16px' }}>₹{product.price}</td>
+                                        <td style={{ padding: '16px' }}>₹{product.buyingPrice || '-'}</td>
+                                        <td style={{ padding: '16px', fontWeight: 'bold' }}>₹{product.price}</td>
                                         <td style={{ padding: '16px' }}>
                                             <span style={{ color: product.stock < 10 ? 'red' : 'green', fontWeight: 'bold' }}>
                                                 {product.stock}
                                             </span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <button onClick={() => {
+                                                const qty = prompt(`Add stock for ${product.name}:`, "10");
+                                                if (qty) {
+                                                    const price = prompt(`Buying Price for these ${qty} units?`, product.buyingPrice || "0");
+                                                    if (price) handleRestock(product.id, qty, price);
+                                                }
+                                            }} style={{ marginRight: '10px', background: 'none', border: 'none', cursor: 'pointer', color: 'green', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                                <i className="fa-solid fa-plus-circle"></i> Add
+                                            </button>
                                         </td>
                                         <td style={{ padding: '16px' }}>
                                             <button onClick={() => handleEdit(product)} style={{ marginRight: '10px', background: 'none', border: 'none', cursor: 'pointer', color: 'blue' }}>
