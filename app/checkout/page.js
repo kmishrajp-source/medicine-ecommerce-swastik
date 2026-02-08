@@ -112,11 +112,7 @@ export default function Checkout() {
         try {
             // Note: create-order API (Razorpay) might still need updates to handle guests if you want Razorpay for guests too.
             // For now, let's assume Razorpay requires login or strictly follows logic:
-            if (!session) {
-                alert("For Online Payments (Razorpay), please Login first. Or choose Cash on Delivery for Guest Checkout.");
-                setIsProcessing(false);
-                return;
-            }
+            // Login check removed for Guest Checkout
 
             // ... (Existing Razorpay Logic - Assuming it uses session)
             const orderRes = await fetch('/api/create-order', {
