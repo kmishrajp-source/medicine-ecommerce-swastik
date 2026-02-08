@@ -84,28 +84,41 @@ export async function POST(req) {
                 data: orderData
             });
         } catch (dbError) {
-            console.error("Primary Order Create Failed. Trying Fallback...", dbError.message);
+            console.error("Primary Order Create Failed. Trying MINIMAL Fallback...", dbError.message);
 
-            // FALLBACK VS SCHEMA MISMATCH
-            // 1. Remove guest columns (if they don't exist in DB)
-            delete orderData.guestName;
-            delete orderData.guestEmail;
-            delete orderData.guestPhone;
-            delete orderData.address; // We will re-add it combined
+            // MINIMAL FALLBACK: Strip all non-essential fields that might be causing schema issues
+            // We will dump everything into the 'address' field so we don't lose data.
 
-            // 2. Consolidate info into Address
-            const originalAddress = address || ""; // Use the raw variable, orderData.address might be deleted
-            orderData.address = `[GUEST] Name: ${guestName}, Phone: ${guestPhone}, Email: ${guestEmail}. Addr: ${originalAddress}`;
+            const panicAddress = `[FALLBACK] Code:${deliveryCode}. Method:COD. Guest:${guestName}, ${guestPhone}, ${guestEmail}. Addr:${address}`;
 
-            // 3. Ensure userId is present (Schema might require it)
-            if (!orderData.userId) {
+            const minimalOrderData = {
+                total: parseFloat(amount),
+                status: "Processing (Fallback)",
+                // paymentMethod: "COD", // Omitting to use default if causing issues
+                // deliveryCode: deliveryCode, // Omitting
+                // isPaid: false, // Omitting
+                // isDelivered: false, // Omitting
+                address: panicAddress,
+                items: {
+                    create: items.map(item => ({
+                        productId: item.id,
+                        quantity: parseInt(item.quantity),
+                        price: parseFloat(item.price)
+                    }))
+                }
+            };
+
+            // 3. Ensure userId is present if strictly required
+            if (!orderData.userId) { // Check original data for ID
                 const anyUser = await prisma.user.findFirst();
-                if (anyUser) orderData.userId = anyUser.id;
+                if (anyUser) minimalOrderData.userId = anyUser.id;
+            } else {
+                minimalOrderData.userId = orderData.userId;
             }
 
-            // Retry create
+            // Retry create with minimal data
             order = await prisma.order.create({
-                data: orderData
+                data: minimalOrderData
             });
         }
 
