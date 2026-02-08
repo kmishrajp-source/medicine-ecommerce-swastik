@@ -65,9 +65,29 @@ export async function POST(req) {
         }
 
         // 4. Create Order in Database
-        const order = await prisma.order.create({
-            data: orderData
-        });
+        let order;
+        try {
+            order = await prisma.order.create({
+                data: orderData
+            });
+        } catch (dbError) {
+            console.error("Primary Order Create Failed. Trying Fallback...", dbError.message);
+
+            // FALLBACK: If schema mismatch (missing guest columns), dump guest info into Address
+            // Remove potentially missing columns
+            delete orderData.guestName;
+            delete orderData.guestEmail;
+            delete orderData.guestPhone;
+
+            // Append details to address
+            const originalAddress = orderData.address || "";
+            orderData.address = `[GUEST] Name: ${guestName}, Phone: ${guestPhone}, Email: ${guestEmail}. Addr: ${originalAddress}`;
+
+            // Retry create
+            order = await prisma.order.create({
+                data: orderData
+            });
+        }
 
         // 5. Simulate Sending SMS
         const phone = session?.user?.phone || guestPhone || "Unknown";
