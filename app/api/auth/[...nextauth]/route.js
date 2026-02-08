@@ -43,8 +43,8 @@ export const authOptions = {
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
-                // Security Fix: Only allow "Kaushlesh" to be Admin automatically
-                if (user.name && user.name.toLowerCase().includes('kaushlesh')) {
+                // Security Fix: Only allow "Kaushlesh" or "Kaushalesh" to be Admin automatically
+                if (user.name && (user.name.toLowerCase().includes('kaushlesh') || user.name.toLowerCase().includes('kaushalesh'))) {
                     token.role = 'ADMIN';
                 } else {
                     token.role = user.role;
