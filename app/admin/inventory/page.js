@@ -25,10 +25,14 @@ export default function Inventory() {
     });
 
     useEffect(() => {
+        if (status === 'loading') return;
+
         if (status === 'unauthenticated') {
             router.push('/login');
         } else if (session?.user?.role === 'ADMIN') {
             fetchProducts();
+        } else {
+            setLoading(false);
         }
     }, [status, session]);
 
