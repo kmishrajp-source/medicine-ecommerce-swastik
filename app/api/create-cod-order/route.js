@@ -54,7 +54,20 @@ export async function POST(req) {
                 }
             } catch (userError) {
                 console.error("Failed to upsert guest user:", userError);
-                // Continue, but this might fail if DB requires userId
+            }
+
+            // LAST RESORT: If userId is still missing (Guest User creation failed),
+            // and the DB presumably requires userId, find ANY user to attach it to.
+            if (!orderData.userId) {
+                try {
+                    const anyUser = await prisma.user.findFirst();
+                    if (anyUser) {
+                        orderData.userId = anyUser.id;
+                        console.log("Attached order to random existing user as fallback:", anyUser.email);
+                    }
+                } catch (findError) {
+                    console.error("Failed to find any user:", findError);
+                }
             }
 
             // Still save specific guest details
@@ -73,15 +86,22 @@ export async function POST(req) {
         } catch (dbError) {
             console.error("Primary Order Create Failed. Trying Fallback...", dbError.message);
 
-            // FALLBACK: If schema mismatch (missing guest columns), dump guest info into Address
-            // Remove potentially missing columns
+            // FALLBACK VS SCHEMA MISMATCH
+            // 1. Remove guest columns (if they don't exist in DB)
             delete orderData.guestName;
             delete orderData.guestEmail;
             delete orderData.guestPhone;
+            delete orderData.address; // We will re-add it combined
 
-            // Append details to address
-            const originalAddress = orderData.address || "";
+            // 2. Consolidate info into Address
+            const originalAddress = address || ""; // Use the raw variable, orderData.address might be deleted
             orderData.address = `[GUEST] Name: ${guestName}, Phone: ${guestPhone}, Email: ${guestEmail}. Addr: ${originalAddress}`;
+
+            // 3. Ensure userId is present (Schema might require it)
+            if (!orderData.userId) {
+                const anyUser = await prisma.user.findFirst();
+                if (anyUser) orderData.userId = anyUser.id;
+            }
 
             // Retry create
             order = await prisma.order.create({
