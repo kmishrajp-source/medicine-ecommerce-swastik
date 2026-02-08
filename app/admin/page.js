@@ -24,6 +24,7 @@ export default function AdminDashboard() {
     }, [status, router]);
 
     const fetchOrders = async () => {
+        setLoading(true);
         try {
             const res = await fetch('/api/admin/orders');
             const data = await res.json();
@@ -54,7 +55,16 @@ export default function AdminDashboard() {
             <main className="container" style={{ marginTop: '100px', paddingBottom: '60px', maxWidth: '1200px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <h2 style={{ fontSize: '2rem' }}>Delivery Management Dashboard</h2>
-                    <button onClick={fetchOrders} className="btn btn-secondary">Refresh</button>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        <Link href="/admin/inventory" className="btn btn-primary">Manage Inventory</Link>
+                        <button
+                            onClick={fetchOrders}
+                            className="btn btn-secondary"
+                            disabled={loading}
+                        >
+                            {loading ? 'Refreshing...' : 'Refresh'}
+                        </button>
+                    </div>
                 </div>
 
                 {/* Orders Table */}

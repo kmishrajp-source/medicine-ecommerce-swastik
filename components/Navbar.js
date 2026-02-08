@@ -17,7 +17,12 @@ export default function Navbar({ cartCount, openCart }) {
                     <ul>
                         <li><Link href="/" className="active">Home</Link></li>
                         <li><Link href="/shop">Shop</Link></li>
-                        {session?.user?.role === 'ADMIN' && <li><Link href="/admin">Admin</Link></li>}
+                        {session?.user?.role === 'ADMIN' && (
+                            <>
+                                <li><Link href="/admin">Admin</Link></li>
+                                <li><Link href="/admin/inventory">Inventory</Link></li>
+                            </>
+                        )}
                     </ul>
                 </nav>
                 <div className="header-actions">
