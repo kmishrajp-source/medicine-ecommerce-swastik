@@ -60,6 +60,6 @@ export async function POST(req) {
 
     } catch (error) {
         console.error("COD Order Error:", error);
-        return NextResponse.json({ error: "Failed to place order" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to place order: " + error.message }, { status: 500 });
     }
 }
