@@ -35,7 +35,32 @@ export async function POST(req) {
             // Address might come from profile later, but for now we trust the input if provided
             if (address) orderData.address = address;
         } else {
-            // Guest Checkout
+            // Guest Checkout with Fallback User
+            // Try to find or create a generic guest user to satisfy DB constraints if schema update failed
+            let guestUser = await prisma.user.findUnique({ where: { email: 'guest@swastik.com' } });
+
+            if (!guestUser) {
+                try {
+                    // Create a guest user if it doesn't exist
+                    guestUser = await prisma.user.create({
+                        data: {
+                            email: 'guest@swastik.com',
+                            name: 'Guest User',
+                            password: '$2a$10$GuestPasswordHashPlaceholder', // Placeholder hash
+                            role: 'CUSTOMER'
+                        }
+                    });
+                } catch (createError) {
+                    console.error("Failed to create guest user:", createError);
+                    // If creation fails (race condition?), try finding again or just proceed without userId (and hope schema allows it)
+                }
+            }
+
+            if (guestUser) {
+                orderData.userId = guestUser.id;
+            }
+
+            // Still save specific guest details
             orderData.guestName = guestName;
             orderData.guestEmail = guestEmail;
             orderData.guestPhone = guestPhone;
