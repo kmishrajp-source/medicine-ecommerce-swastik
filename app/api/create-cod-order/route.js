@@ -22,7 +22,7 @@ export async function POST(req) {
             isDelivered: false,
             items: {
                 create: items.map(item => ({
-                    productId: item.id,
+                    productId: String(item.id),
                     quantity: parseInt(item.quantity),
                     price: parseFloat(item.price)
                 }))
@@ -101,7 +101,7 @@ export async function POST(req) {
                 address: panicAddress,
                 items: {
                     create: items.map(item => ({
-                        productId: item.id,
+                        productId: String(item.id),
                         quantity: parseInt(item.quantity),
                         price: parseFloat(item.price)
                     }))
