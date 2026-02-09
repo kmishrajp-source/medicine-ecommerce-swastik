@@ -33,7 +33,7 @@ export async function POST(req) {
         }
 
         const body = await req.json();
-        const { name, description, price, category, image, requiresPrescription, stock, buyingPrice } = body;
+        const { name, description, price, category, image, requiresPrescription, stock, buyingPrice, expiryDate, batchNumber } = body;
 
         if (!name || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -56,7 +56,9 @@ export async function POST(req) {
                 category,
                 image: image || "https://placehold.co/200",
                 requiresPrescription: requiresPrescription || false,
-                stock: parseInt(stock) || 0
+                stock: parseInt(stock) || 0,
+                expiryDate: expiryDate ? new Date(expiryDate) : null,
+                batchNumber: batchNumber || null
             }
         });
 
@@ -89,7 +91,7 @@ export async function PUT(req) {
         }
 
         const body = await req.json();
-        const { id, name, description, price, category, image, requiresPrescription, stock, buyingPrice } = body;
+        const { id, name, description, price, category, image, requiresPrescription, stock, buyingPrice, expiryDate, batchNumber } = body;
 
         if (!id) {
             return NextResponse.json({ error: "Product ID required" }, { status: 400 });
@@ -105,7 +107,9 @@ export async function PUT(req) {
                 category,
                 image,
                 requiresPrescription,
-                stock: parseInt(stock)
+                stock: parseInt(stock),
+                expiryDate: expiryDate ? new Date(expiryDate) : null,
+                batchNumber: batchNumber || null
             }
         });
 

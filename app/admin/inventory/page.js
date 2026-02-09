@@ -22,14 +22,16 @@ export default function Inventory() {
         stock: "",
         description: "",
         requiresPrescription: false,
-        image: ""
+        image: "",
+        expiryDate: "",
+        batchNumber: ""
     });
 
     useEffect(() => {
         if (status === 'loading') return;
 
         if (status === 'unauthenticated') {
-            router.push('/login');
+            router.push('/login?error=Please login to access inventory');
         } else if (session?.user?.role === 'ADMIN') {
             fetchProducts();
         } else {
@@ -76,7 +78,9 @@ export default function Inventory() {
             stock: product.stock,
             description: product.description || "",
             requiresPrescription: product.requiresPrescription,
-            image: product.image || ""
+            image: product.image || "",
+            expiryDate: product.expiryDate ? new Date(product.expiryDate).toISOString().split('T')[0] : "",
+            batchNumber: product.batchNumber || ""
         });
         setIsEditing(true);
         setShowForm(true);
@@ -92,7 +96,9 @@ export default function Inventory() {
             stock: "",
             description: "",
             requiresPrescription: false,
-            image: ""
+            image: "",
+            expiryDate: "",
+            batchNumber: ""
         });
         setIsEditing(false);
         setShowForm(true);
@@ -142,7 +148,21 @@ export default function Inventory() {
     };
 
     if (status === 'loading' || loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading Inventory...</div>;
-    if (!session || session.user.role !== 'ADMIN') return <p>Access Denied</p>;
+
+    if (!session) return (
+        <div style={{ padding: '100px', textAlign: 'center' }}>
+            <p>You are not logged in.</p>
+            <button onClick={() => router.push('/login')} className="btn btn-primary">Login as Admin</button>
+        </div>
+    );
+
+    if (session.user.role !== 'ADMIN') return (
+        <div style={{ padding: '100px', textAlign: 'center' }}>
+            <h2>Access Denied</h2>
+            <p>You are logged in as {session.user.email} ({session.user.role}).</p>
+            <p>This page requires ADMIN access.</p>
+        </div>
+    );
 
     return (
         <>
@@ -233,6 +253,26 @@ export default function Inventory() {
                                 />
                             </div>
 
+                            <div>
+                                <label>Expiry Date</label>
+                                <input
+                                    type="date"
+                                    value={formData.expiryDate}
+                                    onChange={e => setFormData({ ...formData, expiryDate: e.target.value })}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
+                            <div>
+                                <label>Batch Number</label>
+                                <input
+                                    type="text"
+                                    value={formData.batchNumber}
+                                    onChange={e => setFormData({ ...formData, batchNumber: e.target.value })}
+                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                            </div>
+
                             <div style={{ gridColumn: '1 / -1' }}>
                                 <label>Description</label>
                                 <textarea
@@ -266,6 +306,7 @@ export default function Inventory() {
                             <tr>
                                 <th style={{ padding: '16px' }}>Product</th>
                                 <th style={{ padding: '16px' }}>Category</th>
+                                <th style={{ padding: '16px' }}>Batch / Expiry</th>
                                 <th style={{ padding: '16px' }}>Buy Price</th>
                                 <th style={{ padding: '16px' }}>Sell Price</th>
                                 <th style={{ padding: '16px' }}>Stock</th>
@@ -287,6 +328,10 @@ export default function Inventory() {
                                             </div>
                                         </td>
                                         <td style={{ padding: '16px' }}>{product.category}</td>
+                                        <td style={{ padding: '16px', fontSize: '0.9em' }}>
+                                            <div>{product.batchNumber || '-'}</div>
+                                            <div style={{ color: '#666' }}>{product.expiryDate ? new Date(product.expiryDate).toLocaleDateString() : '-'}</div>
+                                        </td>
                                         <td style={{ padding: '16px' }}>₹{product.buyingPrice || '-'}</td>
                                         <td style={{ padding: '16px', fontWeight: 'bold' }}>₹{product.price}</td>
                                         <td style={{ padding: '16px' }}>
