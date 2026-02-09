@@ -30,9 +30,13 @@ export default function AdminDashboard() {
             const data = await res.json();
             if (data.success) {
                 setOrders(data.orders);
+            } else {
+                console.error("Failed to load orders:", data.error);
+                alert("Failed to load orders: " + (data.error || "Unknown Error"));
             }
         } catch (error) {
             console.error("Failed to load orders", error);
+            alert("Failed to connect to server: " + error.message);
         } finally {
             setLoading(false);
         }
