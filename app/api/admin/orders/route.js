@@ -3,11 +3,18 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 
+// GET: Fetch all orders
 export async function GET(req) {
     try {
-        const session = await getServerSession(authOptions);
+        // Safe Session Retrieval
+        let session = null;
+        try {
+            session = await getServerSession(authOptions);
+        } catch (e) {
+            console.warn("Session retrieval failed:", e);
+        }
 
-        // Security Check: Temporarily allowed for testing
+        // Security Check: Uncomment when confident
         // if (!session || session.user.role !== 'ADMIN') {
         //    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         // }
@@ -30,14 +37,15 @@ export async function GET(req) {
             email: order.guestEmail || order.user?.email || "N/A",
             phone: order.guestPhone || "N/A",
             address: order.address,
-            deliveryCode: order.deliveryCode, // Critical for verification
-            items: order.items.map(item => `${item.product.name} x${item.quantity}`).join(", ")
+            deliveryCode: order.deliveryCode,
+            items: order.items.map(item => `${item.product?.name || 'Unknown Product'} x${item.quantity}`).join(", ")
         }));
 
         return NextResponse.json({ success: true, orders: formattedOrders });
 
     } catch (error) {
         console.error("Admin Orders Error:", error);
-        return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
+        // RETURN ACTUAL ERROR FOR DEBUGGING
+        return NextResponse.json({ error: "Failed to fetch orders: " + error.message }, { status: 500 });
     }
 }
