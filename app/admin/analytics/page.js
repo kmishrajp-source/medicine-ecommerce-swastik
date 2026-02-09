@@ -9,6 +9,8 @@ export default function Analytics() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [error, setError] = useState(null);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (status === 'loading') return;
