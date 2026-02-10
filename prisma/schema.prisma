@@ -16,6 +16,8 @@ model User {
   role      String   @default("CUSTOMER") // ADMIN, CUSTOMER
   createdAt DateTime @default(now())
   orders    Order[]
+  doctor    Doctor?
+  prescriptions Prescription[]
 }
 
 model Product {
@@ -78,5 +80,30 @@ model SMSLog {
   message   String
   status    String   // "Sent", "Failed", "Mock"
   response  String?  // JSON string of API response
+  createdAt DateTime @default(now())
+}
+
+model Doctor {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  specialization String
+  hospital       String?
+  experience     Int?
+  verified       Boolean  @default(false)
+  phone          String?
+  createdAt      DateTime @default(now())
+  prescriptions  Prescription[]
+}
+
+model Prescription {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  patientId String
+  patient   User     @relation(fields: [patientId], references: [id])
+  doctorId  String?
+  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  medicines String?  // JSON string or text details
+  status    String   @default("Pending") // Pending, Approved, Rejected
   createdAt DateTime @default(now())
 }
