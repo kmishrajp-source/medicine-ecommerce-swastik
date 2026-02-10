@@ -20,6 +20,8 @@ model User {
   prescriptions Prescription[]
   lab       Lab?
   labBookings LabBooking[]
+  retailer  Retailer?
+  stockist  Stockist?
 }
 
 model Product {
@@ -152,4 +154,42 @@ model LabReport {
   booking        LabBooking @relation(fields: [bookingId], references: [id])
   reportUrl      String
   uploadedAt     DateTime @default(now())
+}
+
+model Retailer {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  shopName       String
+  address        String
+  licenseNumber  String
+  phone          String
+  verified       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  bulkOrders     BulkOrder[]
+}
+
+model Stockist {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  agencyName     String
+  warehouseAddress String
+  gstNumber      String
+  phone          String
+  verified       Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  receivedOrders BulkOrder[]
+}
+
+model BulkOrder {
+  id             String   @id @default(cuid())
+  retailerId     String
+  retailer       Retailer @relation(fields: [retailerId], references: [id])
+  stockistId     String?
+  stockist       Stockist? @relation(fields: [stockistId], references: [id])
+  items          String   // JSON string of items
+  status         String   @default("Pending") // Pending, Accepted, Shipped, Delivered
+  totalAmount    Float
+  createdAt      DateTime @default(now())
 }
