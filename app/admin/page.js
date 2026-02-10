@@ -83,6 +83,7 @@ export default function AdminDashboard() {
                                 <th style={{ padding: '16px' }}>Delivery Address</th>
                                 <th style={{ padding: '16px', color: 'red' }}>Secret Code</th>
                                 <th style={{ padding: '16px' }}>Status</th>
+                                <th style={{ padding: '16px' }}>Invoice</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -114,6 +115,14 @@ export default function AdminDashboard() {
                                             }}>
                                                 {order.status}
                                             </span>
+                                        </td>
+                                        <td style={{ padding: '16px' }}>
+                                            <button
+                                                onClick={() => window.open(`/order/${order.id}/invoice`, '_blank')}
+                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#333', color: 'white', border: 'none', borderRadius: '4px' }}
+                                            >
+                                                View
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
