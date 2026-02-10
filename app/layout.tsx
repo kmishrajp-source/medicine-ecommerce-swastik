@@ -9,6 +9,17 @@ const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600",
 export const metadata: Metadata = {
   title: "Swastik Medicare - Premium Online Pharmacy",
   description: "Order medicines, upload prescriptions, and get fast home delivery.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Swastik Medicare",
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 import Provider from "@/components/SessionProvider";
