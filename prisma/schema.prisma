@@ -71,3 +71,12 @@ model StockLog {
   type        String   @default("RESTOCK")
   createdAt   DateTime @default(now())
 }
+
+model SMSLog {
+  id        String   @id @default(cuid())
+  phone     String
+  message   String
+  status    String   // "Sent", "Failed", "Mock"
+  response  String?  // JSON string of API response
+  createdAt DateTime @default(now())
+}
