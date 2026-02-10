@@ -79,7 +79,7 @@ export async function POST(req) {
         if (customerPhone) {
             await sendSMS(
                 customerPhone,
-                `Order Placed Successfully! Your Order ID is #${orderId}. Amount: ₹${amount}. Not applicable for return.`
+                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
             );
         }
 
