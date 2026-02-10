@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { sendSMS } from "@/lib/sms";
 
 export async function POST(req) {
     try {
@@ -156,9 +157,24 @@ export async function POST(req) {
             });
         }
 
-        // 5. Simulate Sending SMS
+        // 5. Send SMS
         const phone = session?.user?.phone || guestPhone || "Unknown";
-        console.log(`[SMS MOCK] Sending to ${phone}: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
+        // console.log(`[SMS MOCK] Sending to ${phone}: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
+
+        // Customer SMS
+        if (phone && phone !== "Unknown") {
+            const shortId = order.id.slice(-6).toUpperCase();
+            await sendSMS(
+                phone,
+                `Order Placed! ID: #${shortId}. Amount: ₹${amount}. Your Delivery Code is: ${deliveryCode}. Please save this code.`
+            );
+        }
+
+        // Admin SMS
+        await sendSMS(
+            "9161364908",
+            `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
+        );
 
         return NextResponse.json({
             success: true,

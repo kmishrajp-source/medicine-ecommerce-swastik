@@ -40,6 +40,7 @@ export default function Profile() {
                                     <th style={{ padding: '10px' }}>Date</th>
                                     <th style={{ padding: '10px' }}>Total</th>
                                     <th style={{ padding: '10px' }}>Status</th>
+                                    <th style={{ padding: '10px' }}>Invoice</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -53,6 +54,14 @@ export default function Profile() {
                                                 padding: '4px 8px', borderRadius: '12px', fontSize: '0.8rem',
                                                 background: '#E0F2F1', color: '#0D8ABC'
                                             }}>{order.status}</span>
+                                        </td>
+                                        <td style={{ padding: '10px' }}>
+                                            <button
+                                                onClick={() => window.open(`/order/${order.id}/invoice`, '_blank')}
+                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#333', color: 'white', border: 'none', borderRadius: '4px' }}
+                                            >
+                                                View Bill
+                                            </button>
                                         </td>
                                     </tr>
                                 ))}

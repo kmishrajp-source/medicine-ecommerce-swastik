@@ -141,22 +141,50 @@ export default function Checkout() {
                 description: "Medicine Purchase",
                 order_id: orderData.id,
                 handler: async function (response) {
-                    // Success Handler
-                    const newOrder = {
-                        id: orderData.id,
-                        total: cartTotal,
-                        items: [...cart],
-                        status: 'Processing',
-                        date: new Date().toLocaleDateString(),
-                        userId: session.user.id
-                    };
+                    try {
+                        const verifyRes = await fetch('/api/verify-payment', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                orderCreationId: orderData.id,
+                                razorpayPaymentId: response.razorpay_payment_id,
+                                razorpaySignature: response.razorpay_signature,
+                                amount: cartTotal,
+                                items: cart,
+                                address: formData.address,
+                                guestName: formData.name,
+                                guestEmail: formData.email,
+                                guestPhone: formData.phone
+                            })
+                        });
 
-                    const orders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
-                    orders.unshift(newOrder);
-                    localStorage.setItem('swastik_orders', JSON.stringify(orders));
+                        const verifyData = await verifyRes.json();
 
-                    clearCart();
-                    router.push('/profile');
+                        if (verifyData.success) {
+                            // Success Handler
+                            const newOrder = {
+                                id: verifyData.orderId || orderData.id,
+                                total: cartTotal,
+                                items: [...cart],
+                                status: 'Processing',
+                                date: new Date().toLocaleDateString(),
+                                userId: session?.user?.id
+                            };
+
+                            const orders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
+                            orders.unshift(newOrder);
+                            localStorage.setItem('swastik_orders', JSON.stringify(orders));
+
+                            clearCart();
+                            alert("Payment Successful! Order Placed.");
+                            router.push(session ? '/profile' : '/');
+                        } else {
+                            alert("Payment Verification Failed: " + verifyData.error);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert("Verification Error: " + err.message);
+                    }
                 },
                 prefill: {
                     name: formData.name,
