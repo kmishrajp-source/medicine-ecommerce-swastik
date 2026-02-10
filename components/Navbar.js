@@ -1,11 +1,31 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { useSession, signOut } from "next-auth/react";
 
 export default function Navbar({ cartCount, openCart }) {
     const { data: session } = useSession() || {};
+
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+    useEffect(() => {
+        const handler = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+        }
+    };
 
     return (
         <header className="glass-header">
@@ -44,6 +64,13 @@ export default function Navbar({ cartCount, openCart }) {
                     ) : (
                         <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>Login</Link>
                     )}
+
+                    {deferredPrompt && (
+                        <button onClick={handleInstallClick} className="btn" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, background: '#0D8ABC', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                            <i className="fa-solid fa-download"></i> Install App
+                        </button>
+                    )}
+
                     <Link href="/partner" className="btn glass" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>
                         Partner Portal
                     </Link>
