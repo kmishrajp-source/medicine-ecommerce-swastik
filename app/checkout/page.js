@@ -95,6 +95,43 @@ export default function Checkout() {
             return;
         }
 
+        // --- HANDLE QR SCAN ---
+        if (paymentMethod === 'QR') {
+            try {
+                // We use the COD API structure but will mark it differently on backend if needed.
+                // For now, simpler to treat as "Manual Order" similar to COD but with a note.
+                const res = await fetch('/api/create-cod-order', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        amount: cartTotal,
+                        items: cart,
+                        guestName: formData.name,
+                        guestEmail: formData.email,
+                        guestPhone: formData.phone,
+                        address: formData.address,
+                        paymentMethod: 'QR_SCAN' // We'll need to update the API to handle this tag or just treat as COD with note
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    alert(`Order Placed! \n\nPlease ensure you have paid ₹${cartTotal} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
+                    clearCart();
+                    router.push(session ? '/profile' : '/');
+                } else {
+                    alert(data.error || "Failed to place order");
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Something went wrong with QR order.");
+            } finally {
+                setIsProcessing(false);
+            }
+            return;
+        }
+
         // --- HANDLE RAZORPAY ---
         if (!process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID) {
             alert("Error: NEXT_PUBLIC_RAZORPAY_KEY_ID is missing. Please add it to Vercel and Redeploy.");
@@ -305,6 +342,28 @@ export default function Checkout() {
                                 <div>
                                     <strong>Cash on Delivery (COD)</strong>
                                     <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Pay cash upon delivery. Verify with Secret Code via SMS.</div>
+                                </div>
+                            </label>
+
+                            {/* Option 3: PhonePe QR */}
+                            <label style={{ display: 'flex', alignItems: 'start', gap: '10px', padding: '15px', border: `1px solid ${paymentMethod === 'QR' ? 'var(--primary)' : '#ddd'}`, borderRadius: '8px', background: 'var(--secondary)', cursor: 'pointer' }}>
+                                <input
+                                    type="radio"
+                                    name="paymentMethod"
+                                    value="QR"
+                                    checked={paymentMethod === 'QR'}
+                                    onChange={() => setPaymentMethod('QR')}
+                                    style={{ marginTop: '5px' }}
+                                />
+                                <div>
+                                    <strong>Scan & Pay (PhonePe)</strong>
+                                    <div style={{ fontSize: '0.85rem', color: '#666', marginTop: '4px' }}>Scan the QR code to pay instantly.</div>
+                                    {paymentMethod === 'QR' && (
+                                        <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                                            <img src="/phonepe-qr.jpg" alt="PhonePe QR" style={{ width: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
+                                            <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>Scan with any UPI App</p>
+                                        </div>
+                                    )}
                                 </div>
                             </label>
                         </div>

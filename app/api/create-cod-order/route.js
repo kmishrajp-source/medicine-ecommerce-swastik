@@ -8,7 +8,7 @@ export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
 
-        const { amount, items, guestName, guestEmail, guestPhone, address } = await req.json();
+        const { amount, items, guestName, guestEmail, guestPhone, address, paymentMethod } = await req.json();
 
         // 1. Generate 4-digit Random Code
         const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();
@@ -55,7 +55,7 @@ export async function POST(req) {
         const orderData = {
             total: parseFloat(amount),
             status: "Processing",
-            paymentMethod: "COD",
+            paymentMethod: paymentMethod || "COD",
             deliveryCode: deliveryCode,
             isPaid: false,
             isDelivered: false,
