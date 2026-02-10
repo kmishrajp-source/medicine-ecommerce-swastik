@@ -42,8 +42,8 @@ export default function Navbar({ cartCount, openCart }) {
                     ) : (
                         <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>Login</Link>
                     )}
-                    <Link href="/partner" style={{ marginLeft: '10px', fontSize: '0.8rem', color: '#888', textDecoration: 'none' }} title="Staff Portal">
-                        <i className="fa-solid fa-user-lock"></i>
+                    <Link href="/partner" className="btn glass" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>
+                        Partner Portal
                     </Link>
                 </div>
             </div>
