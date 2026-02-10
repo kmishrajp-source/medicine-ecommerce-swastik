@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import Navbar from "../components/Navbar";
+import Navbar from "@/components/Navbar";
 
 export default function UploadPrescription() {
     const { data: session, status } = useSession();

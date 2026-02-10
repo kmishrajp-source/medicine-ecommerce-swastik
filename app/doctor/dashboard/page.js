@@ -2,7 +2,7 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import Navbar from "../../components/Navbar";
+import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
 export default function DoctorDashboard() {
