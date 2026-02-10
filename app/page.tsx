@@ -16,6 +16,8 @@ export default function Home() {
             <p>Experience the new standard in online pharmacy. fast delivery, secure payments, and expert care.</p>
             <div style={{ display: 'flex', gap: '16px' }}>
               <Link href="/shop" className="btn btn-primary">Browse Medicines</Link>
+              <Link href="/doctors" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Find Doctor</Link>
+              <Link href="/labs" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Book Lab Test</Link>
               <Link href="/upload" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Upload Prescription</Link>
             </div>
           </div>

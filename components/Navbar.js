@@ -17,6 +17,8 @@ export default function Navbar({ cartCount, openCart }) {
                     <ul>
                         <li><Link href="/" className="active">Home</Link></li>
                         <li><Link href="/shop">Shop</Link></li>
+                        <li><Link href="/doctors">Doctors</Link></li>
+                        <li><Link href="/labs">Lab Tests</Link></li>
                         {session?.user?.role === 'ADMIN' && (
                             <>
                                 <li><Link href="/admin">Admin</Link></li>
