@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
+import PwaRegistrar from "@/components/PwaRegistrar";
 import CartDrawer from "@/components/CartDrawer";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -39,6 +40,7 @@ export default function RootLayout({
       <body className={outfit.className}>
         <Provider>
           <CartProvider>
+            <PwaRegistrar />
             {children}
             <CartDrawer />
           </CartProvider>
