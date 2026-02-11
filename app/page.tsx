@@ -44,6 +44,11 @@ export default function Home() {
               Upload Rx
             </Link>
           </div>
+          <div style={{ marginTop: '20px' }}>
+            <Link href="/doctor/register" style={{ color: 'white', textDecoration: 'underline', fontSize: '1.1rem', fontWeight: 600 }}>
+              👨‍⚕️ Join as Doctor – Start Earning Online
+            </Link>
+          </div>
         </div>
 
         <div className="container">
