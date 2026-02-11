@@ -78,6 +78,14 @@ export default function Home() {
           <SectionTitle title="📈 Trending Health Products" />
           <ProductGrid products={trending} addToCart={addToCart} />
 
+
+          {/* AYURVEDIC CORNER */}
+          <SectionTitle title="🌿 Ayurvedic Corner" />
+          <ProductGrid products={products.filter(p => p.category === 'Ayurvedic').slice(0, 4)} addToCart={addToCart} />
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <Link href="/shop" className="btn" style={{ border: '1px solid #059669', color: '#059669', padding: '10px 30px', borderRadius: '50px' }}>View All Ayurveda</Link>
+          </div>
+
           {/* DAILY ESSENTIALS */}
           <SectionTitle title="☀️ Daily Essentials" />
           <ProductGrid products={essentials} addToCart={addToCart} />
