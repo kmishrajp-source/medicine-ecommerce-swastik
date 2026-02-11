@@ -26,6 +26,7 @@ model User {
   ambulanceBookings AmbulanceBooking[]
   medicalRep   MedicalRep?
   pharmaCompany PharmaCompany?
+  medicineRequests MedicineRequest[]
 }
 
 model Product {
@@ -59,6 +60,7 @@ model Order {
   isPaid        Boolean     @default(false)
   isDelivered   Boolean     @default(false)
   items         OrderItem[]
+  prescription  Prescription?
   createdAt     DateTime    @default(now())
 }
 
