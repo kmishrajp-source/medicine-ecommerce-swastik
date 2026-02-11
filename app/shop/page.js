@@ -85,45 +85,57 @@ export default function Shop() {
                         </div>
                     </div>
 
-                    <div className="category-scroll" style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '20px 0 5px 0' }}>
-                        {CATEGORIES.map(cat => (
-                            <button
-                                key={cat}
-                                onClick={() => setActiveCategory(cat)}
-                                style={{
-                                    padding: '10px 24px',
-                                    borderRadius: '50px',
-                                    background: activeCategory === cat ? 'var(--accent)' : 'rgba(255,255,255,0.8)',
-                                    color: activeCategory === cat ? 'white' : 'var(--text-dark)',
-                                    border: '1px solid var(--glass-border)',
-                                    whiteSpace: 'nowrap',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s',
-                                    fontWeight: 600
-                                }}
-                            >
-                                {cat}
-                            </button>
-                        ))}
+                    {/* Missing Medicine Request Banner */}
+                    <div style={{ background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)', borderRadius: '16px', padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', marginBottom: '40px', boxShadow: '0 10px 15px -3px rgba(99, 102, 241, 0.3)' }}>
+                        <div>
+                            <h3 style={{ margin: '0 0 8px 0', fontSize: '1.4rem' }}><i className="fa-solid fa-notes-medical"></i> Can't find what you need?</h3>
+                            <p style={{ margin: 0, opacity: 0.9 }}>Value us! We can arrange any medicine within hours.</p>
+                        </div>
+                        <a href="/request-medicine" className="btn" style={{ background: 'white', color: '#6366F1', border: 'none', padding: '12px 24px', fontWeight: 'bold', borderRadius: '50px', textDecoration: 'none' }}>
+                            Request Medicine
+                        </a>
                     </div>
                 </div>
 
-                {/* Product Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-                    {loading ? <p>Loading medicines...</p> : (
-                        filteredProducts.length > 0 ? (
-                            filteredProducts.map(product => (
-                                <ProductCard key={product.id} product={product} onAdd={addToCart} />
-                            ))
-                        ) : (
-                            <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
-                                <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
-                                <p>No medicines found matching your criteria.</p>
-                            </div>
-                        )
-                    )}
+                <div className="category-scroll" style={{ display: 'flex', gap: '12px', overflowX: 'auto', padding: '20px 0 5px 0' }}>
+                    {CATEGORIES.map(cat => (
+                        <button
+                            key={cat}
+                            onClick={() => setActiveCategory(cat)}
+                            style={{
+                                padding: '10px 24px',
+                                borderRadius: '50px',
+                                background: activeCategory === cat ? 'var(--accent)' : 'rgba(255,255,255,0.8)',
+                                color: activeCategory === cat ? 'white' : 'var(--text-dark)',
+                                border: '1px solid var(--glass-border)',
+                                whiteSpace: 'nowrap',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s',
+                                fontWeight: 600
+                            }}
+                        >
+                            {cat}
+                        </button>
+                    ))}
                 </div>
-            </main>
+            </div>
+
+            {/* Product Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+                {loading ? <p>Loading medicines...</p> : (
+                    filteredProducts.length > 0 ? (
+                        filteredProducts.map(product => (
+                            <ProductCard key={product.id} product={product} onAdd={addToCart} />
+                        ))
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
+                            <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
+                            <p>No medicines found matching your criteria.</p>
+                        </div>
+                    )
+                )}
+            </div>
+        </main >
         </>
     );
 }

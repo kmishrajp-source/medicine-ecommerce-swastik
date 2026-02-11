@@ -298,3 +298,16 @@ model AdCampaign {
   price          Float
   createdAt      DateTime @default(now())
 }
+
+model MedicineRequest {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  guestName String?
+  guestPhone String?
+  medicineName String
+  quantity  String
+  prescriptionUrl String?
+  status    String   @default("Pending") // Pending, Fulfilled, Cancelled
+  createdAt DateTime @default(now())
+}
