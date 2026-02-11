@@ -67,7 +67,7 @@ export default function Home() {
                 <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Best market price guaranteed</li>
                 <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Free Doctor Consultation included</li>
               </ul>
-              <button className="btn btn-primary" style={{ background: '#059669' }}>Subscribe Now</button>
+              <Link href="/subscription" className="btn btn-primary" style={{ background: '#059669' }}>Subscribe Now</Link>
             </div>
             <div style={{ fontSize: '10rem', color: '#10b981', opacity: 0.2 }}>
               <i className="fa-solid fa-calendar-check"></i>
