@@ -1,20 +1,45 @@
 "use client";
-import { useState } from "react";
-import { MEDICINES, CATEGORIES } from "../../data/medicines";
+import { useState, useEffect } from "react";
 import ProductCard from "../../components/ProductCard";
 import Navbar from "../../components/Navbar";
 import { useCart } from "../../context/CartContext";
+
+const CATEGORIES = ["All", "General", "Pain Relief", "Antibiotics", "Supplements", "Ayurvedic", "Diabetes", "Cardiology", "Dermatology"];
 
 export default function Shop() {
     const [activeCategory, setActiveCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [rxFilter, setRxFilter] = useState("All"); // All, Rx, OTC
     const { addToCart, cartCount, toggleCart } = useCart();
+    const [products, setProducts] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredProducts = MEDICINES.filter(product => {
+    useEffect(() => {
+        fetchProducts();
+    }, [activeCategory, searchQuery]); // Re-fetch when category/search changes (or filter locally)
+
+    // For better UX, let's fetch ALL and filter locally to avoid API spam, 
+    // or implement debounce. For now, fetch ALL once and filter locally is smoother for small catalog.
+    const fetchProducts = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('/api/products');
+            const data = await res.json();
+            if (data.success) {
+                setProducts(data.products);
+            }
+        } catch (error) {
+            console.error("Failed to load products");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Client-side filtering
+    const filteredProducts = products.filter(product => {
         const matchesCategory = activeCategory === "All" || product.category === activeCategory;
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            product.category.toLowerCase().includes(searchQuery.toLowerCase());
+            (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
         const matchesRx = rxFilter === "All"
             ? true
             : rxFilter === "Rx" ? product.requiresPrescription
@@ -85,15 +110,17 @@ export default function Shop() {
 
                 {/* Product Grid */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-                    {filteredProducts.length > 0 ? (
-                        filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product} onAdd={addToCart} />
-                        ))
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
-                            <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
-                            <p>No medicines found matching your criteria.</p>
-                        </div>
+                    {loading ? <p>Loading medicines...</p> : (
+                        filteredProducts.length > 0 ? (
+                            filteredProducts.map(product => (
+                                <ProductCard key={product.id} product={product} onAdd={addToCart} />
+                            ))
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
+                                <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
+                                <p>No medicines found matching your criteria.</p>
+                            </div>
+                        )
                     )}
                 </div>
             </main>
