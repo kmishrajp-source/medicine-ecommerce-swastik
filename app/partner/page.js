@@ -16,6 +16,42 @@ export default function PartnerPortal() {
             btnText: "Admin Access"
         },
         {
+            title: "Ayurvedic Brand",
+            icon: "fa-leaf",
+            color: "#059669",
+            desc: "List herbal products & verified supplements.",
+            link: "/stockist/login", // Reuse stockist for now or new role
+            register: "/stockist/register",
+            btnText: "Partner Login"
+        },
+        {
+            title: "Ambulance Driver",
+            icon: "fa-truck-medical",
+            color: "#DC2626",
+            desc: "Register vehicle & accept emergency trips.",
+            link: "/ambulance/dashboard",
+            register: "/ambulance/register",
+            btnText: "Driver Login"
+        },
+        {
+            title: "Pharma Company",
+            icon: "fa-building",
+            color: "#4F46E5",
+            desc: "Launch products & run ad campaigns.",
+            link: "/pharma-portal",
+            register: "/partner/register?type=pharma",
+            btnText: "Company Login"
+        },
+        {
+            title: "Medical Rep",
+            icon: "fa-briefcase",
+            color: "#0EA5E9",
+            desc: "Manage doctor visits & reporting.",
+            link: "/mr-portal",
+            register: "/partner/register?type=mr",
+            btnText: "MR Access"
+        },
+        {
             title: "Doctors",
             icon: "fa-user-doctor",
             color: "#3B82F6",

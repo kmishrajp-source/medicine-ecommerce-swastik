@@ -22,6 +22,10 @@ model User {
   retailer  Retailer?
   stockist  Stockist?
   appointments Appointment[]
+  ambulance    Ambulance?
+  ambulanceBookings AmbulanceBooking[]
+  medicalRep   MedicalRep?
+  pharmaCompany PharmaCompany?
 }
 
 model Product {
@@ -99,6 +103,7 @@ model Doctor {
   createdAt      DateTime @default(now())
   prescriptions  Prescription[]
   appointments   Appointment[]
+  visits         Visit[]
 }
 
 model Prescription {
@@ -204,5 +209,90 @@ model BulkOrder {
   items          String   // JSON string of items
   status         String   @default("Pending") // Pending, Accepted, Shipped, Delivered
   totalAmount    Float
+  createdAt      DateTime @default(now())
+}
+
+model Ambulance {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  driverName     String
+  vehicleNumber  String
+  vehicleType    String   // "Basic", "ICU", "Advance"
+  city           String
+  isAvailable    Boolean  @default(true)
+  phone          String
+  currentLat     Float?
+  currentLng     Float?
+  pricePerKm     Float    @default(20.0)
+  createdAt      DateTime @default(now())
+  bookings       AmbulanceBooking[]
+}
+
+model AmbulanceBooking {
+  id             String   @id @default(cuid())
+  ambulanceId    String
+  ambulance      Ambulance @relation(fields: [ambulanceId], references: [id])
+  userId         String?
+  user           User?     @relation(fields: [userId], references: [id])
+  guestName      String?
+  guestPhone     String?
+  pickupAddress  String
+  dropAddress    String
+  distanceKm     Float?
+  totalPrice     Float?
+  status         String    @default("Pending") // Pending, Accepted, Completed, Cancelled
+  createdAt      DateTime  @default(now())
+}
+
+model MedicalRep {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  name           String
+  company        String
+  region         String
+  phone          String
+  status         String   @default("Active")
+  createdAt      DateTime @default(now())
+  visits         Visit[]
+}
+
+model PharmaCompany {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  companyName    String
+  licenseNumber  String
+  address        String
+  phone          String
+  createdAt      DateTime @default(now())
+  ads            AdCampaign[]
+}
+
+model Visit {
+  id          String   @id @default(cuid())
+  mrId        String
+  mr          MedicalRep @relation(fields: [mrId], references: [id])
+  doctorId    String
+  doctor      Doctor     @relation(fields: [doctorId], references: [id])
+  date        DateTime
+  notes       String?
+  status      String   @default("Scheduled") // Scheduled, Completed
+  createdAt   DateTime @default(now())
+}
+
+model AdCampaign {
+  id             String   @id @default(cuid())
+  companyId      String?
+  pharmaCompany  PharmaCompany? @relation(fields: [companyId], references: [id])
+  title          String
+  imageUrl       String
+  targetUrl      String?
+  position       String   // "Home-Banner", "Sidebar"
+  startDate      DateTime
+  endDate        DateTime
+  status         String   @default("Pending") // Pending, Active, Expired
+  price          Float
   createdAt      DateTime @default(now())
 }

@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
+import Footer from "@/components/Footer";
 import { useCart } from "../context/CartContext";
 
 export default function Home() {
@@ -40,6 +41,7 @@ export default function Home() {
           </div>
         </div>
       </main>
+      <Footer />
     </>
   );
 }

@@ -37,7 +37,9 @@ export default function Navbar({ cartCount, openCart }) {
                     <ul>
                         <li><Link href="/" className="active">Home</Link></li>
                         <li><Link href="/shop">Shop</Link></li>
+                        <li><Link href="/shop/ayurvedic" style={{ color: '#10B981' }}>Ayurveda</Link></li>
                         <li><Link href="/doctors">Doctors</Link></li>
+                        <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
                         <li><Link href="/labs">Lab Tests</Link></li>
                         {session?.user?.role === 'ADMIN' && (
                             <>
