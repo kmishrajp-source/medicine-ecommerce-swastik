@@ -120,6 +120,4 @@ function PatientAppointments() {
         </table>
     );
 }
-        </>
-    );
-}
+
