@@ -118,24 +118,23 @@ export default function Shop() {
                         </button>
                     ))}
                 </div>
-            </div>
 
-            {/* Product Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-                {loading ? <p>Loading medicines...</p> : (
-                    filteredProducts.length > 0 ? (
-                        filteredProducts.map(product => (
-                            <ProductCard key={product.id} product={product} onAdd={addToCart} />
-                        ))
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
-                            <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
-                            <p>No medicines found matching your criteria.</p>
-                        </div>
-                    )
-                )}
-            </div>
-        </main >
+                {/* Product Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+                    {loading ? <p>Loading medicines...</p> : (
+                        filteredProducts.length > 0 ? (
+                            filteredProducts.map(product => (
+                                <ProductCard key={product.id} product={product} onAdd={addToCart} />
+                            ))
+                        ) : (
+                            <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
+                                <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
+                                <p>No medicines found matching your criteria.</p>
+                            </div>
+                        )
+                    )}
+                </div>
+            </main >
         </>
     );
 }
