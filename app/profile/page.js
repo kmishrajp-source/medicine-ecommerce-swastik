@@ -69,7 +69,57 @@ export default function Profile() {
                         </table>
                     )}
                 </div>
+
+                <h2 style={{ marginBottom: '20px', marginTop: '40px' }}>My Appointments</h2>
+                <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
+                    <PatientAppointments />
+                </div>
             </div>
+        </>
+    );
+}
+
+function PatientAppointments() {
+    const [appointments, setAppointments] = useState([]);
+
+    useEffect(() => {
+        fetch('/api/appointments').then(res => res.json()).then(data => {
+            if (data.success) setAppointments(data.appointments);
+        });
+    }, []);
+
+    if (appointments.length === 0) return <p>No scheduled appointments.</p>;
+
+    return (
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+                <tr style={{ textAlign: 'left', borderBottom: '1px solid #eee' }}>
+                    <th style={{ padding: '10px' }}>Doctor</th>
+                    <th style={{ padding: '10px' }}>Date</th>
+                    <th style={{ padding: '10px' }}>Status</th>
+                    <th style={{ padding: '10px' }}>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {appointments.map(appt => (
+                    <tr key={appt.id} style={{ borderBottom: '1px solid #eee' }}>
+                        <td style={{ padding: '10px' }}>Dr. {appt.doctor?.user?.name}</td>
+                        <td style={{ padding: '10px' }}>{new Date(appt.date).toLocaleString()}</td>
+                        <td style={{ padding: '10px' }}>{appt.status}</td>
+                        <td style={{ padding: '10px' }}>
+                            <button onClick={() => window.location.href = `/meet/${appt.id}`} style={{
+                                background: '#7C3AED', color: 'white', padding: '6px 12px',
+                                borderRadius: '4px', textDecoration: 'none', fontSize: '0.9rem', border: 'none', cursor: 'pointer'
+                            }}>
+                                <i className="fa-solid fa-video"></i> Join Call
+                            </button>
+                        </td>
+                    </tr>
+                ))}
+            </tbody>
+        </table>
+    );
+}
         </>
     );
 }
