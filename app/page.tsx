@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "@/components/Footer";
+import AdBanner from "@/components/AdBanner";
 import { useCart } from "../context/CartContext";
 
 export default function Home() {
@@ -11,6 +12,7 @@ export default function Home() {
     <>
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
       <main>
+        <AdBanner position="Home-Banner" />
         <div className="hero-section">
           <div className="hero-content">
             <h1>Your Health,<br />Delivered.</h1>

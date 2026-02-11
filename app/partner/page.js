@@ -39,7 +39,7 @@ export default function PartnerPortal() {
             color: "#4F46E5",
             desc: "Launch products & run ad campaigns.",
             link: "/pharma-portal",
-            register: "/partner/register?type=pharma",
+            register: "/pharma/register",
             btnText: "Company Login"
         },
         {
