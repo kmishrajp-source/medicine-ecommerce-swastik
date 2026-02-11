@@ -253,7 +253,8 @@ model MedicalRep {
   company        String
   region         String
   phone          String
-  status         String   @default("Active")
+  status         String   @default("Pending") // Pending, Active
+  verified       Boolean  @default(false)
   createdAt      DateTime @default(now())
   visits         Visit[]
 }
@@ -267,6 +268,7 @@ model PharmaCompany {
   address        String
   phone          String
   createdAt      DateTime @default(now())
+  verified       Boolean  @default(false)
   ads            AdCampaign[]
 }
 
@@ -292,7 +294,7 @@ model AdCampaign {
   position       String   // "Home-Banner", "Sidebar"
   startDate      DateTime
   endDate        DateTime
-  status         String   @default("Pending") // Pending, Active, Expired
+  status         String   @default("Pending") // Pending, Active, Expired, Rejected
   price          Float
   createdAt      DateTime @default(now())
 }
