@@ -3,47 +3,130 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
+import ProductCard from "@/components/ProductCard";
 import { useCart } from "../context/CartContext";
+import { useEffect, useState } from "react";
 
 export default function Home() {
-  const { cartCount, toggleCart } = useCart();
+  const { cartCount, toggleCart, addToCart } = useCart();
+  const [products, setProducts] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/products').then(res => res.json()).then(data => {
+      if (data.success) setProducts(data.products);
+    });
+  }, []);
+
+  // Simulating different categories from the same list for now
+  const bestSelling = products.slice(0, 4);
+  const trending = products.slice(4, 8);
+  const essentials = products.slice(8, 12);
 
   return (
     <>
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
-      <main>
-        <AdBanner position="Home-Banner" />
-        <div className="hero-section">
-          <div className="hero-content">
-            <h1>Your Health,<br />Delivered.</h1>
-            <p>Experience the new standard in online pharmacy. fast delivery, secure payments, and expert care.</p>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <Link href="/shop" className="btn btn-primary">Browse Medicines</Link>
-              <Link href="/doctors" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Find Doctor</Link>
-              <Link href="/labs" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Book Lab Test</Link>
-              <Link href="/upload" className="btn glass" style={{ padding: '12px 24px', borderRadius: '16px', fontWeight: 600 }}>Upload Prescription</Link>
+      <main style={{ marginTop: '80px' }}>
+
+        {/* BIG OFFERS BANNER */}
+        <div style={{ background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: 'white', padding: '60px 20px', textAlign: 'center', marginBottom: '40px', borderRadius: '0 0 50px 50px', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)' }}>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
+            💊 FLAT 20% OFF
+          </h1>
+          <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>On All Medicines | First Order Discount</p>
+          <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
+            <i className="fa-solid fa-truck-fast"></i> Free Delivery above ₹500
+          </div>
+          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+            <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
+              Shop Now
+            </Link>
+            <Link href="/upload-prescription" className="btn" style={{ background: 'transparent', border: '2px solid white', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold' }}>
+              Upload Rx
+            </Link>
+          </div>
+        </div>
+
+        <div className="container">
+          {/* Ad Banner */}
+          <AdBanner position="Home-Banner" />
+
+          {/* BEST SELLING */}
+          <SectionTitle title="🔥 Best Selling Medicines" />
+          <ProductGrid products={bestSelling} addToCart={addToCart} />
+
+          {/* SUBSCRIPTION MODEL BANNER */}
+          <div style={{ background: '#ecfdf5', borderRadius: '24px', padding: '40px', margin: '60px 0', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
+            <div style={{ flex: 1, minWidth: '300px' }}>
+              <h2 style={{ color: '#064e3b', fontSize: '2rem', marginBottom: '10px' }}>BP / Diabetes Patient?</h2>
+              <p style={{ fontSize: '1.1rem', color: '#047857', marginBottom: '20px' }}>
+                Get <strong>Monthly Automatic Delivery</strong> of your medicines.
+                <br />Save extra 5% + ensure you never run out.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', color: '#065f46' }}>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Auto-Reorder every month</li>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Best market price guaranteed</li>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Free Doctor Consultation included</li>
+              </ul>
+              <button className="btn btn-primary" style={{ background: '#059669' }}>Subscribe Now</button>
+            </div>
+            <div style={{ fontSize: '10rem', color: '#10b981', opacity: 0.2 }}>
+              <i className="fa-solid fa-calendar-check"></i>
             </div>
           </div>
-          <div className="hero-image">
-            {/* Abstract Background Shape could go here */}
-            <div className="floating-card" style={{ top: '30%', left: '10%' }}>
-              <i className="fa-solid fa-truck-medical"></i>
-              <div>
-                <div style={{ fontWeight: 'bold' }}>Express Delivery</div>
-                <div style={{ fontSize: '0.8rem', color: '#888' }}>Usually within 2 hrs</div>
-              </div>
-            </div>
-            <div className="floating-card delay-1">
-              <i className="fa-solid fa-file-prescription"></i>
-              <div>
-                <div style={{ fontWeight: 'bold' }}>Valid Rx</div>
-                <div style={{ fontSize: '0.8rem', color: '#888' }}>Verified Pharmacists</div>
-              </div>
+
+          {/* TRENDING HEALTH PRODUCTS */}
+          <SectionTitle title="📈 Trending Health Products" />
+          <ProductGrid products={trending} addToCart={addToCart} />
+
+          {/* DAILY ESSENTIALS */}
+          <SectionTitle title="☀️ Daily Essentials" />
+          <ProductGrid products={essentials} addToCart={addToCart} />
+
+          {/* CONTACT DETAILS with WhatsApp */}
+          <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+            <h2 style={{ marginBottom: '30px' }}>Compare & Contact. We are here 24/7.</h2>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
+              <ContactItem icon="phone" title="Call Us" value="+91 98765 43210" color="#3b82f6" href="tel:+919876543210" />
+              <ContactItem icon="whatsapp" title="WhatsApp" value="Chat Now" color="#22c55e" href="https://wa.me/919876543210" />
+              <ContactItem icon="envelope" title="Email" value="support@swastik.com" color="#ef4444" href="mailto:support@swastik.com" />
             </div>
           </div>
+
         </div>
       </main>
       <Footer />
     </>
+  );
+}
+
+function SectionTitle({ title }) {
+  return (
+    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {title}
+      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
+    </h2>
+  );
+}
+
+function ProductGrid({ products, addToCart }) {
+  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>Loading products...</div>;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+      {products.map(p => (
+        <ProductCard key={p.id} product={p} onAdd={addToCart} />
+      ))}
+    </div>
+  );
+}
+
+function ContactItem({ icon, title, value, color, href }) {
+  return (
+    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
+        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
+      </div>
+      <div style={{ fontWeight: 'bold' }}>{title}</div>
+      <div style={{ color: '#666' }}>{value}</div>
+    </a>
   );
 }
