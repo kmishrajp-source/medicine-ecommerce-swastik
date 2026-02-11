@@ -91,9 +91,14 @@ export default function Shop() {
                             <h3 style={{ margin: '0 0 8px 0', fontSize: '1.4rem' }}><i className="fa-solid fa-notes-medical"></i> Can't find what you need?</h3>
                             <p style={{ margin: 0, opacity: 0.9 }}>Value us! We can arrange any medicine within hours.</p>
                         </div>
-                        <a href="/request-medicine" className="btn" style={{ background: 'white', color: '#6366F1', border: 'none', padding: '12px 24px', fontWeight: 'bold', borderRadius: '50px', textDecoration: 'none' }}>
-                            Request Medicine
-                        </a>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <a href="/request-medicine" className="btn" style={{ background: 'white', color: '#6366F1', border: 'none', padding: '12px 24px', fontWeight: 'bold', borderRadius: '50px', textDecoration: 'none' }}>
+                                Request Medicine
+                            </a>
+                            <a href="/upload-prescription" className="btn" style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: '1px solid white', padding: '12px 24px', fontWeight: 'bold', borderRadius: '50px', textDecoration: 'none' }}>
+                                Upload Prescription
+                            </a>
+                        </div>
                     </div>
                 </div>
 

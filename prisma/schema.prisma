@@ -114,7 +114,9 @@ model Prescription {
   doctorId  String?
   doctor    Doctor?  @relation(fields: [doctorId], references: [id])
   medicines String?  // JSON string or text details
-  status    String   @default("Pending") // Pending, Approved, Rejected
+  status    String   @default("Pending") // Pending, Processed, Rejected
+  orderId   String?  @unique
+  order     Order?   @relation(fields: [orderId], references: [id])
   createdAt DateTime @default(now())
 }
 
