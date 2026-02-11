@@ -41,6 +41,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/doctors">Doctors</Link></li>
                         <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
                         <li><Link href="/labs">Lab Tests</Link></li>
+                        <li><Link href="/advertise" style={{ color: '#6366F1', fontWeight: 'bold' }}>Advertise</Link></li>
                         {session?.user?.role === 'ADMIN' && (
                             <>
                                 <li><Link href="/admin">Admin</Link></li>
