@@ -51,6 +51,16 @@ export default function Home() {
           </div>
         </div>
 
+        {/* TRUST SIGNALS */}
+        <div style={{ background: '#f8fafc', padding: '20px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '40px' }}>
+          <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px', textAlign: 'center' }}>
+            <TrustItem icon="fa-user-shield" text="Verified Pharmacy" />
+            <TrustItem icon="fa-file-shield" text="Secure Prescription Handling" />
+            <TrustItem icon="fa-user-doctor" text="Licensed Pharmacist Available" />
+            <TrustItem icon="fa-lock" text="100% Data Privacy Protected" />
+          </div>
+        </div>
+
         <div className="container">
           {/* Ad Banner */}
           <AdBanner position="Home-Banner" />
@@ -141,5 +151,14 @@ function ContactItem({ icon, title, value, color, href }) {
       <div style={{ fontWeight: 'bold' }}>{title}</div>
       <div style={{ color: '#666' }}>{value}</div>
     </a>
+  );
+}
+
+function TrustItem({ icon, text }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
+      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
+      <span>{text}</span>
+    </div>
   );
 }
