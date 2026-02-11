@@ -63,6 +63,7 @@ export default function AdminDashboard() {
                         <Link href="/admin/inventory" className="btn btn-primary">Manage Inventory</Link>
                         <Link href="/admin/approvals" className="btn btn-primary" style={{ background: '#DC2626' }}>Approvals</Link>
                         <Link href="/admin/requests" className="btn btn-primary" style={{ background: '#2563EB' }}>Requests</Link>
+                        <Link href="/admin/subscriptions" className="btn btn-primary" style={{ background: '#059669' }}>Subs</Link>
                         <Link href="/admin/prescriptions" className="btn btn-primary" style={{ background: '#7C3AED' }}>Scripts</Link>
                         <Link href="/admin/finance" className="btn btn-primary" style={{ background: '#10B981' }}>Finance</Link>
                         <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>

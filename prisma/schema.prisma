@@ -27,6 +27,7 @@ model User {
   medicalRep   MedicalRep?
   pharmaCompany PharmaCompany?
   medicineRequests MedicineRequest[]
+  subscriptions Subscription[]
 }
 
 model Product {
@@ -313,5 +314,17 @@ model MedicineRequest {
   quantity  String
   prescriptionUrl String?
   status    String   @default("Pending") // Pending, Fulfilled, Cancelled
+  createdAt DateTime @default(now())
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  medicineName String
+  quantity  Int
+  frequency String   @default("Monthly") // Monthly, Weekly
+  nextDate  DateTime
+  status    String   @default("Active") // Active, Paused, Cancelled
   createdAt DateTime @default(now())
 }
