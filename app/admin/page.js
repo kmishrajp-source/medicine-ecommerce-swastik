@@ -7,6 +7,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+import { generateTallyXML } from "@/utils/tallyXmlGenerator";
+
 export default function AdminDashboard() {
     const { cartCount, toggleCart } = useCart();
     const { data: session, status } = useSession(); // Access session properly
@@ -50,6 +52,29 @@ export default function AdminDashboard() {
         alert(`Order ${id} marked as ${newStatus} (Local update only for now)`);
     };
 
+    const handleTallyExport = () => {
+        if (!orders || orders.length === 0) {
+            alert("No orders to export.");
+            return;
+        }
+
+        try {
+            const xmlContent = generateTallyXML(orders);
+            const blob = new Blob([xmlContent], { type: "application/xml" });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = url;
+            link.download = `orders-tally-${new Date().toISOString().slice(0, 10)}.xml`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+        } catch (err) {
+            console.error("Export failed", err);
+            alert("Failed to generate Tally XML");
+        }
+    };
+
     if (status === 'loading' || loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading Admin Panel...</div>;
 
     return (
@@ -68,6 +93,13 @@ export default function AdminDashboard() {
                         <Link href="/admin/finance" className="btn btn-primary" style={{ background: '#10B981' }}>Finance</Link>
                         <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>
                         <Link href="/admin/sms" className="btn btn-primary" style={{ background: '#F59E0B', color: 'black' }}>SMS History</Link>
+                        <button
+                            onClick={handleTallyExport}
+                            className="btn btn-primary"
+                            style={{ background: '#F97316' }} // Orange color for Tally
+                        >
+                            Export to Tally
+                        </button>
                         <button
                             onClick={fetchOrders}
                             className="btn btn-secondary"
