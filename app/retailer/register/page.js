@@ -42,7 +42,7 @@ export default function RetailerRegister() {
         <>
             <Navbar cartCount={0} />
             <div className="container" style={{ marginTop: "100px", maxWidth: "600px" }}>
-                <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Retailer / Pharmacy Registration</h2>
+                <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Join as Pharmacy Partner</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                     <input type="text" placeholder="Shop / Pharmacy Name" required
                         onChange={e => setFormData({ ...formData, shopName: e.target.value })}
@@ -70,7 +70,7 @@ export default function RetailerRegister() {
 
                     <button type="submit" disabled={loading}
                         style={{ padding: "12px", background: "#059669", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                        {loading ? "Registering..." : "Register Retailer"}
+                        {loading ? "Registering..." : "Register Partner"}
                     </button>
                 </form>
             </div>

@@ -8,7 +8,21 @@ export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
 
-        const { amount, items, guestName, guestEmail, guestPhone, address, paymentMethod } = await req.json();
+        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod } = await req.json();
+
+        // Validate Coupon if present
+        if (couponCode === 'FIRST100') {
+            if (session && session.user && session.user.id) {
+                const orderCount = await prisma.order.count({
+                    where: { userId: session.user.id }
+                });
+                if (orderCount > 0) {
+                    return NextResponse.json({ error: "Coupon valid only for first order" }, { status: 400 });
+                }
+            } else {
+                return NextResponse.json({ error: "Login required for coupon" }, { status: 401 });
+            }
+        }
 
         // 1. Generate 4-digit Random Code
         const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();

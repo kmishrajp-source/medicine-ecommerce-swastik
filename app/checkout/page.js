@@ -10,7 +10,32 @@ export default function Checkout() {
     const router = useRouter();
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('ONLINE');
+    const [couponCode, setCouponCode] = useState('');
+    const [discount, setDiscount] = useState(0);
     const { data: session } = useSession();
+
+    // Coupon Handler
+    const applyCoupon = () => {
+        if (couponCode === 'FIRST100') {
+            if (!session) {
+                alert("Please Login to use this coupon.");
+                setDiscount(0);
+                return;
+            }
+            // In real app, verify with API. Here we assume validation happens on submit too.
+            // But we should probably check if user has orders? 
+            // For UI feedback, let's just apply it. Backend will reject if invalid.
+            if (cartTotal > 100) {
+                setDiscount(100);
+            } else {
+                alert("Cart value must be above ₹100");
+                setDiscount(0);
+            }
+        } else {
+            alert("Invalid Coupon Code");
+            setDiscount(0);
+        }
+    };
 
     // Form State
     const [formData, setFormData] = useState({
@@ -67,7 +92,8 @@ export default function Checkout() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: cartTotal,
+                        amount: cartTotal - discount,
+                        couponCode: discount > 0 ? couponCode : null,
                         items: cart,
                         guestName: formData.name,
                         guestEmail: formData.email,
@@ -104,7 +130,8 @@ export default function Checkout() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: cartTotal,
+                        amount: cartTotal - discount,
+                        couponCode: discount > 0 ? couponCode : null,
                         items: cart,
                         guestName: formData.name,
                         guestEmail: formData.email,
@@ -117,7 +144,7 @@ export default function Checkout() {
                 const data = await res.json();
 
                 if (data.success) {
-                    alert(`Order Placed! \n\nPlease ensure you have paid ₹${cartTotal} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
+                    alert(`Order Placed! \n\nPlease ensure you have paid ₹${(cartTotal - discount).toFixed(2)} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
                     clearCart();
                     router.push(session ? '/profile' : '/');
                 } else {
@@ -154,7 +181,10 @@ export default function Checkout() {
             // ... (Existing Razorpay Logic - Assuming it uses session)
             const orderRes = await fetch('/api/create-order', {
                 method: 'POST',
-                body: JSON.stringify({ amount: cartTotal }),
+                body: JSON.stringify({
+                    amount: cartTotal - discount,
+                    couponCode: discount > 0 ? couponCode : null
+                }),
             });
 
             if (!orderRes.ok) {
@@ -186,12 +216,14 @@ export default function Checkout() {
                                 orderCreationId: orderData.id,
                                 razorpayPaymentId: response.razorpay_payment_id,
                                 razorpaySignature: response.razorpay_signature,
-                                amount: cartTotal,
+                                razorpaySignature: response.razorpay_signature,
+                                amount: cartTotal - discount,
                                 items: cart,
                                 address: formData.address,
                                 guestName: formData.name,
                                 guestEmail: formData.email,
-                                guestPhone: formData.phone
+                                guestPhone: formData.phone,
+                                couponCode: discount > 0 ? couponCode : null
                             })
                         });
 
@@ -369,9 +401,38 @@ export default function Checkout() {
                         </div>
 
                         <div className="order-summary" style={{ background: 'var(--bg-light)', padding: '20px', borderRadius: '12px', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'spaceBetween', fontWeight: 700, fontSize: '1.2rem' }}>
-                                <span>Total to Pay</span>
+                            {/* Coupon Section */}
+                            <div style={{ marginBottom: '15px', display: 'flex', gap: '10px' }}>
+                                <input
+                                    type="text"
+                                    placeholder="Coupon Code"
+                                    value={couponCode}
+                                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                    style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                />
+                                <button type="button" onClick={applyCoupon} style={{ padding: '0 20px', background: '#333', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>
+                                    Apply
+                                </button>
+                            </div>
+                            {discount > 0 && (
+                                <div style={{ color: 'green', fontSize: '0.9rem', marginBottom: '10px' }}>
+                                    Coupon Applied! You saved ₹{discount}
+                                </div>
+                            )}
+
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                <span>Subtotal</span>
                                 <span>₹{cartTotal.toFixed(2)}</span>
+                            </div>
+                            {discount > 0 && (
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: 'green' }}>
+                                    <span>Discount</span>
+                                    <span>- ₹{discount.toFixed(2)}</span>
+                                </div>
+                            )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '1.2rem', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
+                                <span>Total to Pay</span>
+                                <span>₹{(cartTotal - discount).toFixed(2)}</span>
                             </div>
                         </div>
 

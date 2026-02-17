@@ -8,11 +8,19 @@ export default function Profile() {
     const { data: session, status } = useSession();
     const router = useRouter();
     const [orders, setOrders] = useState([]);
+    const [profile, setProfile] = useState(null);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/login');
         } else if (session) {
+            // Fetch User Profile (Wallet, Code)
+            fetch('/api/user/me')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) setProfile(data.user);
+                });
+
             // In real app, fetch from DB using session.user.id
             // For now, loading from localStorage mimic
             const allOrders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
@@ -28,6 +36,28 @@ export default function Profile() {
         <>
             <Navbar cartCount={0} openCart={() => { }} />
             <div className="container" style={{ marginTop: '100px' }}>
+                {profile && (
+                    <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', color: 'white', padding: '30px', borderRadius: '16px', marginBottom: '40px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                        <div>
+                            <h2 style={{ fontSize: '2rem', marginBottom: '5px' }}>Hello, {profile.name}</h2>
+                            <p style={{ opacity: 0.8 }}>{profile.email}</p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '30px' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '15px 25px', borderRadius: '12px' }}>
+                                <div style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '5px' }}>Wallet Balance</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#4ade80' }}>₹{profile.walletBalance.toFixed(2)}</div>
+                            </div>
+                            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '15px 25px', borderRadius: '12px' }}>
+                                <div style={{ fontSize: '0.9rem', opacity: 0.8, marginBottom: '5px' }}>Your Referral Code</div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: 'bold', letterSpacing: '1px', color: '#fbbf24' }}>
+                                    {profile.referralCode || 'Generating...'}
+                                </div>
+                                <div style={{ fontSize: '0.7rem', opacity: 0.6, marginTop: '5px' }}>Share this to earn ₹50!</div>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <h2 style={{ marginBottom: '20px' }}>My Order History</h2>
                 <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
                     {orders.length === 0 ? (

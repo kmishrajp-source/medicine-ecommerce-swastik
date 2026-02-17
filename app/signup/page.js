@@ -8,6 +8,7 @@ export default function Signup() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [referralCode, setReferralCode] = useState("");
     const [error, setError] = useState("");
     const router = useRouter();
 
@@ -19,7 +20,7 @@ export default function Signup() {
             const res = await fetch("/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password }),
+                body: JSON.stringify({ name, email, password, referralCode }),
             });
 
             const data = await res.json();
@@ -68,6 +69,16 @@ export default function Signup() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
+                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: '20px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px' }}>Referral Code (Optional)</label>
+                        <input
+                            type="text"
+                            value={referralCode}
+                            onChange={(e) => setReferralCode(e.target.value)}
+                            placeholder="e.g. AMIT123"
                             style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
                         />
                     </div>
