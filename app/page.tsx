@@ -61,6 +61,19 @@ export default function Home() {
           </div>
         </div>
 
+        {/* EMERGENCY AMBULANCE BANNER */}
+        <div className="container" style={{ marginBottom: '60px' }}>
+          <div style={{ background: 'linear-gradient(90deg, #ef4444 0%, #b91c1c 100%)', borderRadius: '16px', padding: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '20px', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '10px' }}>🚑 Emergency? Need an Ambulance?</h2>
+              <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>Book an ambulance instantly. 24/7 Service available in your area.</p>
+            </div>
+            <Link href="/ambulance" className="btn" style={{ background: 'white', color: '#b91c1c', padding: '15px 30px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <i className="fa-solid fa-phone-volume"></i> Book Now
+            </Link>
+          </div>
+        </div>
+
         <div className="container">
           {/* Ad Banner */}
           <AdBanner position="Home-Banner" />
@@ -89,6 +102,16 @@ export default function Home() {
             </div>
           </div>
 
+          {/* TOP BRANDS */}
+          <SectionTitle title="✨ Top Brands" />
+          <div style={{ display: 'flex', gap: '30px', overflowX: 'auto', padding: '10px 0', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+            {['Himalaya', 'Dabur', 'Patanjali', 'Baidyanath', 'Organic India', 'Dr. Morepen'].map((brand, i) => (
+              <div key={i} style={{ minWidth: '120px', height: '80px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee', fontWeight: 'bold', color: '#555', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
+                {brand}
+              </div>
+            ))}
+          </div>
+
           {/* TRENDING HEALTH PRODUCTS */}
           <SectionTitle title="📈 Trending Health Products" />
           <ProductGrid products={trending} addToCart={addToCart} />
@@ -104,6 +127,42 @@ export default function Home() {
           {/* DAILY ESSENTIALS */}
           <SectionTitle title="☀️ Daily Essentials" />
           <ProductGrid products={essentials} addToCart={addToCart} />
+
+          {/* CUSTOMER REVIEWS */}
+          <SectionTitle title="💬 What Our Customers Say" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>
+            {[
+              { name: 'Rahul Sharma', text: 'Swastik Medicare is a lifesaver! Fast delivery and genuine medicines.', loc: 'Noida' },
+              { name: 'Priya Singh', text: 'I love the subscription plan for my parents. Automatic monthly refill is great.', loc: 'Ghaziabad' },
+              { name: 'Amit Verma', text: 'Best prices in the market. The discount coupons really help.', loc: 'Delhi' }
+            ].map((review, i) => (
+              <div key={i} style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
+                <div style={{ color: '#fbbf24', marginBottom: '10px' }}><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i></div>
+                <p style={{ fontStyle: 'italic', marginBottom: '15px', color: '#555' }}>"{review.text}"</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ width: '40px', height: '40px', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>{review.name.charAt(0)}</div>
+                  <div>
+                    <div style={{ fontWeight: 'bold' }}>{review.name}</div>
+                    <div style={{ fontSize: '0.85rem', color: '#999' }}>{review.loc}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* DELIVERY COVERAGE */}
+          <div style={{ background: '#eff6ff', borderRadius: '24px', padding: '40px', textAlign: 'center', border: '1px solid #dbeafe', marginBottom: '60px' }}>
+            <h2 style={{ color: '#1e40af', marginBottom: '20px' }}>📍 Delivery Areas</h2>
+            <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>We are rapidly expanding! Currently creating smiles and delivering health in the following regions.</p>
+
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              {['Sector 62, Noida', 'Indirapuram', 'Vaishali', 'Greater Noida West', 'Crossing Republik', 'Delhi (South)'].map((area, i) => (
+                <div key={i} style={{ background: 'white', padding: '10px 20px', borderRadius: '50px', color: '#1e40af', fontWeight: 600, boxShadow: '0 2px 4px rgba(30, 64, 175, 0.1)' }}>
+                  <i className="fa-solid fa-map-pin" style={{ marginRight: '8px' }}></i> {area}
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* CONTACT DETAILS with WhatsApp */}
           <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
