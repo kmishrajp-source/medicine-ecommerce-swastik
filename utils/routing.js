@@ -30,12 +30,14 @@ export async function assignOrderToNearestRetailer(orderId) {
             return null;
         }
 
-        // Fetch all retailers that are currently online and have valid coordinates
+        // Fetch all retailers that are currently online, have valid coordinates, 
+        // AND have not already declined/timed-out on this specific order.
         const retailers = await prisma.retailer.findMany({
             where: {
                 isOnline: true,
                 lat: { not: null },
-                lng: { not: null }
+                lng: { not: null },
+                id: { notIn: order.declinedRetailers }
             }
         });
 

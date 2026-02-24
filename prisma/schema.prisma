@@ -61,6 +61,7 @@ model Order {
   lng           Float?
   assignedRetailerId String?
   assignedRetailer Retailer? @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
+  declinedRetailers String[] @default([]) // Array of Retailer IDs who rejected/timed out
   assignedAt    DateTime?
   total         Float
   status        String      @default("Processing")
