@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { sendSMS } from "@/lib/sms";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { assignOrderToNearestRetailer } from "@/utils/routing";
 
 export async function POST(req) {
     try {
@@ -16,7 +17,9 @@ export async function POST(req) {
             address,
             guestName,
             guestEmail,
-            guestPhone
+            guestPhone,
+            lat,
+            lng
         } = await req.json();
 
         // 1. Verify Signature
@@ -59,6 +62,8 @@ export async function POST(req) {
                 guestEmail: guestEmail || session?.user?.email,
                 guestPhone: guestPhone,
                 address: address,
+                lat: lat ? parseFloat(lat) : null,
+                lng: lng ? parseFloat(lng) : null,
                 total: parseFloat(amount),
                 status: "Processing",
                 paymentMethod: "ONLINE",
@@ -69,6 +74,11 @@ export async function POST(req) {
                 }
             }
         });
+
+        // 3.5 Execute HyperLocal Routing (Non-Blocking)
+        if (newOrder && newOrder.lat && newOrder.lng) {
+            assignOrderToNearestRetailer(newOrder.id).catch(e => console.error("Routing Exception:", e));
+        }
 
         // 4. Send SMS
         const customerPhone = guestPhone || session?.user?.phone || "";

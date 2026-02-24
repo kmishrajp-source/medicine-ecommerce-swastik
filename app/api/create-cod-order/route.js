@@ -3,12 +3,13 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { sendSMS } from "@/lib/sms";
+import { assignOrderToNearestRetailer } from "@/utils/routing";
 
 export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
 
-        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod } = await req.json();
+        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod, lat, lng } = await req.json();
 
         // Validate Coupon if present
         if (couponCode === 'FIRST100') {
@@ -73,6 +74,8 @@ export async function POST(req) {
             deliveryCode: deliveryCode,
             isPaid: false,
             isDelivered: false,
+            lat: lat ? parseFloat(lat) : null,
+            lng: lng ? parseFloat(lng) : null,
             items: {
                 create: resolvedItems
             }
@@ -169,6 +172,11 @@ export async function POST(req) {
             order = await prisma.order.create({
                 data: minimalOrderData
             });
+        }
+
+        // 4.5 Execute HyperLocal Routing (Non-Blocking)
+        if (order && order.lat && order.lng) {
+            assignOrderToNearestRetailer(order.id).catch(e => console.error("Routing Exception:", e));
         }
 
         // 5. Send SMS

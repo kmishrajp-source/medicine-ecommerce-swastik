@@ -57,6 +57,11 @@ model Order {
   guestEmail    String?
   guestPhone    String?
   address       String?
+  lat           Float?
+  lng           Float?
+  assignedRetailerId String?
+  assignedRetailer Retailer? @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
+  assignedAt    DateTime?
   total         Float
   status        String      @default("Processing")
   paymentMethod String      @default("ONLINE") // "ONLINE" or "COD"
@@ -193,9 +198,13 @@ model Retailer {
   licenseNumber  String
   phone          String
   verified       Boolean  @default(false)
+  lat            Float?
+  lng            Float?
+  isOnline       Boolean  @default(false)
   createdAt      DateTime @default(now())
   bulkOrders     BulkOrder[]
   inventory      RetailerInventory[]
+  assignedOrders Order[]  @relation("AssignedOrders")
 }
 
 model Stockist {

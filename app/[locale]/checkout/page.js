@@ -12,6 +12,8 @@ export default function Checkout() {
     const [paymentMethod, setPaymentMethod] = useState('ONLINE');
     const [couponCode, setCouponCode] = useState('');
     const [discount, setDiscount] = useState(0);
+    const [location, setLocation] = useState(null);
+    const [gettingLocation, setGettingLocation] = useState(false);
     const { data: session } = useSession();
 
     // Coupon Handler
@@ -61,6 +63,30 @@ export default function Checkout() {
         setFormData(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleGetLocation = () => {
+        setGettingLocation(true);
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setLocation({
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    });
+                    setGettingLocation(false);
+                    // Minimal alert so it isn't annoying, or just rely on the button state change
+                },
+                (error) => {
+                    console.error("Error getting location:", error);
+                    alert("Could not get your location. Please check browser permissions.");
+                    setGettingLocation(false);
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser");
+            setGettingLocation(false);
+        }
+    };
+
     // Check if any item requires prescription
     const hasRxItems = cart.some(item => item.requiresPrescription);
 
@@ -98,7 +124,9 @@ export default function Checkout() {
                         guestName: formData.name,
                         guestEmail: formData.email,
                         guestPhone: formData.phone,
-                        address: formData.address
+                        address: formData.address,
+                        lat: location?.lat,
+                        lng: location?.lng
                     }),
                 });
 
@@ -137,7 +165,9 @@ export default function Checkout() {
                         guestEmail: formData.email,
                         guestPhone: formData.phone,
                         address: formData.address,
-                        paymentMethod: 'QR_SCAN' // We'll need to update the API to handle this tag or just treat as COD with note
+                        paymentMethod: 'QR_SCAN',
+                        lat: location?.lat,
+                        lng: location?.lng
                     }),
                 });
 
@@ -223,7 +253,9 @@ export default function Checkout() {
                                 guestName: formData.name,
                                 guestEmail: formData.email,
                                 guestPhone: formData.phone,
-                                couponCode: discount > 0 ? couponCode : null
+                                couponCode: discount > 0 ? couponCode : null,
+                                lat: location?.lat,
+                                lng: location?.lng
                             })
                         });
 
@@ -344,6 +376,20 @@ export default function Checkout() {
                                 <input type="file" required style={{ background: 'white', padding: '10px', borderRadius: '8px', width: '100%' }} />
                             </div>
                         )}
+
+                        <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                            <div>
+                                <h4 style={{ color: '#1565C0', margin: '0 0 5px 0' }}><i className="fa-solid fa-location-dot"></i> Fast Delivery Routing</h4>
+                                <p style={{ fontSize: '0.85rem', margin: 0, color: '#333' }}>Share your live location to auto-assign your order to the nearest pharmacy.</p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={handleGetLocation}
+                                disabled={gettingLocation || location}
+                                style={{ background: location ? '#4CAF50' : '#1976D2', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                {location ? "Location Captured ✓" : (gettingLocation ? "Locating..." : "Get Live Location")}
+                            </button>
+                        </div>
 
                         <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px' }}>Payment Method</h3>
                         <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
