@@ -65,6 +65,9 @@ export default function Navbar({ cartCount, openCart }) {
                     {session ? (
                         <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{session.user.name}</span>
+                            <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title="My Earnings">
+                                <i className="fa-solid fa-wallet"></i> Wallet
+                            </Link>
                             <button onClick={() => signOut()} className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px' }}>Logout</button>
                         </div>
                     ) : (

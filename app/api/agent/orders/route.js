@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
+import { processReferralCommissions } from "@/utils/referrals";
 
 // Fetch the currently assigned active delivery for this agent
 export async function GET(req) {
@@ -75,6 +76,12 @@ export async function POST(req) {
                     walletBalance: { increment: 50.0 }
                 }
             });
+
+            // 3. Disburse 2-Tier MLM Wallet Commissions to the Customer Network
+            if (updated.userId && updated.total > 0) {
+                // Background compute to prevent delaying the driver's response payload
+                processReferralCommissions(updated.userId, updated.total).catch(console.error);
+            }
 
             return NextResponse.json({
                 success: true,

@@ -29,9 +29,11 @@ model User {
   pharmaCompany PharmaCompany?
   medicineRequests MedicineRequest[]
   subscriptions Subscription[]
-  referralCode String? @unique
-  referredBy   String?
-  walletBalance Float @default(0.0)
+  referralCode   String? @unique
+  referredBy     String?
+  walletBalance  Float @default(0.0)
+  transactions   WalletTransaction[]
+  withdrawals    Withdrawal[]
 }
 
 model Product {
@@ -374,4 +376,26 @@ model DeliveryAgent {
   walletBalance  Float    @default(0.0)
   createdAt      DateTime @default(now())
   deliveries     Order[]  @relation("AssignedDeliveries")
+}
+
+model WalletTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  amount      Float
+  type        String   // "CREDIT" or "DEBIT"
+  description String   // e.g., "Level 1 Referral Bonus", "Delivery Payout", "Withdrawal"
+  createdAt   DateTime @default(now())
+}
+
+model Withdrawal {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id])
+  amount        Float
+  status        String   @default("Pending") // Pending, Completed, Rejected
+  paymentMethod String   // e.g., "UPI", "Bank Transfer"
+  paymentDetails String  // JSON or string of account info
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
