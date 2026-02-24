@@ -38,8 +38,8 @@ export default function Navbar({ cartCount, openCart }) {
                 </div>
                 <nav className="nav">
                     <ul>
-                        <li><Link href="/" className="active">{t('home')}</Link></li>
-                        <li><Link href="/shop">{t('refer_earn')}</Link></li>
+                        <li><Link href="/">{t('home')}</Link></li>
+                        <li><Link href="/refer">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
                         <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
                         <li><Link href="/labs">Lab Tests</Link></li>
