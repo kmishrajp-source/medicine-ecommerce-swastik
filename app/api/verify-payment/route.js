@@ -19,7 +19,9 @@ export async function POST(req) {
             guestEmail,
             guestPhone,
             lat,
-            lng
+            lng,
+            orderType,
+            appointmentId
         } = await req.json();
 
         // 1. Verify Signature
@@ -29,6 +31,29 @@ export async function POST(req) {
 
         if (digest !== razorpaySignature) {
             return NextResponse.json({ error: "Transaction not legit!" }, { status: 400 });
+        }
+
+        // 1.5 Handle Appointment Bookings
+        if (orderType === 'APPOINTMENT') {
+            const appointment = await prisma.appointment.update({
+                where: { id: appointmentId },
+                data: { status: "Confirmed" },
+                include: { doctor: { include: { user: true } }, patient: true }
+            });
+
+            // Notify Doctor
+            if (appointment.doctor.phone) {
+                await sendSMS(
+                    appointment.doctor.phone,
+                    `Swastik Medicare: New Video Consultation booked by ${appointment.patient.name} for ${appointment.date.toLocaleString()}. Log in to view details.`
+                );
+            }
+
+            return NextResponse.json({
+                success: true,
+                appointmentId: appointment.id,
+                message: "Appointment Confirmed & Payment Routed to Doctor"
+            });
         }
 
         // 2. Identify User
