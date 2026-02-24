@@ -1,0 +1,63 @@
+import { createClient } from '@supabase/supabase-js'
+
+// This would normally be in a separate lib file, instantiated with env variables
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+export async function POST(req) {
+    try {
+        const { orderId, customerLat, customerLng } = await req.json()
+
+        if (!orderId || !customerLat || !customerLng) {
+            return new Response(JSON.stringify({ error: 'Missing req parameters' }), { status: 400 })
+        }
+
+        // 1. Fetch nearest online retailers within 5km using PostGIS function
+        const { data: nearbyRetailers, error: geoError } = await supabase
+            .rpc('get_nearest_retailers', {
+                lat: customerLat,
+                lng: customerLng,
+                radius_km: 5.0
+            })
+
+        if (geoError || !nearbyRetailers || nearbyRetailers.length === 0) {
+            return new Response(JSON.stringify({
+                error: 'No online retailers found within 5km'
+            }), { status: 404 })
+        }
+
+        // 2. Select the closest retailer (or highest priority one)
+        const closestRetailer = nearbyRetailers[0] // Since SQL already sorting ASC by distance
+
+        // 3. Create the 60-second Assignment Timer
+        const now = new Date()
+        const expiresAt = new Date(now.getTime() + 60000) // 60 seconds from now
+
+        const { error: assignError } = await supabase
+            .from('order_assignments')
+            .insert({
+                order_id: orderId,
+                retailer_id: closestRetailer.retailer_id,
+                distance_km: closestRetailer.distance_km,
+                status: 'pending',
+                expires_at: expiresAt.toISOString()
+            })
+
+        if (assignError) throw assignError
+
+        // 4. In a real app, trigger MSG91 SMS to nearest retailer here
+        // await sendMSG91Alert(closestRetailer.phone, "New Order Received! Accept within 60s")
+
+        return new Response(JSON.stringify({
+            message: 'Order pushed to nearest retailer',
+            assigned_to: closestRetailer.store_name,
+            distance: `${closestRetailer.distance_km} km`,
+            expires_at: expiresAt
+        }), { status: 200 })
+
+    } catch (error) {
+        console.error('API Error:', error)
+        return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 })
+    }
+}

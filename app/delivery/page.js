@@ -1,75 +1,101 @@
-"use client";
-import { useState } from "react";
-import Navbar from "@/components/Navbar";
+'use client'
 
-export default function DeliveryLogin() {
-    const [orderId, setOrderId] = useState("");
-    const [code, setCode] = useState("");
-    const [message, setMessage] = useState("");
-    const [error, setError] = useState("");
+import { useEffect, useState } from 'react'
+import { supabase } from '../../lib/supabase'
+import dynamic from 'next/dynamic'
+import 'leaflet/dist/leaflet.css'
 
-    const handleVerify = async (e) => {
-        e.preventDefault();
-        setMessage("");
-        setError("");
+// Dynamically import Map components because Leaflet only works on the client-side
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false })
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false })
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false })
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false })
 
-        try {
-            const res = await fetch("/api/verify-delivery", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ orderId, code }),
-            });
+export default function DeliveryTrackingMap() {
+    const [agents, setAgents] = useState([])
+    const defaultCenter = [22.5726, 88.3639] // Example: Kolkata Coordinates
 
-            const data = await res.json();
+    useEffect(() => {
+        // 1. Fetch initial online drivers
+        fetchOnlineAgents()
 
-            if (data.success) {
-                setMessage(data.message);
-                setOrderId("");
-                setCode("");
-            } else {
-                setError(data.error);
-            }
-        } catch (err) {
-            setError("Verification failed. Check network.");
+        // 2. Subscribe to Real-time GPS updates from Supabase
+        const subscription = supabase
+            .channel('public:delivery_agents')
+            .on('postgres_changes', {
+                event: 'UPDATE',
+                schema: 'public',
+                table: 'delivery_agents'
+            }, (payload) => {
+                console.log('Real-time GPS Update Received:', payload.new)
+                setAgents((prev) =>
+                    prev.map(agent => agent.id === payload.new.id ? payload.new : agent)
+                )
+            })
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(subscription)
         }
-    };
+    }, [])
+
+    async function fetchOnlineAgents() {
+        const { data, error } = await supabase
+            .from('delivery_agents')
+            .select('*')
+            .eq('is_online', true)
+
+        if (data) setAgents(data)
+    }
+
+    // Helper to extract Lat/Lng from PostGIS Point string
+    const parsePostGisPoint = (pointString) => {
+        if (!pointString) return null
+        // Example string format: "POINT(88.3639 22.5726)"
+        const match = pointString.match(/POINT\(([^ ]+) ([^ ]+)\)/)
+        if (match) {
+            // Leaflet expects [Lat, Lng]
+            return [parseFloat(match[2]), parseFloat(match[1])]
+        }
+        return null
+    }
 
     return (
-        <>
-            <Navbar cartCount={0} openCart={() => { }} />
-            <div style={{ maxWidth: '400px', margin: '120px auto', padding: '40px', background: 'white', borderRadius: '16px', boxShadow: 'var(--shadow-md)' }}>
-                <h2 style={{ marginBottom: '20px', textAlign: 'center', color: 'var(--primary)' }}>Delivery Agent Portal</h2>
-
-                {message && <div style={{ color: 'green', background: '#E8F5E9', padding: '10px', borderRadius: '8px', marginBottom: '15px', textAlign: 'center' }}>{message}</div>}
-                {error && <div style={{ color: 'red', background: '#FFEBEE', padding: '10px', borderRadius: '8px', marginBottom: '15px', textAlign: 'center' }}>{error}</div>}
-
-                <form onSubmit={handleVerify}>
-                    <div style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Order ID</label>
-                        <input
-                            type="text"
-                            value={orderId}
-                            onChange={(e) => setOrderId(e.target.value)}
-                            placeholder="e.g. clx..."
-                            required
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
-                        />
-                    </div>
-                    <div style={{ marginBottom: '20px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 'bold' }}>Secret Delivery Code</label>
-                        <input
-                            type="text"
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            placeholder="e.g. 1234"
-                            required
-                            maxLength="4"
-                            style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '1.2rem', letterSpacing: '2px' }}
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary full-width" style={{ padding: '12px', fontSize: '1rem' }}>Verify Delivery</button>
-                </form>
+        <main className="p-6">
+            <div className="mb-6">
+                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-teal-400">
+                    Live Delivery Tracking
+                </h1>
+                <p className="text-gray-600 mt-2">
+                    Tracking {agents.length} active delivery partners in real-time.
+                </p>
             </div>
-        </>
-    );
+
+            <div className="h-[600px] w-full rounded-2xl overflow-hidden shadow-2xl border border-gray-100">
+                <MapContainer center={defaultCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer
+                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+
+                    {agents.map((agent) => {
+                        const position = parsePostGisPoint(agent.current_location)
+                        if (!position) return null
+
+                        return (
+                            <Marker key={agent.id} position={position}>
+                                <Popup>
+                                    <div className="font-semibold text-lg">{agent.full_name}</div>
+                                    <div className="text-sm text-gray-500">{agent.vehicle_number}</div>
+                                    <div className="mt-2 text-xs text-green-600 font-bold tracking-wider">
+                                        ● ONLINE NOW
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        )
+                    })}
+                </MapContainer>
+            </div>
+        </main>
+    )
 }
