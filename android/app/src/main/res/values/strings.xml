@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SwastikMedicare</string>
+    <string name="title_activity_main">SwastikMedicare</string>
+    <string name="package_name">com.swastik.medicare</string>
+    <string name="custom_url_scheme">com.swastik.medicare</string>
+</resources>

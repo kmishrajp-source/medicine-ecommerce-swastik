@@ -1,0 +1,16 @@
+{
+  "name": "Swastik Medicare",
+  "short_name": "Swastik",
+  "description": "Your trusted online pharmacy for genuine medicines and healthcare products.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4338ca",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
