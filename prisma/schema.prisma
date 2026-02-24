@@ -106,6 +106,8 @@ model Doctor {
   experience     Int?
   verified       Boolean  @default(false)
   phone          String?
+  consultationFee Float   @default(500.0)
+  razorpayAccountId String?
   createdAt      DateTime @default(now())
   prescriptions  Prescription[]
   appointments   Appointment[]
