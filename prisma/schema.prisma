@@ -34,6 +34,7 @@ model User {
   walletBalance  Float @default(0.0)
   transactions   WalletTransaction[]
   withdrawals    Withdrawal[]
+  fcmTokens      String[] @default([]) // Used for Push Notifications
 }
 
 model Product {

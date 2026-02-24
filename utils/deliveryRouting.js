@@ -1,5 +1,6 @@
 import prisma from "@/lib/prisma";
 import { sendSMS } from "@/lib/sms";
+import { sendPushNotification } from "@/lib/fcm";
 
 // Haversine formula to calculate distance between two lat/lng coordinates
 function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -92,6 +93,16 @@ export async function assignOrderToNearestAgent(orderId) {
             await sendSMS(
                 nearestDriver.phone,
                 `Swastik Medicare: New Delivery Assignment! Order #${orderId.slice(-6).toUpperCase()}. Pickup from ${order.assignedRetailer.shopName}. Please open your Driver App to view directions.`
+            );
+        }
+
+        // Send Native Push Notification to Driver App
+        if (nearestDriver.userId) {
+            await sendPushNotification(
+                nearestDriver.userId,
+                "New Delivery Assigned! 🛵",
+                `Pickup Order #${orderId.slice(-6).toUpperCase()} at ${order.assignedRetailer.shopName}.`,
+                "/agent/dashboard" // Route agent to their dashboard on click
             );
         }
 

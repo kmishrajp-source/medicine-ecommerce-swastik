@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import PwaRegistrar from "@/components/PwaRegistrar";
+import FCMProvider from "@/components/FCMProvider";
 import CartDrawer from "@/components/CartDrawer";
 
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
@@ -41,12 +42,14 @@ export default function RootLayout({
       </head>
       <body className={outfit.className}>
         <Provider>
-          <CartProvider>
-            <PwaRegistrar />
-            {children}
-            <CartDrawer />
-            <FloatingWhatsApp />
-          </CartProvider>
+          <FCMProvider>
+            <CartProvider>
+              <PwaRegistrar />
+              {children}
+              <CartDrawer />
+              <FloatingWhatsApp />
+            </CartProvider>
+          </FCMProvider>
         </Provider>
       </body>
     </html>
