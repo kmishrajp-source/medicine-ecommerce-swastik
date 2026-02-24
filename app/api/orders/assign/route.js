@@ -31,9 +31,16 @@ export async function POST(req) {
         // 2. Select the closest retailer (or highest priority one)
         const closestRetailer = nearbyRetailers[0] // Since SQL already sorting ASC by distance
 
-        // 3. Create the 60-second Assignment Timer
+        // 3. Fetch Global Settings for dynamic timeouts
+        let timeoutSeconds = 60
+        const { data: settings } = await supabase.from('global_settings').select('vendor_timeout_seconds').eq('id', 1).single()
+        if (settings && settings.vendor_timeout_seconds) {
+            timeoutSeconds = settings.vendor_timeout_seconds
+        }
+
+        // 4. Create the Assignment Timer based on Admin Settings
         const now = new Date()
-        const expiresAt = new Date(now.getTime() + 60000) // 60 seconds from now
+        const expiresAt = new Date(now.getTime() + (timeoutSeconds * 1000))
 
         const { error: assignError } = await supabase
             .from('order_assignments')
@@ -47,10 +54,10 @@ export async function POST(req) {
 
         if (assignError) throw assignError
 
-        // 4. Send MSG91 or Twilio SMS to the retailer
+        // 5. Send MSG91 or Twilio SMS to the retailer
         const { data: retailerUser } = await supabase.from('users').select('phone').eq('id', closestRetailer.retailer_id).single()
         if (retailerUser && retailerUser.phone) {
-            await sendSMS(retailerUser.phone, `SWASTIK: New order received! Please accept within 60 seconds.`);
+            await sendSMS(retailerUser.phone, `SWASTIK: New order received! Please accept within ${timeoutSeconds} seconds.`);
         }
 
         return new Response(JSON.stringify({

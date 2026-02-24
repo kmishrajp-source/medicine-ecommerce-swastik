@@ -1,8 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 // We MUST use the service role key here because we are modifying secure financial ledgers (Wallets)
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 export async function POST(req) {
@@ -11,6 +11,15 @@ export async function POST(req) {
 
         if (!orderId || !customerId || !medicineMarginAmount) {
             return new Response(JSON.stringify({ error: 'Missing parameters' }), { status: 400 })
+        }
+
+        // 0. Fetch the Dynamic Commission Rates from Admin Settings
+        let l1_rate = 0.05
+        let l2_rate = 0.02
+        const { data: globalSettings } = await supabase.from('global_settings').select('referral_level_1_percent, referral_level_2_percent').eq('id', 1).single()
+        if (globalSettings) {
+            l1_rate = globalSettings.referral_level_1_percent
+            l2_rate = globalSettings.referral_level_2_percent
         }
 
         // 1. Find if this customer was referred by anyone (Level 1)
@@ -26,10 +35,10 @@ export async function POST(req) {
         }
 
         const level1ReferrerId = level1Referral.referrer_id
-        const level1Commission = medicineMarginAmount * 0.05 // 5%
+        const level1Commission = medicineMarginAmount * l1_rate
 
         // 2. Pay Level 1 Referrer
-        await creditWallet(level1ReferrerId, level1Commission, orderId, 'referral_level_1', `5% Commission from Order ${orderId}`)
+        await creditWallet(level1ReferrerId, level1Commission, orderId, 'referral_level_1', `${l1_rate * 100}% Commission from Order ${orderId}`)
 
         // 3. Find if the Level 1 Referrer was referred by anyone (Level 2)
         const { data: level2Referral } = await supabase
@@ -41,10 +50,10 @@ export async function POST(req) {
 
         if (level2Referral) {
             const level2ReferrerId = level2Referral.referrer_id
-            const level2Commission = medicineMarginAmount * 0.02 // 2%
+            const level2Commission = medicineMarginAmount * l2_rate
 
             // 4. Pay Level 2 Referrer
-            await creditWallet(level2ReferrerId, level2Commission, orderId, 'referral_level_2', `2% Network Commission from Order ${orderId}`)
+            await creditWallet(level2ReferrerId, level2Commission, orderId, 'referral_level_2', `${l2_rate * 100}% Network Commission from Order ${orderId}`)
         }
 
         return new Response(JSON.stringify({

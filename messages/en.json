@@ -1,0 +1,18 @@
+{
+  "Navigation": {
+    "home": "Home",
+    "directory": "Doctors",
+    "wallet": "Wallet",
+    "tracking": "Live Tracking"
+  },
+  "HomePage": {
+    "title": "Welcome to Swastik Medicare",
+    "subtitle": "Your hyper-local pharmacy and healthcare platform.",
+    "cta": "Explore Services"
+  },
+  "Wallet": {
+    "title": "My Wallet Dashboard",
+    "balance": "Available Balance",
+    "recent_transactions": "Recent Transactions"
+  }
+}
