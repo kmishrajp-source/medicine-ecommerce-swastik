@@ -27,30 +27,47 @@ export const metadata: Metadata = {
 };
 
 import Provider from "@/components/SessionProvider";
+import { NextIntlClientProvider } from 'next-intl';
+import { getMessages } from 'next-intl/server';
+import { notFound } from 'next/navigation';
+import { routing } from '@/i18n/routing';
 
 // ...
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
-}: Readonly<{
+  params
+}: {
   children: React.ReactNode;
-}>) {
+  params: { locale: string };
+}) {
+
+  const { locale } = await params;
+
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+
+  const messages = await getMessages({ locale });
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
       <body className={outfit.className}>
-        <Provider>
-          <FCMProvider>
-            <CartProvider>
-              <PwaRegistrar />
-              {children}
-              <CartDrawer />
-              <FloatingWhatsApp />
-            </CartProvider>
-          </FCMProvider>
-        </Provider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Provider>
+            <FCMProvider>
+              <CartProvider>
+                <PwaRegistrar />
+                {children}
+                <CartDrawer />
+                <FloatingWhatsApp />
+              </CartProvider>
+            </FCMProvider>
+          </Provider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

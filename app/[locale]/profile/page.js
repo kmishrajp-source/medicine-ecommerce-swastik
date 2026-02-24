@@ -21,10 +21,12 @@ export default function Profile() {
                     if (data.success) setProfile(data.user);
                 });
 
-            // In real app, fetch from DB using session.user.id
-            // For now, loading from localStorage mimic
-            const allOrders = JSON.parse(localStorage.getItem('swastik_orders') || '[]');
-            setOrders(allOrders); // Showing all orders for demo purpose or filter by ID if we stored it
+            // Fetch Real-Time Order History from Postgres
+            fetch('/api/user/orders')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) setOrders(data.orders);
+                });
         }
     }, [status, session]);
 
@@ -70,27 +72,30 @@ export default function Profile() {
                                     <th style={{ padding: '10px' }}>Date</th>
                                     <th style={{ padding: '10px' }}>Total</th>
                                     <th style={{ padding: '10px' }}>Status</th>
-                                    <th style={{ padding: '10px' }}>Invoice</th>
+                                    <th style={{ padding: '10px' }}>Tracking</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {orders.map(order => (
                                     <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '10px' }}>{order.id}</td>
-                                        <td style={{ padding: '10px' }}>{order.date}</td>
+                                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{order.id.slice(-6).toUpperCase()}</td>
+                                        <td style={{ padding: '10px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
                                         <td style={{ padding: '10px' }}>₹{order.total.toFixed(2)}</td>
                                         <td style={{ padding: '10px' }}>
                                             <span style={{
-                                                padding: '4px 8px', borderRadius: '12px', fontSize: '0.8rem',
-                                                background: '#E0F2F1', color: '#0D8ABC'
-                                            }}>{order.status}</span>
+                                                padding: '4px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold',
+                                                background: order.status === 'Delivered' ? '#E8F5E9' : '#E3F2FD',
+                                                color: order.status === 'Delivered' ? '#2E7D32' : '#1565C0'
+                                            }}>
+                                                {order.status.replace(/_/g, ' ')}
+                                            </span>
                                         </td>
-                                        <td style={{ padding: '10px' }}>
+                                        <td style={{ padding: '10px', display: 'flex', gap: '10px' }}>
                                             <button
-                                                onClick={() => window.open(`/order/${order.id}/invoice`, '_blank')}
-                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#333', color: 'white', border: 'none', borderRadius: '4px' }}
+                                                onClick={() => router.push(`/track/${order.id}`)}
+                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}
                                             >
-                                                View Bill
+                                                <i className="fa-solid fa-location-dot"></i> Track Map
                                             </button>
                                         </td>
                                     </tr>

@@ -25,6 +25,47 @@ export default function DeliveryDashboard() {
         }
     }, [session, status]);
 
+    // Live Foreground GPS Polling Engine (Triggered only when ON-DUTY)
+    useEffect(() => {
+        let watchId = null;
+
+        if (agent?.isOnline && "geolocation" in navigator) {
+            console.log("Starting Live GPS Tracking...");
+            watchId = navigator.geolocation.watchPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // Silently post the driver's new coordinates back to the Prisma Table
+                    try {
+                        await fetch('/api/agent/status', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ isOnline: true, lat, lng })
+                        });
+                    } catch (error) {
+                        console.error("Silent GPS Sync Failed", error);
+                    }
+                },
+                (error) => {
+                    console.error("GPS Watch Error:", error);
+                },
+                {
+                    enableHighAccuracy: true,
+                    maximumAge: 5000,
+                    timeout: 10000
+                }
+            );
+        }
+
+        return () => {
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                console.log("Stopped Live GPS Tracking.");
+            }
+        };
+    }, [agent?.isOnline]);
+
     const fetchDashboardData = async () => {
         setLoading(true);
         try {

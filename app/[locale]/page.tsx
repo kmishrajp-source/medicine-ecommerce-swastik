@@ -6,10 +6,12 @@ import AdBanner from "@/components/AdBanner";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
+import { useTranslations } from 'next-intl';
 
 export default function Home() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  const t = useTranslations('Homepage');
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => {
@@ -30,9 +32,9 @@ export default function Home() {
         {/* BIG OFFERS BANNER */}
         <div style={{ background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: 'white', padding: '60px 20px', textAlign: 'center', marginBottom: '40px', borderRadius: '0 0 50px 50px', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)' }}>
           <h1 style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-            💊 FLAT 20% OFF
+            💊 {t('hero_title')}
           </h1>
-          <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>On All Medicines | First Order Discount</p>
+          <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>{t('hero_subtitle')}</p>
           <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
             <i className="fa-solid fa-truck-fast"></i> Free Delivery above ₹500
           </div>
@@ -103,7 +105,7 @@ export default function Home() {
           </div>
 
           {/* TOP BRANDS */}
-          <SectionTitle title="✨ Top Brands" />
+          <SectionTitle title={`✨ ${t('top_brands')}`} />
           <div style={{ display: 'flex', gap: '30px', overflowX: 'auto', padding: '10px 0', justifyContent: 'space-between', flexWrap: 'wrap' }}>
             {['Himalaya', 'Dabur', 'Patanjali', 'Baidyanath', 'Organic India', 'Dr. Morepen'].map((brand, i) => (
               <div key={i} style={{ minWidth: '120px', height: '80px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee', fontWeight: 'bold', color: '#555', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
@@ -113,7 +115,7 @@ export default function Home() {
           </div>
 
           {/* TRENDING HEALTH PRODUCTS */}
-          <SectionTitle title="📈 Trending Health Products" />
+          <SectionTitle title={`📈 ${t('categories')}`} />
           <ProductGrid products={trending} addToCart={addToCart} />
 
 
@@ -129,7 +131,7 @@ export default function Home() {
           <ProductGrid products={essentials} addToCart={addToCart} />
 
           {/* CUSTOMER REVIEWS */}
-          <SectionTitle title="💬 What Our Customers Say" />
+          <SectionTitle title={`💬 ${t('customer_reviews')}`} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>
             {[
               { name: 'Rahul Sharma', text: 'Swastik Medicare is a lifesaver! Fast delivery and genuine medicines.', loc: 'Noida' },

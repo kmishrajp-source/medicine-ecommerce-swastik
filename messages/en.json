@@ -1,18 +1,43 @@
 {
   "Navigation": {
     "home": "Home",
-    "directory": "Doctors",
-    "wallet": "Wallet",
-    "tracking": "Live Tracking"
+    "refer_earn": "Refer & Earn",
+    "delivery_agent": "Agent Portal",
+    "doctor_consult": "Doctor Consult",
+    "admin_panel": "Admin Panel",
+    "profile": "Profile",
+    "login": "Login",
+    "wallet": "Wallet: ₹{balance}"
   },
-  "HomePage": {
-    "title": "Welcome to Swastik Medicare",
-    "subtitle": "Your hyper-local pharmacy and healthcare platform.",
-    "cta": "Explore Services"
+  "Homepage": {
+    "hero_title": "Healthcare Delivered in 10 Minutes",
+    "hero_subtitle": "Upload your prescription or order directly. We assign the nearest verified pharmacy and delivery partner.",
+    "search_placeholder": "Search for pills, syrups, equipment...",
+    "categories": "Shop by Category",
+    "top_brands": "Top Verified Brands",
+    "customer_reviews": "What Our Patients Say",
+    "why_choose_us": "Why Choose Swastik Medicare?"
   },
-  "Wallet": {
-    "title": "My Wallet Dashboard",
-    "balance": "Available Balance",
-    "recent_transactions": "Recent Transactions"
+  "Cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty",
+    "checkout": "Proceed to Checkout",
+    "total": "Total",
+    "clear": "Clear Cart"
+  },
+  "Checkout": {
+    "title": "Checkout",
+    "get_location": "Get Live Location",
+    "address_placeholder": "Full Delivery Address (Street, Building, Flat)",
+    "pay_online": "Pay Online (Cards/UPI)",
+    "pay_cod": "Cash on Delivery",
+    "placing_order": "Securing Order..."
+  },
+  "Referral": {
+    "title": "Refer & Earn 7% Commission",
+    "subtitle": "Get a unique code. Earn 5% when your friends buy, and 2% when their friends buy! Direct to your wallet.",
+    "generate_code": "Generate My Code",
+    "your_code": "Your Referral Code",
+    "share_whatsapp": "Share on WhatsApp"
   }
 }
