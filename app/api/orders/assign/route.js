@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js'
+import { sendSMS } from '../../../../lib/sms'
 
 // This would normally be in a separate lib file, instantiated with env variables
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || ''
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 export async function POST(req) {
@@ -46,8 +47,11 @@ export async function POST(req) {
 
         if (assignError) throw assignError
 
-        // 4. In a real app, trigger MSG91 SMS to nearest retailer here
-        // await sendMSG91Alert(closestRetailer.phone, "New Order Received! Accept within 60s")
+        // 4. Send MSG91 or Twilio SMS to the retailer
+        const { data: retailerUser } = await supabase.from('users').select('phone').eq('id', closestRetailer.retailer_id).single()
+        if (retailerUser && retailerUser.phone) {
+            await sendSMS(retailerUser.phone, `SWASTIK: New order received! Please accept within 60 seconds.`);
+        }
 
         return new Response(JSON.stringify({
             message: 'Order pushed to nearest retailer',
