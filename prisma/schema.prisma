@@ -21,6 +21,7 @@ model User {
   labBookings LabBooking[]
   retailer  Retailer?
   stockist  Stockist?
+  deliveryAgent DeliveryAgent?
   appointments Appointment[]
   ambulance    Ambulance?
   ambulanceBookings AmbulanceBooking[]
@@ -62,6 +63,8 @@ model Order {
   assignedRetailerId String?
   assignedRetailer Retailer? @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
   declinedRetailers String[] @default([]) // Array of Retailer IDs who rejected/timed out
+  deliveryAgentId String?
+  deliveryAgent DeliveryAgent? @relation("AssignedDeliveries", fields: [deliveryAgentId], references: [id])
   assignedAt    DateTime?
   total         Float
   status        String      @default("Processing")
@@ -355,4 +358,20 @@ model RetailerInventory {
   deliveryArea String   // e.g., "Sector 62, Noida"
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
+}
+
+model DeliveryAgent {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  licenseNumber  String
+  vehicleNumber  String
+  phone          String
+  verified       Boolean  @default(false)
+  lat            Float?
+  lng            Float?
+  isOnline       Boolean  @default(false)
+  walletBalance  Float    @default(0.0)
+  createdAt      DateTime @default(now())
+  deliveries     Order[]  @relation("AssignedDeliveries")
 }

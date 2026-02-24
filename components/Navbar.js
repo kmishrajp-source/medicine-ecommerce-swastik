@@ -48,6 +48,9 @@ export default function Navbar({ cartCount, openCart }) {
                                 <li><Link href="/admin/inventory">Inventory</Link></li>
                             </>
                         )}
+                        {session?.user?.role === 'DELIVERY' && (
+                            <li><Link href="/agent/dashboard" style={{ color: '#F59E0B', fontWeight: 'bold' }}>Agent Dashboard</Link></li>
+                        )}
                     </ul>
                 </nav>
                 <div className="header-actions">
