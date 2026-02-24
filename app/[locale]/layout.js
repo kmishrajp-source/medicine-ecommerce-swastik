@@ -1,9 +1,9 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import "../globals.css";
 import FloatingWhatsApp from "../components/FloatingWhatsApp";
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
-import { notFound } from 'next-navigation';
+import { notFound } from 'next/navigation';
 import { routing } from '../../i18n/routing';
 
 const geistSans = Geist({
