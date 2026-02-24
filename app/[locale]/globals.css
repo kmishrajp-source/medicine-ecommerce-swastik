@@ -1,0 +1,227 @@
+:root {
+    /* Premium Medical Palette */
+    --primary: #006D77;
+    /* Deep Teal */
+    --primary-dark: #004D55;
+    --primary-light: #83C5BE;
+    --secondary: #EDF6F9;
+    /* Ice Blue */
+    --accent: #E29578;
+    /* Soft Coral for CTAs */
+    --success: #2A9D8F;
+
+    --text-dark: #1D2D35;
+    --text-light: #5C6B73;
+    --bg-light: #F8FDFF;
+    --white: #ffffff;
+
+    /* Effects */
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --blur: blur(12px);
+
+    /* Fonts */
+    --font-main: 'Outfit', sans-serif;
+
+    /* Spacing & Layout */
+    --container-width: 1240px;
+    --header-height: 80px;
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 32px;
+    /* Softer, rounder corners */
+
+    /* Shadows */
+    --shadow-sm: 0 4px 12px rgba(0, 109, 119, 0.05);
+    --shadow-md: 0 10px 30px rgba(0, 109, 119, 0.08);
+    --shadow-lg: 0 20px 40px rgba(0, 109, 119, 0.12);
+    --shadow-glow: 0 0 30px rgba(131, 197, 190, 0.4);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font-main);
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(131, 197, 190, 0.1) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(226, 149, 120, 0.05) 0%, transparent 40%);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    transition: color 0.3s ease;
+}
+
+ul {
+    list-style: none;
+}
+
+button {
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+/* Utilities */
+.container {
+    max-width: var(--container-width);
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur);
+    border: 1px solid var(--glass-border);
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+/* Header & Navbar */
+.glass-header {
+    background: var(--glass-bg);
+    backdrop-filter: var(--blur);
+    border-bottom: 1px solid var(--glass-border);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    padding: 0;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    box-shadow: var(--shadow-sm);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav ul {
+    display: flex;
+    gap: 30px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Hero Section */
+.hero-section {
+    min-height: calc(100vh - var(--header-height));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px var(--container-width) 40px 20px;
+    /* simple centering hack or use container */
+    max-width: var(--container-width);
+    margin: 0 auto;
+    position: relative;
+}
+
+.hero-content {
+    flex: 1;
+    max-width: 600px;
+    z-index: 2;
+}
+
+.hero-content h1 {
+    font-size: 4rem;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    background: linear-gradient(135deg, var(--primary-dark), var(--success));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 800;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    color: var(--text-light);
+    margin-bottom: 32px;
+}
+
+.hero-image {
+    flex: 1;
+    position: relative;
+    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Cards & Animations */
+.floating-card {
+    background: var(--white);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: absolute;
+    animation: float 6s ease-in-out infinite;
+    border: 1px solid var(--glass-border);
+    z-index: 2;
+}
+
+.floating-card i {
+    color: var(--accent);
+    font-size: 1.5rem;
+}
+
+.floating-card.delay-1 {
+    animation-delay: 2s;
+    top: 20%;
+    right: 10%;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px);
+    }
+}

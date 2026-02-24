@@ -1,19 +1,33 @@
 {
-  "name": "pharmacy-app",
+  "name": "temp_next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
+    "@prisma/client": "5.10.0",
     "@supabase/supabase-js": "^2.97.0",
-    "leaflet": "^1.9.4",
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^17.2.4",
     "next": "16.1.6",
+    "next-auth": "^4.24.13",
     "next-intl": "^4.8.3",
+    "razorpay": "^2.9.6",
     "react": "19.2.3",
     "react-dom": "19.2.3",
-    "react-leaflet": "^5.0.0"
+    "shortid": "^2.2.17"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prisma": "5.10.0",
+    "typescript": "^5"
   }
 }

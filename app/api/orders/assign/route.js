@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { sendSMS } from '../../../../lib/sms'
+import { sendSMS } from '@/lib/sms'
 
 // This would normally be in a separate lib file, instantiated with env variables
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
