@@ -12,11 +12,83 @@ export default function RetailerDashboard() {
     const [newItem, setNewItem] = useState({ medicineName: "", stock: "", price: "", deliveryArea: "" });
     const [showInvForm, setShowInvForm] = useState(false);
 
+    // --- Phase 1: Polling State ---
+    const [pendingOrders, setPendingOrders] = useState([]);
+    const [countdownTimer, setCountdownTimer] = useState(60);
+    const [isResponding, setIsResponding] = useState(false);
+
     useEffect(() => {
+        let pollingInterval;
         if (status === 'authenticated' && session?.user?.role === 'RETAILER') {
             fetchInventory();
+            fetchPendingOrders(); // Initial fetch
+            pollingInterval = setInterval(fetchPendingOrders, 10000); // Poll every 10 seconds
         }
+        return () => clearInterval(pollingInterval);
     }, [status, session]);
+
+    // Visually decay the countdown when there's an active order
+    useEffect(() => {
+        let timer;
+        if (pendingOrders.length > 0 && countdownTimer > 0) {
+            timer = setInterval(() => setCountdownTimer(prev => prev - 1), 1000);
+        } else if (pendingOrders.length === 0) {
+            setCountdownTimer(60); // Reset timer if no orders
+        }
+        return () => clearInterval(timer);
+    }, [pendingOrders, countdownTimer]);
+
+    const fetchPendingOrders = async () => {
+        try {
+            const res = await fetch('/api/retailer/orders');
+            const data = await res.json();
+            if (data.success && data.pendingOrders.length > 0) {
+                // If a new order comes in, restart the local visual timer
+                if (pendingOrders.length === 0 || pendingOrders[0].id !== data.pendingOrders[0].id) {
+                    setCountdownTimer(60);
+                }
+                setPendingOrders(data.pendingOrders);
+            } else {
+                setPendingOrders([]);
+            }
+        } catch (e) { console.error("Polling error", e); }
+    };
+
+    const handleAcceptOrder = async (orderId) => {
+        setIsResponding(true);
+        try {
+            const res = await fetch('/api/retailer/orders/accept', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Order Accepted! Please prepare the items. A driver is on the way.");
+                setPendingOrders(prev => prev.filter(o => o.id !== orderId));
+            } else {
+                alert(data.error);
+                fetchPendingOrders(); // Refresh state if it failed
+            }
+        } finally { setIsResponding(false); }
+    };
+
+    const handleRejectOrder = async (orderId) => {
+        setIsResponding(true);
+        try {
+            const res = await fetch('/api/retailer/orders/reject', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setPendingOrders(prev => prev.filter(o => o.id !== orderId));
+            } else {
+                alert(data.error);
+            }
+        } finally { setIsResponding(false); }
+    };
 
     const fetchInventory = async () => {
         const res = await fetch('/api/retailer/inventory');
@@ -54,6 +126,62 @@ export default function RetailerDashboard() {
                         <p style={{ color: '#666' }}>Welcome back, {session?.user?.name}</p>
                     </div>
                 </div>
+
+                {/* --- Incoming Order Polling Alert --- */}
+                {pendingOrders.length > 0 && (
+                    <div style={{ background: '#FFF7ED', border: '2px solid #F97316', padding: '30px', borderRadius: '16px', marginBottom: '40px', boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.2)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
+                            <div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
+                                    <h2 style={{ color: '#C2410C', margin: 0 }}>🚨 New Incoming Order!</h2>
+                                    <span style={{ background: countdownTimer < 15 ? '#DC2626' : '#EA580C', color: 'white', padding: '5px 15px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        <i className="fa-solid fa-clock"></i> 00:{countdownTimer < 10 ? `0${countdownTimer}` : countdownTimer}
+                                    </span>
+                                </div>
+                                <p style={{ color: '#9A3412', fontSize: '1.1rem', margin: 0 }}>Accept quickly before it bypasses to the next pharmacy.</p>
+                            </div>
+
+                            <div style={{ display: 'flex', gap: '15px' }}>
+                                <button
+                                    onClick={() => handleRejectOrder(pendingOrders[0].id)}
+                                    disabled={isResponding}
+                                    style={{ background: 'transparent', color: '#DC2626', border: '2px solid #DC2626', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: isResponding ? 'not-allowed' : 'pointer' }}>
+                                    Reject
+                                </button>
+                                <button
+                                    onClick={() => handleAcceptOrder(pendingOrders[0].id)}
+                                    disabled={isResponding}
+                                    style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 30px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.2rem', cursor: isResponding ? 'not-allowed' : 'pointer', boxShadow: '0 4px 6px rgba(22, 163, 74, 0.3)' }}>
+                                    {isResponding ? "Processing..." : "ACCEPT ORDER"}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div style={{ marginTop: '20px', background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #FED7AA' }}>
+                            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>Order Details #{pendingOrders[0].id.slice(-6).toUpperCase()}</h4>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <div>
+                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Customer</p>
+                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{pendingOrders[0].guestName || pendingOrders[0].user?.name} ({pendingOrders[0].guestPhone || pendingOrders[0].user?.phone})</p>
+                                </div>
+                                <div>
+                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Total Value</p>
+                                    <p style={{ margin: 0, fontWeight: 'bold', color: '#16A34A', fontSize: '1.2rem' }}>₹{pendingOrders[0].total.toFixed(2)}</p>
+                                </div>
+                            </div>
+                            <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
+                                <p style={{ margin: '0 0 10px 0', color: '#666', fontSize: '0.9rem' }}>Items Requested:</p>
+                                <ul style={{ margin: 0, paddingLeft: '20px' }}>
+                                    {pendingOrders[0].items.map(item => (
+                                        <li key={item.id}>
+                                            <strong>{item.quantity}x</strong> {item.product.name} (₹{item.price})
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "40px" }}>
                     {/* Card 1: View Orders */}

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
@@ -14,6 +14,9 @@ export default function DeliveryDashboard() {
     const [activeOrder, setActiveOrder] = useState(null);
     const [loading, setLoading] = useState(true);
     const [statusUpdating, setStatusUpdating] = useState(false);
+    // --- Phase 2: Delivery Photo State ---
+    const [photoBase64, setPhotoBase64] = useState(null);
+    const photoInputRef = useRef(null);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -134,22 +137,41 @@ export default function DeliveryDashboard() {
     };
 
     const updateOrderStatus = async (newStatus) => {
+        if (newStatus === 'Delivered' && !photoBase64) {
+            alert("⚠️ Please capture a photo of the delivered package at the door first!");
+            return;
+        }
+
         try {
             const res = await fetch('/api/agent/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: activeOrder.id, newStatus })
+                body: JSON.stringify({
+                    orderId: activeOrder.id,
+                    newStatus,
+                    deliveryProofBase64: photoBase64 // Append to payload
+                })
             });
             const data = await res.json();
 
             if (data.success) {
                 alert(data.message || `Order successfully updated to ${newStatus}`);
-                fetchDashboardData(); // Refresh to see ₹50 wallet bump or clear active order
+                setPhotoBase64(null); // Clear camera cache
+                fetchDashboardData();
             } else {
                 alert(data.error);
             }
         } catch (error) {
             alert("Error updating target delivery status.");
+        }
+    };
+
+    const handlePhotoCapture = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => setPhotoBase64(reader.result);
+            reader.readAsDataURL(file);
         }
     };
 
@@ -233,9 +255,41 @@ export default function DeliveryDashboard() {
                                     Confirm Package Picked Up
                                 </button>
                             ) : (
-                                <button onClick={() => updateOrderStatus('Delivered')} style={{ background: '#4CAF50', color: 'white', border: 'none', padding: '15px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                                    Swipe to Mark Delivered (Earn ₹50)
-                                </button>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                                    <div style={{ border: '2px dashed #9CA3AF', padding: '20px', borderRadius: '8px', textAlign: 'center', background: '#F9FAFB' }}>
+                                        {photoBase64 ? (
+                                            <div>
+                                                <img src={photoBase64} alt="Delivery Proof" style={{ width: '100%', maxHeight: '250px', objectFit: 'cover', borderRadius: '8px', marginBottom: '15px' }} />
+                                                <button onClick={() => setPhotoBase64(null)} style={{ background: '#EF4444', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                                    <i className="fa-solid fa-rotate-right"></i> Retake Photo
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <div>
+                                                <i className="fa-solid fa-camera" style={{ fontSize: '3rem', color: '#6B7280', marginBottom: '10px' }}></i>
+                                                <p style={{ margin: '0 0 15px 0', color: '#4B5563', fontWeight: 'bold' }}>Photo Proof Required</p>
+                                                <input
+                                                    type="file"
+                                                    accept="image/*"
+                                                    capture="environment"
+                                                    ref={photoInputRef}
+                                                    onChange={handlePhotoCapture}
+                                                    style={{ display: 'none' }}
+                                                />
+                                                <button onClick={() => photoInputRef.current.click()} style={{ background: '#1F2937', color: 'white', border: 'none', padding: '12px 24px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                                    Open Camera
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button
+                                        onClick={() => updateOrderStatus('Delivered')}
+                                        disabled={!photoBase64}
+                                        style={{ background: photoBase64 ? '#4CAF50' : '#D1D5DB', color: 'white', border: 'none', padding: '15px', borderRadius: '8px', cursor: photoBase64 ? 'pointer' : 'not-allowed', fontWeight: 'bold', fontSize: '1.1rem', display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
+                                        <span>Swipe to Mark Delivered</span>
+                                        {photoBase64 && <span style={{ background: '#2E7D32', padding: '4px 10px', borderRadius: '12px', fontSize: '0.8rem' }}>Earn ₹50</span>}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

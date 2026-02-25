@@ -45,7 +45,7 @@ export async function POST(req) {
     }
 
     try {
-        const { orderId, newStatus } = await req.json();
+        const { orderId, newStatus, deliveryProofBase64 } = await req.json();
 
         const agent = await prisma.deliveryAgent.findUnique({
             where: { userId: session.user.id }
@@ -60,12 +60,13 @@ export async function POST(req) {
         }
 
         if (newStatus === "Delivered") {
-            // 1. Mark Order as Delivered
+            // 1. Mark Order as Delivered & Add Proof URL
             const updated = await prisma.order.update({
                 where: { id: orderId, deliveryAgentId: agent.id },
                 data: {
                     status: "Delivered",
-                    isDelivered: true
+                    isDelivered: true,
+                    deliveryProofUrl: deliveryProofBase64 || null
                 }
             });
 

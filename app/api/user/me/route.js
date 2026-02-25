@@ -20,9 +20,22 @@ export async function GET(req) {
                 role: true,
                 referralCode: true,
                 walletBalance: true,
-                createdAt: true
+                createdAt: true,
+                transactions: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 20
+                }
             }
         });
+
+        // Also fetch the 1st-tier referred network
+        const referredNetwork = await prisma.user.findMany({
+            where: { referredBy: user.referralCode },
+            select: { name: true, createdAt: true, email: true },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        user.referredNetwork = referredNetwork;
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });

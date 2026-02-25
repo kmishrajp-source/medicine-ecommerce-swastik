@@ -77,6 +77,7 @@ model Order {
   isDelivered   Boolean     @default(false)
   items         OrderItem[]
   prescription  Prescription?
+  deliveryProofUrl String?
   createdAt     DateTime    @default(now())
 }
 
