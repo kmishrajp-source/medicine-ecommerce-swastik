@@ -70,7 +70,7 @@ export async function POST(req) {
                 }
             });
 
-            // 2. Add ₹50 to the Agent's Wallet Balance
+            // 2. Add ₹50 to the Agent's Wallet Balance 
             await prisma.deliveryAgent.update({
                 where: { id: agent.id },
                 data: {
@@ -78,10 +78,66 @@ export async function POST(req) {
                 }
             });
 
-            // 3. Disburse 2-Tier MLM Wallet Commissions to the Customer Network
-            if (updated.userId && updated.total > 0) {
-                // Background compute to prevent delaying the driver's response payload
-                processReferralCommissions(updated.userId, updated.total).catch(console.error);
+            // 3. The Money Engine: Automated First-Order Referral Payouts
+            if (updated.userId) {
+                try {
+                    const user = await prisma.user.findUnique({
+                        where: { id: updated.userId },
+                        include: {
+                            _count: {
+                                select: { orders: { where: { status: "Delivered" } } }
+                            }
+                        }
+                    });
+
+                    // If this is exactly their FIRST delivered order, and they were referred
+                    if (user && user._count.orders === 1 && user.referredBy) {
+                        const referrer = await prisma.user.findUnique({
+                            where: { referralCode: user.referredBy }
+                        });
+
+                        if (referrer) {
+                            console.log(`🤑 TRIGGERING FIRST ORDER PAYOUTS: ₹50 for ${user.name} and ₹50 for ${referrer.name}`);
+                            await prisma.$transaction(async (tx) => {
+                                // 3A. Inject Welcome Bonus to the New Customer
+                                await tx.user.update({
+                                    where: { id: user.id },
+                                    data: { walletBalance: { increment: 50.0 } }
+                                });
+                                await tx.walletTransaction.create({
+                                    data: {
+                                        userId: user.id,
+                                        amount: 50.0,
+                                        type: "CREDIT",
+                                        description: "Welcome Bonus (First Order Completed)"
+                                    }
+                                });
+
+                                // 3B. Inject Referral Bounty to the Referrer
+                                await tx.user.update({
+                                    where: { id: referrer.id },
+                                    data: { walletBalance: { increment: 50.0 } }
+                                });
+                                await tx.walletTransaction.create({
+                                    data: {
+                                        userId: referrer.id,
+                                        amount: 50.0,
+                                        type: "CREDIT",
+                                        description: `Referral Bonus for inviting ${user.name}`
+                                    }
+                                });
+                            });
+                        }
+                    }
+
+                    // 4. Continual System: Disburse usual 2-Tier MLM Wallet Commissions
+                    if (updated.total > 0) {
+                        processReferralCommissions(updated.userId, updated.total).catch(console.error);
+                    }
+                } catch (walletErr) {
+                    console.error("Critical Referral Payout Error:", walletErr);
+                    // Do not fail the driver's delivery response if wallet crashes
+                }
             }
 
             return NextResponse.json({

@@ -15,6 +15,7 @@ export default function Checkout() {
     const [location, setLocation] = useState(null);
     const [gettingLocation, setGettingLocation] = useState(false);
     const { data: session } = useSession();
+    const [eligibleForBonus, setEligibleForBonus] = useState(false);
 
     // Coupon Handler
     const applyCoupon = () => {
@@ -55,6 +56,18 @@ export default function Checkout() {
                 name: session.user.name || '',
                 email: session.user.email || ''
             }));
+
+            // Check if user is eligible for the First Order hook Welcome Bonus
+            fetch('/api/user/me')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.user) {
+                        if (data.user.referredBy && data.user._count?.orders === 0) {
+                            setEligibleForBonus(true);
+                        }
+                    }
+                })
+                .catch(console.error);
         }
     }, [session]);
 
@@ -325,6 +338,13 @@ export default function Checkout() {
 
             <main className="container" style={{ marginTop: '100px', paddingBottom: '60px', maxWidth: '800px' }}>
                 <h2 style={{ marginBottom: '24px' }}>Checkout {session ? '' : '(Guest)'}</h2>
+
+                {eligibleForBonus && (
+                    <div style={{ background: '#FFFBEB', padding: '20px', borderRadius: '16px', marginBottom: '25px', border: '2px dashed #F59E0B', textAlign: 'center', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+                        <h3 style={{ margin: '0 0 10px 0', color: '#D97706', fontSize: '1.4rem' }}>🎉 You have a ₹50 Welcome Bonus waiting!</h3>
+                        <p style={{ margin: 0, color: '#B45309', fontSize: '1.05rem' }}>Complete your very first delivery to instantly unlock your cash reward straight into your wallet.</p>
+                    </div>
+                )}
 
                 <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
                     <form onSubmit={handleOrderSubmit}>

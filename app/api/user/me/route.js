@@ -19,8 +19,12 @@ export async function GET(req) {
                 email: true,
                 role: true,
                 referralCode: true,
+                referredBy: true,
                 walletBalance: true,
                 createdAt: true,
+                _count: {
+                    select: { orders: { where: { status: "Delivered" } } }
+                },
                 transactions: {
                     orderBy: { createdAt: 'desc' },
                     take: 20
