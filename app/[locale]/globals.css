@@ -109,8 +109,9 @@ button {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0;
-    height: var(--header-height);
+    padding: 10px 0;
+    height: auto;
+    min-height: var(--header-height);
     display: flex;
     align-items: center;
     box-shadow: var(--shadow-sm);
@@ -120,6 +121,8 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
     width: 100%;
 }
 
@@ -134,13 +137,15 @@ button {
 
 .nav ul {
     display: flex;
-    gap: 30px;
+    flex-wrap: wrap;
+    gap: 15px 30px;
 }
 
 .header-actions {
     display: flex;
     align-items: center;
-    gap: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 /* Hero Section */
