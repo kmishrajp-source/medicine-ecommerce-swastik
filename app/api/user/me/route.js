@@ -24,18 +24,35 @@ export async function GET(req) {
                 transactions: {
                     orderBy: { createdAt: 'desc' },
                     take: 20
+                },
+                withdrawals: {
+                    orderBy: { createdAt: 'desc' },
+                    take: 10
                 }
             }
         });
 
-        // Also fetch the 1st-tier referred network
+        // Also fetch the 1st-tier referred network with their orders to determine "Active Buyers"
         const referredNetwork = await prisma.user.findMany({
             where: { referredBy: user.referralCode },
-            select: { name: true, createdAt: true, email: true },
+            select: {
+                name: true,
+                createdAt: true,
+                email: true,
+                orders: {
+                    select: { id: true },
+                    take: 1 // We just need to know if they placed at least 1 order
+                }
+            },
             orderBy: { createdAt: 'desc' }
         });
 
-        user.referredNetwork = referredNetwork;
+        const totalInvited = referredNetwork.length;
+        const activeBuyers = referredNetwork.filter(u => u.orders && u.orders.length > 0).length;
+
+        user.referredNetwork = referredNetwork.map(u => ({ name: u.name, email: u.email, createdAt: u.createdAt, isActive: u.orders && u.orders.length > 0 }));
+        user.totalInvited = totalInvited;
+        user.activeBuyers = activeBuyers;
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });

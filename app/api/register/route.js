@@ -21,8 +21,9 @@ export async function POST(req) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Generate New Referral Code
-        const baseCode = name.substring(0, 3).toUpperCase().replace(/\s/g, "X");
-        const randomCode = Math.floor(100 + Math.random() * 900);
+        const cleanName = name.replace(/[^a-zA-Z]/g, "").toUpperCase();
+        const baseCode = cleanName.length >= 3 ? cleanName.substring(0, 3) : cleanName + 'X'.repeat(3 - cleanName.length);
+        const randomCode = Math.floor(1000 + Math.random() * 9000); // 4 digit to reduce collision
         const newReferralCode = `${baseCode}${randomCode}`;
 
         // Validate Passed Referral Code
