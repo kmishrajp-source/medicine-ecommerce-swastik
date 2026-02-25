@@ -13,8 +13,12 @@ export async function POST(req) {
     try {
         const { amount, upiId } = await req.json();
 
-        if (!amount || amount < 100) {
-            return NextResponse.json({ success: false, error: "Minimum withdrawal amount is ₹100." }, { status: 400 });
+        // Fetch the Global Minimum Withdrawal Config
+        let settings = await prisma.systemSettings.findUnique({ where: { id: "default" } });
+        const minWithdrawal = settings ? settings.minimumWithdrawal : 100.0;
+
+        if (!amount || amount < minWithdrawal) {
+            return NextResponse.json({ success: false, error: `Minimum withdrawal amount is ₹${minWithdrawal}.` }, { status: 400 });
         }
 
         if (!upiId || !upiId.includes('@')) {

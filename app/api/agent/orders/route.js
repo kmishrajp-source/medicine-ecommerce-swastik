@@ -51,6 +51,12 @@ export async function POST(req) {
             where: { userId: session.user.id }
         });
 
+        // Fetch dynamic system settings for payouts
+        let settings = await prisma.systemSettings.findUnique({ where: { id: "default" } });
+        if (!settings) {
+            settings = { deliveryAgentFee: 50.0, welcomeBonusAmount: 50.0, referralBonusAmount: 50.0 };
+        }
+
         if (newStatus === "Picked_Up") {
             const updated = await prisma.order.update({
                 where: { id: orderId, deliveryAgentId: agent.id },
@@ -70,11 +76,11 @@ export async function POST(req) {
                 }
             });
 
-            // 2. Add ₹50 to the Agent's Wallet Balance 
+            // 2. Add Dynamic Fee to the Agent's Wallet Balance 
             await prisma.deliveryAgent.update({
                 where: { id: agent.id },
                 data: {
-                    walletBalance: { increment: 50.0 }
+                    walletBalance: { increment: settings.deliveryAgentFee }
                 }
             });
 
@@ -97,17 +103,17 @@ export async function POST(req) {
                         });
 
                         if (referrer) {
-                            console.log(`🤑 TRIGGERING FIRST ORDER PAYOUTS: ₹50 for ${user.name} and ₹50 for ${referrer.name}`);
+                            console.log(`🤑 TRIGGERING FIRST ORDER PAYOUTS: ₹${settings.welcomeBonusAmount} for ${user.name} and ₹${settings.referralBonusAmount} for ${referrer.name}`);
                             await prisma.$transaction(async (tx) => {
                                 // 3A. Inject Welcome Bonus to the New Customer
                                 await tx.user.update({
                                     where: { id: user.id },
-                                    data: { walletBalance: { increment: 50.0 } }
+                                    data: { walletBalance: { increment: settings.welcomeBonusAmount } }
                                 });
                                 await tx.walletTransaction.create({
                                     data: {
                                         userId: user.id,
-                                        amount: 50.0,
+                                        amount: settings.welcomeBonusAmount,
                                         type: "CREDIT",
                                         description: "Welcome Bonus (First Order Completed)"
                                     }
@@ -116,12 +122,12 @@ export async function POST(req) {
                                 // 3B. Inject Referral Bounty to the Referrer
                                 await tx.user.update({
                                     where: { id: referrer.id },
-                                    data: { walletBalance: { increment: 50.0 } }
+                                    data: { walletBalance: { increment: settings.referralBonusAmount } }
                                 });
                                 await tx.walletTransaction.create({
                                     data: {
                                         userId: referrer.id,
-                                        amount: 50.0,
+                                        amount: settings.referralBonusAmount,
                                         type: "CREDIT",
                                         description: `Referral Bonus for inviting ${user.name}`
                                     }
@@ -142,7 +148,7 @@ export async function POST(req) {
 
             return NextResponse.json({
                 success: true,
-                message: "Delivery Completed! ₹50 has been added to your wallet.",
+                message: `Delivery Completed! ₹${settings.deliveryAgentFee} has been added to your wallet.`,
                 order: updated
             });
         }

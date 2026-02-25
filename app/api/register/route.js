@@ -37,6 +37,9 @@ export async function POST(req) {
             }
         }
 
+        // Attempt to extract the IP trace (useful for tracking referral farms)
+        const ipAddress = req.headers.get("x-forwarded-for") || req.ip || "UNKNOWN_IP";
+
         const user = await prisma.user.create({
             data: {
                 name,
@@ -44,7 +47,8 @@ export async function POST(req) {
                 password: hashedPassword,
                 role: "CUSTOMER",
                 referralCode: newReferralCode,
-                referredBy: validReferredBy
+                referredBy: validReferredBy,
+                lastIpAddress: ipAddress
             },
         });
 

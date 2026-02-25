@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
@@ -35,6 +36,17 @@ model User {
   transactions   WalletTransaction[]
   withdrawals    Withdrawal[]
   fcmTokens      String[] @default([]) // Used for Push Notifications
+  lastIpAddress  String?
+  deviceId       String?
+}
+
+model SystemSettings {
+  id                  String   @id @default("default") // Enforce singleton pattern
+  referralBonusAmount Float    @default(50.0)
+  welcomeBonusAmount  Float    @default(50.0)
+  minimumWithdrawal   Float    @default(100.0)
+  deliveryAgentFee    Float    @default(50.0)
+  updatedAt           DateTime @updatedAt
 }
 
 model Product {

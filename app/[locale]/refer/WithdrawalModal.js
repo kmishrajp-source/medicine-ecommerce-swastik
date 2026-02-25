@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
 
 export default function WithdrawalModal({ isOpen, onClose, walletBalance, onSuccess }) {
@@ -8,15 +8,28 @@ export default function WithdrawalModal({ isOpen, onClose, walletBalance, onSucc
     const [upiId, setUpiId] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [minWithdrawal, setMinWithdrawal] = useState(100);
+
+    useEffect(() => {
+        if (isOpen) {
+            fetch('/api/settings/public')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.minimumWithdrawal) {
+                        setMinWithdrawal(data.minimumWithdrawal);
+                    }
+                })
+                .catch(console.error);
+        }
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
-
-        if (walletBalance < 100) {
-            setError("You need at least ₹100 to withdraw.");
+        if (walletBalance < minWithdrawal) {
+            setError(`You need at least ₹${minWithdrawal} to withdraw.`);
             return;
         }
 
@@ -25,8 +38,8 @@ export default function WithdrawalModal({ isOpen, onClose, walletBalance, onSucc
             return;
         }
 
-        if (Number(amount) < 100) {
-            setError("Minimum withdrawal amount is ₹100.");
+        if (Number(amount) < minWithdrawal) {
+            setError(`Minimum withdrawal amount is ₹${minWithdrawal}.`);
             return;
         }
 
@@ -80,8 +93,8 @@ export default function WithdrawalModal({ isOpen, onClose, walletBalance, onSucc
                             type="number"
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
-                            placeholder="Min ₹100"
-                            min="100"
+                            placeholder={`Min ₹${minWithdrawal}`}
+                            min={minWithdrawal}
                             max={walletBalance}
                             required
                             style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #D1D5DB', fontSize: '1rem' }}
@@ -102,12 +115,12 @@ export default function WithdrawalModal({ isOpen, onClose, walletBalance, onSucc
 
                     <button
                         type="submit"
-                        disabled={loading || walletBalance < 100}
-                        style={{ width: '100%', padding: '14px', background: walletBalance >= 100 ? '#3B82F6' : '#9CA3AF', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: walletBalance >= 100 ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }}
+                        disabled={loading || walletBalance < minWithdrawal}
+                        style={{ width: '100%', padding: '14px', background: walletBalance >= minWithdrawal ? '#3B82F6' : '#9CA3AF', color: 'white', border: 'none', borderRadius: '8px', fontSize: '1.1rem', fontWeight: 'bold', cursor: walletBalance >= minWithdrawal ? 'pointer' : 'not-allowed', transition: 'background 0.2s' }}
                     >
                         {loading ? 'Processing...' : 'Request Withdrawal'}
                     </button>
-                    {walletBalance < 100 && <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#EF4444', margin: '10px 0 0 0' }}>Minimum ₹100 required to withdraw.</p>}
+                    {walletBalance < minWithdrawal && <p style={{ textAlign: 'center', fontSize: '0.85rem', color: '#EF4444', margin: '10px 0 0 0' }}>Minimum ₹{minWithdrawal} required to withdraw.</p>}
                 </form>
             </div>
         </div>
