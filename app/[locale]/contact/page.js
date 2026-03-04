@@ -15,19 +15,18 @@ export default function Contact() {
 
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{ fontWeight: 'bold', color: '#333' }}>📍 Head Office</div>
-                            <p style={{ color: '#666' }}>123 Health Tech Park, Sector 62,<br />Noida, Uttar Pradesh, India - 201301</p>
+                            <p style={{ color: '#666' }}>98-B, Mayur Vihar Phase II,<br />Delhi, India - 110091</p>
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{ fontWeight: 'bold', color: '#333' }}>📞 Phone</div>
-                            <p style={{ color: 'var(--primary)', fontWeight: 'bold' }}>+91 91613 64908</p>
+                            <p style={{ color: 'var(--primary)', fontWeight: 'bold' }}>+91 79921 22974</p>
                             <p style={{ color: '#666', fontSize: '0.9rem' }}>Mon-Sat: 9 AM - 8 PM</p>
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{ fontWeight: 'bold', color: '#333' }}>📧 Email</div>
-                            <p style={{ color: 'var(--primary)' }}>support@swastikmedicare.com</p>
-                            <p style={{ color: 'var(--primary)' }}>partners@swastikmedicare.com</p>
+                            <p style={{ color: 'var(--primary)' }}>swastikmedicare.help@gmail.com</p>
                         </div>
                     </div>
 
