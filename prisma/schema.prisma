@@ -58,7 +58,6 @@ model OTP {
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
 }
-}
 
 model Product {
   id          String   @id @default(cuid())
