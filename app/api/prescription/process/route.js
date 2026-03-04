@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { sendSMS } from "@/lib/sms";
 
 export async function POST(req) {
     const session = await getServerSession(authOptions);
@@ -38,11 +39,18 @@ export async function POST(req) {
             data: { status: 'Processed', orderId: order.id }
         });
 
-        // 3. Simulate SMS (In real app, call SMS provider)
-        // SMS to Customer: "Your order #123 is ready. Pay here: /checkout/123. Secret Code: 4567"
-        // SMS to Delivery Agent: "New Order for [Address]. Contact: [Phone]" (Once paid)
+        // 3. Send SMS to Customer
+        // In this implementation, we need the customer's phone number. 
+        // We can fetch it from the patientId or it might be passed in.
+        const patient = await prisma.user.findUnique({ where: { id: patientId } });
+        if (patient && patient.phone) {
+            const shortId = order.id.slice(-6).toUpperCase();
+            await sendSMS(
+                patient.phone,
+                `Dear ${patient.name || 'Customer'}, your prescription-based order #SM${shortId} is ready. Total: ₹${total}. Please login to pay and track delivery. Your Secret Code: ${deliveryCode}`
+            );
+        }
 
-        // We log verification/SMS here
         console.log(`[SMS] To Patient: Order ${order.id} created from prescription. Code: ${deliveryCode}`);
 
         return NextResponse.json({ success: true, orderId: order.id, deliveryCode });

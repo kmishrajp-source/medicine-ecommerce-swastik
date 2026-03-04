@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { sendSMS } from "@/lib/sms";
 
 export async function POST(req) {
     const session = await getServerSession(authOptions);
@@ -19,6 +20,14 @@ export async function POST(req) {
                 status: 'Pending'
             }
         });
+
+        // Notify Admin Setup
+        const adminPhone = "9161364908";
+        await sendSMS(
+            adminPhone,
+            `Swastik Medicare: New Prescription Uploaded by ${session.user.name || 'Customer'}. Please review in Admin Dashboard.`
+        );
+
         return NextResponse.json({ success: true });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -33,11 +42,22 @@ export async function GET(req) {
 
     try {
         const prescriptions = await prisma.prescription.findMany({
-            where: { status: 'Pending' },
+            where: { status: 'Pending', orderId: null }, // Standalone uploads
             include: { patient: true },
             orderBy: { createdAt: 'desc' }
         });
-        return NextResponse.json({ success: true, prescriptions });
+
+        const ordersAwaitingRx = await prisma.order.findMany({
+            where: { status: 'Rx_Uploaded' },
+            include: {
+                user: true,
+                prescription: true,
+                items: { include: { product: true } }
+            },
+            orderBy: { createdAt: 'desc' }
+        });
+
+        return NextResponse.json({ success: true, prescriptions, ordersAwaitingRx });
     } catch (error) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }

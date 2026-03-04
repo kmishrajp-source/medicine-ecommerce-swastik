@@ -47,6 +47,21 @@ export default function ProductDetails() {
                                     Rx Required
                                 </span>
                             )}
+                            {product.isScheduleH1 && (
+                                <span style={{ marginLeft: '10px', background: '#F3F4F6', color: '#111827', padding: '6px 14px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    Schedule H1
+                                </span>
+                            )}
+                            {product.isColdChain && (
+                                <span style={{ marginLeft: '10px', background: '#E0F2FE', color: '#0369A1', padding: '6px 14px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    <i className="fa-solid fa-snowflake"></i> Cold Chain
+                                </span>
+                            )}
+                            {product.isOTC && (
+                                <span style={{ marginLeft: '10px', background: '#ECFDF5', color: '#047857', padding: '6px 14px', borderRadius: '20px', fontSize: '0.9rem', fontWeight: 600 }}>
+                                    OTC
+                                </span>
+                            )}
                         </div>
 
                         <h1 style={{ fontSize: '2.5rem', marginBottom: '16px', color: 'var(--text-dark)' }}>{product.name}</h1>

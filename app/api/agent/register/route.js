@@ -4,7 +4,11 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
     try {
-        const { name, email, phone, password, vehicleNumber, licenseNumber } = await req.json();
+        const { name, email, phone, password, vehicleNumber, licenseNumber, licenseImageUrl, aadhaarImageUrl, phoneVerified } = await req.json();
+
+        if (!phoneVerified) {
+            return NextResponse.json({ error: "Phone number must be verified via OTP" }, { status: 400 });
+        }
 
         if (!name || !email || !phone || !password || !vehicleNumber || !licenseNumber) {
             return NextResponse.json({ error: "All fields are required" }, { status: 400 });
@@ -27,12 +31,15 @@ export async function POST(req) {
                 email,
                 password: hashedPassword,
                 role: "DELIVERY", // Set specific role
+                phoneVerified: true,
                 deliveryAgent: {
                     create: {
                         phone,
                         vehicleNumber,
                         licenseNumber,
-                        verified: true, // Auto-verifying for simplicity; in prod this needs admin approval
+                        licenseImageUrl,
+                        aadhaarImageUrl,
+                        verified: false, // Now requires admin approval
                         isOnline: false
                     }
                 }

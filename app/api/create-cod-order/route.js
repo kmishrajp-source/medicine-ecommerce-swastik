@@ -9,7 +9,8 @@ export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
 
-        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod, lat, lng } = await req.json();
+        const body = await req.json();
+        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl } = body;
 
         // Validate Coupon if present
         if (couponCode === 'FIRST100') {
@@ -46,11 +47,21 @@ export async function POST(req) {
             } catch (e) { console.error("Failed to create fallback product", e); }
         }
 
+        const ninetyDaysFromNow = new Date();
+        ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
+
         for (const item of items) {
             // Check if product exists
             const existingProduct = await prisma.product.findUnique({ where: { id: String(item.id) } });
 
             if (existingProduct) {
+                // 1. Expiry Block Compliance (90 days)
+                if (existingProduct.expiryDate && existingProduct.expiryDate < ninetyDaysFromNow) {
+                    return NextResponse.json({
+                        error: `Compliance Block: Product '${existingProduct.name}' has less than 90 days validity. Our policy prevents dispensing near-expiry medicine.`
+                    }, { status: 400 });
+                }
+
                 resolvedItems.push({
                     productId: String(item.id),
                     quantity: parseInt(item.quantity),
@@ -66,20 +77,29 @@ export async function POST(req) {
             }
         }
 
+        const hasRxItems = items.some(item => item.requiresPrescription);
+
+        if (hasRxItems && !prescriptionUrl) {
+            return NextResponse.json({ error: "Mandatory prescription upload missing for Rx items." }, { status: 400 });
+        }
+
         // 3. Prepare Order Data
         const orderData = {
             total: parseFloat(amount),
-            status: "Processing",
+            status: hasRxItems ? "Rx_Uploaded" : "Received",
             paymentMethod: paymentMethod || "COD",
             deliveryCode: deliveryCode,
             isPaid: false,
             isDelivered: false,
+            transactionId: transactionId || null,
             lat: lat ? parseFloat(lat) : null,
             lng: lng ? parseFloat(lng) : null,
             items: {
                 create: resolvedItems
             }
         };
+
+        // If prescription exists, we will link it after userId is determined
 
         // 3. Link User or Guest Details
         if (session) {
@@ -127,6 +147,17 @@ export async function POST(req) {
             orderData.guestEmail = guestEmail;
             orderData.guestPhone = guestPhone;
             orderData.address = address;
+        }
+
+        // 3.5 Link Prescription if provided
+        if (prescriptionUrl && orderData.userId) {
+            orderData.prescription = {
+                create: {
+                    imageUrl: prescriptionUrl,
+                    patientId: orderData.userId,
+                    status: 'Pending'
+                }
+            };
         }
 
         // 4. Create Order in Database

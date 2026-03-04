@@ -4,11 +4,20 @@ export default function ProductCard({ product, onAdd }) {
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
             <div style={{ height: '200px', background: `url('${product.image}') center/cover`, position: 'relative' }}>
-                {product.requiresPrescription && (
-                    <span style={{ position: 'absolute', top: '10px', left: '10px', background: '#FF9F43', color: 'white', padding: '4px 12px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 600 }}>
-                        Rx Required
-                    </span>
-                )}
+                <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-start' }}>
+                    {product.requiresPrescription && (
+                        <span style={{ background: '#FF9F43', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Rx Required</span>
+                    )}
+                    {product.isScheduleH1 && (
+                        <span style={{ background: '#000000', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Schedule H1</span>
+                    )}
+                    {product.isColdChain && (
+                        <span style={{ background: '#3B82F6', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}><i className="fa-solid fa-snowflake" style={{ marginRight: '4px' }}></i>Cold Chain</span>
+                    )}
+                    {product.isOTC && (
+                        <span style={{ background: '#10B981', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>OTC</span>
+                    )}
+                </div>
             </div>
             <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

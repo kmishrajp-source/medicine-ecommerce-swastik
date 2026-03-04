@@ -182,6 +182,20 @@ export default function DeliveryDashboard() {
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
             <div className="container" style={{ marginTop: '100px', padding: '0 15px', maxWidth: '800px' }}>
 
+                {agent && !agent.verified && (
+                    <div style={{ background: '#FFF7ED', border: '1px solid #FFEDD5', padding: '20px', borderRadius: '12px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <div style={{ fontSize: '2rem', color: '#EA580C' }}>
+                            <i className="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                        <div>
+                            <h3 style={{ margin: 0, color: '#9A3412' }}>Verification Pending</h3>
+                            <p style={{ margin: '5px 0 0 0', color: '#C2410C', fontSize: '0.9rem' }}>
+                                Your identity documents are currently being reviewed by our team. You will be able to start taking orders once your account is verified.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 {/* Header Profile & Wallet Card */}
                 <div style={{ background: '#1B5E20', color: 'white', padding: '20px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                     <div>
@@ -206,11 +220,11 @@ export default function DeliveryDashboard() {
                     </div>
                     <button
                         onClick={toggleStatus}
-                        disabled={statusUpdating || activeOrder} // Cannot go offline if order is pending
+                        disabled={statusUpdating || activeOrder || !agent?.verified} // Cannot go offline if order is pending OR not verified
                         style={{
-                            background: agent?.isOnline ? '#F44336' : '#4CAF50',
+                            background: !agent?.verified ? '#ccc' : (agent?.isOnline ? '#F44336' : '#4CAF50'),
                             color: 'white', border: 'none', padding: '10px 20px', borderRadius: '50px',
-                            cursor: (statusUpdating || activeOrder) ? 'not-allowed' : 'pointer', fontWeight: 'bold'
+                            cursor: (statusUpdating || activeOrder || !agent?.verified) ? 'not-allowed' : 'pointer', fontWeight: 'bold'
                         }}>
                         {statusUpdating ? "Syncing..." : (agent?.isOnline ? "Go Offline" : "Go Online")}
                     </button>

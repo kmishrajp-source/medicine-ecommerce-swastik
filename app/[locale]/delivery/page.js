@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
+import Link from "next/link";
 
 export default function DeliveryLogin() {
     const [orderId, setOrderId] = useState("");
@@ -69,6 +70,23 @@ export default function DeliveryLogin() {
                     </div>
                     <button type="submit" className="btn btn-primary full-width" style={{ padding: '12px', fontSize: '1rem' }}>Verify Delivery</button>
                 </form>
+
+                <div style={{ marginTop: '30px', paddingTop: '20px', borderTop: '1px solid #eee', textAlign: 'center' }}>
+                    <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '15px' }}>Want to earn with us?</p>
+                    <Link href="/agent/register" className="btn" style={{
+                        background: '#E8F5E9',
+                        color: '#2E7D32',
+                        border: '1px solid #2E7D32',
+                        width: '100%',
+                        display: 'block',
+                        textDecoration: 'none',
+                        padding: '10px',
+                        fontWeight: 'bold'
+                    }}>
+                        <i className="fa-solid fa-motorcycle" style={{ marginRight: '8px' }}></i>
+                        Join as Delivery Partner
+                    </Link>
+                </div>
             </div>
         </>
     );

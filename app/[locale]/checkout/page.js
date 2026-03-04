@@ -14,6 +14,7 @@ export default function Checkout() {
     const [discount, setDiscount] = useState(0);
     const [location, setLocation] = useState(null);
     const [gettingLocation, setGettingLocation] = useState(false);
+    const [transactionId, setTransactionId] = useState('');
     const { data: session } = useSession();
     const [eligibleForBonus, setEligibleForBonus] = useState(false);
 
@@ -113,12 +114,19 @@ export default function Checkout() {
         });
     };
 
+    const [prescriptionUrl, setPrescriptionUrl] = useState('');
+
     const handleOrderSubmit = async (e) => {
         e.preventDefault();
 
         // VALIDATION
         if (!formData.name || !formData.phone || !formData.address) {
             alert("Please fill in all required shipping details.");
+            return;
+        }
+
+        if (hasRxItems && !prescriptionUrl) {
+            alert("Please provide a prescription image URL for the medicines in your cart.");
             return;
         }
 
@@ -139,7 +147,8 @@ export default function Checkout() {
                         guestPhone: formData.phone,
                         address: formData.address,
                         lat: location?.lat,
-                        lng: location?.lng
+                        lng: location?.lng,
+                        prescriptionUrl: prescriptionUrl
                     }),
                 });
 
@@ -179,6 +188,7 @@ export default function Checkout() {
                         guestPhone: formData.phone,
                         address: formData.address,
                         paymentMethod: 'QR_SCAN',
+                        transactionId: transactionId,
                         lat: location?.lat,
                         lng: location?.lng
                     }),
@@ -393,7 +403,15 @@ export default function Checkout() {
                             <div style={{ background: '#FFF3E0', padding: '20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #FFE0B2' }}>
                                 <h4 style={{ color: '#F57C00', marginBottom: '10px' }}><i className="fa-solid fa-file-medical"></i> Prescription Required</h4>
                                 <p style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Some items in your cart require a doctor's prescription.</p>
-                                <input type="file" required style={{ background: 'white', padding: '10px', borderRadius: '8px', width: '100%' }} />
+                                <input
+                                    type="text"
+                                    placeholder="Paste Prescription Image URL (e.g. from Cloudinary/Imgur)"
+                                    value={prescriptionUrl}
+                                    onChange={(e) => setPrescriptionUrl(e.target.value)}
+                                    required
+                                    style={{ background: 'white', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', width: '100%' }}
+                                />
+                                <p style={{ fontSize: '0.75rem', marginTop: '8px', color: '#666' }}>Note: Real file upload will be enabled once your storage provider is configured.</p>
                             </div>
                         )}
 
@@ -460,6 +478,19 @@ export default function Checkout() {
                                         <div style={{ marginTop: '15px', textAlign: 'center' }}>
                                             <img src="/phonepe-qr.jpg" alt="PhonePe QR" style={{ width: '200px', borderRadius: '8px', border: '1px solid #ddd' }} />
                                             <p style={{ fontSize: '0.8rem', color: '#666', marginTop: '5px' }}>Scan with any UPI App</p>
+
+                                            <div style={{ marginTop: '15px', textAlign: 'left' }}>
+                                                <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', marginBottom: '5px' }}>Enter Transaction ID / UTR</label>
+                                                <input
+                                                    type="text"
+                                                    placeholder="12-digit UTR Number"
+                                                    value={transactionId}
+                                                    onChange={(e) => setTransactionId(e.target.value)}
+                                                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                                                    required={paymentMethod === 'QR'}
+                                                />
+                                                <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>Required for manual verification</p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

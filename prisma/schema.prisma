@@ -38,6 +38,7 @@ model User {
   fcmTokens      String[] @default([]) // Used for Push Notifications
   lastIpAddress  String?
   deviceId       String?
+  phoneVerified  Boolean  @default(false)
 }
 
 model SystemSettings {
@@ -47,6 +48,16 @@ model SystemSettings {
   minimumWithdrawal   Float    @default(100.0)
   deliveryAgentFee    Float    @default(50.0)
   updatedAt           DateTime @updatedAt
+}
+
+model OTP {
+  id        String   @id @default(cuid())
+  phone     String
+  code      String
+  expiry    DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
 }
 
 model Product {
@@ -60,6 +71,9 @@ model Product {
   stock       Int      @default(100)
   expiryDate  DateTime?
   batchNumber String?
+  isOTC       Boolean  @default(false)
+  isScheduleH1 Boolean @default(false)
+  isColdChain Boolean  @default(false)
   createdAt   DateTime @default(now())
   orderItems  OrderItem[]
   stockLogs   StockLog[]
@@ -82,7 +96,8 @@ model Order {
   deliveryAgent DeliveryAgent? @relation("AssignedDeliveries", fields: [deliveryAgentId], references: [id])
   assignedAt    DateTime?
   total         Float
-  status        String      @default("Processing")
+  status        String      @default("Received") // Received, Rx_Uploaded, Pharmacist_Approved, Ready_for_Packing, Out_for_Delivery, Delivered
+  packingChecklist String?  // JSON representation of packing validation
   paymentMethod String      @default("ONLINE") // "ONLINE" or "COD"
   deliveryCode  String?     // Secret code for COD verification
   isPaid        Boolean     @default(false)
@@ -295,6 +310,7 @@ model MedicalRep {
   phone          String
   status         String   @default("Pending") // Pending, Active
   verified       Boolean  @default(false)
+  idImageUrl     String?  // Identity document URL
   createdAt      DateTime @default(now())
   visits         Visit[]
 }
@@ -388,6 +404,8 @@ model DeliveryAgent {
   lng            Float?
   isOnline       Boolean  @default(false)
   walletBalance  Float    @default(0.0)
+  licenseImageUrl String? // Driver's license image
+  aadhaarImageUrl String? // Aadhaar card image
   createdAt      DateTime @default(now())
   deliveries     Order[]  @relation("AssignedDeliveries")
 }
@@ -412,4 +430,13 @@ model Withdrawal {
   paymentDetails String  // JSON or string of account info
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model ComplianceAuditLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  action    String   // e.g., "Pharmacist Approval", "Packing Validation"
+  adminId   String
+  details   String?  // JSON string
+  createdAt DateTime @default(now())
 }

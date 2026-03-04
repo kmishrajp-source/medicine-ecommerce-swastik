@@ -93,6 +93,7 @@ export default function PartnerPortal() {
             color: "#EF4444",
             desc: "Delivery tracking and verification.",
             link: "/delivery",
+            register: "/agent/register",
             btnText: "Delivery Login"
         }
     ];
