@@ -10,6 +10,7 @@ export async function POST(req) {
     const { driverName, vehicleNumber, vehicleType, city, phone } = await req.json();
 
     try {
+
         const ambulance = await prisma.ambulance.create({
             data: {
                 userId: session.user.id,

@@ -43,12 +43,9 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
                         <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
                         <li><Link href="/labs">Lab Tests</Link></li>
-                        {session?.user?.role === 'ADMIN' && (
-                            <>
-                                <li><Link href="/admin">{t('admin_panel')}</Link></li>
-                                <li><Link href="/admin/inventory">Inventory</Link></li>
-                            </>
-                        )}
+                        <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
+                        <li><Link href="/admin/inventory">Inventory</Link></li>
+                        <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>Support & Complaints</Link></li>
                         {session?.user?.role === 'DELIVERY' && (
                             <li><Link href="/agent/dashboard" style={{ color: '#F59E0B', fontWeight: 'bold' }}>{t('delivery_agent')}</Link></li>
                         )}
@@ -72,6 +69,9 @@ export default function Navbar({ cartCount, openCart }) {
                             <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title="My Earnings">
                                 <i className="fa-solid fa-wallet"></i> {t('wallet', { balance: "0" })}
                             </Link>
+                            <Link href="/partner-growth" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#fef3c7', color: '#d97706', border: '1px solid #f59e0b', textDecoration: 'none' }} title="My Network">
+                                <i className="fa-solid fa-chart-line"></i> Growth Partner
+                            </Link>
                             <button onClick={() => signOut()} className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px' }}>Logout</button>
                         </div>
                     ) : (
@@ -92,6 +92,6 @@ export default function Navbar({ cartCount, openCart }) {
                     <LanguageSwitcher />
                 </div>
             </div>
-        </header>
+        </header >
     );
 }

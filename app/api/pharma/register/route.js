@@ -10,6 +10,7 @@ export async function POST(req) {
     const { companyName, licenseNumber, address, phone } = await req.json();
 
     try {
+
         const company = await prisma.pharmaCompany.create({
             data: {
                 userId: session.user.id,

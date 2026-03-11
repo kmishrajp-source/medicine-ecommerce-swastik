@@ -31,7 +31,7 @@ export default function UploadPrescription() {
 
         if (res.ok) {
             alert("Prescription Uploaded! We will review and send you an invoice.");
-            router.push('/dashboard'); // Or home
+            router.push('/profile');
         } else {
             alert("Failed to upload.");
         }
@@ -50,15 +50,33 @@ export default function UploadPrescription() {
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         <div>
-                            <label>Image URL (or File Upload Placeholder)</label>
-                            <input
-                                type="text"
-                                value={imageUrl}
-                                onChange={e => setImageUrl(e.target.value)}
-                                placeholder="Paste image link here (Simulated)"
-                                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #ddd' }}
-                            />
-                            <small style={{ color: '#666' }}>* Since we don't have AWS S3 keys yet, paste a public image URL or leave empty to simulate.</small>
+                            <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>Select Prescription Image</label>
+                            <div style={{ border: '2px dashed #ddd', padding: '40px', textAlign: 'center', borderRadius: '12px', cursor: 'pointer', background: '#fafafa' }}
+                                onClick={() => document.getElementById('fileInput').click()}
+                            >
+                                <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '2rem', color: '#aaa', marginBottom: '10px' }}></i>
+                                {imageUrl ? (
+                                    <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>✅ File Attached and Ready</div>
+                                ) : (
+                                    <div style={{ color: '#888' }}>Click here to browse your device for the prescription image</div>
+                                )}
+                                <input
+                                    id="fileInput"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                setImageUrl(reader.result);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                    style={{ display: 'none' }}
+                                />
+                            </div>
                         </div>
 
                         {!session && (

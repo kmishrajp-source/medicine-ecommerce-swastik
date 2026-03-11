@@ -55,6 +55,9 @@ export default function Login() {
                     </div>
                     <button type="submit" className="btn btn-primary full-width">Login</button>
                 </form>
+                <div style={{ marginTop: '15px', textAlign: 'center' }}>
+                    <Link href="/forgot-password" style={{ color: '#666', fontSize: '0.85rem', textDecoration: 'underline' }}>Forgot Password?</Link>
+                </div>
                 <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.9rem' }}>
                     Don't have an account? <Link href="/signup" style={{ color: 'var(--primary)' }}>Sign up</Link>
                 </p>

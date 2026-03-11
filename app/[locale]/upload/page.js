@@ -47,15 +47,15 @@ export default function UploadPrescription() {
 
                     <form onSubmit={handleSubmit}>
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>Select Image/PDF</label>
+                            <label style={{ display: 'block', marginBottom: '10px', fontWeight: 'bold' }}>Select Prescription Image</label>
                             <div style={{ border: '2px dashed #ddd', padding: '40px', textAlign: 'center', borderRadius: '12px', cursor: 'pointer', background: '#fafafa' }}
                                 onClick={() => document.getElementById('fileInput').click()}
                             >
                                 <i className="fa-solid fa-cloud-arrow-up" style={{ fontSize: '2rem', color: '#aaa', marginBottom: '10px' }}></i>
                                 {file ? (
-                                    <div style={{ color: 'var(--primary)', fontWeight: 'bold' }}>{file.name}</div>
+                                    <div style={{ color: 'var(--success)', fontWeight: 'bold' }}>✅ File Attached: {file.name}</div>
                                 ) : (
-                                    <div style={{ color: '#888' }}>Click to browse or drag file here</div>
+                                    <div style={{ color: '#888' }}>Click here to browse your device for the prescription image or PDF</div>
                                 )}
                                 <input
                                     id="fileInput"

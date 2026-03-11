@@ -5,6 +5,9 @@ import { sendSMS } from "@/lib/sms";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
 import { assignOrderToNearestRetailer } from "@/utils/routing";
+import { splitOrderIntoSubOrders } from "@/utils/marketplace";
+import { triggerWebhook } from "@/lib/webhooks";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -103,6 +106,13 @@ export async function POST(req) {
         // 3.5 Execute HyperLocal Routing (Non-Blocking)
         if (newOrder && newOrder.lat && newOrder.lng) {
             assignOrderToNearestRetailer(newOrder.id).catch(e => console.error("Routing Exception:", e));
+            // New Marketplace Split
+            splitOrderIntoSubOrders(newOrder.id).catch(e => console.error("Marketplace Split Exception:", e));
+            // Webhook Event
+            triggerWebhook("payment_success", newOrder.id, { amount });
+            // WhatsApp Customer Trigger
+            const phone = guestPhone || session?.user?.phone;
+            if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "N/A");
         }
 
         // 4. Send SMS

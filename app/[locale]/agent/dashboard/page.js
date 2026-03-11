@@ -18,6 +18,9 @@ export default function DeliveryDashboard() {
     const [photoBase64, setPhotoBase64] = useState(null);
     const photoInputRef = useRef(null);
 
+    // --- Onboarding Popup State ---
+    const [showOnboarding, setShowOnboarding] = useState(false);
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push('/login');
@@ -25,8 +28,17 @@ export default function DeliveryDashboard() {
             router.push('/');
         } else {
             fetchDashboardData();
+            // Check if they have watched the onboarding video
+            if (!localStorage.getItem('deliveryOnboardingWatched')) {
+                setShowOnboarding(true);
+            }
         }
     }, [session, status]);
+
+    const handleCloseOnboarding = () => {
+        localStorage.setItem('deliveryOnboardingWatched', 'true');
+        setShowOnboarding(false);
+    };
 
     // Live Foreground GPS Polling Engine (Triggered only when ON-DUTY)
     useEffect(() => {
@@ -315,6 +327,62 @@ export default function DeliveryDashboard() {
                 )}
             </div>
             <div style={{ marginBottom: '100px' }}></div>
+
+            {/* --- Onboarding Video Popup --- */}
+            {showOnboarding && (
+                <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}>
+                    <div style={{ background: 'white', width: '100%', maxWidth: '500px', borderRadius: '24px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)', animation: 'slideUp 0.4s ease-out' }}>
+
+                        {/* Video Header Area */}
+                        <div style={{ background: '#1e293b', padding: '20px', color: 'white', textAlign: 'center' }}>
+                            <div style={{ background: '#10b981', display: 'inline-block', padding: '8px 16px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '10px' }}>
+                                NEW RIDER TRAINING
+                            </div>
+                            <h2 style={{ margin: 0, fontSize: '1.5rem' }}>Start Earning as a Delivery Partner</h2>
+                        </div>
+
+                        {/* Video Embed */}
+                        <div style={{ width: '100%', aspectRatio: '16/9', background: '#0f172a', position: 'relative' }}>
+                            <iframe
+                                width="100%"
+                                height="100%"
+                                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&mute=1" // Placeholder Training Video
+                                title="Swastik Delivery Training"
+                                frameBorder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                                style={{ position: 'absolute', top: 0, left: 0 }}
+                            ></iframe>
+                        </div>
+
+                        {/* Earning Info */}
+                        <div style={{ padding: '25px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
+                                <div style={{ background: '#ecfdf5', border: '1px solid #10b981', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
+                                    <div style={{ color: '#047857', fontSize: '1.5rem', marginBottom: '5px' }}><i className="fa-solid fa-wallet"></i></div>
+                                    <h3 style={{ margin: 0, color: '#065f46', fontSize: '1.2rem' }}>₹800 - ₹1200</h3>
+                                    <p style={{ margin: 0, color: '#059669', fontSize: '0.8rem', fontWeight: 'bold' }}>Est. Daily Earning</p>
+                                </div>
+                                <div style={{ background: '#eff6ff', border: '1px solid #3b82f6', padding: '15px', borderRadius: '12px', textAlign: 'center' }}>
+                                    <div style={{ color: '#1d4ed8', fontSize: '1.5rem', marginBottom: '5px' }}><i className="fa-solid fa-users"></i></div>
+                                    <h3 style={{ margin: 0, color: '#1e40af', fontSize: '1.2rem' }}>₹50 Bonus</h3>
+                                    <p style={{ margin: 0, color: '#2563eb', fontSize: '0.8rem', fontWeight: 'bold' }}>Per Referred Rider</p>
+                                </div>
+                            </div>
+
+                            <ul style={{ margin: '0 0 25px 0', padding: '0 0 0 20px', color: '#475569', fontSize: '0.95rem', lineHeight: '1.6' }}>
+                                <li><strong>Always</strong> verify the package before picking it up.</li>
+                                <li><strong>Never</strong> ask for cash on prepaid <strong>(✅)</strong> orders.</li>
+                                <li><strong>Upload</strong> a clear photo of the package at the door.</li>
+                            </ul>
+
+                            <button onClick={handleCloseOnboarding} style={{ width: '100%', background: '#10b981', color: 'white', border: 'none', padding: '18px', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 'bold', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', boxShadow: '0 4px 6px -1px rgba(16, 185, 129, 0.4)' }}>
+                                <i className="fa-solid fa-circle-play"></i> Watch Training & Start Delivering
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

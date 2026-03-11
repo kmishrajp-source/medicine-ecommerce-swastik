@@ -62,6 +62,54 @@ export async function POST(req) {
             ];
         }
 
+        // --- MULTI-ROLE REFERRAL PAYOUT ENGINE (DOCTOR) ---
+        // Warning: This runs async to NOT block the critical Razorpay token generation
+        setTimeout(async () => {
+            try {
+                const connection = await prisma.referralConnection.findUnique({
+                    where: { refereeId: doctor.userId }
+                });
+
+                if (connection && connection.status === "Active") { // Doctors must be manually KYC Active
+                    const settings = await prisma.systemSettings.findFirst() || {};
+                    const config = settings.referralConfig ? JSON.parse(settings.referralConfig) : {
+                        doctor: { onboardBonus: 1000, consultPct: 5 } // Fallback
+                    };
+                    const dConfig = config.doctor;
+
+                    // Calculate Percentage Cut (e.g. 5% of 500 = ₹25)
+                    const payoutAmount = ((doctor.consultationFee || 500) * dConfig.consultPct) / 100;
+
+                    if (payoutAmount > 0) {
+                        await prisma.$transaction([
+                            prisma.referralConnection.update({
+                                where: { id: connection.id },
+                                data: {
+                                    activityCount: { increment: 1 },
+                                    totalEarned: { increment: payoutAmount }
+                                }
+                            }),
+                            prisma.user.update({
+                                where: { id: connection.referrerId },
+                                data: { walletBalance: { increment: payoutAmount } }
+                            }),
+                            prisma.walletTransaction.create({
+                                data: {
+                                    userId: connection.referrerId,
+                                    amount: payoutAmount,
+                                    type: "CREDIT",
+                                    description: `Recurring Commission: ${dConfig.consultPct}% cut from Doctor Consultation`
+                                }
+                            })
+                        ]);
+                        console.log(`[REFERRAL ALGO] Doctor ${doctor.userId} consulted, paid ₹${payoutAmount} to Partner ${connection.referrerId}`);
+                    }
+                }
+            } catch (refErr) {
+                console.error("[REFERRAL ALGO ERROR] Doctor Consult hook failed:", refErr);
+            }
+        }, 0);
+
         const response = await razorpay.orders.create(options);
 
         return NextResponse.json({

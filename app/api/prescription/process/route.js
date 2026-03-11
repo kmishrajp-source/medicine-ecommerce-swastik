@@ -3,10 +3,13 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sendSMS } from "@/lib/sms";
+import { assignOrderToNearestRetailer } from "@/utils/routing";
+import { splitOrderIntoSubOrders } from "@/utils/marketplace";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'ADMIN') {
+    if (!session) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -20,7 +23,7 @@ export async function POST(req) {
             data: {
                 userId: patientId,
                 total: parseFloat(total),
-                status: 'Pending Payment',
+                status: 'Processing', // Immediately route to retailers
                 paymentMethod: 'ONLINE', // Default, waiting for payment
                 deliveryCode,
                 items: {
@@ -39,19 +42,24 @@ export async function POST(req) {
             data: { status: 'Processed', orderId: order.id }
         });
 
-        // 3. Send SMS to Customer
-        // In this implementation, we need the customer's phone number. 
-        // We can fetch it from the patientId or it might be passed in.
+        // 3. Marketplace Logic
+        assignOrderToNearestRetailer(order.id).catch(e => console.error("Prescription Routing Exception:", e));
+        splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
+
+        // 4. Notifications
         const patient = await prisma.user.findUnique({ where: { id: patientId } });
         if (patient && patient.phone) {
             const shortId = order.id.slice(-6).toUpperCase();
+            // Legacy SMS
             await sendSMS(
                 patient.phone,
                 `Dear ${patient.name || 'Customer'}, your prescription-based order #SM${shortId} is ready. Total: ₹${total}. Please login to pay and track delivery. Your Secret Code: ${deliveryCode}`
             );
+            // New WhatsApp
+            WhatsAppTriggers.orderConfirmed(patient.phone, order.id, total, deliveryCode);
         }
 
-        console.log(`[SMS] To Patient: Order ${order.id} created from prescription. Code: ${deliveryCode}`);
+        console.log(`[MARKETPLACE] Prescription Order ${order.id} processed and routed.`);
 
         return NextResponse.json({ success: true, orderId: order.id, deliveryCode });
     } catch (error) {

@@ -3,7 +3,7 @@
 export default function ProductCard({ product, onAdd }) {
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ height: '200px', background: `url('${product.image}') center/cover`, position: 'relative' }}>
+            <div style={{ height: '200px', backgroundImage: `url("${product.image}")`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundColor: '#f1f5f9', position: 'relative' }}>
                 <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-start' }}>
                     {product.requiresPrescription && (
                         <span style={{ background: '#FF9F43', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Rx Required</span>
@@ -30,8 +30,20 @@ export default function ProductCard({ product, onAdd }) {
                         )}
                     </div>
                 </div>
-                <h3 style={{ marginBottom: '8px', fontSize: '1.2rem', flex: 1 }}>{product.name}</h3>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>{product.name}</h3>
+
+                {product.uses && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <strong style={{ color: 'var(--text-dark)' }}>Uses:</strong> {product.uses}
+                    </div>
+                )}
+                {product.sideEffects && (
+                    <div style={{ fontSize: '0.8rem', color: '#EF4444', marginBottom: '8px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <strong>Side Effects:</strong> {product.sideEffects}
+                    </div>
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
                     <span style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary)' }}>₹{product.price.toFixed(2)}</span>
                     <button
                         onClick={() => onAdd(product)}

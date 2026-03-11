@@ -17,6 +17,26 @@ export default function RetailerDashboard() {
     const [countdownTimer, setCountdownTimer] = useState(60);
     const [isResponding, setIsResponding] = useState(false);
 
+    // --- Training Video Popup State ---
+    const [showVideoPopup, setShowVideoPopup] = useState(false);
+    const [dontShowAgain, setDontShowAgain] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const dismissed = localStorage.getItem('retailerTrainingDismissed');
+            if (!dismissed) {
+                setShowVideoPopup(true);
+            }
+        }
+    }, []);
+
+    const closeVideoPopup = () => {
+        if (dontShowAgain && typeof window !== 'undefined') {
+            localStorage.setItem('retailerTrainingDismissed', 'true');
+        }
+        setShowVideoPopup(false);
+    };
+
     useEffect(() => {
         let pollingInterval;
         if (status === 'authenticated' && session?.user?.role === 'RETAILER') {
@@ -119,6 +139,72 @@ export default function RetailerDashboard() {
     return (
         <>
             <Navbar cartCount={0} />
+
+            {/* --- Retailer Training Video Popup --- */}
+            {showVideoPopup && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(6px)' }}>
+                    <div style={{ background: '#ffffff', borderRadius: '24px', width: '90%', maxWidth: '700px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', border: '1px solid #e2e8f0', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
+                        {/* Header */}
+                        <div style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', padding: '20px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <i className="fa-solid fa-graduation-cap"></i> Retailer Training
+                                </h2>
+                                <p style={{ margin: '5px 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>How Swastik Medicare Works</p>
+                            </div>
+                            <button onClick={closeVideoPopup} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}>
+                                <i className="fa-solid fa-times"></i>
+                            </button>
+                        </div>
+
+                        {/* Body - Video Embed */}
+                        <div style={{ padding: '30px' }}>
+                            <p style={{ color: '#475569', marginBottom: '20px', fontSize: '1.05rem', lineHeight: '1.6' }}>
+                                Welcome to the Swastik Medicare Pharmacy Network! Watch this quick guide to understand how to automatically receive local prescriptions, accept nearby delivery requests, and boost your monthly revenue.
+                            </p>
+
+                            <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', background: '#0f172a' }}>
+                                {/* Example placeholder video embed */}
+                                <iframe
+                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+                                    src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0&showinfo=0"
+                                    title="Swastik Medicare Training"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                    allowFullScreen
+                                ></iframe>
+                            </div>
+                        </div>
+
+                        {/* Footer - Actions & Checkbox */}
+                        <div style={{ background: '#f8fafc', padding: '20px 30px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#64748b', fontSize: '0.95rem', fontWeight: 500 }}>
+                                <input
+                                    type="checkbox"
+                                    checked={dontShowAgain}
+                                    onChange={(e) => setDontShowAgain(e.target.checked)}
+                                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563eb' }}
+                                />
+                                Don't show again
+                            </label>
+
+                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                                <button onClick={() => { closeVideoPopup(); router.push('/refer'); }} style={{ background: 'transparent', color: '#2563eb', border: '2px solid #2563eb', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#eff6ff'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
+                                    View Referral Program
+                                </button>
+                                <button onClick={closeVideoPopup} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.3)', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'} onMouseOut={e => e.currentTarget.style.background = '#2563eb'}>
+                                    Start Using Dashboard
+                                </button>
+                            </div>
+                        </div>
+                        <style>{`
+                            @keyframes slideUp {
+                                from { opacity: 0; transform: translateY(40px) scale(0.95); }
+                                to { opacity: 1; transform: translateY(0) scale(1); }
+                            }
+                        `}</style>
+                    </div>
+                </div>
+            )}
             <div className="container" style={{ marginTop: "100px", maxWidth: "1200px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
