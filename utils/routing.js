@@ -3,7 +3,7 @@ import { sendSMS } from "@/lib/sms";
 import { sendPushNotification } from "@/lib/fcm";
 
 // Haversine formula to calculate distance between two lat/lng coordinates in kilometers
-function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+export function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
     const R = 6371; // Radius of the earth in km
     const dLat = deg2rad(lat2 - lat1);
     const dLon = deg2rad(lon2 - lon1);
