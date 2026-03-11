@@ -179,6 +179,7 @@ export default function Home() {
         </div>
       </main>
       <Footer />
+      <div id="deployment-canary" style={{ display: 'none' }}>2026-03-11-V4</div>
     </>
   );
 }
