@@ -73,12 +73,21 @@ export default function PrescriptionAnalyzer() {
             });
 
             const data = await res.json();
+            const matchedProducts = data.success ? data.products : [];
+
+            // Auto-cart logic
+            if (matchedProducts.length > 0) {
+                matchedProducts.forEach(p => {
+                    addToCart({ ...p, quantity: 1 });
+                });
+                toggleCart(true); // Open the cart to show they were added
+            }
 
             setResults({
                 rawText: text,
-                products: data.success ? data.products : [],
-                message: data.products?.length > 0 
-                  ? "We found the following products matching your prescription." 
+                products: matchedProducts,
+                message: matchedProducts.length > 0 
+                  ? "We found the following products and automatically added them to your cart!" 
                   : "No matching products found in our inventory."
             });
 
@@ -101,6 +110,8 @@ export default function PrescriptionAnalyzer() {
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>
                     Upload a clear photo of your prescription. Our local AI will read it and find the medicines in our store automatically!
                 </p>
+
+                <MedicalDisclaimer />
 
                 <div className="glass" style={{ padding: '30px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', alignItems: 'center' }}>
@@ -167,7 +178,7 @@ export default function PrescriptionAnalyzer() {
                              }}
                          >
                              {analyzing ? (
-                                 <><i className="fa-solid fa-spinner fa-spin"></i> Analyzing image... {progress}%</>
+                                 <><i className="fa-solid fa-spinner fa-spin"></i> {progress < 100 ? `Analyzing image... ${progress}%` : "Fetching products..."}</>
                              ) : (
                                  <><i className="fa-solid fa-microchip"></i> Extract Medicines</>
                              )}
@@ -226,8 +237,6 @@ export default function PrescriptionAnalyzer() {
                         </div>
                     )}
                 </div>
-
-                <MedicalDisclaimer />
             </div>
         </>
     );

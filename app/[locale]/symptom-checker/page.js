@@ -56,6 +56,8 @@ export default function SymptomChecker() {
                     Describe how you're feeling, and we'll suggest possible causes and next steps based on common medical knowledge.
                 </p>
 
+                <MedicalDisclaimer />
+
                 <div className="glass" style={{ padding: '30px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
                     <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                          <div>
@@ -130,8 +132,6 @@ export default function SymptomChecker() {
                         </div>
                     )}
                 </div>
-
-                <MedicalDisclaimer />
             </div>
         </>
     );

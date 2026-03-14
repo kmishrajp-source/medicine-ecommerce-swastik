@@ -63,6 +63,8 @@ export default function InteractionChecker() {
                     Enter two medicines below to check for potential interaction warnings.
                 </p>
 
+                <MedicalDisclaimer />
+
                 <div className="glass" style={{ padding: '30px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.05)' }}>
                     <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                          <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
@@ -161,8 +163,6 @@ export default function InteractionChecker() {
                         </div>
                     )}
                 </div>
-
-                <MedicalDisclaimer />
             </div>
         </>
     );
