@@ -61,6 +61,13 @@ export default function Login() {
                 <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '0.9rem' }}>
                     Don't have an account? <Link href="/signup" style={{ color: 'var(--primary)' }}>Sign up</Link>
                 </p>
+                <div style={{ marginTop: '20px', textAlign: 'center', padding: '15px', background: '#f0fdf4', borderRadius: '12px', border: '1px solid #bbf7d0' }}>
+                    <p style={{ fontSize: '0.95rem', color: '#166534', fontWeight: 'bold', margin: '0 0 10px 0' }}>Earn on your own schedule!</p>
+                    <Link href="/agent/register" className="btn" style={{ background: '#1B5E20', color: 'white', padding: '8px 16px', borderRadius: '8px', textDecoration: 'none', display: 'inline-block' }}>
+                        <i className="fa-solid fa-motorcycle" style={{ marginRight: '8px' }}></i>
+                        Join Our Delivery Fleet
+                    </Link>
+                </div>
             </div>
         </>
     );

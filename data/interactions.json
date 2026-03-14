@@ -1,0 +1,30 @@
+{
+  "paracetamol,ibuprofen": {
+    "severity": "Moderate",
+    "warning": "Possible stomach irritation risk. Take with food."
+  },
+  "aspirin,ibuprofen": {
+    "severity": "High",
+    "warning": "Increased risk of bleeding and gastrointestinal ulcers."
+  },
+  "warfarin,aspirin": {
+    "severity": "Critical",
+    "warning": "High risk of severe bleeding. These should rarely be combined without strict medical supervision."
+  },
+  "amoxicillin,methotrexate": {
+    "severity": "High",
+    "warning": "Amoxicillin may increase the side effects of methotrexate. Careful monitoring required."
+  },
+  "lisinopril,ibuprofen": {
+      "severity": "Moderate",
+      "warning": "Ibuprofen can decrease the effectiveness of Lisinopril and may increase the risk of kidney problems."
+  },
+   "metformin,alcohol": {
+      "severity": "High",
+      "warning": "Increased risk of lactic acidosis, a rare but serious metabolic complication."
+  },
+  "default": {
+      "severity": "Low",
+      "warning": "No known severe interactions found in our database for this combination. However, always consult your doctor."
+  }
+}
