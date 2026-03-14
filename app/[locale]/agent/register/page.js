@@ -170,6 +170,13 @@ export default function AgentRegister() {
                     <p style={{ textAlign: 'center', marginTop: '20px' }}>
                         Already a partner? <a href="/login" style={{ color: '#1B5E20', fontWeight: 'bold' }}>Login here</a>
                     </p>
+
+                    <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #eee', textAlign: 'center' }}>
+                        <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '10px' }}>Need help with registration? Contact Partner Support</p>
+                        <a href="https://wa.me/917992122974" target="_blank" rel="noopener noreferrer" style={{ background: '#25D366', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-brands fa-whatsapp"></i> Chat on WhatsApp
+                        </a>
+                    </div>
                 </div>
             </div>
         </>

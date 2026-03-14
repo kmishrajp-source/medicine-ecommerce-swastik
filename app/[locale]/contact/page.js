@@ -25,6 +25,14 @@ export default function Contact() {
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
+                            <div style={{ fontWeight: 'bold', color: '#333' }}>💬 WhatsApp AI Assistant</div>
+                            <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '10px' }}>Get instant help with medicine availability, prescriptions, and order tracking.</p>
+                            <a href="https://wa.me/917992122974" target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ background: '#25D366', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}>
+                                <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.2rem' }}></i> Chat on WhatsApp
+                            </a>
+                        </div>
+
+                        <div style={{ marginBottom: '20px' }}>
                             <div style={{ fontWeight: 'bold', color: '#333' }}>📧 Email</div>
                             <p style={{ color: 'var(--primary)' }}>swastikmedicare.help@gmail.com</p>
                         </div>

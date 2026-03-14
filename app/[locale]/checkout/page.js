@@ -356,6 +356,18 @@ export default function Checkout() {
                     </div>
                 )}
 
+                <div style={{ background: '#F0FDF4', padding: '15px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #BBF7D0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                    <div>
+                        <h4 style={{ color: '#166534', margin: '0 0 5px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.2rem', color: '#25D366' }}></i> Need Help with your Order?
+                        </h4>
+                        <p style={{ fontSize: '0.85rem', margin: 0, color: '#15803D' }}>Our AI Assistant can help with prescription support, delivery questions, or medicine availability.</p>
+                    </div>
+                    <a href="https://wa.me/917992122974" target="_blank" rel="noopener noreferrer" style={{ background: '#25D366', color: 'white', padding: '10px 20px', borderRadius: '8px', textDecoration: 'none', fontWeight: 'bold', display: 'inline-flex', alignItems: 'center', gap: '8px', transition: 'background 0.2s', border: 'none', cursor: 'pointer' }}>
+                        Chat on WhatsApp
+                    </a>
+                </div>
+
                 <div style={{ background: 'white', padding: '30px', borderRadius: '16px', boxShadow: 'var(--shadow-sm)' }}>
                     <form onSubmit={handleOrderSubmit}>
                         <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px' }}>Shipping Details</h3>

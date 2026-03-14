@@ -170,8 +170,8 @@ export default function Home() {
           <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
             <h2 style={{ marginBottom: '30px' }}>Compare & Contact. We are here 24/7.</h2>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
-              <ContactItem icon="phone" title="Call Us" value="+91 98765 43210" color="#3b82f6" href="tel:+919876543210" />
-              <ContactItem icon="whatsapp" title="WhatsApp" value="Chat Now" color="#22c55e" href="https://wa.me/919876543210" />
+              <ContactItem icon="phone" title="Call Us" value="+91 79921 22974" color="#3b82f6" href="tel:+917992122974" />
+              <ContactItem icon="whatsapp" title="WhatsApp" value="Chat Now" color="#22c55e" href="https://wa.me/917992122974" />
               <ContactItem icon="envelope" title="Email" value="support@swastik.com" color="#ef4444" href="mailto:support@swastik.com" />
             </div>
           </div>
