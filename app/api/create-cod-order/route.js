@@ -50,10 +50,13 @@ export async function POST(req) {
             } catch (e) { console.error("Failed to create fallback product", e); }
         }
 
+        const medicineItems = items.filter(i => !i.isLab);
+        const labItems = items.filter(i => i.isLab);
+
         const ninetyDaysFromNow = new Date();
         ninetyDaysFromNow.setDate(ninetyDaysFromNow.getDate() + 90);
 
-        for (const item of items) {
+        for (const item of medicineItems) {
             // Check if product exists
             const existingProduct = await prisma.product.findUnique({ where: { id: String(item.id) } });
 
@@ -80,7 +83,7 @@ export async function POST(req) {
             }
         }
 
-        const hasRxItems = items.some(item => item.requiresPrescription);
+        const hasRxItems = medicineItems.some(item => item.requiresPrescription);
 
         if (hasRxItems && !prescriptionUrl) {
             return NextResponse.json({ error: "Mandatory prescription upload missing for Rx items." }, { status: 400 });
@@ -186,7 +189,7 @@ export async function POST(req) {
                 // isDelivered: false, // Omitting
                 address: panicAddress,
                 items: {
-                    create: items.map(item => ({
+                    create: medicineItems.map(item => ({
                         productId: String(item.id),
                         quantity: parseInt(item.quantity),
                         price: parseFloat(item.price)
@@ -206,6 +209,26 @@ export async function POST(req) {
             order = await prisma.order.create({
                 data: minimalOrderData
             });
+        }
+
+        // 4.1 Create Lab Bookings for Lab Tests
+        if (labItems.length > 0 && order && order.userId) {
+            for (const labItem of labItems) {
+                try {
+                    // Extract true test ID (removing 'lab-' prefix set in frontend cart)
+                    const testIdRaw = String(labItem.id).replace('lab-', '');
+                    
+                    await prisma.labBooking.create({
+                        data: {
+                            patientId: order.userId,
+                            testId: testIdRaw,
+                            status: "Pending" // Can be Paid/Processing for online payments
+                        }
+                    });
+                } catch (labErr) {
+                    console.error("Failed to create Lab Booking for item:", labItem.name, labErr);
+                }
+            }
         }
 
         // 4.5 Execute HyperLocal Routing (Non-Blocking)

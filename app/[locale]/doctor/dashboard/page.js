@@ -1,7 +1,7 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
@@ -28,12 +28,12 @@ export default function DoctorDashboard() {
                 <h2>Doctor Dashboard</h2>
                 <div style={{ marginTop: "20px", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: "20px" }}>
 
-                    {/* Card 1: Upload Prescription */}
-                    <div style={{ padding: "20px", border: "1px solid #ddd", borderRadius: "10px", textAlign: "center" }}>
-                        <h3>Upload Prescription</h3>
-                        <p>Upload a new prescription for a patient.</p>
-                        <button style={{ padding: "10px", background: "#0D8ABC", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
-                            Upload Now
+                    {/* Card 1: Review Prescriptions */}
+                    <div style={{ padding: "20px", border: "1px solid #ddd", borderRadius: "10px", textAlign: "center", background: 'white' }}>
+                        <h3>Review Prescriptions</h3>
+                        <p>Verify patient uploads and issue digital E-Rx.</p>
+                        <button onClick={() => router.push('/doctor/prescriptions')} style={{ padding: "10px", background: "#0D8ABC", color: "white", border: "none", borderRadius: "5px", cursor: "pointer", width: '100%' }}>
+                            Open Portal
                         </button>
                     </div>
 

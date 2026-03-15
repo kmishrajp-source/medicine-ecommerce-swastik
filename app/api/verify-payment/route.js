@@ -74,8 +74,11 @@ export async function POST(req) {
         }
 
         // 3. Create Order
+        const medicineItems = items.filter(i => !i.isLab);
+        const labItems = items.filter(i => i.isLab);
+
         // Prepare Items
-        const orderItems = items.map(item => ({
+        const orderItems = medicineItems.map(item => ({
             productId: String(item.id),
             quantity: parseInt(item.quantity),
             price: parseFloat(item.price)
@@ -102,6 +105,24 @@ export async function POST(req) {
                 }
             }
         });
+
+        // 3.2 Create Lab Bookings immediately after payment confirmation
+        if (labItems.length > 0 && userId) {
+            for (const labItem of labItems) {
+                try {
+                    const testIdRaw = String(labItem.id).replace('lab-', '');
+                    await prisma.labBooking.create({
+                        data: {
+                            patientId: userId,
+                            testId: testIdRaw,
+                            status: "Paid"
+                        }
+                    });
+                } catch (err) {
+                    console.error("Failed to create Paid Lab Booking:", labItem.name, err);
+                }
+            }
+        }
 
         // 3.5 Execute HyperLocal Routing (Non-Blocking)
         if (newOrder && newOrder.lat && newOrder.lng) {
