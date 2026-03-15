@@ -11,6 +11,11 @@ export default function DoctorDirectory() {
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
 
+    // Smart Routing State
+    const [smartSearchSymptoms, setSmartSearchSymptoms] = useState("");
+    const [smartSearchSpecialty, setSmartSearchSpecialty] = useState("General Physician");
+    const [isMatching, setIsMatching] = useState(false);
+
     useEffect(() => {
         fetchDoctors();
     }, []);
@@ -30,6 +35,54 @@ export default function DoctorDirectory() {
         }
     };
 
+    const handleSmartMatch = async (e) => {
+        e.preventDefault();
+        setIsMatching(true);
+
+        try {
+            // Assume the user is logged in for generating the appointment.
+            // In a real app we'd trigger a login modal here if not authenticated.
+            const sessionRes = await fetch('/api/auth/session');
+            const sessionData = await sessionRes.json();
+            
+            if (!sessionData || !sessionData.user) {
+                alert("Please login to book an appointment.");
+                setIsMatching(false);
+                return;
+            }
+
+            // Estimate tomorrow 10am for default instant slot
+            const tmr = new Date();
+            tmr.setDate(tmr.getDate() + 1);
+            tmr.setHours(10, 0, 0, 0);
+
+            const matchRes = await fetch("/api/appointments/match", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    specialization: smartSearchSpecialty,
+                    appointmentDate: tmr.toISOString(),
+                    userId: sessionData.user.id,
+                    symptoms: smartSearchSymptoms
+                })
+            });
+
+            const matchData = await matchRes.json();
+
+            if (matchData.success) {
+                alert(`Found the perfect match! You are booked with Dr. ${matchData.doctorSelected.name}. Please pay the ₹${matchData.doctorSelected.fee} fee to confirm.`);
+                // Route to a checkout page or their dashboard
+                router.push(`/profile`); 
+            } else {
+                alert(matchData.error || "Could not find a match.");
+            }
+        } catch (err) {
+            alert("Matching failed. Try booking manually below.");
+        } finally {
+            setIsMatching(false);
+        }
+    };
+
     return (
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
@@ -39,9 +92,53 @@ export default function DoctorDirectory() {
                     <h1 className="text-4xl md:text-5xl font-extrabold text-blue-900 tracking-tight">
                         Consult Top Specialists Online
                     </h1>
-                    <p className="mt-4 text-xl text-blue-700 max-w-2xl mx-auto">
+                    <p className="mt-4 text-xl text-blue-700 max-w-2xl mx-auto mb-10">
                         Skip the waiting room. Book secure, private video consultations with verified doctors right from your home.
                     </p>
+
+                    {/* SMART ROUTING SEARCH BOX */}
+                    <div className="max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-xl border border-blue-100 text-left">
+                        <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                            <i className="fa-solid fa-wand-magic-sparkles text-blue-600"></i> Auto-Match with the Best Doctor
+                        </h3>
+                        <form onSubmit={handleSmartMatch} className="flex flex-col md:flex-row gap-4">
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Select Specialty</label>
+                                <select 
+                                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                    value={smartSearchSpecialty}
+                                    onChange={(e) => setSmartSearchSpecialty(e.target.value)}
+                                >
+                                    <option value="General Physician">General Physician</option>
+                                    <option value="Cardiologist">Cardiologist</option>
+                                    <option value="Dermatologist">Dermatologist</option>
+                                    <option value="Pediatrician">Pediatrician</option>
+                                    <option value="Gynecologist">Gynecologist</option>
+                                </select>
+                            </div>
+                            <div className="flex-1">
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Describe Symptoms</label>
+                                <input 
+                                    type="text" 
+                                    placeholder="e.g. Mild fever and headache"
+                                    className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                                    value={smartSearchSymptoms}
+                                    onChange={(e) => setSmartSearchSymptoms(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="flex items-end">
+                                <button 
+                                    type="submit" 
+                                    disabled={isMatching}
+                                    className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md transition-colors disabled:opacity-70"
+                                >
+                                    {isMatching ? "Finding Match..." : "Find Doctor"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
                 </div>
             </div>
 

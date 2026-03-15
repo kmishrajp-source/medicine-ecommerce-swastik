@@ -1,5 +1,5 @@
 "use client";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { useState, useEffect } from "react";
 import { useTranslations } from 'next-intl';
 
@@ -9,8 +9,12 @@ import LanguageSwitcher from "./LanguageSwitcher";
 export default function Navbar({ cartCount, openCart }) {
     const { data: session } = useSession() || {};
     const t = useTranslations('Navigation');
+    const router = useRouter();
 
     const [deferredPrompt, setDeferredPrompt] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [isSearching, setIsSearching] = useState(false);
 
     useEffect(() => {
         const handler = (e) => {
@@ -29,6 +33,30 @@ export default function Navbar({ cartCount, openCart }) {
             setDeferredPrompt(null);
         }
     };
+
+    // Smart Autocomplete Logic
+    useEffect(() => {
+        const fetchResults = async () => {
+            if (searchQuery.length < 2) {
+                setSearchResults([]);
+                return;
+            }
+            setIsSearching(true);
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(searchQuery)}`);
+                const data = await res.json();
+                if (data.success) {
+                    setSearchResults(data.results);
+                }
+            } catch (error) {
+                console.error("Autocomplete failed:", error);
+            }
+            setIsSearching(false);
+        };
+
+        const timeoutId = setTimeout(fetchResults, 300); // 300ms debounce
+        return () => clearTimeout(timeoutId);
+    }, [searchQuery]);
 
     return (
         <header className="glass-header">
@@ -55,9 +83,98 @@ export default function Navbar({ cartCount, openCart }) {
                     </ul>
                 </nav>
                 <div className="header-actions">
-                    <div className="search-bar">
+                    <div className="search-bar" style={{ position: 'relative' }}>
                         <i className="fa-solid fa-search"></i>
-                        <input type="text" placeholder="Search medicines..." />
+                        <input 
+                            type="text" 
+                            placeholder="Search medicines, salts..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                        
+                        {/* Autocomplete Dropdown */}
+                        {searchQuery.length > 1 && (
+                            <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                right: 0,
+                                background: 'white',
+                                borderRadius: '8px',
+                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                                zIndex: 50,
+                                marginTop: '8px',
+                                border: '1px solid #e5e7eb',
+                                maxHeight: '400px',
+                                overflowY: 'auto'
+                            }}>
+                                {isSearching ? (
+                                    <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
+                                        <i className="fa-solid fa-circle-notch fa-spin"></i> Searching...
+                                    </div>
+                                ) : searchResults.length > 0 ? (
+                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                        {searchResults.map((item) => (
+                                            <li key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                                                <button 
+                                                    onClick={() => {
+                                                        router.push(`/medicine/${item.id}`);
+                                                        setSearchQuery("");
+                                                    }}
+                                                    style={{
+                                                        width: '100%',
+                                                        textAlign: 'left',
+                                                        padding: '12px 15px',
+                                                        background: 'transparent',
+                                                        border: 'none',
+                                                        cursor: 'pointer',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '12px',
+                                                        transition: 'background 0.2s'
+                                                    }}
+                                                    onMouseOver={(e) => e.currentTarget.style.background = '#f9fafb'}
+                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                                                >
+                                                    <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                        {item.imageUrl ? (
+                                                            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                                        ) : (
+                                                            <i className="fa-solid fa-pills" style={{ color: '#9ca3af' }}></i>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ flex: 1 }}>
+                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                                            <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '0.95rem' }}>
+                                                                {item.name}
+                                                            </span>
+                                                            <span style={{ fontWeight: 'bold', color: '#059669', fontSize: '0.95rem' }}>
+                                                                ₹{item.price}
+                                                            </span>
+                                                        </div>
+                                                        {(item.salt || item.brand) && (
+                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px', display: 'flex', gap: '8px' }}>
+                                                                {item.brand && <span>Brand: {item.brand}</span>}
+                                                                {item.salt && <span>Salt: {item.salt.substring(0, 30)}{item.salt.length > 30 ? '...' : ''}</span>}
+                                                            </div>
+                                                        )}
+                                                        {item.isRecommended && (
+                                                            <span style={{ display: 'inline-block', marginTop: '4px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>
+                                                                <i className="fa-solid fa-star"></i> Swastik Recommended
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
+                                        No medicines found.
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                     <button className="icon-btn cart-btn" onClick={openCart}>
                         <i className="fa-solid fa-shopping-cart"></i>
