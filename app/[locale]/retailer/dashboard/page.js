@@ -3,6 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
+import ProviderWallet from "@/components/wallet/ProviderWallet";
 
 export default function RetailerDashboard() {
     const { data: session, status } = useSession();
@@ -211,6 +212,11 @@ export default function RetailerDashboard() {
                         <h2 style={{ marginBottom: '5px' }}>Pharmacy Partner Dashboard</h2>
                         <p style={{ color: '#666' }}>Welcome back, {session?.user?.name}</p>
                     </div>
+                </div>
+
+                {/* Earnings & Wallet Module */}
+                <div className="mb-8">
+                    <ProviderWallet />
                 </div>
 
                 {/* --- Incoming Order Polling Alert --- */}

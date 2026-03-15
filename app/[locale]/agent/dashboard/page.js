@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import ProviderWallet from "@/components/wallet/ProviderWallet";
 
 export default function DeliveryDashboard() {
     const { data: session, status } = useSession();
@@ -208,16 +209,17 @@ export default function DeliveryDashboard() {
                     </div>
                 )}
 
-                {/* Header Profile & Wallet Card */}
+                {/* Header Profile */}
                 <div style={{ background: '#1B5E20', color: 'white', padding: '20px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
                     <div>
                         <h2 style={{ margin: 0 }}>Driver Dashboard</h2>
                         <p style={{ margin: '5px 0 0 0', opacity: 0.9 }}>Vehicle: {agent?.vehicleNumber}</p>
                     </div>
-                    <div style={{ textAlign: 'right', background: 'rgba(255,255,255,0.1)', padding: '15px', borderRadius: '8px' }}>
-                        <p style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}>Wallet Earnings</p>
-                        <h2 style={{ margin: 0, color: '#4CAF50' }}>₹{agent?.walletBalance?.toFixed(2)}</h2>
-                    </div>
+                </div>
+
+                {/* Earnings & Wallet Module */}
+                <div className="mt-6">
+                    <ProviderWallet />
                 </div>
 
                 {/* Duty Toggle Panel */}
