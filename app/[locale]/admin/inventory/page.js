@@ -170,9 +170,14 @@ export default function Inventory() {
             <div className="container" style={{ marginTop: '100px', paddingBottom: '60px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <h2>Inventory Management</h2>
-                    <button onClick={handleAddNew} className="btn btn-primary" style={{ borderRadius: '50px', padding: '10px 24px' }}>
-                        + Add Product
-                    </button>
+                    <div style={{ display: 'flex', gap: '15px' }}>
+                        <button onClick={() => router.push('/admin/bulk-upload')} className="btn" style={{ background: '#E2E8F0', color: '#1E293B', borderRadius: '50px', padding: '10px 24px', fontWeight: 'bold' }}>
+                            <i className="fa-solid fa-file-csv"></i> Bulk Import
+                        </button>
+                        <button onClick={handleAddNew} className="btn btn-primary" style={{ borderRadius: '50px', padding: '10px 24px' }}>
+                            + Add Product
+                        </button>
+                    </div>
                 </div>
 
                 {showForm && (

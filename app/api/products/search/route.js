@@ -11,13 +11,12 @@ export async function POST(request) {
             return NextResponse.json({ success: false, error: 'No keywords provided' }, { status: 400 });
         }
 
-        // We build an OR query for each keyword to find matching medicines
-        const orConditions = keywords.map(kw => ({
-            name: {
-                contains: kw,
-                mode: 'insensitive'
-            }
-        }));
+        // We build an OR query for each keyword to find matching medicines by name, composition, or manufacturer
+        const orConditions = keywords.flatMap(kw => [
+            { name: { contains: kw, mode: 'insensitive' } },
+            { composition: { contains: kw, mode: 'insensitive' } },
+            { manufacturer: { contains: kw, mode: 'insensitive' } }
+        ]);
 
         const products = await prisma.product.findMany({
             where: {

@@ -13,6 +13,18 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='isScheduleH1') THEN
         ALTER TABLE "Product" ADD COLUMN "isScheduleH1" BOOLEAN DEFAULT false;
     END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='brand') THEN
+        ALTER TABLE "Product" ADD COLUMN "brand" TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='salt') THEN
+        ALTER TABLE "Product" ADD COLUMN "salt" TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='discount') THEN
+        ALTER TABLE "Product" ADD COLUMN "discount" DOUBLE PRECISION DEFAULT 0.0;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='isRecommended') THEN
+        ALTER TABLE "Product" ADD COLUMN "isRecommended" BOOLEAN DEFAULT false;
+    END IF;
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Product' AND column_name='isColdChain') THEN
         ALTER TABLE "Product" ADD COLUMN "isColdChain" BOOLEAN DEFAULT false;
     END IF;
