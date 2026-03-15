@@ -6,7 +6,14 @@ const config: CapacitorConfig = {
   webDir: 'public',
   server: {
     url: 'https://medicine-ecommerce-swastik.vercel.app',
-    cleartext: true
+    cleartext: true,
+    allowNavigation: [
+      "*.razorpay.com",
+      "upi:*",
+      "paytmmp:*",
+      "gpay:*",
+      "phonepe:*"
+    ]
   }
 };
 
