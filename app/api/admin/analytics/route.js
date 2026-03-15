@@ -16,6 +16,12 @@ export async function GET(req) {
         const totalOrders = await prisma.order.count();
         const totalProducts = await prisma.product.count();
 
+        // 1.5 Fetch New Daily Analytics
+        const dailyMetrics = await prisma.dailyAnalytics.findMany({
+            orderBy: { date: 'desc' },
+            take: 7, // Last 7 days
+        });
+
         // 2. Calculate Revenue
         const orders = await prisma.order.findMany({
             where: { isPaid: true }, // Only paid orders count for revenue? Or all? Let's use all for now as 'Sales'
@@ -62,6 +68,19 @@ export async function GET(req) {
         // Recalculate Total Profit more accurately
         const accurateProfit = salesReport.reduce((sum, item) => sum + item.profit, 0);
 
+        // Calculate placeholders to avoid undefined errors in existing map
+        const recentSales = await prisma.order.findMany({
+            take: 5,
+            orderBy: { createdAt: 'desc' },
+            include: { user: { select: { name: true } } }
+        });
+
+        const lowStockProducts = await prisma.product.findMany({
+            where: { stock: { lt: 10 } },
+            take: 5,
+            select: { name: true, stock: true }
+        });
+
         return NextResponse.json({
             success: true,
             analytics: {
@@ -72,7 +91,8 @@ export async function GET(req) {
                 profit: accurateProfit, // Use accurate calc
                 recentSales,
                 lowStockProducts,
-                salesReport // New field
+                salesReport, // New field
+                dailyMetrics // New field for epic 1 metrics
             }
         });
 

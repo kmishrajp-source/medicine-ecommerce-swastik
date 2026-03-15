@@ -93,6 +93,7 @@ export default function AdminDashboard() {
                         <Link href="/admin/finance" className="btn btn-primary" style={{ background: '#10B981' }}>Finance</Link>
                         <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>
                         <Link href="/admin/sms" className="btn btn-primary" style={{ background: '#F59E0B', color: 'black' }}>SMS History</Link>
+                        <Link href="/admin/system-health" className="btn btn-primary" style={{ background: '#DC2626', color: 'white' }}>Sys Health</Link>
                         <button
                             onClick={handleTallyExport}
                             className="btn btn-primary"

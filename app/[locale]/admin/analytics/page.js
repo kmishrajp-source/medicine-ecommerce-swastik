@@ -66,13 +66,17 @@ export default function Analytics() {
                         <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#059669' }}>₹{data.totalRevenue.toFixed(2)}</div>
                     </div>
                     <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
-                        <h4 style={{ color: '#666', fontSize: '0.9rem' }}>Total Investment (Stock)</h4>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#D97706' }}>₹{data.totalInvestment.toFixed(2)}</div>
+                        <h4 style={{ color: '#666', fontSize: '0.9rem' }}>Platform Commission</h4>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#7C3AED' }}>
+                           ₹{data.dailyMetrics?.[0]?.platformComm?.toFixed(2) || "0.00"}
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#888' }}>*Last 24 hours</div>
                     </div>
                     <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
-                        <h4 style={{ color: '#666', fontSize: '0.9rem' }}>Estimated Profit</h4>
-                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#2563EB' }}>₹{data.profit.toFixed(2)}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#888' }}>*Approx calculation</div>
+                        <h4 style={{ color: '#666', fontSize: '0.9rem' }}>Active Users (24h)</h4>
+                        <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#2563EB' }}>
+                            {data.dailyMetrics?.[0]?.activeUsers || "0"}
+                        </div>
                     </div>
                     <div style={{ background: 'white', padding: '20px', borderRadius: '12px', boxShadow: 'var(--shadow-sm)' }}>
                         <h4 style={{ color: '#666', fontSize: '0.9rem' }}>Total Orders</h4>
@@ -122,6 +126,43 @@ export default function Analytics() {
                                                 }}>
                                                     {item.status}
                                                 </span>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                {/* System Metrics Chart */}
+                <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)', marginBottom: '30px' }}>
+                    <h3>Daily System Metrics (Last 7 Days)</h3>
+                    <div style={{ overflowX: 'auto' }}>
+                        <table style={{ width: '100%', marginTop: '15px', borderCollapse: 'collapse' }}>
+                            <thead style={{ background: '#f8f9fa' }}>
+                                <tr>
+                                    <th style={{ padding: '12px', textAlign: 'left' }}>Date</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Total Orders</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Failed Orders</th>
+                                    <th style={{ padding: '12px', textAlign: 'center' }}>Active Users</th>
+                                    <th style={{ padding: '12px', textAlign: 'right' }}>Revenue</th>
+                                    <th style={{ padding: '12px', textAlign: 'right', color: '#7C3AED' }}>Platform Comm (10%)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.dailyMetrics?.length === 0 ? (
+                                    <tr><td colSpan="6" style={{ padding: '20px', textAlign: 'center', color: '#888' }}>No daily metrics collected yet. The cron job will generate these overnight.</td></tr>
+                                ) : (
+                                    data.dailyMetrics?.map(metric => (
+                                        <tr key={metric.id} style={{ borderBottom: '1px solid #eee' }}>
+                                            <td style={{ padding: '12px', fontSize: '0.9rem' }}>{new Date(metric.date).toLocaleDateString()}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', fontWeight: '500' }}>{metric.totalOrders}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center', color: metric.failedOrders > 0 ? '#DC2626' : 'inherit' }}>{metric.failedOrders}</td>
+                                            <td style={{ padding: '12px', textAlign: 'center' }}>{metric.activeUsers}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right' }}>₹{metric.totalRevenue.toFixed(2)}</td>
+                                            <td style={{ padding: '12px', textAlign: 'right', fontWeight: 'bold', color: '#7C3AED' }}>
+                                                ₹{metric.platformComm.toFixed(2)}
                                             </td>
                                         </tr>
                                     ))

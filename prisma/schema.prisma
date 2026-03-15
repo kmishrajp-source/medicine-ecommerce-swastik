@@ -629,3 +629,29 @@ model AdminApprovalLog {
   details        String?
   createdAt      DateTime @default(now())
 }
+
+model SystemHealthLog {
+  id             String   @id @default(cuid())
+  component      String   // e.g., "PAYMENT", "ORDER_ROUTING", "API_SEARCH", "UI"
+  issueType      String   // e.g., "FAILED_PAYMENT", "PHARMACY_REJECTED", "DOCTOR_UNRESPONSIVE"
+  severity       String   @default("WARNING") // INFO, WARNING, CRITICAL
+  message        String
+  details        Json?    // Detailed error trace or payload
+  isAutoFixed    Boolean  @default(false)
+  autoFixDetails String?  // e.g., "Auto-assigned to next nearest pharmacy"
+  createdAt      DateTime @default(now())
+  resolvedAt     DateTime?
+}
+
+model DailyAnalytics {
+  id             String   @id @default(cuid())
+  date           DateTime @unique
+  totalOrders    Int      @default(0)
+  totalRevenue   Float    @default(0.0)
+  platformComm   Float    @default(0.0)
+  failedOrders   Int      @default(0)
+  activeUsers    Int      @default(0)
+  metricsPayload Json?    // Additional daily metrics (e.g. top pharmacy ID, top doctor)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
