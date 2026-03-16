@@ -29,8 +29,8 @@ export async function GET(req) {
                 discount: true,
                 brand: true,
                 salt: true,
-                imageUrl: true,
-                isPrescriptionRequired: true,
+                image: true,
+                requiresPrescription: true,
                 isRecommended: true
             },
             orderBy: {
@@ -39,7 +39,14 @@ export async function GET(req) {
             }
         });
 
-        return NextResponse.json({ success: true, results: searchResults });
+        // Map Prisma fields to the format expected by the frontend
+        const formattedResults = searchResults.map(item => ({
+            ...item,
+            imageUrl: item.image,
+            isPrescriptionRequired: item.requiresPrescription
+        }));
+
+        return NextResponse.json({ success: true, results: formattedResults });
 
     } catch (error) {
         console.error("Search API Error:", error);
