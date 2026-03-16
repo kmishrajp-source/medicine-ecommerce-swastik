@@ -29,6 +29,8 @@ export async function GET(req) {
                 discount: true,
                 brand: true,
                 salt: true,
+                composition: true,
+                uses: true,
                 image: true,
                 requiresPrescription: true,
                 isRecommended: true
