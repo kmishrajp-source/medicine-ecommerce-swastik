@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { processReferralSignup } from "@/lib/referrals";
+import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
     try {
@@ -61,6 +62,12 @@ export async function POST(req) {
         return NextResponse.json({ message: "User created successfully", user: { id: user.id, email: user.email } }, { status: 201 });
     } catch (error) {
         console.error("Registration Error:", error);
+        await logFailure({
+            actionType: 'registration',
+            errorType: 'server',
+            errorMessage: error.message,
+            pageUrl: '/register'
+        });
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { logFailure } from "@/lib/logger";
 import { sendSMS } from "@/lib/sms";
 import { assignOrderToNearestRetailer } from "@/utils/routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
@@ -271,6 +272,17 @@ export async function POST(req) {
     } catch (error) {
         console.error("COD Order Error - Full Details:", JSON.stringify(error, null, 2));
         console.error("COD Order Error - Message:", error.message);
+        
+        await logFailure({
+            userId: session?.user?.id || null,
+            userRole: session?.user?.role || 'CUSTOMER',
+            actionType: 'checkout',
+            errorType: 'server',
+            errorMessage: error.message,
+            pageUrl: '/checkout',
+            details: { amount, itemsCount: items?.length }
+        });
+
         // Return a more descriptive error if possible
         const errorMessage = error.message || "Unknown Database Error";
         return NextResponse.json({

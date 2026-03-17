@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 export async function GET() {
     try {
         const tests = await prisma.labTest.findMany({
-            include: { lab: { select: { name: true, address: true, verified: true } } },
+            include: { lab: { select: { name: true, address: true, verified: true, lat: true, lng: true } } },
             orderBy: { name: 'asc' }
         });
 

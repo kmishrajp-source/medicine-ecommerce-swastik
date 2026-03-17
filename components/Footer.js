@@ -53,9 +53,45 @@ export default function Footer() {
                         <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>Refund Policy</Link></li>
                     </ul>
                 </div>
+
+                {/* Column 5: Contact */}
+                <div>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Contact Us</h3>
+                    <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
+                        <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-envelope" style={{ marginRight: '10px', color: '#3B82F6' }}></i> swastilmedicare.gelp@gmail.com</li>
+                        <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-phone" style={{ marginRight: '10px', color: '#3B82F6' }}></i> +91 79921 22974</li>
+                        <li style={{ marginBottom: '10px' }}><i className="fa-brands fa-whatsapp" style={{ marginRight: '10px', color: '#25D366' }}></i> WhatsApp Support</li>
+                    </ul>
+                </div>
             </div>
 
-            <div style={{ textAlign: 'center', borderTop: '1px solid #374151', paddingTop: '20px', color: '#6B7280', fontSize: '0.9rem' }}>
+            {/* Regulatory Compliance & Trust Badges */}
+            <div className="container" style={{ borderTop: '1px solid #374151', paddingTop: '30px', paddingBottom: '30px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+                
+                <div style={{ display: 'flex', gap: '30px', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <i className="fa-solid fa-shield-halved" style={{ fontSize: '1.5rem', color: '#10B981' }}></i>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>100% Secure Checkout</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>256-bit SSL Encrypted</div>
+                        </div>
+                    </div>
+                    
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <i className="fa-solid fa-certificate" style={{ fontSize: '1.5rem', color: '#F59E0B' }}></i>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>FSSAI Licensed Network</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Verified Pharmacy Partners</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ maxWidth: '800px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280', lineHeight: '1.6' }}>
+                    <strong>Medical Disclaimer:</strong> Swastik Medicare acts as a technology platform connecting users with independent licensed pharmacies and medical practitioners. The information provided on this platform is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+                </div>
+            </div>
+
+            <div style={{ textAlign: 'center', backgroundColor: '#030712', padding: '20px', color: '#6B7280', fontSize: '0.9rem' }}>
                 &copy; {new Date().getFullYear()} Swastik Medicare. All rights reserved. | <Link href="/developer" style={{ color: '#6B7280' }}>Developer Settings</Link>
             </div>
         </footer>

@@ -4,6 +4,7 @@ import shortid from "shortid";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -66,6 +67,15 @@ export async function POST(req) {
         });
     } catch (error) {
         console.error(error);
+        await logFailure({
+            userId: session?.user?.id,
+            userRole: session?.user?.role || 'CUSTOMER',
+            actionType: 'checkout',
+            errorType: 'payment_gateway',
+            errorMessage: error.message,
+            pageUrl: '/checkout',
+            details: { amount, finalAmount, couponCode }
+        });
         return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
     }
 }

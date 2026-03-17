@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sendSMS } from "@/lib/sms";
+import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
     const session = await getServerSession(authOptions);
@@ -30,6 +31,14 @@ export async function POST(req) {
 
         return NextResponse.json({ success: true });
     } catch (error) {
+        await logFailure({
+            userId: session?.user?.id,
+            userRole: session?.user?.role || 'CUSTOMER',
+            actionType: 'upload',
+            errorType: 'server',
+            errorMessage: error.message,
+            pageUrl: '/upload-prescription'
+        });
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

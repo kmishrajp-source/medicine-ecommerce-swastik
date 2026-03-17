@@ -58,14 +58,28 @@ export default function CartDrawer() {
                         <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
                     {cart.length > 0 && (
-                        <Link
-                            href="/checkout"
-                            onClick={() => toggleCart(false)}
-                            className="btn btn-primary full-width"
-                            style={{ width: '100%', textAlign: 'center', display: 'block', textDecoration: 'none' }}
-                        >
-                            Checkout
-                        </Link>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <i className="fa-solid fa-motorcycle" style={{ color: '#059669', fontSize: '1.2rem' }}></i>
+                                <div>
+                                    <div style={{ fontSize: '0.85rem', color: '#065f46', fontWeight: 'bold' }}>10-Min Fast Delivery Guaranteed</div>
+                                    <div style={{ fontSize: '0.75rem', color: '#047857' }}>Arriving at your doorstep shortly.</div>
+                                </div>
+                            </div>
+                            
+                            <Link
+                                href="/checkout"
+                                onClick={() => toggleCart(false)}
+                                className="btn btn-primary full-width"
+                                style={{ width: '100%', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '14px', borderRadius: '10px', textDecoration: 'none', fontWeight: 'bold', fontSize: '1.1rem' }}
+                            >
+                                Proceed to Secure Checkout <i className="fa-solid fa-arrow-right"></i>
+                            </Link>
+
+                            <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.75rem', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '5px' }}>
+                                <i className="fa-solid fa-lock" style={{ color: '#10b981' }}></i> 256-bit SSL Encrypted Transaction
+                            </div>
+                        </div>
                     )}
                 </div>
             </aside>

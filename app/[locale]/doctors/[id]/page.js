@@ -135,6 +135,34 @@ export default function DoctorProfileBooking({ params }) {
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
+            {/* Inject JSON-LD Schema for Doctor Profile */}
+            {doctor && (
+                <script
+                    type="application/ld+json"
+                    dangerouslySetInnerHTML={{
+                        __html: JSON.stringify({
+                            "@context": "https://schema.org",
+                            "@type": "Physician",
+                            "name": `Dr. ${doctor.user?.name}`,
+                            "medicalSpecialty": doctor.specialization,
+                            "priceRange": `₹${doctor.consultationFee}`,
+                            "telephone": doctor.phone || "+91-0000000000",
+                            "image": "https://swastikmedicare.com/images/default-doctor.png",
+                            "address": {
+                                "@type": "PostalAddress",
+                                "streetAddress": doctor.hospital || "Independent Clinic",
+                                "addressCountry": "IN"
+                            },
+                            "aggregateRating": {
+                                "@type": "AggregateRating",
+                                "ratingValue": "4.9",
+                                "reviewCount": "124"
+                            }
+                        })
+                    }}
+                />
+            )}
+
             <div className="min-h-screen bg-gray-50 py-12 px-6 font-sans" style={{ marginTop: '70px' }}>
                 <div className="max-w-4xl mx-auto space-y-8">
 

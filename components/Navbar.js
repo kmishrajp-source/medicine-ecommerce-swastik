@@ -186,6 +186,9 @@ export default function Navbar({ cartCount, openCart }) {
                             <Link href="/profile" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#e0e7ff', color: '#4338ca', border: '1px solid #6366f1', textDecoration: 'none' }} title="My Profile">
                                 <i className="fa-solid fa-user"></i> {t('profile')}
                             </Link>
+                            <Link href="/my-prescriptions" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#f5f3ff', color: '#7c3aed', border: '1px solid #c084fc', textDecoration: 'none' }} title="My Prescriptions">
+                                <i className="fa-solid fa-file-prescription"></i> My RX
+                            </Link>
                             <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title="My Earnings">
                                 <i className="fa-solid fa-wallet"></i> {t('wallet', { balance: "0" })}
                             </Link>

@@ -13,6 +13,11 @@ export default function RetailerDashboard() {
     const [newItem, setNewItem] = useState({ medicineName: "", stock: "", price: "", deliveryArea: "" });
     const [showInvForm, setShowInvForm] = useState(false);
 
+    // --- Prescription Bidding State ---
+    const [prescriptions, setPrescriptions] = useState([]);
+    const [showQuoteForm, setShowQuoteForm] = useState(null); // id of prescription
+    const [quoteData, setQuoteData] = useState({ amount: "", items: "" });
+
     // --- Phase 1: Polling State ---
     const [pendingOrders, setPendingOrders] = useState([]);
     const [countdownTimer, setCountdownTimer] = useState(60);
@@ -43,7 +48,11 @@ export default function RetailerDashboard() {
         if (status === 'authenticated' && session?.user?.role === 'RETAILER') {
             fetchInventory();
             fetchPendingOrders(); // Initial fetch
-            pollingInterval = setInterval(fetchPendingOrders, 10000); // Poll every 10 seconds
+            fetchPrescriptions();
+            pollingInterval = setInterval(() => {
+                fetchPendingOrders();
+                fetchPrescriptions();
+            }, 10000); // Poll every 10 seconds
         }
         return () => clearInterval(pollingInterval);
     }, [status, session]);
@@ -109,6 +118,38 @@ export default function RetailerDashboard() {
                 alert(data.error);
             }
         } finally { setIsResponding(false); }
+    };
+
+    const fetchPrescriptions = async () => {
+        try {
+            const res = await fetch('/api/retailer/prescriptions');
+            const data = await res.json();
+            if (data.success) setPrescriptions(data.prescriptions);
+        } catch (e) { console.error("Prescr fetch error", e); }
+    };
+
+    const handleSubmitQuote = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch('/api/retailer/quote', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prescriptionId: showQuoteForm,
+                    quotedAmount: parseFloat(quoteData.amount),
+                    items: quoteData.items
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Quote submitted successfully!");
+                setShowQuoteForm(null);
+                setQuoteData({ amount: "", items: "" });
+                fetchPrescriptions();
+            } else {
+                alert(data.error);
+            }
+        } catch (e) { alert("Error submitting quote"); }
     };
 
     const fetchInventory = async () => {
@@ -369,6 +410,91 @@ export default function RetailerDashboard() {
                                     ))}
                                 </tbody>
                             </table>
+                        </div>
+                    )}
+                </div>
+
+                {/* --- Prescription Bidding Section --- */}
+                <div style={{ marginTop: '40px', background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <i className="fa-solid fa-file-prescription" style={{ color: '#7C3AED' }}></i> 
+                            Prescription Bidding (Open Requests)
+                        </h3>
+                        <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Submit quotes for prescription-only medicines</span>
+                    </div>
+
+                    {prescriptions.length === 0 ? (
+                        <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No new prescriptions to bid on. Check back later!</p>
+                    ) : (
+                        <div style={{ display: 'grid', gap: '20px' }}>
+                            {prescriptions.map((p) => (
+                                <div key={p.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', background: p.hasQuoted ? '#f8fafc' : 'white' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px' }}>
+                                        <div style={{ display: 'flex', gap: '15px' }}>
+                                            <div 
+                                                onClick={() => window.open(p.imageUrl, '_blank')}
+                                                style={{ width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #cbd5e1' }}
+                                            >
+                                                <img src={p.imageUrl} alt="Prescription" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                            </div>
+                                            <div>
+                                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>#{p.id.slice(-8).toUpperCase()} • {new Date(p.createdAt).toLocaleDateString()}</div>
+                                                <div style={{ fontWeight: '600', color: '#111827', marginTop: '4px' }}>Patient: {p.patient?.name || "Unknown"}</div>
+                                                <div style={{ fontSize: '0.875rem', color: '#4b5563', marginTop: '4px' }}>Status: {p.status}</div>
+                                            </div>
+                                        </div>
+
+                                        {p.hasQuoted ? (
+                                            <div style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 'bold' }}>
+                                                <i className="fa-solid fa-check-circle"></i> Quote Submitted: ₹{p.quotes[0].quotedAmount}
+                                            </div>
+                                        ) : (
+                                            <button 
+                                                onClick={() => setShowQuoteForm(p.id)}
+                                                className="btn btn-primary" 
+                                                style={{ background: '#7C3AED' }}
+                                            >
+                                                Submit Quote
+                                            </button>
+                                        )}
+                                    </div>
+
+                                    {showQuoteForm === p.id && (
+                                        <div style={{ marginTop: '20px', padding: '20px', background: '#f5f3ff', borderRadius: '8px', border: '1px solid #ddd6fe' }}>
+                                            <h4 style={{ color: '#5b21b6', marginBottom: '15px' }}>Prepare Your Quote</h4>
+                                            <form onSubmit={handleSubmitQuote} style={{ display: 'grid', gap: '15px' }}>
+                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                    <div>
+                                                        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4b5563', display: 'block', marginBottom: '5px' }}>ESTIMATED TOTAL (₹)</label>
+                                                        <input 
+                                                            type="number" step="0.01" required placeholder="Enter total price"
+                                                            value={quoteData.amount} onChange={e => setQuoteData({...quoteData, amount: e.target.value})}
+                                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4b5563', display: 'block', marginBottom: '5px' }}>MEDICINES & AVAILABILITY</label>
+                                                    <textarea 
+                                                        placeholder="List medicines found in RX and their prices..."
+                                                        value={quoteData.items} onChange={e => setQuoteData({...quoteData, items: e.target.value})}
+                                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', height: '80px' }}
+                                                    />
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '10px' }}>
+                                                    <button type="submit" style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+                                                        Send Quote to Patient
+                                                    </button>
+                                                    <button type="button" onClick={() => setShowQuoteForm(null)} style={{ background: 'white', color: '#4b5563', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer' }}>
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>

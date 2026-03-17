@@ -7,6 +7,7 @@ import FCMProvider from "@/components/FCMProvider";
 import CartDrawer from "@/components/CartDrawer";
 
 import FloatingWhatsApp from "@/components/FloatingWhatsApp";
+import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
 
@@ -66,6 +67,7 @@ export default async function RootLayout({
                 {children}
                 <CartDrawer />
                 <FloatingWhatsApp />
+                <AIRecoveryAssistant />
               </CartProvider>
             </FCMProvider>
           </Provider>

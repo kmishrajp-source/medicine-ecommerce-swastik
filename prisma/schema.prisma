@@ -45,6 +45,7 @@ model User {
   experiences    CustomerExperience[]
   referralsMade  ReferralConnection[] @relation("ReferrerLinks")
   referralsReceived ReferralConnection[] @relation("RefereeLink")
+  systemFailureLogs SystemFailureLog[]
 }
 
 model SystemSettings {
@@ -98,6 +99,10 @@ model Product {
   orderItems  OrderItem[]
   stockLogs   StockLog[]
   inventory   PharmacyInventory? // 1-to-1 operational link
+
+  @@index([name])
+  @@index([category])
+  @@index([isOTC, requiresPrescription])
 }
 
 model Order {
@@ -131,6 +136,9 @@ model Order {
   experience    CustomerExperience?
   subOrders     SubOrder[]
   deliveryAssignments DeliveryAssignment[]
+
+  @@index([status])
+  @@index([userId])
 }
 
 model OrderItem {
@@ -191,6 +199,19 @@ model Prescription {
   orderId   String?  @unique
   order     Order?   @relation(fields: [orderId], references: [id])
   createdAt DateTime @default(now())
+  quotes    PrescriptionQuote[]
+}
+
+model PrescriptionQuote {
+  id             String   @id @default(cuid())
+  prescriptionId String
+  prescription   Prescription @relation(fields: [prescriptionId], references: [id])
+  retailerId     String
+  retailer       Retailer @relation(fields: [retailerId], references: [id])
+  quotedAmount   Float
+  items          Json?    // Array of {name, price, stockStatus}
+  status         String   @default("PENDING") // PENDING, SELECTED, REJECTED
+  createdAt      DateTime @default(now())
 }
 
 model Appointment {
@@ -214,6 +235,8 @@ model Lab {
   licenseNumber  String
   phone          String
   verified       Boolean  @default(false)
+  lat            Float?
+  lng            Float?
   createdAt      DateTime @default(now())
   tests          LabTest[]
 }
@@ -266,6 +289,7 @@ model Retailer {
   inventory      RetailerInventory[]
   assignedOrders Order[]  @relation("AssignedOrders")
   subOrders      SubOrder[]
+  prescriptionQuotes PrescriptionQuote[]
 }
 
 model Stockist {
@@ -654,4 +678,19 @@ model DailyAnalytics {
   metricsPayload Json?    // Additional daily metrics (e.g. top pharmacy ID, top doctor)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+}
+
+model SystemFailureLog {
+  id             String   @id @default(cuid())
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
+  userRole       String?  // customer, retailer, delivery_partner, admin
+  actionType     String   // checkout, payment, upload, registration, login, referral, withdrawal
+  errorType      String   // network, validation, server, payment_gateway
+  errorMessage   String
+  pageUrl        String?
+  details        Json?    // Contextual data (e.g., cart items, trace)
+  isResolved     Boolean  @default(false)
+  aiSuggestion   String?  // AI logic generated fix/explanation
+  createdAt      DateTime @default(now())
 }

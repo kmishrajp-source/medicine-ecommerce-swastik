@@ -1,10 +1,19 @@
 "use client";
+import Image from "next/image";
 
 export default function ProductCard({ product, onAdd }) {
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ height: '200px', backgroundImage: `url("${product.image}")`, backgroundPosition: 'center', backgroundSize: 'cover', backgroundColor: '#f1f5f9', position: 'relative' }}>
-                <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-start' }}>
+            <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+                <Image 
+                    src={product.image || "/images/default-medicine.png"} 
+                    alt={product.name} 
+                    fill 
+                    style={{ objectFit: 'cover' }}
+                    sizes="(max-width: 768px) 100vw, 300px"
+                    loading="lazy"
+                />
+                <div style={{ position: 'absolute', top: '10px', left: '10px', display: 'flex', flexDirection: 'column', gap: '5px', alignItems: 'flex-start', zIndex: 10 }}>
                     {product.requiresPrescription && (
                         <span style={{ background: '#FF9F43', color: 'white', padding: '4px 10px', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase' }}>Rx Required</span>
                     )}

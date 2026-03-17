@@ -8,6 +8,7 @@ import { assignOrderToNearestRetailer } from "@/utils/routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
+import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
     try {
@@ -33,6 +34,15 @@ export async function POST(req) {
         const digest = signature.digest("hex");
 
         if (digest !== razorpaySignature) {
+            await logFailure({
+                userId: session?.user?.id || null,
+                userRole: session?.user?.role || 'CUSTOMER',
+                actionType: 'payment_verification',
+                errorType: 'security',
+                errorMessage: 'Payment signature mismatch - possible tampering',
+                pageUrl: '/checkout',
+                details: { orderCreationId, razorpayPaymentId }
+            });
             return NextResponse.json({ error: "Transaction not legit!" }, { status: 400 });
         }
 
@@ -163,6 +173,15 @@ export async function POST(req) {
 
     } catch (error) {
         console.error("Payment Verification Error:", error);
+        await logFailure({
+            userId: session?.user?.id || null,
+            userRole: session?.user?.role || 'CUSTOMER',
+            actionType: 'payment_verification',
+            errorType: 'server',
+            errorMessage: error.message,
+            pageUrl: '/checkout',
+            details: { orderCreationId, razorpayPaymentId }
+        });
         return NextResponse.json({ error: "Payment verification failed", details: error.message }, { status: 500 });
     }
 }

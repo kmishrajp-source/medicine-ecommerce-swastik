@@ -30,8 +30,8 @@ export default function UploadPrescription() {
         });
 
         if (res.ok) {
-            alert("Prescription Uploaded! We will review and send you an invoice.");
-            router.push('/profile');
+            alert("Prescription Uploaded! Local pharmacies will now bid to provide your medicines at the best price.");
+            router.push('/my-prescriptions');
         } else {
             alert("Failed to upload.");
         }

@@ -34,7 +34,7 @@ export default function Contact() {
 
                         <div style={{ marginBottom: '20px' }}>
                             <div style={{ fontWeight: 'bold', color: '#333' }}>📧 Email</div>
-                            <p style={{ color: 'var(--primary)' }}>swastikmedicare.help@gmail.com</p>
+                            <p style={{ color: 'var(--primary)' }}>swastilmedicare.gelp@gmail.com</p>
                         </div>
                     </div>
 
