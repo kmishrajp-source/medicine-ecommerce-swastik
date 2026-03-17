@@ -50,10 +50,10 @@ export default function SymptomChecker() {
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
             <div className="container" style={{ marginTop: '120px', maxWidth: '800px', padding: '0 20px' }}>
                 <h1 style={{ textAlign: 'center', marginBottom: '10px', color: '#1E3A8A' }}>
-                    <i className="fa-solid fa-stethoscope"></i> AI Symptom Guidance
+                    <i className="fa-solid fa-stethoscope"></i> AI Health Guidance
                 </h1>
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>
-                    Describe how you're feeling, and we'll suggest possible causes and next steps based on common medical knowledge.
+                    Describe your concerns, and we'll provide general wellness information and recommended next steps. This is NOT a medical diagnosis.
                 </p>
 
                 <MedicalDisclaimer />
@@ -117,7 +117,7 @@ export default function SymptomChecker() {
                             </h3>
                             
                             <div style={{ background: '#F0FDF4', padding: '20px', borderRadius: '12px', border: '1px solid #BBF7D0', marginBottom: '20px' }}>
-                                <h4 style={{ color: '#166534', marginBottom: '10px' }}>Possible causes for "{results.symptom}":</h4>
+                                <h4 style={{ color: '#166534', marginBottom: '10px' }}>General Wellness Information regarding "{results.symptom}":</h4>
                                 <ul style={{ listStyleType: 'disc', paddingLeft: '20px', color: '#15803D' }}>
                                     {results.conditions.map((c, i) => (
                                         <li key={i} style={{ marginBottom: '5px' }}>{c}</li>

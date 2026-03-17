@@ -71,6 +71,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
                         <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
                         <li><Link href="/labs">Lab Tests</Link></li>
+                        <li><Link href="/ai-assistant" style={{ color: '#3B82F6', fontWeight: 'bold' }}>AI Assistant</Link></li>
                         <li><Link href="/symptom-checker" style={{ color: '#2563EB', fontWeight: 'bold' }}>Symptom Checker</Link></li>
                         <li><Link href="/prescription-analyzer" style={{ color: '#059669', fontWeight: 'bold' }}>Rx Analyzer</Link></li>
                         <li><Link href="/drug-interaction-checker" style={{ color: '#D97706', fontWeight: 'bold' }}>Interaction Checker</Link></li>
