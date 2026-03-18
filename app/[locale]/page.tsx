@@ -158,9 +158,18 @@ export default function Home() {
             <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>We are rapidly expanding! Currently creating smiles and delivering health in the following regions.</p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              {['Sector 62, Noida', 'Indirapuram', 'Vaishali', 'Greater Noida West', 'Crossing Republik', 'Delhi (South)'].map((area, i) => (
-                <div key={i} style={{ background: 'white', padding: '10px 20px', borderRadius: '50px', color: '#1e40af', fontWeight: 600, boxShadow: '0 2px 4px rgba(30, 64, 175, 0.1)' }}>
-                  <i className="fa-solid fa-map-pin" style={{ marginRight: '8px' }}></i> {area}
+              {['Gorakhpur (Now Live)', 'Delhi (NCR)', 'Sector 62, Noida', 'Indirapuram', 'Vaishali', 'Greater Noida West'].map((area, i) => (
+                <div key={i} style={{ 
+                  background: area.includes('Now Live') ? '#2563eb' : 'white', 
+                  padding: '10px 20px', 
+                  borderRadius: '50px', 
+                  color: area.includes('Now Live') ? 'white' : '#1e40af', 
+                  fontWeight: 600, 
+                  boxShadow: '0 4px 10px rgba(30, 64, 175, 0.2)',
+                  border: area.includes('Now Live') ? 'none' : '1px solid #dbeafe',
+                  transform: area.includes('Now Live') ? 'scale(1.05)' : 'none'
+                }}>
+                  <i className="fa-solid fa-location-dot" style={{ marginRight: '8px' }}></i> {area}
                 </div>
               ))}
             </div>
@@ -172,7 +181,7 @@ export default function Home() {
             <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
               <ContactItem icon="phone" title="Call Us" value="+91 79921 22974" color="#3b82f6" href="tel:+917992122974" />
               <ContactItem icon="whatsapp" title="WhatsApp" value="Chat Now" color="#22c55e" href="https://wa.me/917992122974" />
-              <ContactItem icon="envelope" title="Email" value="support@swastik.com" color="#ef4444" href="mailto:support@swastik.com" />
+              <ContactItem icon="envelope" title="Email" value="swastilmedicare.gelp@gmail.com" color="#ef4444" href="mailto:swastilmedicare.gelp@gmail.com" />
             </div>
           </div>
 
