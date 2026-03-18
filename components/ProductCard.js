@@ -1,7 +1,10 @@
 "use client";
 import Image from "next/image";
+import { useTranslations } from 'next-intl';
 
 export default function ProductCard({ product, onAdd }) {
+    const t = useTranslations('Product');
+    
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
             <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
@@ -30,10 +33,10 @@ export default function ProductCard({ product, onAdd }) {
             </div>
             <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ color: 'var(--text-light)', fontSize: '0.9rem', marginBottom: '4px' }}>{product.category}</div>
+                    <div style={{ color: 'var(--text-light)', fontSize: '0.9rem', marginBottom: '4px' }}>{product.category === 'General' ? t('general_category') : product.category}</div>
                     <div style={{ fontSize: '0.75rem', fontWeight: 600, color: product.stock > 0 ? '#10B981' : '#F59E0B', display: 'flex', alignItems: 'center', gap: '4px' }}>
                         {product.stock > 0 ? (
-                            <><i className="fa-solid fa-bolt"></i> Immediate Delivery</>
+                            <><i className="fa-solid fa-bolt"></i> {t('immediate_delivery')}</>
                         ) : (
                             <><i className="fa-solid fa-clock"></i> Available in 3-5 Hours</>
                         )}
@@ -57,7 +60,7 @@ export default function ProductCard({ product, onAdd }) {
                     <button
                         onClick={() => onAdd(product)}
                         className="btn-icon-small"
-                        title={product.stock > 0 ? "Add to Cart" : "Pre-order"}
+                        title={product.stock > 0 ? t('add_to_cart') : t('out_of_stock')}
                         style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--secondary)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', border: 'none', cursor: 'pointer' }}>
                         <i className={`fa-solid ${product.stock > 0 ? 'fa-plus' : 'fa-cart-plus'}`}></i>
                     </button>

@@ -29,11 +29,11 @@ export default function Footer() {
                 <div>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('services')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
-                        <li style={{ marginBottom: '10px' }}><Link href="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>Order Medicine</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/doctors" style={{ color: 'inherit', textDecoration: 'none' }}>Book Doctor</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/labs" style={{ color: 'inherit', textDecoration: 'none' }}>Lab Tests</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/ambulance" style={{ color: 'inherit', textDecoration: 'none' }}>Book Ambulance</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/shop/ayurvedic" style={{ color: 'inherit', textDecoration: 'none' }}>Ayurveda</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>{t('order_medicine')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/doctors" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_doctor')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/labs" style={{ color: 'inherit', textDecoration: 'none' }}>{t('lab_tests')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/ambulance" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_ambulance')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/shop/ayurvedic" style={{ color: 'inherit', textDecoration: 'none' }}>{t('ayurveda')}</Link></li>
                     </ul>
                 </div>
 
@@ -41,10 +41,10 @@ export default function Footer() {
                 <div>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('company')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
-                        <li style={{ marginBottom: '10px' }}><Link href="/about" style={{ color: 'inherit', textDecoration: 'none' }}>About Us</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>Contact Us</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/partner" style={{ color: 'inherit', textDecoration: 'none' }}>Partner Portal</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/advertise" style={{ color: 'inherit', textDecoration: 'none' }}>Advertise With Us</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/about" style={{ color: 'inherit', textDecoration: 'none' }}>{t('about_us')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>{t('contact_us')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/partner" style={{ color: 'inherit', textDecoration: 'none' }}>{t('partner_portal')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/advertise" style={{ color: 'inherit', textDecoration: 'none' }}>{t('advertise')}</Link></li>
                     </ul>
                 </div>
 

@@ -17,6 +17,7 @@ export default function Home() {
   const tSub = useTranslations('Subscription');
   const tContact = useTranslations('Contact');
   const tSections = useTranslations('Sections');
+  const tReviews = useTranslations('Reviews');
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => {
@@ -41,7 +42,7 @@ export default function Home() {
           </h1>
           <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>{t('hero_subtitle')}</p>
           <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
-            <i className="fa-solid fa-truck-fast"></i> {tSections('view_all')} Delivery above ₹500
+            <i className="fa-solid fa-truck-fast"></i> {t('free_delivery')}
           </div>
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
@@ -133,9 +134,9 @@ export default function Home() {
           <SectionTitle title={`💬 ${t('customer_reviews')}`} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>
             {[
-              { name: 'Rahul Sharma', text: 'Swastik Medicare is a lifesaver! Fast delivery and genuine medicines.', loc: 'Noida' },
-              { name: 'Priya Singh', text: 'I love the subscription plan for my parents. Automatic monthly refill is great.', loc: 'Ghaziabad' },
-              { name: 'Amit Verma', text: 'Best prices in the market. The discount coupons really help.', loc: 'Delhi' }
+              { name: tReviews('review_1_name'), text: tReviews('review_1_text'), loc: tReviews('review_1_loc') },
+              { name: tReviews('review_2_name'), text: tReviews('review_2_text'), loc: tReviews('review_2_loc') },
+              { name: tReviews('review_3_name'), text: tReviews('review_3_text'), loc: tReviews('review_3_loc') }
             ].map((review, i) => (
               <div key={i} style={{ background: 'white', padding: '25px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.05)', border: '1px solid #f0f0f0' }}>
                 <div style={{ color: '#fbbf24', marginBottom: '10px' }}><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i></div>
@@ -157,18 +158,25 @@ export default function Home() {
             <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>{tSections('delivery_areas_desc')}</p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              {['Gorakhpur (Now Live)', 'Delhi (NCR)', 'Sector 62, Noida', 'Indirapuram', 'Vaishali', 'Greater Noida West'].map((area, i) => (
+              {[
+                { key: 'gorakhpur', label: tSections('gorakhpur') },
+                { key: 'delhi', label: tSections('delhi') },
+                { key: 'noida', label: tSections('noida') },
+                { key: 'indirapuram', label: tSections('indirapuram') },
+                { key: 'vaishali', label: tSections('vaishali') },
+                { key: 'greaternoida', label: tSections('greaternoida') }
+              ].map((area, i) => (
                 <div key={i} style={{ 
-                  background: area.includes('Now Live') ? '#2563eb' : 'white', 
+                  background: area.key === 'gorakhpur' ? '#2563eb' : 'white', 
                   padding: '10px 20px', 
                   borderRadius: '50px', 
-                  color: area.includes('Now Live') ? 'white' : '#1e40af', 
+                  color: area.key === 'gorakhpur' ? 'white' : '#1e40af', 
                   fontWeight: 600, 
                   boxShadow: '0 4px 10px rgba(30, 64, 175, 0.2)',
-                  border: area.includes('Now Live') ? 'none' : '1px solid #dbeafe',
-                  transform: area.includes('Now Live') ? 'scale(1.05)' : 'none'
+                  border: area.key === 'gorakhpur' ? 'none' : '1px solid #dbeafe',
+                  transform: area.key === 'gorakhpur' ? 'scale(1.05)' : 'none'
                 }}>
-                  <i className="fa-solid fa-location-dot" style={{ marginRight: '8px' }}></i> {area}
+                  <i className="fa-solid fa-location-dot" style={{ marginRight: '8px' }}></i> {area.label}
                 </div>
               ))}
             </div>
@@ -187,7 +195,7 @@ export default function Home() {
         </div>
       </main>
       <Footer />
-      <div id="deployment-canary" style={{ display: 'none' }}>2026-03-11-V4</div>
+      <div id="deployment-canary" style={{ display: 'none' }}>2026-03-11-V5</div>
     </>
   );
 }
@@ -202,7 +210,8 @@ function SectionTitle({ title }) {
 }
 
 function ProductGrid({ products, addToCart }) {
-  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>Loading products...</div>;
+  const t = useTranslations('Homepage');
+  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
       {products.map(p => (

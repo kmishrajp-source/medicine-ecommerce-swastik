@@ -30,7 +30,8 @@
     "categories": "Shop by Category",
     "top_brands": "Top Verified Brands",
     "customer_reviews": "What Our Patients Say",
-    "why_choose_us": "Why Choose Swastik Medicare?"
+    "why_choose_us": "Why Choose Swastik Medicare?",
+    "free_delivery": "Free Delivery above ₹500"
   },
   "Cart": {
     "title": "Your Cart",
@@ -44,6 +45,7 @@
     "get_location": "Get Live Location",
     "address_placeholder": "Full Delivery Address (Street, Building, Flat)",
     "pay_online": "Pay Online (Cards/UPI)",
+    "pay_online_desc": "Secure Cards or UPI",
     "pay_cod": "Cash on Delivery",
     "placing_order": "Securing Order..."
   },
@@ -79,7 +81,9 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "chat_now": "Chat Now",
-    "support_email": "swastilmedicare.gelp@gmail.com"
+    "support_email": "swastilmedicare.gelp@gmail.com",
+    "order_on_whatsapp": "Order on WhatsApp",
+    "whatsapp_message": "Hi, I would like to place an order."
   },
   "Footer": {
     "brand_desc": "Your trusted healthcare partner. From medicines to doctors, diagnostics to ambulance - we cover it all.",
@@ -89,7 +93,16 @@
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
     "refund": "Refund Policy",
-    "disclaimer": "Medical Disclaimer: Swastik Medicare acts as a technology platform connecting users with independent licensed pharmacies and medical practitioners. The information provided on this platform is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment."
+    "disclaimer": "Medical Disclaimer: Swastik Medicare acts as a technology platform connecting users with independent licensed pharmacies and medical practitioners. The information provided on this platform is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment.",
+    "about_us": "About Us",
+    "contact_us": "Contact Us",
+    "partner_portal": "Partner Portal",
+    "advertise": "Advertise With Us",
+    "order_medicine": "Order Medicine",
+    "book_doctor": "Book Doctor",
+    "lab_tests": "Lab Tests",
+    "book_ambulance": "Book Ambulance",
+    "ayurveda": "Ayurveda"
   },
   "Sections": {
     "best_selling": "Best Selling Medicines",
@@ -98,6 +111,29 @@
     "essentials": "Daily Essentials",
     "view_all": "View All",
     "delivery_areas": "Delivery Areas",
-    "delivery_areas_desc": "We are rapidly expanding! Currently creating smiles and delivering health in the following regions."
+    "delivery_areas_desc": "We are rapidly expanding! Currently creating smiles and delivering health in the following regions.",
+    "gorakhpur": "Gorakhpur (Now Live)",
+    "delhi": "Delhi (NCR)",
+    "noida": "Sector 62, Noida",
+    "indirapuram": "Indirapuram",
+    "vaishali": "Vaishali",
+    "greaternoida": "Greater Noida West"
+  },
+  "Product": {
+    "immediate_delivery": "Immediate Delivery",
+    "general_category": "General",
+    "add_to_cart": "Add to Cart",
+    "out_of_stock": "Out of Stock"
+  },
+  "Reviews": {
+    "review_1_name": "Rahul Sharma",
+    "review_1_text": "Swastik Medicare is a lifesaver! Fast delivery and genuine medicines.",
+    "review_1_loc": "Noida",
+    "review_2_name": "Priya Singh",
+    "review_2_text": "I love the subscription plan for my parents. Automatic monthly refill is great.",
+    "review_2_loc": "Ghaziabad",
+    "review_3_name": "Amit Verma",
+    "review_3_text": "Best prices in the market. The discount coupons really help.",
+    "review_3_loc": "Delhi"
   }
 }
