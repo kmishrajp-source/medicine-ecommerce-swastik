@@ -123,7 +123,11 @@
     "immediate_delivery": "तत्काल डिलीवरी",
     "general_category": "सामान्य",
     "add_to_cart": "कार्ट में जोड़ें",
-    "out_of_stock": "उपलब्ध नहीं है"
+    "out_of_stock": "उपलब्ध नहीं है",
+    "brand": "ब्रांड",
+    "salt": "साल्ट",
+    "uses": "उपयोग",
+    "side_effects": "दुष्प्रभाव"
   },
   "Reviews": {
     "review_1_name": "राहुल शर्मा",

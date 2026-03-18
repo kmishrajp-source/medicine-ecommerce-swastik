@@ -46,12 +46,12 @@ export default function ProductCard({ product, onAdd }) {
 
                 {product.uses && (
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        <strong style={{ color: 'var(--text-dark)' }}>Uses:</strong> {product.uses}
+                        <strong style={{ color: 'var(--text-dark)' }}>{t('uses')}:</strong> {product.uses}
                     </div>
                 )}
                 {product.sideEffects && (
                     <div style={{ fontSize: '0.8rem', color: '#EF4444', marginBottom: '8px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                        <strong>Side Effects:</strong> {product.sideEffects}
+                        <strong>{t('side_effects')}:</strong> {product.sideEffects}
                     </div>
                 )}
 

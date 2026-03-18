@@ -123,7 +123,11 @@
     "immediate_delivery": "Immediate Delivery",
     "general_category": "General",
     "add_to_cart": "Add to Cart",
-    "out_of_stock": "Out of Stock"
+    "out_of_stock": "Out of Stock",
+    "brand": "Brand",
+    "salt": "Salt",
+    "uses": "Uses",
+    "side_effects": "Side Effects"
   },
   "Reviews": {
     "review_1_name": "Rahul Sharma",

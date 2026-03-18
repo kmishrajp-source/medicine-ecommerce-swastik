@@ -10,6 +10,7 @@ export default function Navbar({ cartCount, openCart }) {
     const { data: session } = useSession() || {};
     const t = useTranslations('Navigation');
     const tHome = useTranslations('Homepage');
+    const tProduct = useTranslations('Product');
     const router = useRouter();
 
     const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -156,8 +157,8 @@ export default function Navbar({ cartCount, openCart }) {
                                                         </div>
                                                         {(item.salt || item.brand) && (
                                                             <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px', display: 'flex', gap: '8px' }}>
-                                                                {item.brand && <span>Brand: {item.brand}</span>}
-                                                                {item.salt && <span>Salt: {item.salt.substring(0, 30)}{item.salt.length > 30 ? '...' : ''}</span>}
+                                                                {item.brand && <span>{tProduct('brand')}: {item.brand}</span>}
+                                                                {item.salt && <span>{tProduct('salt')}: {item.salt.substring(0, 30)}{item.salt.length > 30 ? '...' : ''}</span>}
                                                             </div>
                                                         )}
                                                         {item.isRecommended && (
