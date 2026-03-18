@@ -44,6 +44,17 @@ export default function ProductCard({ product, onAdd }) {
                 </div>
                 <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>{product.name}</h3>
 
+                {product.brand && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
+                        <strong style={{ color: 'var(--text-dark)' }}>{t('brand')}:</strong> {product.brand}
+                    </div>
+                )}
+                {product.salt && (
+                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
+                        <strong style={{ color: 'var(--text-dark)' }}>{t('salt')}:</strong> {product.salt}
+                    </div>
+                )}
+
                 {product.uses && (
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         <strong style={{ color: 'var(--text-dark)' }}>{t('uses')}:</strong> {product.uses}

@@ -32,7 +32,7 @@ export default function Policy() {
                     <p>We retain your data as long as your account is active. You can request account deletion and data removal at any time by:</p>
                     <ul style={{ paddingLeft: '20px', marginTop: '10px' }}>
                         <li>Going to <strong>Account Settings &rarr; Delete Account</strong> in the app.</li>
-                        <li>Emailing our data officer at <strong>swastilmedicare.gelp@gmail.com</strong>.</li>
+                        <li>Emailing our data officer at <strong>swastikmedicare.help@gmail.com</strong>.</li>
                     </ul>
                     <p>Note: Some data might be retained for legal compliance (e.g., pharmacy audit logs) as required by local medicine laws.</p>
                 </section>
