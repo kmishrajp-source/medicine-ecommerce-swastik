@@ -7,12 +7,26 @@
     "admin_panel": "Admin Panel",
     "profile": "Profile",
     "login": "Login",
-    "wallet": "Wallet: ₹{balance}"
+    "wallet": "Wallet: ₹{balance}",
+    "ambulance": "Ambulance",
+    "labs": "Lab Tests",
+    "ai_assistant": "AI Assistant",
+    "symptom_checker": "Symptom Checker",
+    "rx_analyzer": "Rx Analyzer",
+    "interaction_checker": "Interaction Checker",
+    "inventory": "Inventory",
+    "support": "Support & Complaints",
+    "my_rx": "My RX",
+    "growth_partner": "Growth Partner",
+    "logout": "Logout",
+    "install_app": "Install App"
   },
   "Homepage": {
     "hero_title": "Healthcare Delivered in 10 to 60 Minutes",
     "hero_subtitle": "Now Serving Gorakhpur & Delhi. Upload your prescription or order directly. We assign the nearest verified pharmacy.",
     "search_placeholder": "Search for pills, syrups, equipment...",
+    "searching": "Searching...",
+    "no_medicines_found": "No medicines found.",
     "categories": "Shop by Category",
     "top_brands": "Top Verified Brands",
     "customer_reviews": "What Our Patients Say",
@@ -39,5 +53,51 @@
     "generate_code": "Generate My Code",
     "your_code": "Your Referral Code",
     "share_whatsapp": "Share on WhatsApp"
+  },
+  "Trust": {
+    "verified_pharmacy": "Verified Pharmacy",
+    "secure_rx": "Secure Prescription Handling",
+    "licensed_pharmacist": "Licensed Pharmacist Available",
+    "data_privacy": "100% Data Privacy Protected"
+  },
+  "Emergency": {
+    "title": "Emergency? Need an Ambulance?",
+    "subtitle": "Book an ambulance instantly. 24/7 Service available in your area.",
+    "book_now": "Book Now"
+  },
+  "Subscription": {
+    "title": "BP / Diabetes Patient?",
+    "subtitle": "Get Monthly Automatic Delivery of your medicines. Save extra 5% + ensure you never run out.",
+    "feature_1": "Auto-Reorder every month",
+    "feature_2": "Best market price guaranteed",
+    "feature_3": "Free Doctor Consultation included",
+    "subscribe_now": "Subscribe Now"
+  },
+  "Contact": {
+    "title": "Compare & Contact. We are here 24/7.",
+    "call_us": "Call Us",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "chat_now": "Chat Now",
+    "support_email": "swastilmedicare.gelp@gmail.com"
+  },
+  "Footer": {
+    "brand_desc": "Your trusted healthcare partner. From medicines to doctors, diagnostics to ambulance - we cover it all.",
+    "services": "Services",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "refund": "Refund Policy",
+    "disclaimer": "Medical Disclaimer: Swastik Medicare acts as a technology platform connecting users with independent licensed pharmacies and medical practitioners. The information provided on this platform is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment."
+  },
+  "Sections": {
+    "best_selling": "Best Selling Medicines",
+    "trending": "Trending Health Products",
+    "ayurvedic": "Ayurvedic Corner",
+    "essentials": "Daily Essentials",
+    "view_all": "View All",
+    "delivery_areas": "Delivery Areas",
+    "delivery_areas_desc": "We are rapidly expanding! Currently creating smiles and delivering health in the following regions."
   }
 }

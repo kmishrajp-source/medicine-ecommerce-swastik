@@ -9,6 +9,7 @@ import LanguageSwitcher from "./LanguageSwitcher";
 export default function Navbar({ cartCount, openCart }) {
     const { data: session } = useSession() || {};
     const t = useTranslations('Navigation');
+    const tHome = useTranslations('Homepage');
     const router = useRouter();
 
     const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -69,15 +70,15 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/">{t('home')}</Link></li>
                         <li><Link href="/refer">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/ambulance" style={{ color: '#DC2626' }}>Ambulance</Link></li>
-                        <li><Link href="/labs">Lab Tests</Link></li>
-                        <li><Link href="/ai-assistant" style={{ color: '#3B82F6', fontWeight: 'bold' }}>AI Assistant</Link></li>
-                        <li><Link href="/symptom-checker" style={{ color: '#2563EB', fontWeight: 'bold' }}>Symptom Checker</Link></li>
-                        <li><Link href="/prescription-analyzer" style={{ color: '#059669', fontWeight: 'bold' }}>Rx Analyzer</Link></li>
-                        <li><Link href="/drug-interaction-checker" style={{ color: '#D97706', fontWeight: 'bold' }}>Interaction Checker</Link></li>
+                        <li><Link href="/ambulance" style={{ color: '#DC2626' }}>{t('ambulance')}</Link></li>
+                        <li><Link href="/labs">{t('labs')}</Link></li>
+                        <li><Link href="/ai-assistant" style={{ color: '#3B82F6', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
+                        <li><Link href="/symptom-checker" style={{ color: '#2563EB', fontWeight: 'bold' }}>{t('symptom_checker')}</Link></li>
+                        <li><Link href="/prescription-analyzer" style={{ color: '#059669', fontWeight: 'bold' }}>{t('rx_analyzer')}</Link></li>
+                        <li><Link href="/drug-interaction-checker" style={{ color: '#D97706', fontWeight: 'bold' }}>{t('interaction_checker')}</Link></li>
                         <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
-                        <li><Link href="/admin/inventory">Inventory</Link></li>
-                        <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>Support & Complaints</Link></li>
+                        <li><Link href="/admin/inventory">{t('inventory')}</Link></li>
+                        <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>{t('support')}</Link></li>
                         {session?.user?.role === 'DELIVERY' && (
                             <li><Link href="/agent/dashboard" style={{ color: '#F59E0B', fontWeight: 'bold' }}>{t('delivery_agent')}</Link></li>
                         )}
@@ -88,7 +89,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <i className="fa-solid fa-search"></i>
                         <input 
                             type="text" 
-                            placeholder="Search medicines, salts..." 
+                            placeholder={tHome('search_placeholder')} 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
@@ -111,7 +112,7 @@ export default function Navbar({ cartCount, openCart }) {
                             }}>
                                 {isSearching ? (
                                     <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
-                                        <i className="fa-solid fa-circle-notch fa-spin"></i> Searching...
+                                        <i className="fa-solid fa-circle-notch fa-spin"></i> {tHome('searching')}
                                     </div>
                                 ) : searchResults.length > 0 ? (
                                     <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -171,7 +172,7 @@ export default function Navbar({ cartCount, openCart }) {
                                     </ul>
                                 ) : (
                                     <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
-                                        No medicines found.
+                                        {tHome('no_medicines_found')}
                                     </div>
                                 )}
                             </div>
@@ -184,19 +185,19 @@ export default function Navbar({ cartCount, openCart }) {
                     {session ? (
                         <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                             <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{session.user.name}</span>
-                            <Link href="/profile" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#e0e7ff', color: '#4338ca', border: '1px solid #6366f1', textDecoration: 'none' }} title="My Profile">
+                            <Link href="/profile" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#e0e7ff', color: '#4338ca', border: '1px solid #6366f1', textDecoration: 'none' }} title={t('profile')}>
                                 <i className="fa-solid fa-user"></i> {t('profile')}
                             </Link>
-                            <Link href="/my-prescriptions" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#f5f3ff', color: '#7c3aed', border: '1px solid #c084fc', textDecoration: 'none' }} title="My Prescriptions">
-                                <i className="fa-solid fa-file-prescription"></i> My RX
+                            <Link href="/my-prescriptions" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#f5f3ff', color: '#7c3aed', border: '1px solid #c084fc', textDecoration: 'none' }} title={t('my_rx')}>
+                                <i className="fa-solid fa-file-prescription"></i> {t('my_rx')}
                             </Link>
-                            <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title="My Earnings">
+                            <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title={t('wallet', { balance: "0" })}>
                                 <i className="fa-solid fa-wallet"></i> {t('wallet', { balance: "0" })}
                             </Link>
-                            <Link href="/partner-growth" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#fef3c7', color: '#d97706', border: '1px solid #f59e0b', textDecoration: 'none' }} title="My Network">
-                                <i className="fa-solid fa-chart-line"></i> Growth Partner
+                            <Link href="/partner-growth" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#fef3c7', color: '#d97706', border: '1px solid #f59e0b', textDecoration: 'none' }} title={t('growth_partner')}>
+                                <i className="fa-solid fa-chart-line"></i> {t('growth_partner')}
                             </Link>
-                            <button onClick={() => signOut()} className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px' }}>Logout</button>
+                            <button onClick={() => signOut()} className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px' }}>{t('logout')}</button>
                         </div>
                     ) : (
                         <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>{t('login')}</Link>
@@ -204,12 +205,12 @@ export default function Navbar({ cartCount, openCart }) {
 
                     {deferredPrompt && (
                         <button onClick={handleInstallClick} className="btn" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, background: '#0D8ABC', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <i className="fa-solid fa-download"></i> Install App
+                            <i className="fa-solid fa-download"></i> {t('install_app')}
                         </button>
                     )}
 
                     <Link href="/partner" className="btn glass" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>
-                        Partner Portal
+                        {t('growth_partner')}
                     </Link>
 
                     {/* Next-Intl Language Translator Switch */}

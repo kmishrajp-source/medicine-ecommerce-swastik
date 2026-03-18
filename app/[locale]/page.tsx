@@ -12,6 +12,11 @@ export default function Home() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
   const t = useTranslations('Homepage');
+  const tTrust = useTranslations('Trust');
+  const tEmergency = useTranslations('Emergency');
+  const tSub = useTranslations('Subscription');
+  const tContact = useTranslations('Contact');
+  const tSections = useTranslations('Sections');
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => {
@@ -36,19 +41,14 @@ export default function Home() {
           </h1>
           <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>{t('hero_subtitle')}</p>
           <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
-            <i className="fa-solid fa-truck-fast"></i> Free Delivery above ₹500
+            <i className="fa-solid fa-truck-fast"></i> {tSections('view_all')} Delivery above ₹500
           </div>
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
-              Shop Now
+              {t('search_placeholder').split(' ')[0]} Now
             </Link>
             <Link href="/upload-prescription" className="btn" style={{ background: 'transparent', border: '2px solid white', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold' }}>
               Upload Rx
-            </Link>
-          </div>
-          <div style={{ marginTop: '20px' }}>
-            <Link href="/doctor/register" style={{ color: 'white', textDecoration: 'underline', fontSize: '1.1rem', fontWeight: 600 }}>
-              👨‍⚕️ Join as Doctor – Start Earning Online
             </Link>
           </div>
         </div>
@@ -56,10 +56,10 @@ export default function Home() {
         {/* TRUST SIGNALS */}
         <div style={{ background: '#f8fafc', padding: '20px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '40px' }}>
           <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px', textAlign: 'center' }}>
-            <TrustItem icon="fa-user-shield" text="Verified Pharmacy" />
-            <TrustItem icon="fa-file-shield" text="Secure Prescription Handling" />
-            <TrustItem icon="fa-user-doctor" text="Licensed Pharmacist Available" />
-            <TrustItem icon="fa-lock" text="100% Data Privacy Protected" />
+            <TrustItem icon="fa-user-shield" text={tTrust('verified_pharmacy')} />
+            <TrustItem icon="fa-file-shield" text={tTrust('secure_rx')} />
+            <TrustItem icon="fa-user-doctor" text={tTrust('licensed_pharmacist')} />
+            <TrustItem icon="fa-lock" text={tTrust('data_privacy')} />
           </div>
         </div>
 
@@ -67,11 +67,11 @@ export default function Home() {
         <div className="container" style={{ marginBottom: '60px' }}>
           <div style={{ background: 'linear-gradient(90deg, #ef4444 0%, #b91c1c 100%)', borderRadius: '16px', padding: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '20px', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)' }}>
             <div style={{ flex: 1 }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '10px' }}>🚑 Emergency? Need an Ambulance?</h2>
-              <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>Book an ambulance instantly. 24/7 Service available in your area.</p>
+              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '10px' }}>🚑 {tEmergency('title')}</h2>
+              <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>{tEmergency('subtitle')}</p>
             </div>
             <Link href="/ambulance" className="btn" style={{ background: 'white', color: '#b91c1c', padding: '15px 30px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <i className="fa-solid fa-phone-volume"></i> Book Now
+              <i className="fa-solid fa-phone-volume"></i> {tEmergency('book_now')}
             </Link>
           </div>
         </div>
@@ -81,23 +81,22 @@ export default function Home() {
           <AdBanner position="Home-Banner" />
 
           {/* BEST SELLING */}
-          <SectionTitle title="🔥 Best Selling Medicines" />
+          <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
           <ProductGrid products={bestSelling} addToCart={addToCart} />
 
           {/* SUBSCRIPTION MODEL BANNER */}
           <div style={{ background: '#ecfdf5', borderRadius: '24px', padding: '40px', margin: '60px 0', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
             <div style={{ flex: 1, minWidth: '300px' }}>
-              <h2 style={{ color: '#064e3b', fontSize: '2rem', marginBottom: '10px' }}>BP / Diabetes Patient?</h2>
+              <h2 style={{ color: '#064e3b', fontSize: '2rem', marginBottom: '10px' }}>{tSub('title')}</h2>
               <p style={{ fontSize: '1.1rem', color: '#047857', marginBottom: '20px' }}>
-                Get <strong>Monthly Automatic Delivery</strong> of your medicines.
-                <br />Save extra 5% + ensure you never run out.
+                {tSub('subtitle')}
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', color: '#065f46' }}>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Auto-Reorder every month</li>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Best market price guaranteed</li>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> Free Doctor Consultation included</li>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_1')}</li>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_2')}</li>
+                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_3')}</li>
               </ul>
-              <Link href="/subscription" className="btn btn-primary" style={{ background: '#059669' }}>Subscribe Now</Link>
+              <Link href="/subscription" className="btn btn-primary" style={{ background: '#059669' }}>{tSub('subscribe_now')}</Link>
             </div>
             <div style={{ fontSize: '10rem', color: '#10b981', opacity: 0.2 }}>
               <i className="fa-solid fa-calendar-check"></i>
@@ -115,19 +114,19 @@ export default function Home() {
           </div>
 
           {/* TRENDING HEALTH PRODUCTS */}
-          <SectionTitle title={`📈 ${t('categories')}`} />
+          <SectionTitle title={`📈 ${tSections('trending')}`} />
           <ProductGrid products={trending} addToCart={addToCart} />
 
 
           {/* AYURVEDIC CORNER */}
-          <SectionTitle title="🌿 Ayurvedic Corner" />
+          <SectionTitle title={`🌿 ${tSections('ayurvedic')}`} />
           <ProductGrid products={products.filter(p => p.category === 'Ayurvedic').slice(0, 4)} addToCart={addToCart} />
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <Link href="/shop" className="btn" style={{ border: '1px solid #059669', color: '#059669', padding: '10px 30px', borderRadius: '50px' }}>View All Ayurveda</Link>
+            <Link href="/shop" className="btn" style={{ border: '1px solid #059669', color: '#059669', padding: '10px 30px', borderRadius: '50px' }}>{tSections('view_all')} Ayurveda</Link>
           </div>
 
           {/* DAILY ESSENTIALS */}
-          <SectionTitle title="☀️ Daily Essentials" />
+          <SectionTitle title={`☀️ ${tSections('essentials')}`} />
           <ProductGrid products={essentials} addToCart={addToCart} />
 
           {/* CUSTOMER REVIEWS */}
@@ -154,8 +153,8 @@ export default function Home() {
 
           {/* DELIVERY COVERAGE */}
           <div style={{ background: '#eff6ff', borderRadius: '24px', padding: '40px', textAlign: 'center', border: '1px solid #dbeafe', marginBottom: '60px' }}>
-            <h2 style={{ color: '#1e40af', marginBottom: '20px' }}>📍 Delivery Areas</h2>
-            <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>We are rapidly expanding! Currently creating smiles and delivering health in the following regions.</p>
+            <h2 style={{ color: '#1e40af', marginBottom: '20px' }}>📍 {tSections('delivery_areas')}</h2>
+            <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>{tSections('delivery_areas_desc')}</p>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
               {['Gorakhpur (Now Live)', 'Delhi (NCR)', 'Sector 62, Noida', 'Indirapuram', 'Vaishali', 'Greater Noida West'].map((area, i) => (
@@ -177,11 +176,11 @@ export default function Home() {
 
           {/* CONTACT DETAILS with WhatsApp */}
           <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ marginBottom: '30px' }}>Compare & Contact. We are here 24/7.</h2>
+            <h2 style={{ marginBottom: '30px' }}>{tContact('title')}</h2>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
-              <ContactItem icon="phone" title="Call Us" value="+91 79921 22974" color="#3b82f6" href="tel:+917992122974" />
-              <ContactItem icon="whatsapp" title="WhatsApp" value="Chat Now" color="#22c55e" href="https://wa.me/917992122974" />
-              <ContactItem icon="envelope" title="Email" value="swastilmedicare.gelp@gmail.com" color="#ef4444" href="mailto:swastilmedicare.gelp@gmail.com" />
+              <ContactItem icon="phone" title={tContact('call_us')} value="+91 79921 22974" color="#3b82f6" href="tel:+917992122974" />
+              <ContactItem icon="whatsapp" title={tContact('whatsapp')} value={tContact('chat_now')} color="#22c55e" href="https://wa.me/917992122974" />
+              <ContactItem icon="envelope" title={tContact('email')} value={tContact('support_email')} color="#ef4444" href={`mailto:${tContact('support_email')}`} />
             </div>
           </div>
 

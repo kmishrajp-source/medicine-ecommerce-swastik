@@ -1,6 +1,10 @@
 import { Link } from '@/i18n/navigation';
+import { useTranslations } from 'next-intl';
 
 export default function Footer() {
+    const t = useTranslations('Footer');
+    const tContact = useTranslations('Contact');
+
     return (
         <footer style={{ background: '#111827', color: 'white', paddingTop: '60px', paddingBottom: '20px', marginTop: '60px' }}>
             <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '40px', marginBottom: '40px' }}>
@@ -11,7 +15,7 @@ export default function Footer() {
                         <i className="fa-solid fa-heart-pulse"></i> Swastik Medicare
                     </h2>
                     <p style={{ color: '#9CA3AF', lineHeight: '1.6' }}>
-                        Your trusted healthcare partner. From medicines to doctors, diagnostics to ambulance - we cover it all.
+                        {t('brand_desc')}
                     </p>
                     <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
                         <a href="#" style={{ color: 'white', fontSize: '1.2rem' }}><i className="fa-brands fa-facebook"></i></a>
@@ -23,7 +27,7 @@ export default function Footer() {
 
                 {/* Column 2: Quick Links */}
                 <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Services</h3>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('services')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>Order Medicine</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/doctors" style={{ color: 'inherit', textDecoration: 'none' }}>Book Doctor</Link></li>
@@ -35,7 +39,7 @@ export default function Footer() {
 
                 {/* Column 3: Company */}
                 <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Company</h3>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('company')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/about" style={{ color: 'inherit', textDecoration: 'none' }}>About Us</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>Contact Us</Link></li>
@@ -46,21 +50,21 @@ export default function Footer() {
 
                 {/* Column 4: Legal */}
                 <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Legal</h3>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('legal')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
-                        <li style={{ marginBottom: '10px' }}><Link href="/policy#privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/policy#terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>Refund Policy</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/policy#privacy" style={{ color: 'inherit', textDecoration: 'none' }}>{t('privacy')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/policy#terms" style={{ color: 'inherit', textDecoration: 'none' }}>{t('terms')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>{t('refund')}</Link></li>
                     </ul>
                 </div>
 
                 {/* Column 5: Contact */}
                 <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Contact Us</h3>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{tContact('call_us')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
-                        <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-envelope" style={{ marginRight: '10px', color: '#3B82F6' }}></i> swastilmedicare.gelp@gmail.com</li>
+                        <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-envelope" style={{ marginRight: '10px', color: '#3B82F6' }}></i> {tContact('support_email')}</li>
                         <li style={{ marginBottom: '10px' }}><i className="fa-solid fa-phone" style={{ marginRight: '10px', color: '#3B82F6' }}></i> +91 79921 22974</li>
-                        <li style={{ marginBottom: '10px' }}><i className="fa-brands fa-whatsapp" style={{ marginRight: '10px', color: '#25D366' }}></i> WhatsApp Support</li>
+                        <li style={{ marginBottom: '10px' }}><i className="fa-brands fa-whatsapp" style={{ marginRight: '10px', color: '#25D366' }}></i> {tContact('whatsapp')} Support</li>
                     </ul>
                 </div>
             </div>
@@ -87,7 +91,7 @@ export default function Footer() {
                 </div>
 
                 <div style={{ maxWidth: '800px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280', lineHeight: '1.6' }}>
-                    <strong>Medical Disclaimer:</strong> Swastik Medicare acts as a technology platform connecting users with independent licensed pharmacies and medical practitioners. The information provided on this platform is for informational purposes only and is not a substitute for professional medical advice, diagnosis, or treatment. Always seek the advice of your physician or other qualified health provider with any questions you may have regarding a medical condition.
+                    {t('disclaimer')}
                 </div>
             </div>
 
