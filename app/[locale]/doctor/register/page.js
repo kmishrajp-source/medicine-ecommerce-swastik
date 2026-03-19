@@ -18,7 +18,7 @@ export default function DoctorRegister() {
     const [loading, setLoading] = useState(false);
 
     // Support for Pre-filling via Claim Flow
-    useState(() => {
+    useEffect(() => {
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
             setFormData(prev => ({

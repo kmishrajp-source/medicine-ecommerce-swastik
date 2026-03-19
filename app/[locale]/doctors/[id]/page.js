@@ -35,7 +35,8 @@ export default function DoctorProfileBooking({ params }) {
             const res = await fetch('/api/doctors');
             const data = await res.json();
             if (data.success) {
-                const found = data.doctors.find(d => d.id === id);
+                console.log("Searching for ID:", id, "in", data.doctors.length, "doctors");
+                const found = data.doctors.find(d => String(d.id) === String(id));
                 setDoctor(found);
             }
         } catch (error) {
@@ -143,7 +144,7 @@ export default function DoctorProfileBooking({ params }) {
                         __html: JSON.stringify({
                             "@context": "https://schema.org",
                             "@type": "Physician",
-                            "name": `Dr. ${doctor.user?.name}`,
+                            "name": `Dr. ${doctor.name || doctor.user?.name}`,
                             "medicalSpecialty": doctor.specialization,
                             "priceRange": `₹${doctor.consultationFee}`,
                             "telephone": doctor.phone || "+91-0000000000",
@@ -172,7 +173,7 @@ export default function DoctorProfileBooking({ params }) {
                             <i className="fa-solid fa-user-doctor"></i>
                         </div>
                         <div className="text-center md:text-left flex-1">
-                            <h1 className="text-3xl font-bold text-gray-900">Dr. {doctor.user?.name}</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">Dr. {doctor.name || doctor.user?.name}</h1>
                             <p className="text-blue-600 font-semibold text-lg uppercase tracking-wide mt-1">{doctor.specialization}</p>
 
                             <div className="mt-4 flex flex-wrap gap-4 justify-center md:justify-start">
