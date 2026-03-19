@@ -1,12 +1,12 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, use } from 'react';
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 
 export default function DoctorProfileBooking({ params }) {
-    const { id } = params;
+    const { id } = use(params);
     const { cartCount, toggleCart } = useCart();
     const router = useRouter();
     const { data: session } = useSession();
