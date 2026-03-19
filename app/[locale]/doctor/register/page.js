@@ -61,6 +61,7 @@ export default function DoctorRegister() {
                 <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Doctor Registration</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                     <input type="text" placeholder="Full Name" required
+                        value={formData.name}
                         onChange={e => setFormData({ ...formData, name: e.target.value })}
                         style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
 
@@ -77,10 +78,12 @@ export default function DoctorRegister() {
                         style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
 
                     <input type="text" placeholder="Specialization (e.g. Cardiologist)" required
+                        value={formData.specialization}
                         onChange={e => setFormData({ ...formData, specialization: e.target.value })}
                         style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
 
                     <input type="text" placeholder="Hospital / Clinic Name" required
+                        value={formData.hospital}
                         onChange={e => setFormData({ ...formData, hospital: e.target.value })}
                         style={{ padding: "10px", borderRadius: "5px", border: "1px solid #ccc" }} />
 
