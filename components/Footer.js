@@ -82,9 +82,9 @@ export default function Footer() {
                     </div>
                     
                     <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fa-solid fa-certificate" style={{ fontSize: '1.5rem', color: '#F59E0B' }}></i>
+                        <i className="fa-solid fa-file-contract" style={{ fontSize: '1.5rem', color: '#F59E0B' }}></i>
                         <div>
-                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>FSSAI Licensed Network</div>
+                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>Drug Licensed Network</div>
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Verified Pharmacy Partners</div>
                         </div>
                     </div>

@@ -44,14 +44,14 @@ export default function ProductCard({ product, onAdd }) {
                 </div>
                 <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>{product.name}</h3>
 
-                {product.brand && (
+                {(product.brand || product.manufacturer) && (
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
-                        <strong style={{ color: 'var(--text-dark)' }}>{t('brand')}:</strong> {product.brand}
+                        <strong style={{ color: 'var(--text-dark)' }}>{t('brand')}:</strong> {product.brand || product.manufacturer}
                     </div>
                 )}
-                {product.salt && (
+                {(product.salt || product.composition) && (
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
-                        <strong style={{ color: 'var(--text-dark)' }}>{t('salt')}:</strong> {product.salt}
+                        <strong style={{ color: 'var(--text-dark)' }}>{t('salt')}:</strong> {product.salt || product.composition}
                     </div>
                 )}
 
@@ -67,7 +67,22 @@ export default function ProductCard({ product, onAdd }) {
                 )}
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700, color: 'var(--primary)' }}>₹{product.price.toFixed(2)}</span>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                            <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)' }}>₹{product.price.toFixed(2)}</span>
+                            {product.mrp > product.price && (
+                                <span style={{ fontSize: '0.9rem', color: '#94a3b8', textDecoration: 'line-through' }}>₹{product.mrp.toFixed(2)}</span>
+                            )}
+                        </div>
+                        {product.discount > 0 && (
+                            <div style={{ color: '#10B981', fontSize: '0.75rem', fontWeight: 700 }}>
+                                <i className="fa-solid fa-tag"></i> {product.discount}% OFF
+                            </div>
+                        )}
+                        {product.packSize && (
+                            <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px' }}>Pack Size: {product.packSize}</div>
+                        )}
+                    </div>
                     <button
                         onClick={() => onAdd(product)}
                         className="btn-icon-small"

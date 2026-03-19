@@ -30,6 +30,13 @@ export async function POST(req) {
             return NextResponse.json({ error: "Doctor not found." }, { status: 404 });
         }
 
+        if (doctor.isDirectory) {
+            return NextResponse.json({ 
+                error: "Online consultation not available for this doctor.",
+                is_directory: true 
+            }, { status: 403 });
+        }
+
         // 1. Database Creation (Status: Pending Payment)
         const appointment = await prisma.appointment.create({
             data: {

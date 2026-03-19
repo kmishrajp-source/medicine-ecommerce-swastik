@@ -33,7 +33,21 @@ export async function GET(req) {
             `CREATE TABLE IF NOT EXISTS "SubstitutionRule" ( "id" TEXT PRIMARY KEY, "sourceMedicine" TEXT UNIQUE, "substituteGeneric" TEXT, "isActive" BOOLEAN DEFAULT true, "createdAt" TIMESTAMP DEFAULT NOW() )`,
             `CREATE TABLE IF NOT EXISTS "DeliveryAssignment" ( "id" TEXT PRIMARY KEY, "orderId" TEXT, "agentId" TEXT, "status" TEXT DEFAULT 'Assigned', "assignedAt" TIMESTAMP DEFAULT NOW(), "updatedAt" TIMESTAMP DEFAULT NOW() )`,
             `CREATE TABLE IF NOT EXISTS "WebhookConfig" ( "id" TEXT PRIMARY KEY, "url" TEXT, "events" TEXT[], "isActive" BOOLEAN DEFAULT true, "createdAt" TIMESTAMP DEFAULT NOW() )`,
-            `CREATE TABLE IF NOT EXISTS "AdminApprovalLog" ( "id" TEXT PRIMARY KEY, "adminId" TEXT, "actionType" TEXT, "targetId" TEXT, "createdAt" TIMESTAMP DEFAULT NOW() )`
+            `CREATE TABLE IF NOT EXISTS "AdminApprovalLog" ( "id" TEXT PRIMARY KEY, "adminId" TEXT, "actionType" TEXT, "targetId" TEXT, "createdAt" TIMESTAMP DEFAULT NOW() )`,
+            // Doctor Directory Schema Fixes
+            `ALTER TABLE "Doctor" ALTER COLUMN "userId" DROP NOT NULL`,
+            `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Doctor' AND column_name='name') THEN ALTER TABLE "Doctor" ADD COLUMN "name" TEXT; END IF; END $$;`,
+            `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Doctor' AND column_name='isDirectory') THEN ALTER TABLE "Doctor" ADD COLUMN "isDirectory" BOOLEAN DEFAULT FALSE; END IF; END $$;`,
+            `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Doctor' AND column_name='location') THEN ALTER TABLE "Doctor" ADD COLUMN "location" TEXT; END IF; END $$;`,
+            `DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='Doctor' AND column_name='isClaimed') THEN ALTER TABLE "Doctor" ADD COLUMN "isClaimed" BOOLEAN DEFAULT FALSE; END IF; END $$;`,
+            // Inject Sample Directory Doctor
+            `INSERT INTO "Doctor" (id, specialization, hospital, experience, verified, "consultationFee", phone, name, "isDirectory", location) 
+             VALUES ('dir_doctor_kushinagar', 'General Physician', 'Kushinagar Health Center', 12, true, 200.0, '9876543210', 'Rajesh Pratap Singh', true, 'Kushinagar')
+             ON CONFLICT (id) DO NOTHING`,
+            // Inject Sample Metadata for Verification
+            `UPDATE "Product" SET brand = 'Micro Labs Ltd', salt = 'Paracetamol (650mg)', uses = 'Pain relief, Treatment of Fever', sideEffects = 'Nausea, Vomiting, Insomnia', mrp = 34.18, price = 30.50, discount = 10, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Dolo 650%'`,
+            `UPDATE "Product" SET brand = 'Alkem Laboratories Ltd', salt = 'Pantoprazole (40mg)', uses = 'Treatment of Acid reflux, Peptic ulcer disease', sideEffects = 'Diarrhea, Headache, Dizziness', mrp = 175.00, price = 140.00, discount = 20, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Pan 40%'`,
+            `UPDATE "Product" SET brand = 'GlaxoSmithKline', salt = 'Paracetamol (500mg)', uses = 'Fever reduction, Mild pain', sideEffects = 'Rare allergic reactions', mrp = 18.00, price = 15.00, discount = 16, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Calpol 500%'`
         ];
 
         for (const sql of statements) {

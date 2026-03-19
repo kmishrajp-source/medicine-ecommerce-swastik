@@ -194,60 +194,97 @@ export default function DoctorProfileBooking({ params }) {
                         </div>
                     </div>
 
-                    {/* Booking Form */}
+                    {/* Booking Form or Directory Info */}
                     <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                         <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6 border-b border-gray-100">
-                            <h2 className="text-xl font-bold text-white"><i className="fa-regular fa-calendar-check mr-2"></i> Schedule Appointment</h2>
+                            <h2 className="text-xl font-bold text-white">
+                                <i className={`mr-2 ${doctor.isDirectory ? 'fa-solid fa-circle-info' : 'fa-regular fa-calendar-check'}`}></i> 
+                                {doctor.isDirectory ? 'Doctor Information' : 'Schedule Appointment'}
+                            </h2>
                         </div>
 
-                        <form onSubmit={handleBooking} className="p-8 space-y-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">Preferred Date & Time</label>
-                                    <input
-                                        type="datetime-local"
-                                        required
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        className="w-full border-2 border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
-                                        min={new Date().toISOString().slice(0, 16)}
-                                    />
+                        {doctor.isDirectory ? (
+                            <div className="p-8 space-y-8 text-center">
+                                <div className="bg-orange-50 border border-orange-200 p-6 rounded-2xl">
+                                    <h3 className="text-xl font-bold text-orange-800 mb-2 underline tracking-tight">Information Only – Not Available for Online Booking</h3>
+                                    <p className="text-orange-700">This profile is part of our local healthcare directory. Online consultations and payments are currently disabled for this practitioner.</p>
                                 </div>
-                                <div className="hidden md:block">
-                                    <div className="h-full border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-4 bg-gray-50 text-gray-400 text-sm text-center">
-                                        Select an upcoming time slot. Instantly secure your appointment by paying via cards, UPI, or net banking.
+
+                                <div className="space-y-4">
+                                    <p className="text-gray-600 font-medium italic">Is this your profile? Verify your identity and start accepting online consultations today.</p>
+                                    <button 
+                                        onClick={() => router.push(`/doctor/register?claimId=${doctor.id}&name=${encodeURIComponent(doctor.name)}&specialization=${encodeURIComponent(doctor.specialization)}&hospital=${encodeURIComponent(doctor.hospital || '')}`)}
+                                        className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all">
+                                        Claim Now & Get Verified <i className="fa-solid fa-check-to-slot"></i>
+                                    </button>
+                                </div>
+
+                                <div className="pt-8 border-t border-gray-100">
+                                    <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-4">Online consultation not available</p>
+                                    <button 
+                                        onClick={() => router.push('/doctors')}
+                                        className="text-blue-600 font-bold hover:underline">
+                                        Suggest registered doctors nearby <i className="fa-solid fa-arrow-right ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleBooking} className="p-8 space-y-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label className="block text-sm font-bold text-gray-700 mb-2">Preferred Date & Time</label>
+                                        <input
+                                            type="datetime-local"
+                                            required
+                                            value={date}
+                                            onChange={(e) => setDate(e.target.value)}
+                                            className="w-full border-2 border-gray-200 p-3 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none"
+                                            min={new Date().toISOString().slice(0, 16)}
+                                        />
+                                    </div>
+                                    <div className="hidden md:block">
+                                        <div className="h-full border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center p-4 bg-gray-50 text-gray-400 text-sm text-center">
+                                            Select an upcoming time slot. Instantly secure your appointment by paying via cards, UPI, or net banking.
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Symptoms or Reason for Visit</label>
-                                <textarea
-                                    required
-                                    rows="4"
-                                    value={reason}
-                                    onChange={(e) => setReason(e.target.value)}
-                                    placeholder="Briefly describe what you're experiencing before joining the video call..."
-                                    className="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none resize-none"
-                                ></textarea>
-                            </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Symptoms or Reason for Visit</label>
+                                    <textarea
+                                        required
+                                        rows="4"
+                                        value={reason}
+                                        onChange={(e) => setReason(e.target.value)}
+                                        placeholder="Briefly describe what you're experiencing before joining the video call..."
+                                        className="w-full border-2 border-gray-200 p-4 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none resize-none"
+                                    ></textarea>
+                                </div>
 
-                            <button
-                                type="submit"
-                                disabled={isBooking}
-                                className={`w-full text-white font-bold py-4 rounded-xl shadow-lg transition-all text-lg flex justify-center items-center gap-3
-                                    ${isBooking ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 hover:-translate-y-1'}`}>
-                                {isBooking ? (
-                                    <><i className="fa-solid fa-circle-notch fa-spin"></i> Processing Secure Checkout...</>
-                                ) : (
-                                    <><i className="fa-solid fa-lock"></i> Pay ₹{doctor.consultationFee} & Book Appointment</>
-                                )}
-                            </button>
-                            <p className="text-center text-sm text-gray-400 mt-4">
-                                By booking, you agree to our Telemedicine Terms of Service.
-                                <br />The fee is transferred directly to the Doctor's authorized financial account.
-                            </p>
-                        </form>
+                                <button
+                                    type="submit"
+                                    disabled={isBooking}
+                                    className={`w-full text-white font-bold py-4 rounded-xl shadow-lg transition-all text-lg flex justify-center items-center gap-3
+                                        ${isBooking ? 'bg-gray-400 cursor-not-allowed' : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 hover:-translate-y-1'}`}>
+                                    {isBooking ? (
+                                        <><i className="fa-solid fa-circle-notch fa-spin"></i> Processing Secure Checkout...</>
+                                    ) : (
+                                        <><i className="fa-solid fa-lock"></i> Pay ₹{doctor.consultationFee} & Book Appointment</>
+                                    )}
+                                </button>
+                                <p className="text-center text-sm text-gray-400 mt-4">
+                                    By booking, you agree to our Telemedicine Terms of Service.
+                                    <br />The fee is transferred directly to the Doctor's authorized financial account.
+                                </p>
+                            </form>
+                        )}
+                    </div>
+
+                    {/* Legal Disclaimer */}
+                    <div className="bg-gray-100 p-6 rounded-2xl border border-gray-200">
+                        <p className="text-xs text-gray-500 leading-relaxed text-center">
+                            <strong className="text-gray-700">Legal Disclaimer:</strong> This information is for general awareness only. Swastik Medicare acts only as a directory service for information-only profiles. We are not responsible for the accuracy, availability, or clinical quality of services provided by practitioners listed herein. Users are advised to verify details independently before physical visits.
+                        </p>
                     </div>
 
                 </div>

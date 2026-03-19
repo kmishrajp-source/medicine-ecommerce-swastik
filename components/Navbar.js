@@ -155,10 +155,12 @@ export default function Navbar({ cartCount, openCart }) {
                                                                 ₹{item.price}
                                                             </span>
                                                         </div>
-                                                        {(item.salt || item.brand) && (
-                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px', display: 'flex', gap: '8px' }}>
-                                                                {item.brand && <span>{tProduct('brand')}: {item.brand}</span>}
-                                                                {item.salt && <span>{tProduct('salt')}: {item.salt.substring(0, 30)}{item.salt.length > 30 ? '...' : ''}</span>}
+                                                        {(item.brand || item.manufacturer || item.salt || item.composition) && (
+                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                                {(item.brand || item.manufacturer) && <span>{tProduct('brand')}: {item.brand || item.manufacturer}</span>}
+                                                                {(item.salt || item.composition) && (
+                                                                    <span>{tProduct('salt')}: {(item.salt || item.composition).substring(0, 30)}{(item.salt || item.composition).length > 30 ? '...' : ''}</span>
+                                                                )}
                                                             </div>
                                                         )}
                                                         {item.isRecommended && (

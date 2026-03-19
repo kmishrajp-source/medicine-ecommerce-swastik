@@ -113,8 +113,20 @@ export default async function MedicinePage({ params }) {
                 <p style={{ color: "#475569", fontSize: "1.1rem", marginBottom: "5px" }}><strong>Brand / Manufacturer:</strong> {product.brand}</p>
             )}
             {product.salt && (
-                <p style={{ color: "#475569", fontSize: "1.1rem", marginBottom: "20px" }}><strong>Salt Composition:</strong> {product.salt}</p>
+                <p style={{ color: "#475569", fontSize: "1.1rem", marginBottom: "5px" }}><strong>Salt Composition:</strong> {product.salt}</p>
             )}
+            {product.uses && (
+                <p style={{ color: "#475569", fontSize: "1.1rem", marginBottom: "5px" }}><strong>Uses:</strong> {product.uses}</p>
+            )}
+            {product.sideEffects && (
+                <div style={{ background: "#FEF2F2", borderLeft: "4px solid #DC2626", padding: "12px", borderRadius: "0 8px 8px 0", margin: "15px 0" }}>
+                    <p style={{ color: "#991B1B", fontSize: "0.95rem", margin: 0 }}><strong>Important Side Effects:</strong> {product.sideEffects}</p>
+                </div>
+            )}
+
+            <div style={{ marginBottom: "25px" }}>
+                <MedicalDisclaimer />
+            </div>
 
             <div style={{ display: "flex", alignItems: "baseline", gap: "15px", marginBottom: "25px" }}>
                 <span style={{ fontSize: "2.5rem", fontWeight: "900", color: "#0f172a" }}>₹{(product.price || 0).toFixed(2)}</span>
@@ -138,7 +150,6 @@ export default async function MedicinePage({ params }) {
                 </div>
             )}
 
-            {/* In a real app, this form would talk to Context/Cart */}
             <form style={{ display: "flex", gap: "15px" }}>
                 <button type="button" style={{ flex: 1, background: "#2563eb", color: "white", border: "none", padding: "16px", borderRadius: "12px", fontSize: "1.2rem", fontWeight: "bold", cursor: "pointer", boxShadow: "0 10px 15px -3px rgba(37,99,235,0.3)" }}>
                     <i className="fa-solid fa-cart-plus"></i> Add to Cart

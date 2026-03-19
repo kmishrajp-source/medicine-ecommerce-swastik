@@ -12,9 +12,24 @@ export default function DoctorRegister() {
         phone: "",
         specialization: "",
         hospital: "",
-        experience: ""
+        experience: "",
+        claimId: "" // Added to track claim
     });
     const [loading, setLoading] = useState(false);
+
+    // Support for Pre-filling via Claim Flow
+    useState(() => {
+        if (typeof window !== 'undefined') {
+            const params = new URLSearchParams(window.location.search);
+            setFormData(prev => ({
+                ...prev,
+                name: params.get('name') || "",
+                specialization: params.get('specialization') || "",
+                hospital: params.get('hospital') || "",
+                claimId: params.get('claimId') || ""
+            }));
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

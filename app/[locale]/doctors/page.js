@@ -161,9 +161,14 @@ export default function DoctorDirectory() {
                                         <i className="fa-solid fa-user-doctor"></i>
                                     </div>
                                     <div className="text-center mt-4 space-y-1">
-                                        <h3 className="text-2xl font-bold text-gray-900">Dr. {doctor.user?.name}</h3>
+                                        <h3 className="text-2xl font-bold text-gray-900">Dr. {doctor.name}</h3>
                                         <p className="text-indigo-600 font-semibold tracking-wide uppercase text-sm">{doctor.specialization}</p>
                                         <p className="text-gray-500 text-sm"><i className="fa-solid fa-building text-gray-300 mr-1"></i> {doctor.hospital || "Independent Practice"}</p>
+                                        {doctor.isDirectory && (
+                                            <p className="text-orange-600 bg-orange-50 py-1 px-3 rounded-full text-xs font-bold inline-block mt-2 border border-orange-100 uppercase">
+                                                Information Only
+                                            </p>
+                                        )}
                                     </div>
 
                                     <div className="flex justify-between items-center mt-6 pt-6 border-t border-gray-100">
@@ -172,15 +177,15 @@ export default function DoctorDirectory() {
                                             <p className="font-semibold text-gray-800">{doctor.experience || 0} Years</p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">Fee</p>
-                                            <p className="font-bold text-gray-900 text-lg">₹{doctor.consultationFee}</p>
+                                            <p className="text-xs text-gray-400 uppercase font-bold tracking-wider">{doctor.isDirectory ? "Consultation" : "Fee"}</p>
+                                            <p className="font-bold text-gray-900 text-lg">{doctor.isDirectory ? "Visit Clinic" : `₹${doctor.consultationFee}`}</p>
                                         </div>
                                     </div>
 
                                     <button
                                         onClick={() => router.push(`/doctors/${doctor.id}`)}
-                                        className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md transition-colors flex justify-center items-center gap-2">
-                                        Book Appointment <i className="fa-solid fa-arrow-right"></i>
+                                        className={`w-full mt-8 font-bold py-4 rounded-xl shadow-md transition-all flex justify-center items-center gap-2 ${doctor.isDirectory ? 'bg-gray-100 hover:bg-gray-200 text-gray-800' : 'bg-blue-600 hover:bg-blue-700 text-white'}`}>
+                                        {doctor.isDirectory ? "View Clinic Info" : "Book Appointment"} <i className="fa-solid fa-arrow-right"></i>
                                     </button>
                                 </div>
                             </div>
