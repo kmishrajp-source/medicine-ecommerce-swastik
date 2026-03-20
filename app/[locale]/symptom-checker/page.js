@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useTranslations } from 'next-intl';
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import MedicalDisclaimer from "@/components/MedicalDisclaimer";
