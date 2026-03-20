@@ -168,6 +168,8 @@ export default function Home() {
         <div className="container">
           <AdBanner position="Home-Banner" />
           
+          <SectionTitle title="🧠 Smart Healthcare AI" />
+
           {/* SMART HEALTHCARE TOOLS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', margin: '40px 0' }}>
             <FeatureCard 
