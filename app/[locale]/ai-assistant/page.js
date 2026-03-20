@@ -4,10 +4,13 @@ import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
+import { useTranslations } from 'next-intl';
+
 export default function AIAssistant() {
+    const t = useTranslations('AIAssistant');
     const { cartCount, toggleCart } = useCart();
     const [messages, setMessages] = useState([
-        { role: 'assistant', content: "Hello! I'm your Swastik AI Assistant. You can ask me about medicines, dosages, or general health concerns. How can I help you today?" }
+        { role: 'assistant', content: t('initial_greeting') }
     ]);
     const [input, setInput] = useState("");
     const [loading, setLoading] = useState(false);
@@ -23,7 +26,11 @@ export default function AIAssistant() {
 
     const handleSend = async (e) => {
         e.preventDefault();
-        if (!input.trim() || loading) return;
+        console.log("handleSend triggered, input:", input);
+        if (!input.trim() || loading) {
+            console.log("handleSend blocked: input empty or already loading");
+            return;
+        }
 
         const userMessage = input.trim();
         setInput("");
@@ -38,6 +45,7 @@ export default function AIAssistant() {
             });
 
             const data = await res.json();
+            console.log("API response received:", data);
             if (data.success) {
                 setMessages(prev => [...prev, { 
                     role: 'assistant', 
@@ -46,11 +54,11 @@ export default function AIAssistant() {
                     disclaimer: data.disclaimer 
                 }]);
             } else {
-                setMessages(prev => [...prev, { role: 'assistant', content: "I'm sorry, I'm having trouble processing that right now. Please try again or consult a doctor." }]);
+                setMessages(prev => [...prev, { role: 'assistant', content: t('error_processing') }]);
             }
         } catch (error) {
-            console.error(error);
-            setMessages(prev => [...prev, { role: 'assistant', content: "An error occurred. Please check your connection." }]);
+            console.error("Chat error:", error);
+            setMessages(prev => [...prev, { role: 'assistant', content: t('error_connection') }]);
         } finally {
             setLoading(false);
         }
@@ -63,7 +71,7 @@ export default function AIAssistant() {
                 
                 <div style={{ marginBottom: '20px' }}>
                     <h1 style={{ fontSize: '1.8rem', color: '#1E3A8A', margin: '0 0 10px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fa-solid fa-robot" style={{ color: '#3B82F6' }}></i> Swastik AI Medicine Assistant
+                        <i className="fa-solid fa-robot" style={{ color: '#3B82F6' }}></i> {t('title')}
                     </h1>
                     <MedicalDisclaimer />
                 </div>
@@ -95,7 +103,7 @@ export default function AIAssistant() {
                         ))}
                         {loading && (
                             <div style={{ alignSelf: 'flex-start', background: 'white', padding: '12px 18px', borderRadius: '18px 18px 18px 0', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
-                                <i className="fa-solid fa-ellipsis fa-fade"></i> AI is thinking...
+                                <i className="fa-solid fa-ellipsis fa-fade"></i> {t('thinking')}
                             </div>
                         )}
                         <div ref={chatEndRef} />
@@ -105,9 +113,11 @@ export default function AIAssistant() {
                     <form onSubmit={handleSend} style={{ padding: '20px', borderTop: '1px solid #E5E7EB', background: 'white', display: 'flex', gap: '12px' }}>
                         <input 
                             type="text" 
+                            name="chat-input"
+                            id="chat-input"
                             value={input}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="Ask about Paracetamol dosage, fever advice..."
+                            placeholder={t('placeholder')}
                             style={{
                                 flex: 1,
                                 padding: '12px 20px',
@@ -142,7 +152,7 @@ export default function AIAssistant() {
                 </div>
 
                 <p style={{ textAlign: 'center', fontSize: '0.75rem', color: '#9CA3AF', marginTop: '10px' }}>
-                    Powered by Swastik Health Engine & OpenFDA API
+                    {t('powered_by')}
                 </p>
             </div>
         </>

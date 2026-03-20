@@ -6,6 +6,7 @@ import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 import symptomsData from "@/data/symptoms.json";
 
 export default function SymptomChecker() {
+    const t = useTranslations('SymptomChecker');
     const { cartCount, toggleCart } = useCart();
     const [input, setInput] = useState("");
     const [results, setResults] = useState(null);
@@ -13,6 +14,7 @@ export default function SymptomChecker() {
 
     const handleAnalyze = (e) => {
         e.preventDefault();
+        console.log("Analyzing symptoms:", input);
         setAnalyzing(true);
         setResults(null);
 
@@ -50,10 +52,10 @@ export default function SymptomChecker() {
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
             <div className="container" style={{ marginTop: '120px', maxWidth: '800px', padding: '0 20px' }}>
                 <h1 style={{ textAlign: 'center', marginBottom: '10px', color: '#1E3A8A' }}>
-                    <i className="fa-solid fa-stethoscope"></i> AI Health Guidance
+                    <i className="fa-solid fa-stethoscope"></i> {t('title')}
                 </h1>
                 <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>
-                    Describe your concerns, and we'll provide general wellness information and recommended next steps. This is NOT a medical diagnosis.
+                    {t('subtitle')}
                 </p>
 
                 <MedicalDisclaimer />
@@ -62,12 +64,14 @@ export default function SymptomChecker() {
                     <form onSubmit={handleAnalyze} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                          <div>
                              <label style={{ fontWeight: '600', marginBottom: '10px', display: 'block', color: '#333' }}>
-                                 What symptoms are you experiencing?
+                                 {t('textarea_label')}
                              </label>
                              <textarea 
+                                 id="symptoms-input"
+                                 name="symptoms-input"
                                  value={input}
                                  onChange={(e) => setInput(e.target.value)}
-                                 placeholder="E.g., I have a headache and a slight fever..."
+                                 placeholder={t('placeholder')}
                                  rows="4"
                                  required
                                  style={{
@@ -85,6 +89,7 @@ export default function SymptomChecker() {
 
                          <button 
                              type="submit" 
+                             id="analyze-btn"
                              disabled={analyzing || !input.trim()}
                              style={{
                                  background: analyzing || !input.trim() ? '#9CA3AF' : '#2563EB',
@@ -103,21 +108,21 @@ export default function SymptomChecker() {
                              }}
                          >
                              {analyzing ? (
-                                 <><i className="fa-solid fa-circle-notch fa-spin"></i> Analyzing...</>
+                                 <><i className="fa-solid fa-circle-notch fa-spin"></i> {t('analyzing')}</>
                              ) : (
-                                 <><i className="fa-solid fa-wand-magic-sparkles"></i> Get Guidance</>
+                                 <><i className="fa-solid fa-wand-magic-sparkles"></i> {t('button')}</>
                              )}
                          </button>
                     </form>
 
-                    {results && (
+                     {results && (
                         <div style={{ marginTop: '30px', animation: 'fadeIn 0.5s ease-in' }}>
                             <h3 style={{ borderBottom: '2px solid #E5E7EB', paddingBottom: '10px', marginBottom: '15px' }}>
-                                Analysis Results
+                                {t('results_title')}
                             </h3>
                             
                             <div style={{ background: '#F0FDF4', padding: '20px', borderRadius: '12px', border: '1px solid #BBF7D0', marginBottom: '20px' }}>
-                                <h4 style={{ color: '#166534', marginBottom: '10px' }}>General Wellness Information regarding "{results.symptom}":</h4>
+                                <h4 style={{ color: '#166534', marginBottom: '10px' }}>{t('wellness_info', { symptom: results.symptom })}</h4>
                                 <ul style={{ listStyleType: 'disc', paddingLeft: '20px', color: '#15803D' }}>
                                     {results.conditions.map((c, i) => (
                                         <li key={i} style={{ marginBottom: '5px' }}>{c}</li>
@@ -126,7 +131,7 @@ export default function SymptomChecker() {
                             </div>
 
                             <div style={{ background: '#EFF6FF', padding: '20px', borderRadius: '12px', border: '1px solid #BFDBFE' }}>
-                                <h4 style={{ color: '#1E40AF', marginBottom: '10px' }}>Advice:</h4>
+                                <h4 style={{ color: '#1E40AF', marginBottom: '10px' }}>{t('advice_title')}</h4>
                                 <p style={{ color: '#1D4ED8', lineHeight: '1.6' }}>{results.guidance}</p>
                             </div>
                         </div>

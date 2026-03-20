@@ -139,5 +139,25 @@
     "review_3_name": "Amit Verma",
     "review_3_text": "Best prices in the market. The discount coupons really help.",
     "review_3_loc": "Delhi"
+  },
+  "AIAssistant": {
+    "title": "Swastik AI Medicine Assistant",
+    "placeholder": "Ask about Paracetamol dosage, fever advice...",
+    "initial_greeting": "Hello! I'm your Swastik AI Assistant. You can ask me about medicines, dosages, or general health concerns. How can I help you today?",
+    "thinking": "AI is thinking...",
+    "error_processing": "I'm sorry, I'm having trouble processing that right now. Please try again or consult a doctor.",
+    "error_connection": "An error occurred. Please check your connection.",
+    "powered_by": "Powered by Swastik Health Engine & OpenFDA API"
+  },
+  "SymptomChecker": {
+    "title": "AI Health Guidance",
+    "subtitle": "Describe your concerns, and we'll provide general wellness information and recommended next steps. This is NOT a medical diagnosis.",
+    "textarea_label": "What symptoms are you experiencing?",
+    "placeholder": "E.g., I have a headache and a slight fever...",
+    "button": "Get Guidance",
+    "analyzing": "Analyzing...",
+    "results_title": "Analysis Results",
+    "advice_title": "Advice:",
+    "wellness_info": "General Wellness Information regarding \"{symptom}\":"
   }
 }
