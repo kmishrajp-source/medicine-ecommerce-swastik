@@ -8,6 +8,94 @@ import { useCart } from "@/context/CartContext";
 import { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
 
+// Sub-components moved to top for better scoping
+function SectionTitle({ title }) {
+  return (
+    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {title}
+      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
+    </h2>
+  );
+}
+
+function ProductGrid({ products, addToCart }) {
+  const t = useTranslations('Homepage');
+  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+      {products.map(p => (
+        <ProductCard key={p.id} product={p} onAdd={addToCart} />
+      ))}
+    </div>
+  );
+}
+
+function ContactItem({ icon, title, value, color, href }) {
+  return (
+    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
+        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
+      </div>
+      <div style={{ fontWeight: 'bold' }}>{title}</div>
+      <div style={{ color: '#666' }}>{value}</div>
+    </a>
+  );
+}
+
+function TrustItem({ icon, text }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
+      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+function FeatureCard({ href, icon, title, desc, color }) {
+  return (
+    <Link href={href} style={{ 
+      textDecoration: 'none', 
+      color: 'inherit',
+      background: 'white',
+      padding: '25px',
+      borderRadius: '20px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+      border: '1px solid #f0f0f0',
+      transition: 'transform 0.2s, box-shadow 0.2s',
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = 'translateY(-5px)';
+      e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = 'translateY(0)';
+      e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
+    }}>
+      <div style={{ 
+        width: '60px', 
+        height: '60px', 
+        borderRadius: '50%', 
+        background: `${color}15`, 
+        color: color, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        fontSize: '1.5rem', 
+        marginBottom: '15px' 
+      }}>
+        <i className={`fa-solid ${icon}`}></i>
+      </div>
+      <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#1e293b' }}>{title}</h3>
+      <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>{desc}</p>
+    </Link>
+  );
+}
+
+
 export default function Home() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
@@ -78,8 +166,39 @@ export default function Home() {
         </div>
 
         <div className="container">
-          {/* Ad Banner */}
           <AdBanner position="Home-Banner" />
+          
+          {/* SMART HEALTHCARE TOOLS */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', margin: '40px 0' }}>
+            <FeatureCard 
+              href="/ai-assistant" 
+              icon="fa-robot" 
+              title="AI Medicine Assistant" 
+              desc="Ask about dosages, side effects & drug info."
+              color="#3B82F6"
+            />
+            <FeatureCard 
+              href="/symptom-checker" 
+              icon="fa-stethoscope" 
+              title="Symptom Checker" 
+              desc="Get instant guidance based on your symptoms."
+              color="#2563EB"
+            />
+            <FeatureCard 
+              href="/prescription-analyzer" 
+              icon="fa-file-medical" 
+              title="Rx Analyzer" 
+              desc="Understand your prescription details better."
+              color="#059669"
+            />
+            <FeatureCard 
+              href="/drug-interaction-checker" 
+              icon="fa-pills" 
+              title="Interaction Checker" 
+              desc="Check if your medicines are safe together."
+              color="#D97706"
+            />
+          </div>
 
           {/* BEST SELLING */}
           <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
@@ -200,44 +319,3 @@ export default function Home() {
   );
 }
 
-function SectionTitle({ title }) {
-  return (
-    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-      {title}
-      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
-    </h2>
-  );
-}
-
-function ProductGrid({ products, addToCart }) {
-  const t = useTranslations('Homepage');
-  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-      {products.map(p => (
-        <ProductCard key={p.id} product={p} onAdd={addToCart} />
-      ))}
-    </div>
-  );
-}
-
-function ContactItem({ icon, title, value, color, href }) {
-  return (
-    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
-      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
-        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
-      </div>
-      <div style={{ fontWeight: 'bold' }}>{title}</div>
-      <div style={{ color: '#666' }}>{value}</div>
-    </a>
-  );
-}
-
-function TrustItem({ icon, text }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
-      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
-      <span>{text}</span>
-    </div>
-  );
-}

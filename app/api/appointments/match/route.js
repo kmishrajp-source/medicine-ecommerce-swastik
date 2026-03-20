@@ -53,9 +53,9 @@ export async function POST(req) {
             });
 
             // Calculate Score
-            // Base score is rating out of 5 (Default to 4 if new)
-            const ratingScore = doc.rating ? doc.rating * 10 : 40; 
-            const experienceScore = doc.experienceYears ? Math.min(doc.experienceYears, 20) : 0;
+            // Base score (Default to 40 if no rating system exists yet)
+            const ratingScore = 40; 
+            const experienceScore = doc.experience ? Math.min(doc.experience, 20) : 0;
             // Penalty for being too busy today (subtract 5 points per booking)
             const workloadPenalty = activeAppointments * 5;
 
@@ -81,9 +81,7 @@ export async function POST(req) {
                 doctorId: bestDoctor.id,
                 date: dateObj,
                 status: 'Scheduled',
-                amount: consultationFee,
-                paymentStatus: 'Pending', // Will be paid via generic checkout
-                symptoms: symptoms || "General Consultation"
+                reason: symptoms || "General Consultation"
             }
         });
 
@@ -92,8 +90,7 @@ export async function POST(req) {
             appointment,
             doctorSelected: {
                 name: bestDoctor.user?.name || bestDoctor.name,
-                experience: bestDoctor.experienceYears,
-                rating: bestDoctor.rating,
+                experience: bestDoctor.experience,
                 fee: consultationFee
             }
         });
