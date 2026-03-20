@@ -4,7 +4,12 @@ import prisma from "@/lib/prisma";
 export async function GET() {
     try {
         const doctors = await prisma.doctor.findMany({
-            where: { verified: true },
+            where: {
+                OR: [
+                    { verified: true },
+                    { isDirectory: true }
+                ]
+            },
             include: { user: { select: { name: true, email: true } } }
         });
         

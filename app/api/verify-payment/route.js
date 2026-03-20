@@ -60,6 +60,12 @@ export async function POST(req) {
                     appointment.doctor.phone,
                     `Swastik Medicare: New Video Consultation booked by ${appointment.patient.name} for ${appointment.date.toLocaleString()}. Log in to view details.`
                 );
+                await WhatsAppTriggers.doctorAppointmentAlert(appointment.doctor.phone, appointment.id, appointment.patient.name, appointment.date.toLocaleString());
+            }
+
+            // Notify Patient (WhatsApp)
+            if (appointment.patient.phone) {
+                await WhatsAppTriggers.appointmentConfirmed(appointment.patient.phone, appointment.id, appointment.doctor.user.name, appointment.date.toLocaleString());
             }
 
             return NextResponse.json({

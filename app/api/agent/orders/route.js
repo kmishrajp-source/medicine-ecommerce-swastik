@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
 import { processReferralCommissions } from "@/utils/referrals";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 // Fetch the currently assigned active delivery for this agent
 export async function GET(req) {
@@ -60,8 +61,17 @@ export async function POST(req) {
         if (newStatus === "Picked_Up") {
             const updated = await prisma.order.update({
                 where: { id: orderId, deliveryAgentId: agent.id },
-                data: { status: "Out_For_Delivery" }
+                data: { status: "Out_For_Delivery" },
+                include: { user: { select: { phone: true } } }
             });
+
+            // Notify Customer via WhatsApp
+            const customerPhone = updated.guestPhone || updated.user?.phone;
+            if (customerPhone) {
+                // Using session.user.name for Agent Name
+                WhatsAppTriggers.deliveryOut(customerPhone, updated.id, session.user.name, agent.phone);
+            }
+
             return NextResponse.json({ success: true, order: updated });
         }
 

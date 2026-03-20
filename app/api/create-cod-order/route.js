@@ -232,19 +232,10 @@ export async function POST(req) {
             }
         }
 
-        // 4.5 Execute HyperLocal Routing (Non-Blocking)
-        if (order && order.lat && order.lng) {
-            assignOrderToNearestRetailer(order.id).catch(e => console.error("Routing Exception:", e));
-            // New Marketplace Split
-            splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
-            // Webhook Event
-            triggerWebhook("order_created", order.id, { amount, paymentMethod: "COD" });
-            // WhatsApp Customer Trigger
-            WhatsAppTriggers.orderConfirmed(phone, order.id, amount, deliveryCode);
-        }
-
-        // 5. Send SMS
+        // 5. Customer Notification Data
         const phone = session?.user?.phone || guestPhone || "Unknown";
+
+        // 4.5 Execute HyperLocal Routing (Non-Blocking)
         // console.log(`[SMS MOCK] Sending to ${phone}: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
 
         // Customer SMS

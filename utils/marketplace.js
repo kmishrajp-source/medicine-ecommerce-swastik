@@ -108,7 +108,11 @@ export async function splitOrderIntoSubOrders(orderId) {
             });
             subOrders.push(subOrder);
 
-            // Trigger Notification to Retailer (Placeholder for WhatsApp)
+            // Trigger Notification to Retailer via WhatsApp
+            const retailer = retailers.find(r => r.id === retailerId);
+            if (retailer && retailer.phone) {
+                WhatsAppTriggers.newSubOrder(retailer.phone, subOrder.id, items.length);
+            }
             console.log(`[MARKETPLACE] Created SubOrder ${subOrder.id} for Retailer ${retailerId}`);
         }
 
@@ -194,11 +198,13 @@ export async function performAutomaticSubstitution(subOrderId, outOfStockItemNam
                 }
             });
 
-            // 4. Notify Customer and Retailers via WhatsApp
+            // 4. Notify Customer and Admin via WhatsApp
+            const adminPhone = "9161364908"; 
             if (subOrder.order.guestPhone || subOrder.user?.phone) {
                 const customerPhone = subOrder.order.guestPhone || subOrder.user.phone;
-                await WhatsAppTriggers.substitutionAlert(customerPhone, subOrder.orderId, foundSubstitute.medicineName);
+                await WhatsAppTriggers.customerSubstitutionAlert(customerPhone, subOrder.orderId, foundSubstitute.medicineName);
             }
+            await WhatsAppTriggers.substitutionAlert(adminPhone, subOrder.orderId, foundSubstitute.medicineName);
 
             console.log(`[SUBSTITUTION SUCCESS] Substituted ${outOfStockItemName} with ${foundSubstitute.medicineName} from ${bestRetailer.shopName}`);
             return newSubOrder;

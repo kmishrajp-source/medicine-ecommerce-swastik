@@ -193,6 +193,15 @@ export default function DoctorDirectory() {
                     </div>
                 )}
             </div>
+
+            {/* Legal Disclaimer */}
+            <div className="max-w-7xl mx-auto px-6 pb-12">
+                <div className="bg-gray-100 p-6 rounded-2xl border border-gray-200">
+                    <p className="text-xs text-gray-500 leading-relaxed text-center">
+                        <strong className="text-gray-700">Legal Disclaimer:</strong> This information is for general awareness only. Swastik Medicare acts only as a directory service for information-only profiles. We are not responsible for the accuracy, availability, or clinical quality of services provided by practitioners listed herein. Users are advised to verify details independently before physical visits.
+                    </p>
+                </div>
+            </div>
         </>
     );
 }
