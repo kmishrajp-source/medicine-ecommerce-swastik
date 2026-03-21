@@ -79,7 +79,7 @@ export default function ReferPage() {
                     <MotivationalVideo 
                         title="Shared Rewards, Universal Health"
                         description="Learn how sharing Swastik Medicare helps your community get medicines faster while you earn rewards and bonuses for every successful referral."
-                        videoUrl="https://www.youtube.com/embed/Yni90sPTozI" // WHO Reliable Placeholder
+                        videoUrl="https://www.youtube.com/embed/OLWyw-3hz-s" // User provided referral video
                         ctaText="Share Now"
                         ctaLink="#whatsapp-share"
                     />
