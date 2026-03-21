@@ -26,7 +26,14 @@ export async function GET(req) {
                 } else if (log.actionType === 'checkout') {
                     suggestion = "Verify if inventory stock was locked during transaction.";
                 } else if (log.actionType === 'registration') {
-                    suggestion = "Check for duplicate email or invalid phone format.";
+                    if (log.userRole === 'hospital') suggestion = "Verify Hospital license format or duplicate hospital name.";
+                    else if (log.userRole === 'insurance') suggestion = "Check IRDAI ID validity and corporate email domain.";
+                    else if (log.userRole === 'manufacturer') suggestion = "Verify GMP certification status and supply license.";
+                    else suggestion = "Check for duplicate email or invalid phone format.";
+                } else if (log.actionType === 'stock_upload') {
+                    suggestion = "Check CSV column headers (name, price, stock) and image URL formats.";
+                } else if (log.actionType === 'payment_settlement') {
+                    suggestion = "Check partner bank/UPI connectivity or wallet balance initialization.";
                 }
                 return { ...log, aiSuggestion: suggestion };
             }

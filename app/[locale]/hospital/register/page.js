@@ -82,7 +82,7 @@ export default function HospitalRegister() {
                 <MotivationalVideo 
                     title="Empowering Hospitals, Saving Lives"
                     description="Partner with Swastik Medicare to streamline your patient intake, manage appointments efficiently, and ensure seamless lab and medicine fulfillment for your patients."
-                    videoUrl="https://www.youtube.com/embed/90ce3aCwpnw" // Placeholder for Hospital video
+                    videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
                     ctaText="Join the Network"
                     ctaLink="#registration-form"
                 />

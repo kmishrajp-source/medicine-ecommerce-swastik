@@ -9,6 +9,7 @@ import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { logFailure } from "@/lib/logger";
+import { settlePartnerPayment } from "@/lib/settlements";
 
 export async function POST(req) {
     try {
@@ -53,6 +54,17 @@ export async function POST(req) {
                 data: { status: "Confirmed" },
                 include: { doctor: { include: { user: true } }, patient: true }
             });
+
+            // Handle Hospital Payout (If applicable)
+            if (appointment.hospitalId) {
+                await settlePartnerPayment({
+                    type: 'APPOINTMENT',
+                    id: appointment.id,
+                    amount: parseFloat(amount),
+                    partnerId: appointment.hospitalId,
+                    partnerType: 'HOSPITAL'
+                });
+            }
 
             // Notify Doctor
             if (appointment.doctor.phone) {
@@ -137,6 +149,39 @@ export async function POST(req) {
                 } catch (err) {
                     console.error("Failed to create Paid Lab Booking:", labItem.name, err);
                 }
+            }
+        }
+
+        // 3.3 Handle Manufacturer Settlements (If items belong to a manufacturer)
+        if (medicineItems.length > 0) {
+            try {
+                // Fetch products to check manufacturers
+                const productIds = medicineItems.map(i => String(i.id));
+                const dbProducts = await prisma.product.findMany({
+                    where: { id: { in: productIds } },
+                    select: { id: true, manufacturerId: true }
+                });
+
+                const manufacturerMap = {};
+                medicineItems.forEach(item => {
+                    const p = dbProducts.find(dbP => dbP.id === String(item.id));
+                    if (p && p.manufacturerId) {
+                        if (!manufacturerMap[p.manufacturerId]) manufacturerMap[p.manufacturerId] = 0;
+                        manufacturerMap[p.manufacturerId] += (item.price * item.quantity);
+                    }
+                });
+
+                for (const [mId, mAmount] of Object.entries(manufacturerMap)) {
+                    await settlePartnerPayment({
+                        type: 'PRODUCT',
+                        id: newOrder.id,
+                        amount: mAmount,
+                        partnerId: mId,
+                        partnerType: 'MANUFACTURER'
+                    });
+                }
+            } catch (err) {
+                console.error("Manufacturer Settlement Failed:", err);
             }
         }
 

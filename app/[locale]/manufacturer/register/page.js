@@ -81,7 +81,7 @@ export default function ManufacturerRegister() {
                 <MotivationalVideo 
                     title="Scale Your Medicine Distribution"
                     description="Partner with Swastik Medicare to reach millions of patients and thousands of pharmacies. Manage your catalog, track stock levels, and enjoy automatic 90% payouts on every order fulfilled."
-                    videoUrl="https://www.youtube.com/embed/eWORGelQMBM" // User provided retailer/manufacturer video
+                    videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
                     ctaText="Join the Supply Chain"
                     ctaLink="#registration-form"
                 />

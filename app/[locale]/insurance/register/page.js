@@ -82,7 +82,7 @@ export default function InsuranceRegister() {
                 <MotivationalVideo 
                     title="Seamless Medical Claims"
                     description="Join Swastik Medicare's Insurance Network. Verify coverage in real-time, automate claim handling fees, and provide your policyholders with a faster, more transparent healthcare experience."
-                    videoUrl="https://www.youtube.com/embed/OLWyw-3hz-s" // Placeholder for Insurance video
+                    videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
                     ctaText="Become a Provider"
                     ctaLink="#registration-form"
                 />
