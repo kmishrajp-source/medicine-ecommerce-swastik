@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function RetailerRegister() {
     const router = useRouter();
@@ -41,8 +42,18 @@ export default function RetailerRegister() {
     return (
         <>
             <Navbar cartCount={0} />
-            <div className="container" style={{ marginTop: "100px", maxWidth: "600px" }}>
-                <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Join as Pharmacy Partner</h2>
+            <div className="container" style={{ marginTop: "100px", maxWidth: "800px" }}>
+                
+                <MotivationalVideo 
+                    title="Grow Your Pharmacy Business"
+                    description="Partner with Swastik Medicare to digitize your pharmacy, reach thousands of local customers, and manage your inventory with state-of-the-art tools."
+                    videoUrl="https://www.youtube.com/embed/eWORGelQMBM" // User provided retailer video
+                    ctaText="Start Registration"
+                    ctaLink="#registration-form"
+                />
+
+                <div id="registration-form" style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '600px', margin: '0 auto' }}>
+                    <h2 style={{ textAlign: "center", marginBottom: "20px", color: '#059669' }}>Join as Pharmacy Partner</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                     <input type="text" placeholder="Shop / Pharmacy Name" required
                         onChange={e => setFormData({ ...formData, shopName: e.target.value })}
@@ -72,7 +83,8 @@ export default function RetailerRegister() {
                         style={{ padding: "12px", background: "#059669", color: "white", border: "none", borderRadius: "5px", cursor: "pointer" }}>
                         {loading ? "Registering..." : "Register Partner"}
                     </button>
-                </form>
+                    </form>
+                </div>
             </div>
         </>
     );
