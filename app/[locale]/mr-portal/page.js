@@ -1,13 +1,22 @@
 "use client";
 import React from 'react';
 import Navbar from "@/components/Navbar";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function MrDashboard() {
     return (
         <>
             <Navbar />
             <div className="container" style={{ marginTop: '120px' }}>
-                <h1 style={{ color: '#0EA5E9' }}>👨‍💼 Medical Rep Portal</h1>
+                <MotivationalVideo 
+                    title="Empower Your Medical Outreach"
+                    description="Connect with top doctors, manage your visits efficiently, and drive healthcare excellence with Swastik Medicare's advanced MR tools."
+                    videoUrl="https://www.youtube.com/embed/8-szBRlQWqE"
+                    ctaText="View Doctor Directory"
+                    ctaLink="/doctors"
+                />
+
+                <h1 style={{ color: '#0EA5E9', marginTop: '40px' }}>👨‍💼 Medical Rep Portal</h1>
                 <p>Region: North Delhi</p>
 
                 <div style={{ marginTop: '30px' }}>
