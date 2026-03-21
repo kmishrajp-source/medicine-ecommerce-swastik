@@ -3,6 +3,7 @@ import { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function AgentRegister() {
     const { cartCount, toggleCart } = useCart();
@@ -93,8 +94,17 @@ export default function AgentRegister() {
     return (
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
-            <div className="container" style={{ marginTop: '100px', maxWidth: '500px' }}>
-                <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+            <div className="container" style={{ marginTop: '100px', maxWidth: '800px' }}>
+                
+                <MotivationalVideo 
+                    title="Be a Hero in Your City"
+                    description="Join India's fastest-growing medical delivery network. Earn ₹50 per delivery, enjoy flexible hours, and help bring life-saving medicines to those in need."
+                    videoUrl="https://www.youtube.com/embed/5U9u4T8oE5o" // More relevant delivery motivation placeholder
+                    ctaText="Start Registration"
+                    ctaLink="#registration-form"
+                />
+
+                <div id="registration-form" style={{ background: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '500px', margin: '0 auto' }}>
                     <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1B5E20' }}>
                         <i className="fa-solid fa-motorcycle" style={{ marginRight: '10px' }}></i>
                         Register as Delivery Partner

@@ -6,6 +6,7 @@ import WithdrawalModal from "./WithdrawalModal";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
 import { useRouter } from "@/i18n/navigation";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function ReferPage() {
     const t = useTranslations('Referral');
@@ -74,6 +75,14 @@ export default function ReferPage() {
                     <p style={{ fontSize: '1.2rem', color: 'var(--text-light)', marginBottom: '40px', lineHeight: 1.6 }}>
                         {t('subtitle')}
                     </p>
+
+                    <MotivationalVideo 
+                        title="Shared Rewards, Universal Health"
+                        description="Learn how sharing Swastik Medicare helps your community get medicines faster while you earn rewards and bonuses for every successful referral."
+                        videoUrl="https://www.youtube.com/embed/Z_8pU9-vB_0" // Switched to a more relevant placeholder
+                        ctaText="Share Now"
+                        ctaLink="#whatsapp-share"
+                    />
 
                     {loading ? (
                         <div style={{ padding: '20px', color: '#666' }}>Loading your unique code...</div>

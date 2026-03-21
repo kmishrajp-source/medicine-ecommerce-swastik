@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function PartnerPortal() {
     const { cartCount, toggleCart } = useCart();
@@ -108,7 +109,15 @@ export default function PartnerPortal() {
                     <p style={{ color: '#666', fontSize: '1.2rem' }}>Access your dedicated dashboard.</p>
                 </div>
 
-                <div style={{
+                <MotivationalVideo 
+                    title="Mission Swastik: Healthcare for All"
+                    description="Join our ecosystem of doctors, pharmacists, and delivery partners. Together, we are building India's most reliable and fastest medical infrastructure."
+                    videoUrl="https://www.youtube.com/embed/Z0p_j9Vv_0Q" // Global mission placeholder
+                    ctaText="Learn More"
+                    ctaLink="#partner-grid"
+                />
+
+                <div id="partner-grid" style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                     gap: '30px',
