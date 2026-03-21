@@ -234,6 +234,8 @@ model Appointment {
   reason    String?
   status    String   @default("Pending") // Pending, Confirmed, Cancelled
   createdAt DateTime @default(now())
+  hospitalId String?
+  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
 }
 
 model Lab {
@@ -272,6 +274,8 @@ model LabBooking {
   status         String   @default("Pending") // Pending, Confirmed, Completed, Cancelled
   bookingDate    DateTime @default(now())
   report         LabReport?
+  hospitalId     String?
+  hospital       Hospital? @relation(fields: [hospitalId], references: [id])
 }
 
 model LabReport {
