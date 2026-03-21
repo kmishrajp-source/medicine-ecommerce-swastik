@@ -4,7 +4,7 @@ import React from 'react';
 const MotivationalVideo = ({ 
     title = "Join Our Mission", 
     description = "Watch how you can make an impact and earn with Swastik Medicare.",
-    videoUrl = "https://www.youtube.com/embed/dQw4w9WgXcQ", // Placeholder: Swap with real video
+    videoUrl = "https://www.youtube.com/embed/ScMzIvxBSi4", // Responsive generic delivery placeholder
     ctaText = "Join Now",
     ctaLink = "#"
 }) => {
