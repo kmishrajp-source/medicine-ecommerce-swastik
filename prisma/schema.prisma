@@ -29,6 +29,10 @@ model User {
   ambulanceBookings AmbulanceBooking[]
   medicalRep   MedicalRep?
   pharmaCompany PharmaCompany[]
+  hospital      Hospital?
+  insurance     InsuranceProvider?
+  manufacturer  Manufacturer?
+  claims        InsuranceClaim[]
   medicineRequests MedicineRequest[]
   subscriptions Subscription[]
   referralCode   String? @unique
@@ -99,6 +103,8 @@ model Product {
   orderItems  OrderItem[]
   stockLogs   StockLog[]
   inventory   PharmacyInventory? // 1-to-1 operational link
+  manufacturerId String?
+  manufacturerAccount Manufacturer? @relation(fields: [manufacturerId], references: [id])
 
   @@index([name])
   @@index([category])
@@ -697,4 +703,59 @@ model SystemFailureLog {
   isResolved     Boolean  @default(false)
   aiSuggestion   String?  // AI logic generated fix/explanation
   createdAt      DateTime @default(now())
+}
+
+model Hospital {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  name           String
+  address        String
+  licenseNumber  String
+  phone          String
+  verified       Boolean  @default(false)
+  bankDetails    Json?    // UPI/Bank Details for settlement
+  createdAt      DateTime @default(now())
+  appointments   Appointment[]
+  labBookings    LabBooking[]
+}
+
+model InsuranceProvider {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  companyName    String
+  licenseNumber  String
+  phone          String
+  verified       Boolean  @default(false)
+  bankDetails    Json?
+  handlingFee    Float    @default(50.0)
+  createdAt      DateTime @default(now())
+  claims         InsuranceClaim[]
+}
+
+model InsuranceClaim {
+  id               String   @id @default(cuid())
+  insuranceId      String
+  insurance        InsuranceProvider @relation(fields: [insuranceId], references: [id])
+  userId           String
+  user             User     @relation(fields: [userId], references: [id])
+  patientName      String?
+  policyNumber     String?
+  amount           Float
+  status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt        DateTime @default(now())
+}
+
+model Manufacturer {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  companyName    String
+  contactPerson  String?
+  phone          String
+  verified       Boolean  @default(false)
+  bankDetails    Json?
+  createdAt      DateTime @default(now())
+  products       Product[]
 }
