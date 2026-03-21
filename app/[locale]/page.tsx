@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
+import MotivationalVideo from "@/components/MotivationalVideo";
 import { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
 
