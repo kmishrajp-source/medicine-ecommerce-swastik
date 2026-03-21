@@ -99,7 +99,7 @@ export default function AgentRegister() {
                 <MotivationalVideo 
                     title="Be a Hero in Your City"
                     description="Join India's fastest-growing medical delivery network. Earn ₹50 per delivery, enjoy flexible hours, and help bring life-saving medicines to those in need."
-                    videoUrl="https://www.youtube.com/embed/Yni90sPTozI" // WHO Reliable Placeholder
+                    videoUrl="https://www.youtube.com/embed/8ETN_k6HDr8" // User provided delivery video
                     ctaText="Start Registration"
                     ctaLink="#registration-form"
                 />
