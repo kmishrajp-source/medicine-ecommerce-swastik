@@ -112,7 +112,7 @@ export default function PartnerPortal() {
                 <MotivationalVideo 
                     title="Mission Swastik: Healthcare for All"
                     description="Join our ecosystem of doctors, pharmacists, and delivery partners. Together, we are building India's most reliable and fastest medical infrastructure."
-                    videoUrl="https://www.youtube.com/embed/Yni90sPTozI" // WHO Reliable Placeholder
+                    videoUrl="https://www.youtube.com/embed/8ETN_k6HDr8" // User provided video
                     ctaText="Learn More"
                     ctaLink="#partner-grid"
                 />
