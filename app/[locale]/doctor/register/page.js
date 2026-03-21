@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function DoctorRegister() {
     const router = useRouter();
@@ -57,8 +58,18 @@ export default function DoctorRegister() {
     return (
         <>
             <Navbar cartCount={0} />
-            <div className="container" style={{ marginTop: "100px", maxWidth: "500px" }}>
-                <h2 style={{ textAlign: "center", marginBottom: "20px" }}>Doctor Registration</h2>
+            <div className="container" style={{ marginTop: "100px", maxWidth: "800px" }}>
+                
+                <MotivationalVideo 
+                    title="Empowering Doctors, Transforming Care"
+                    description="Join India's most advanced digital health network. Reach more patients, manage your practice seamlessly, and lead the future of healthcare."
+                    videoUrl="https://www.youtube.com/embed/-6iM6bNX-cM" // User provided doctor video (Short)
+                    ctaText="Start Registration"
+                    ctaLink="#registration-form"
+                />
+
+                <div id="registration-form" style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '500px', margin: '0 auto' }}>
+                    <h2 style={{ textAlign: "center", marginBottom: "20px", color: '#0D8ABC' }}>Doctor Registration</h2>
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
                     <input type="text" placeholder="Full Name" required
                         value={formData.name}
@@ -96,6 +107,7 @@ export default function DoctorRegister() {
                         {loading ? "Registering..." : "Register as Doctor"}
                     </button>
                 </form>
+                </div>
             </div>
         </>
     );
