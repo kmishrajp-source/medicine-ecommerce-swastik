@@ -203,6 +203,14 @@ export default function Home() {
             />
           </div>
 
+          <MotivationalVideo 
+            title="Your Health, Our Mission" 
+            description="Experience a new era of healthcare where technology meets compassion. Watch how Swastik Medicare is transforming lives across India."
+            videoUrl="https://www.youtube.com/embed/90ce3aCwpnw" // User provided customer video
+            ctaText="Explore Shop"
+            ctaLink="/shop"
+          />
+
           {/* BEST SELLING */}
           <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
           <ProductGrid products={bestSelling} addToCart={addToCart} />
