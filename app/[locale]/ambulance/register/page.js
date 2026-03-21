@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import { useRouter } from "next/navigation";
+import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function RegisterAmbulance() {
     const router = useRouter();
@@ -32,8 +33,17 @@ export default function RegisterAmbulance() {
     return (
         <>
             <Navbar />
-            <div className="container" style={{ marginTop: '120px', maxWidth: '600px' }}>
-                <div style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: 'var(--shadow-lg)' }}>
+            <div className="container" style={{ marginTop: '120px', maxWidth: '800px' }}>
+                
+                <MotivationalVideo 
+                    title="Be a Lifeline for Your Community"
+                    description="Join India's most responsive emergency network. Connect with patients in seconds, optimize your routes, and save more lives with Swastik Medicare."
+                    videoUrl="https://www.youtube.com/embed/9ZheffcdWBQ" // User provided ambulance video (Short)
+                    ctaText="Start Partnership"
+                    ctaLink="#registration-form"
+                />
+
+                <div id="registration-form" style={{ background: 'white', padding: '40px', borderRadius: '16px', boxShadow: 'var(--shadow-lg)', maxWidth: '600px', margin: '0 auto' }}>
                     <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#DC2626' }}>🚑 Partner with Swastik</h2>
                     <p style={{ textAlign: 'center', marginBottom: '30px' }}>Register your Ambulance Service</p>
 
