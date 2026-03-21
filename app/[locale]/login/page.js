@@ -22,7 +22,17 @@ export default function Login() {
         if (res.error) {
             setError("Invalid email or password");
         } else {
-            router.push("/");
+            // Role-based redirection logic
+            const response = await fetch('/api/user/me'); // Get user role from server
+            const userData = await response.json();
+            
+            if (userData.user.role === 'ADMIN') router.push('/admin');
+            else if (userData.user.role === 'HOSPITAL') router.push('/hospital/dashboard');
+            else if (userData.user.role === 'INSURANCE') router.push('/insurance/dashboard');
+            else if (userData.user.role === 'MANUFACTURER') router.push('/manufacturer/dashboard');
+            else if (userData.user.role === 'DOCTOR') router.push('/doctor/dashboard');
+            else if (userData.user.role === 'RETAILER') router.push('/retailer/dashboard');
+            else router.push('/');
         }
     };
 
