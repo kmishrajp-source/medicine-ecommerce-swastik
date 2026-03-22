@@ -6,6 +6,7 @@ export async function GET(req) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const runFix = searchParams.get('fix') === 'true';
+    const forceSeed = searchParams.get('seed') === 'true';
 
     // --- NINJA DB REMEDIATION START ---
     let remediationLogs = [];
@@ -86,7 +87,7 @@ export async function GET(req) {
 
         // --- SELF-HEALING SEED START ---
         // If the database is empty, automatically seed it with real medicines
-        if (products.length === 0 && !category && !search) {
+        if ((products.length === 0 || forceSeed) && !category && !search) {
             const seedProducts = [
                 { name: "Dolo 650", description: "Paracetamol 650mg. Rapid relief from fever and pain.", price: 30.50, image: "https://images.unsplash.com/photo-1584308666744-24d59b298f0d?auto=format&fit=crop&w=400&q=80", category: "General", requiresPrescription: false, stock: 150, uses: "Fever, Body Ache", sideEffects: "Nausea" },
                 { name: "Calpol 500", description: "Paracetamol 500mg. Highly effective for fever reduction.", price: 15.00, image: "https://images.unsplash.com/photo-1631549916768-4119b2e5f926?auto=format&fit=crop&w=400&q=80", category: "General", requiresPrescription: false, stock: 85, uses: "Fever, Low-grade Pain" },
