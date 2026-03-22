@@ -87,11 +87,20 @@ export default function ManufacturerRegister() {
                 />
 
                 <div id="registration-form" style={{ background: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '600px', margin: '0 auto' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1B5E20' }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: '10px', color: '#1B5E20' }}>
                         <i className="fa-solid fa-industry" style={{ marginRight: '10px' }}></i>
                         Manufacturer & Distributor Portal
                     </h2>
-                    <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>Direct integration with India's largest medical marketplace.</p>
+                    <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>Direct integration with India's largest medical marketplace.</p>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '25px', gap: '10px' }}>
+                        <a href="/ai-assistant" className="btn" style={{ background: '#3B82F6', color: 'white', textDecoration: 'none', padding: '8px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-solid fa-robot"></i> AI Registration Help
+                        </a>
+                        <a href="https://wa.me/917992122974" target="_blank" className="btn" style={{ background: '#25D366', color: 'white', textDecoration: 'none', padding: '8px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-brands fa-whatsapp"></i> Supplier Support
+                        </a>
+                    </div>
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <div style={sectionStyle}>

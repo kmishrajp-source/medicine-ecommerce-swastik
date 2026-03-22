@@ -41,6 +41,16 @@ const AIRecoveryAssistant = ({ actionType = null, pageName = null }) => {
             "Our servers are under high load. We've notified our technicians.",
             "Try refreshing the page or clearing your cache."
         ],
+        'partner_registration': [
+            "Ensure your License/Registration ID is in the correct format.",
+            "Make sure your Bank Account and IFSC code are from a supported Indian bank.",
+            "Wait for 5 minutes if the OTP is delayed."
+        ],
+        'settlement_failure': [
+            "Your bank's UPI/IMPS server might be down. The platform will retry in 1 hour.",
+            "Check if your GSTIN/Bank details have changed recently.",
+            "Contact Swastik Finance Support if the failure persists beyond 24 hours."
+        ],
         'default': [
             "We've encountered an unexpected error. Our team is investigating.",
             "Feel free to Chat on WhatsApp (+91 79921 22974) for immediate support."

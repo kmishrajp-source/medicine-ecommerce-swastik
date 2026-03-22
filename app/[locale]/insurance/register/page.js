@@ -88,11 +88,20 @@ export default function InsuranceRegister() {
                 />
 
                 <div id="registration-form" style={{ background: '#fff', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', maxWidth: '600px', margin: '0 auto' }}>
-                    <h2 style={{ textAlign: 'center', marginBottom: '20px', color: '#1E40AF' }}>
+                    <h2 style={{ textAlign: 'center', marginBottom: '10px', color: '#1E40AF' }}>
                         <i className="fa-solid fa-file-shield" style={{ marginRight: '10px' }}></i>
                         Insurance Provider Onboarding
                     </h2>
-                    <p style={{ textAlign: 'center', color: '#666', marginBottom: '30px' }}>Connect with thousands of patients and hospitals instantly.</p>
+                    <p style={{ textAlign: 'center', color: '#666', marginBottom: '20px' }}>Connect with thousands of patients and hospitals instantly.</p>
+
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '25px', gap: '10px' }}>
+                        <a href="/ai-assistant" className="btn" style={{ background: '#3B82F6', color: 'white', textDecoration: 'none', padding: '8px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-solid fa-robot"></i> AI Onboarding Help
+                        </a>
+                        <a href="https://wa.me/917992122974" target="_blank" className="btn" style={{ background: '#25D366', color: 'white', textDecoration: 'none', padding: '8px 15px', borderRadius: '20px', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <i className="fa-brands fa-whatsapp"></i> Chat Support
+                        </a>
+                    </div>
 
                     <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                         <div style={sectionStyle}>
