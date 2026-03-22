@@ -25,6 +25,7 @@ export async function GET(req) {
             `ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "mrp" DOUBLE PRECISION DEFAULT 0.0`,
             `ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "discount" DOUBLE PRECISION DEFAULT 0.0`,
             `ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "isRecommended" BOOLEAN DEFAULT false`,
+            `ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "manufacturerId" TEXT`,
             `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "phoneVerified" BOOLEAN DEFAULT false`,
             `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "lastIpAddress" TEXT`,
             `ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "deviceId" TEXT`,
@@ -46,9 +47,9 @@ export async function GET(req) {
              VALUES ('dir_doctor_kushinagar', 'General Physician', 'Kushinagar Health Center', 12, true, 200.0, '9876543210', 'Rajesh Pratap Singh', true, 'Kushinagar')
              ON CONFLICT (id) DO NOTHING`,
             // Inject Sample Metadata for Verification
-            `UPDATE "Product" SET brand = 'Micro Labs Ltd', salt = 'Paracetamol (650mg)', uses = 'Pain relief, Treatment of Fever', sideEffects = 'Nausea, Vomiting, Insomnia', mrp = 34.18, price = 30.50, discount = 10, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Dolo 650%'`,
-            `UPDATE "Product" SET brand = 'Alkem Laboratories Ltd', salt = 'Pantoprazole (40mg)', uses = 'Treatment of Acid reflux, Peptic ulcer disease', sideEffects = 'Diarrhea, Headache, Dizziness', mrp = 175.00, price = 140.00, discount = 20, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Pan 40%'`,
-            `UPDATE "Product" SET brand = 'GlaxoSmithKline', salt = 'Paracetamol (500mg)', uses = 'Fever reduction, Mild pain', sideEffects = 'Rare allergic reactions', mrp = 18.00, price = 15.00, discount = 16, packSize = '15 Tablets in 1 Strip' WHERE name ILIKE '%Calpol 500%'`
+            `UPDATE "Product" SET "brand" = 'Micro Labs Ltd', "salt" = 'Paracetamol (650mg)', "uses" = 'Pain relief, Treatment of Fever', "sideEffects" = 'Nausea, Vomiting, Insomnia', "mrp" = 34.18, "price" = 30.50, "discount" = 10, "packSize" = '15 Tablets in 1 Strip' WHERE "name" ILIKE '%Dolo 650%'`,
+            `UPDATE "Product" SET "brand" = 'Alkem Laboratories Ltd', "salt" = 'Pantoprazole (40mg)', "uses" = 'Treatment of Acid reflux, Peptic ulcer disease', "sideEffects" = 'Diarrhea, Headache, Dizziness', "mrp" = 175.00, "price" = 140.00, "discount" = 20, "packSize" = '15 Tablets in 1 Strip' WHERE "name" ILIKE '%Pan 40%'`,
+            `UPDATE "Product" SET "brand" = 'GlaxoSmithKline', "salt" = 'Paracetamol (500mg)', "uses" = 'Fever reduction, Mild pain', "sideEffects" = 'Rare allergic reactions', "mrp" = 18.00, "price" = 15.00, "discount" = 16, "packSize" = '15 Tablets in 1 Strip' WHERE "name" ILIKE '%Calpol 500%'`
         ];
 
         for (const sql of statements) {
