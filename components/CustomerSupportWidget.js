@@ -91,14 +91,12 @@ const CustomerSupportWidget = () => {
                     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
                     zIndex: 2
                 }}>
-                    <button onClick={toggleChat} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                        <ChevronLeft size={24} />
-                    </button>
-                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '500', letterSpacing: '0.3px', flex: 1, paddingLeft: '8px' }}>
+                    <div style={{ width: '24px' }}></div> {/* Spacer to center title if needed, or keep Chevron */}
+                    <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '500', letterSpacing: '0.3px', flex: 1, textAlign: 'center' }}>
                         Customer Support
                     </h3>
-                    <button style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-                        <Menu size={24} />
+                    <button onClick={toggleChat} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '4px' }} title="Minimize">
+                        <X size={24} />
                     </button>
                 </div>
 
