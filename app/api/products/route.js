@@ -96,12 +96,24 @@ export async function GET(req) {
                 { name: "Zincovit Tablet", description: "Multi-vitamin supplement for daily immunity.", price: 105.00, image: "https://images.unsplash.com/photo-1550572017-edb9215037d0?auto=format&fit=crop&w=400&q=80", category: "Supplements", requiresPrescription: false, stock: 500, uses: "Immunity Booster" },
                 { name: "Himalaya Liv.52", description: "Herbal formula for liver protection.", price: 155.00, image: "https://images.unsplash.com/photo-1550572017-edb9215037d0?auto=format&fit=crop&w=400&q=80", category: "Ayurvedic", requiresPrescription: false, stock: 120, uses: "Liver Health" }
             ];
-            await prisma.product.createMany({ data: seedProducts });
+            try {
+                await prisma.product.createMany({ data: seedProducts });
+                remediationLogs.push({ status: 'seed_success', message: 'Seeded ' + seedProducts.length + ' products' });
+            } catch (seedError) {
+                console.error("Seeding failed:", seedError);
+                remediationLogs.push({ status: 'seed_error', message: seedError.message });
+            }
             products = await prisma.product.findMany({ take: 20, orderBy: { createdAt: 'desc' } });
         }
         // --- SELF-HEALING SEED END ---
 
-        return NextResponse.json({ success: true, products, fixed: runFix, logs: runFix ? remediationLogs : undefined });
+        return NextResponse.json({ 
+            success: true, 
+            products, 
+            fixed: runFix || forceSeed, 
+            logs: (runFix || forceSeed) ? remediationLogs : undefined,
+            count: products.length
+        });
     } catch (error) {
         return NextResponse.json({
             success: false,
