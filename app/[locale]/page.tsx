@@ -201,6 +201,38 @@ export default function Home() {
               desc="Check if your medicines are safe together."
               color="#D97706"
             />
+            <FeatureCard 
+              href="/advertise" 
+              icon="fa-ad" 
+              title="Advertise With Us" 
+              desc="Grow your brand with India's fastest medical site."
+              color="#7C3AED"
+            />
+          </div>
+
+          <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', margin: '40px 0' }}>
+            <MotivationalVideo 
+              title="For Hospitals" 
+              description="Digitize your patient intake and fulfillment."
+              videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
+              ctaText="Register Hospital"
+              ctaLink="/hospital/register"
+            />
+            <MotivationalVideo 
+              title="For Insurance Providers" 
+              description="Verify claims and manage benefits in real-time."
+              videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
+              ctaText="Become a Provider"
+              ctaLink="/insurance/register"
+            />
+            <MotivationalVideo 
+              title="For Manufacturers" 
+              description="Supply medicines and manage your global catalog."
+              videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
+              ctaText="Join Supply Chain"
+              ctaLink="/manufacturer/register"
+            />
           </div>
 
           <MotivationalVideo 

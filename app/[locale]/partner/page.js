@@ -9,6 +9,33 @@ export default function PartnerPortal() {
 
     const modules = [
         {
+            title: "Hospitals & Clinics",
+            icon: "fa-hospital",
+            color: "#DC2626",
+            desc: "Register your facility & manage patient records.",
+            link: "/hospital/dashboard",
+            register: "/hospital/register",
+            btnText: "Hospital Login"
+        },
+        {
+            title: "Insurance Providers",
+            icon: "fa-file-shield",
+            color: "#1E40AF",
+            desc: "Verify claims & manage policyholder benefits.",
+            link: "/insurance/dashboard",
+            register: "/insurance/register",
+            btnText: "Provider Login"
+        },
+        {
+            title: "Manufacturers",
+            icon: "fa-industry",
+            color: "#1B5E20",
+            desc: "Bulk supply medicines & manage global catalog.",
+            link: "/manufacturer/dashboard",
+            register: "/manufacturer/register",
+            btnText: "Manufacturer Login"
+        },
+        {
             title: "Admin Dashboard",
             icon: "fa-user-shield",
             color: "#333",
