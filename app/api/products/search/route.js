@@ -22,15 +22,7 @@ export async function POST(request) {
             where: {
                 OR: orConditions
             },
-            take: 20, // limit to 20 suggestions
-            select: {
-                id: true,
-                name: true,
-                price: true,
-                image: true,
-                category: true,
-                stock: true
-            }
+            take: 20 // limit to 20 suggestions
         });
 
         return NextResponse.json({ success: true, products });
