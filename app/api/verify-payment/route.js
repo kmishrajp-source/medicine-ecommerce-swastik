@@ -80,6 +80,41 @@ export async function POST(req) {
                 await WhatsAppTriggers.appointmentConfirmed(appointment.patient.phone, appointment.id, appointment.doctor.user.name, appointment.date.toLocaleString());
             }
 
+            // 1.6 Handle Publisher Commission
+            if (appointment.publisherId) {
+                const commission = parseFloat(amount) * 0.1; // 10% commission
+                const publisher = await prisma.publisher.findUnique({
+                    where: { id: appointment.publisherId },
+                    include: { user: true }
+                });
+
+                if (publisher && publisher.userId) {
+                    await prisma.user.update({
+                        where: { id: publisher.userId },
+                        data: { 
+                            walletBalance: { increment: commission },
+                            transactions: {
+                                create: {
+                                    amount: commission,
+                                    type: "CREDIT",
+                                    description: `Commission for Appointment: ${appointment.doctor.user.name}`
+                                }
+                            }
+                        }
+                    });
+
+                    await prisma.publisherLead.create({
+                        data: {
+                            publisherId: publisher.id,
+                            userId: appointment.patientId,
+                            leadId: appointment.id,
+                            commission: commission,
+                            status: "completed"
+                        }
+                    });
+                }
+            }
+
             return NextResponse.json({
                 success: true,
                 appointmentId: appointment.id,

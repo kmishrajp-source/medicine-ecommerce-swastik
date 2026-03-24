@@ -34,12 +34,27 @@ export async function POST(req) {
 
         // 2. Trigger WhatsApp Notifications
         try {
-            // Customer Confirmation
+            // 2.1 Customer Confirmation
             await WhatsAppTriggers.leadCreatedCustomer(guestPhone, guestName || "Customer", serviceType);
             
-            // Provider Notification (If providerId exists, we'd find their phone, for now alert admin or use a default)
-            // Example: const doc = await prisma.doctor.findUnique({ where: { id: providerId } });
-            // if (doc?.phone) await WhatsAppTriggers.leadCreatedProvider(doc.phone, guestName, guestPhone, serviceType);
+            // 2.2 Provider Notification (Find phone based on serviceType and providerId)
+            if (providerId) {
+                let providerPhone = null;
+                if (serviceType === 'doctor') {
+                    const doc = await prisma.doctor.findUnique({ where: { id: providerId } });
+                    providerPhone = doc?.phone;
+                } else if (serviceType === 'hospital') {
+                    const hosp = await prisma.hospital.findUnique({ where: { id: providerId } });
+                    providerPhone = hosp?.phone;
+                } else if (serviceType === 'retailer') {
+                    const ret = await prisma.retailer.findUnique({ where: { id: providerId } });
+                    providerPhone = ret?.phone;
+                }
+
+                if (providerPhone) {
+                    await WhatsAppTriggers.leadCreatedProvider(providerPhone, guestName, guestPhone, serviceType);
+                }
+            }
         } catch (err) {
             console.error("WhatsApp Notification failed:", err);
         }

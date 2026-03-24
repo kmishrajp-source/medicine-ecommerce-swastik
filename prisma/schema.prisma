@@ -243,11 +243,13 @@ model PrescriptionQuote {
 }
 
 model Appointment {
-  id        String   @id @default(cuid())
-  patientId String
-  patient   User     @relation(fields: [patientId], references: [id])
-  doctorId  String
-  doctor    Doctor   @relation(fields: [doctorId], references: [id])
+  id          String    @id @default(cuid())
+  patientId   String
+  patient     User      @relation(fields: [patientId], references: [id])
+  doctorId    String
+  doctor      Doctor    @relation(fields: [doctorId], references: [id])
+  publisherId String?   @map("publisher_id")
+  publisher   Publisher? @relation(fields: [publisherId], references: [id])
   date      DateTime
   reason    String?
   status    String   @default("Pending") // Pending, Confirmed, Cancelled
@@ -896,6 +898,7 @@ model Publisher {
   referralCode String   @unique @map("referral_code")
   leads        PublisherLead[]
   withdrawals  PublisherWithdrawal[]
+  appointments Appointment[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }

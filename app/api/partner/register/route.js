@@ -23,8 +23,9 @@ export async function POST(req) {
         const roleMap = {
             'doctor': 'DOCTOR',
             'retailer': 'RETAILER',
-            'insurance': 'INSURANCE', // We will use this role
-            'lab': 'LAB'
+            'insurance': 'INSURANCE',
+            'lab': 'LAB',
+            'publisher': 'PUBLISHER'
         };
 
         const role = roleMap[type] || 'CUSTOMER';
@@ -74,10 +75,24 @@ export async function POST(req) {
                     description: "Managed by Partner",
                 }
             });
-            // Link user to company
             await prisma.user.update({
                 where: { id: user.id },
                 data: { insuranceCompanyId: company.id }
+            });
+        } else if (type === 'publisher') {
+            const referralCode = `SWASTIK${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+            await prisma.publisher.create({
+                data: {
+                    userId: user.id,
+                    name: name,
+                    phone: phone || "",
+                    referralCode: referralCode
+                }
+            });
+            // Update user role to PUBLISHER explicitly if needed
+            await prisma.user.update({
+                where: { id: user.id },
+                data: { role: 'PUBLISHER', referralCode: referralCode }
             });
         }
 

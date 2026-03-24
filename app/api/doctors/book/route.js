@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import Razorpay from "razorpay";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/route";
+import { cookies } from "next/headers";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     const razorpay = new Razorpay({
@@ -16,6 +18,17 @@ export async function POST(req) {
 
     try {
         const { doctorId, date, reason } = await req.json();
+
+        // 0. Check for Publisher Referral in Cookie
+        const cookieStore = await cookies();
+        const publisherRef = cookieStore.get('publisher_ref')?.value;
+        let finalPublisherId = null;
+        if (publisherRef) {
+            const publisher = await prisma.publisher.findUnique({
+                where: { referralCode: publisherRef }
+            });
+            if (publisher) finalPublisherId = publisher.id;
+        }
 
         if (!doctorId || !date) {
             return NextResponse.json({ error: "Doctor ID and Appointment Date are required." }, { status: 400 });
@@ -42,11 +55,19 @@ export async function POST(req) {
             data: {
                 patientId: session.user.id,
                 doctorId: doctor.id,
+                publisherId: finalPublisherId,
                 date: new Date(date),
                 reason,
                 status: "Pending_Payment"
             }
         });
+
+        // 1.1 Trigger WhatsApp Notifications
+        try {
+            await WhatsAppTriggers.leadCreatedCustomer(session.user.phone || session.user.email, session.user.name || "Customer", `Doctor Consultation: ${doctor.user.name}`);
+        } catch (err) {
+            console.error("WhatsApp Notification failed:", err);
+        }
 
         // 2. Razorpay Order Creation with Route (100% Transfer)
         const amountInPaise = Math.round(doctor.consultationFee * 100);
