@@ -10,6 +10,7 @@ import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { logFailure } from "@/lib/logger";
 import { settlePartnerPayment } from "@/lib/settlements";
+import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
 
 export async function POST(req) {
     try {
@@ -26,7 +27,10 @@ export async function POST(req) {
             lat,
             lng,
             orderType,
-            appointmentId
+            appointmentId,
+            targetId,
+            targetType,
+            leadId
         } = await req.json();
 
         // 1. Verify Signature
@@ -120,6 +124,21 @@ export async function POST(req) {
                 appointmentId: appointment.id,
                 message: "Appointment Confirmed & Payment Routed to Doctor"
             });
+        }
+
+        // 1.7 Handle Contact Unlocks
+        if (orderType === 'UNLOCK') {
+            const session = await getServerSession(authOptions);
+            if (session?.user) {
+                await processContactUnlock(session.user.id, targetId, targetType, razorpayPaymentId);
+                return NextResponse.json({ success: true, message: "Contact Unlocked Successfully" });
+            }
+        }
+
+        // 1.8 Handle Lead Commissions
+        if (orderType === 'LEAD') {
+            await distributeLeadCommission(leadId, amount);
+            return NextResponse.json({ success: true, message: "Lead Commission Distributed" });
         }
 
         // 2. Identify User

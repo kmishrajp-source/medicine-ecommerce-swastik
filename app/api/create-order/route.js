@@ -1,84 +1,32 @@
-import Razorpay from "razorpay";
 import { NextResponse } from "next/server";
-import shortid from "shortid";
-import prisma from "@/lib/prisma";
+import Razorpay from "razorpay";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { logFailure } from "@/lib/logger";
+import { authOptions } from "../auth/[...nextauth]/route";
+
+const razorpay = new Razorpay({
+    key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+    key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 
 export async function POST(req) {
-    const key_id = process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY;
-    const key_secret = process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_SECRET;
-
-    if (!key_id || !key_secret) {
-        console.error("Razorpay keys are missing");
-        return NextResponse.json({ error: "Payment configuration missing" }, { status: 500 });
-    }
-
-    const razorpay = new Razorpay({
-        key_id,
-        key_secret,
-    });
-
-    const { amount, couponCode } = await req.json();
-    const session = await getServerSession(authOptions);
-
-    let finalAmount = amount;
-
-    // Coupon Logic: FIRST100
-    if (couponCode === 'FIRST100') {
-        if (session && session.user && session.user.id) {
-            const orderCount = await prisma.order.count({
-                where: { userId: session.user.id }
-            });
-
-            if (orderCount === 0) {
-                // Determine if 'amount' passed from frontend already allows for discount? 
-                // The frontend sends `cartTotal - discount`.
-                // BUT securely, we should probably take the 'original amount' and subtract here, 
-                // OR just validate that the amount matches expected. 
-                // For simplicity in this structure: we TRUST the amount but VERIFY the coupon condition.
-                // If coupon is sent, we assume the amount is already discounted, OR we can ignore the frontend amount and fetch from DB?
-                // We don't have items here to calc total. 
-                // So we will just Validate the Permission to use coupon.
-
-                // If valid, we proceed with the received 'amount' (which is technically user input).
-                // Ideally we should recalculate, but passing items to create-order is complex.
-                // We'll trust the frontend sent the discounted price, AND we verify they are allowed to.
-                // Meaning: If they sent couponCode "FIRST100", we check if they have 0 orders.
-                // If they HAVE orders, we reject the request (because they are trying to cheat).
-            } else {
-                return NextResponse.json({ error: "Coupon valid only for first order" }, { status: 400 });
-            }
-        } else {
-            return NextResponse.json({ error: "Login required for coupon" }, { status: 401 });
-        }
-    }
-
-    const options = {
-        amount: Math.round(finalAmount * 100), // Amount in paise
-        currency: "INR",
-        receipt: shortid.generate(),
-    };
-
     try {
-        const response = await razorpay.orders.create(options);
-        return NextResponse.json({
-            id: response.id,
-            currency: response.currency,
-            amount: response.amount,
-        });
+        const session = await getServerSession(authOptions);
+        const { amount, currency = "INR", receipt = "receipt_" + Date.now() } = await req.json();
+
+        if (!amount) {
+            return NextResponse.json({ error: "Amount is required" }, { status: 400 });
+        }
+
+        const options = {
+            amount: Math.round(amount * 100), // convert to paise
+            currency,
+            receipt,
+        };
+
+        const order = await razorpay.orders.create(options);
+        return NextResponse.json(order);
     } catch (error) {
-        console.error(error);
-        await logFailure({
-            userId: session?.user?.id,
-            userRole: session?.user?.role || 'CUSTOMER',
-            actionType: 'checkout',
-            errorType: 'payment_gateway',
-            errorMessage: error.message,
-            pageUrl: '/checkout',
-            details: { amount, finalAmount, couponCode }
-        });
-        return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+        console.error("Razorpay Order Error:", error);
+        return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }

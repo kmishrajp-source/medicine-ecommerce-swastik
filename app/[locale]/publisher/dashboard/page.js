@@ -14,18 +14,6 @@ export default function PublisherDashboard() {
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("insurance");
 
-    const getReferralLinks = () => {
-        if (!session?.user?.publisher_ref && !session?.user?.id) return { insurance: "", directory: "" };
-        const origin = typeof window !== 'undefined' ? window.location.origin : '';
-        const ref = session?.user?.referralCode || session?.user?.id; // Fallback to id if no code
-        return {
-            insurance: `${origin}/medical-insurance?ref=${ref}`,
-            directory: `${origin}/hospitals?ref=${ref}`
-        };
-    };
-
-    const referralLinks = getReferralLinks();
-
     useEffect(() => {
         if (session?.user?.id) {
             fetchPublisherData();
@@ -75,94 +63,104 @@ export default function PublisherDashboard() {
         }
     };
 
-    const copyLink = (link) => {
-        navigator.clipboard.writeText(link);
-        alert("Referral link copied!");
+    const getReferralLink = () => {
+        if (typeof window === 'undefined') return '';
+        const origin = window.location.origin;
+        const ref = session?.user?.referralCode || session?.user?.id || 'REF123';
+        return `${origin}?ref=${ref}`;
     };
+
+    const referralLink = getReferralLink();
 
     return (
         <div className="min-h-screen bg-slate-50">
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
             <div className="max-w-7xl mx-auto px-6 pt-32 pb-24">
-                <div className="mb-12 flex flex-col md:flex-row md:items-center justify-between gap-8">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
-                        <h1 className="text-4xl font-black text-slate-900">Publisher Dashboard</h1>
-                        <p className="text-slate-500">Track Gorkhpur Directory referrals and Insurance earnings.</p>
+                        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1e293b' }}>Publisher Dashboard</h1>
+                        <p style={{ color: '#64748b' }}>Track referrals and earn commission on Gorakhpur's health network.</p>
+                    </div>
+                    <div style={{ padding: '15px 25px', background: 'white', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', alignItems: 'center', gap: '15px', border: '1px solid #e2e8f0' }}>
+                        <div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Wallet Balance</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#10b981' }}>₹{stats.totalEarned.toLocaleString()}</div>
+                        </div>
+                        <div style={{ width: '1px', height: '30px', background: '#e2e8f0' }}></div>
+                        <button 
+                            onClick={handleWithdraw}
+                            disabled={stats.totalEarned < 500}
+                            style={{ padding: '8px 15px', background: stats.totalEarned >= 500 ? '#4338ca' : '#cbd5e1', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: stats.totalEarned >= 500 ? 'pointer' : 'not-allowed', fontSize: '0.85rem' }}
+                        >
+                            Withdraw
+                        </button>
                     </div>
                 </div>
 
-                {/* Referral Links Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between">
-                         <div className="flex items-center gap-4 mb-6">
-                            <div className="bg-blue-50 p-3 rounded-2xl text-blue-600"><i className="fa-solid fa-shield-halved"></i></div>
-                            <div>
-                                <h4 className="font-black text-slate-900 leading-tight">Medical Insurance</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">High Commission Plans</p>
-                            </div>
-                         </div>
-                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-200">
-                             <p className="flex-1 text-[10px] font-mono text-slate-400 truncate">{referralLinks.insurance}</p>
-                             <button onClick={() => copyLink(referralLinks.insurance)} className="bg-blue-600 text-white text-[10px] font-black px-4 py-2 rounded-xl">COPY LINK</button>
-                         </div>
-                    </div>
-                    <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col justify-between">
-                         <div className="flex items-center gap-4 mb-6">
-                            <div className="bg-green-50 p-3 rounded-2xl text-green-600"><i className="fa-solid fa-hospital"></i></div>
-                            <div>
-                                <h4 className="font-black text-slate-900 leading-tight">Gorakhpur Directory</h4>
-                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Hospitals • Doctors • Retailers</p>
-                            </div>
-                         </div>
-                         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl border border-dashed border-slate-200">
-                             <p className="flex-1 text-[10px] font-mono text-slate-400 truncate">{referralLinks.directory}</p>
-                             <button onClick={() => copyLink(referralLinks.directory)} className="bg-green-600 text-white text-[10px] font-black px-4 py-2 rounded-xl">COPY LINK</button>
-                         </div>
-                    </div>
-                </div>
-
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 text-blue-50 text-6xl"><i className="fa-solid fa-users"></i></div>
-                        <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2 relative">Total Referrals</p>
-                        <h3 className="text-4xl font-black text-slate-900 relative">{stats.totalLeads}</h3>
-                    </div>
-                    <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-8 text-white/5 text-6xl"><i className="fa-solid fa-wallet"></i></div>
-                        <div className="flex justify-between items-start relative">
-                            <div>
-                                <p className="text-sm font-black text-white/60 uppercase tracking-widest mb-2">Available Wallet</p>
-                                <h3 className="text-4xl font-black">₹{stats.totalEarned.toLocaleString()}</h3>
-                            </div>
-                            <button 
-                                onClick={handleWithdraw}
-                                className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-6 py-3 rounded-2xl transition-all shadow-xl"
-                            >
-                                WITHDRAW
-                            </button>
+                {/* Referral Link Card */}
+                <div style={{ background: 'white', padding: '30px', borderRadius: '24px', border: '1px solid #e2e8f0', marginBottom: '40px', boxShadow: '0 10px 30px -10px rgba(0,0,0,0.05)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 'bold', color: '#334155' }}>Your Main Referral Link</h3>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                            <span style={{ fontSize: '0.7rem', color: '#4338ca', fontWeight: 'black', background: '#e0e7ff', padding: '5px 12px', borderRadius: '20px', textTransform: 'uppercase' }}>10% Payout</span>
+                            <span style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 'black', background: '#d1fae5', padding: '5px 12px', borderRadius: '20px', textTransform: 'uppercase' }}>Instant Credit</span>
                         </div>
                     </div>
-                    <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 relative overflow-hidden">
-                         <div className="absolute top-0 right-0 p-8 text-red-50 text-6xl"><i className="fa-solid fa-clock"></i></div>
-                        <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-2 relative">Pending Action</p>
-                        <h3 className="text-4xl font-black text-slate-900 relative">{stats.activeLeads}</h3>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                        <input 
+                            readOnly 
+                            value={referralLink} 
+                            style={{ flex: 1, padding: '15px', borderRadius: '12px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.95rem', color: '#475569', fontWeight: '500' }}
+                        />
+                        <button 
+                            onClick={() => { navigator.clipboard.writeText(referralLink); alert("Link Copied!"); }}
+                            style={{ padding: '0 30px', background: '#334155', color: 'white', borderRadius: '12px', fontWeight: 'bold', border: 'none', cursor: 'pointer', transition: 'all 0.2s shadow' }}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#1e293b'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#334155'}
+                        >
+                            <i className="fa-solid fa-copy" style={{ marginRight: '8px' }}></i> Copy Link
+                        </button>
+                    </div>
+                </div>
+
+                {/* Stats Summary */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-6">
+                        <div className="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center text-xl"><i className="fa-solid fa-link"></i></div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Leads</p>
+                            <h3 className="text-2xl font-black text-slate-900">{stats.totalLeads}</h3>
+                        </div>
+                    </div>
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-6">
+                        <div className="w-14 h-14 bg-green-50 text-green-600 rounded-2xl flex items-center justify-center text-xl"><i className="fa-solid fa-check-double"></i></div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Conversions</p>
+                            <h3 className="text-2xl font-black text-slate-900">{stats.totalLeads - stats.activeLeads}</h3>
+                        </div>
+                    </div>
+                    <div className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 flex items-center gap-6">
+                        <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl"><i className="fa-solid fa-clock-rotate-left"></i></div>
+                        <div>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Pending Payout</p>
+                            <h3 className="text-2xl font-black text-slate-900">{stats.activeLeads}</h3>
+                        </div>
                     </div>
                 </div>
 
                 {/* Tabs & Table */}
-                <div className="bg-white rounded-[3rem] shadow-2xl border border-slate-100 overflow-hidden">
-                    <div className="p-8 border-b border-slate-50 flex items-center gap-8">
+                <div className="bg-white rounded-[2.5rem] shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="p-8 border-b border-slate-50 flex items-center gap-10">
                         <button 
                             onClick={() => setActiveTab('insurance')}
-                            className={`text-sm font-black uppercase tracking-widest pb-2 border-b-2 transition-all ${activeTab === 'insurance' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-300 hover:text-slate-500'}`}
+                            className={`text-[11px] font-black uppercase tracking-widest pb-3 border-b-2 transition-all ${activeTab === 'insurance' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-300 hover:text-slate-500'}`}
                         >
                             Insurance Leads
                         </button>
                         <button 
                             onClick={() => setActiveTab('directory')}
-                            className={`text-sm font-black uppercase tracking-widest pb-2 border-b-2 transition-all ${activeTab === 'directory' ? 'border-green-600 text-green-600' : 'border-transparent text-slate-300 hover:text-slate-500'}`}
+                            className={`text-[11px] font-black uppercase tracking-widest pb-3 border-b-2 transition-all ${activeTab === 'directory' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-300 hover:text-slate-500'}`}
                         >
                             Directory Leads
                         </button>
@@ -170,24 +168,28 @@ export default function PublisherDashboard() {
                     
                     <div className="overflow-x-auto">
                         {loading ? (
-                            <div className="py-20 text-center"><i className="fa-solid fa-spinner fa-spin text-2xl text-slate-300"></i></div>
+                            <div className="py-20 text-center"><i className="fa-solid fa-spinner fa-spin text-2xl text-indigo-100"></i></div>
                         ) : (
                             <table className="w-full text-left">
                                 <thead className="bg-slate-50/50">
                                     <tr>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Customer</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">{activeTab === 'insurance' ? 'Plan Details' : 'Service Requested'}</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Date</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Status</th>
-                                        <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 text-right">Commission</th>
+                                        <th className="px-8 py-5 text-[9px] font-black uppercase text-slate-400 tracking-wider">Customer Info</th>
+                                        <th className="px-8 py-5 text-[9px] font-black uppercase text-slate-400 tracking-wider">Product/Service</th>
+                                        <th className="px-8 py-5 text-[9px] font-black uppercase text-slate-400 tracking-wider">Referral Date</th>
+                                        <th className="px-8 py-5 text-[9px] font-black uppercase text-slate-400 tracking-wider">Reward Status</th>
+                                        <th className="px-8 py-5 text-[9px] font-black uppercase text-slate-400 tracking-wider text-right">Commission</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-50">
-                                    {(activeTab === 'insurance' ? insuranceLeads : slnLeads).map(lead => (
+                                    {(activeTab === 'insurance' ? insuranceLeads : slnLeads).length === 0 ? (
+                                        <tr>
+                                            <td colSpan="5" className="py-20 text-center font-bold text-slate-300">No {activeTab} activity yet.</td>
+                                        </tr>
+                                    ) : (activeTab === 'insurance' ? insuranceLeads : slnLeads).map(lead => (
                                         <tr key={lead.id} className="hover:bg-slate-50/50 transition-all">
                                             <td className="px-8 py-6">
-                                                <p className="font-bold text-slate-900 text-sm">{lead.guestName || "Referral User"}</p>
-                                                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">{lead.guestPhone || "No Contact"}</p>
+                                                <p className="font-bold text-slate-900 text-sm">{lead.guestName || "Referral"}</p>
+                                                <p className="text-[10px] text-slate-400 font-bold">{lead.guestPhone || "Contact Hidden"}</p>
                                             </td>
                                             <td className="px-8 py-6">
                                                 {activeTab === 'insurance' ? (
@@ -197,35 +199,30 @@ export default function PublisherDashboard() {
                                                     </div>
                                                 ) : (
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500 text-xs">
+                                                        <div className="w-7 h-7 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-400 text-[10px]">
                                                             <i className={`fa-solid ${lead.serviceType === 'doctor' ? 'fa-user-doctor' : (lead.serviceType === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
                                                         </div>
-                                                        <p className="text-xs font-black text-slate-600 uppercase tracking-widest">{lead.serviceType}</p>
+                                                        <p className="text-[10px] font-black text-slate-600 uppercase tracking-widest">{lead.serviceType}</p>
                                                     </div>
                                                 )}
                                             </td>
-                                            <td className="px-8 py-6 text-[10px] font-bold text-slate-400 uppercase">
+                                            <td className="px-8 py-6 text-[10px] font-bold text-slate-400">
                                                 {new Date(lead.createdAt).toLocaleDateString()}
                                             </td>
                                             <td className="px-8 py-6">
-                                                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                                    (lead.paymentStatus === 'Paid' || lead.status === 'converted') ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'
+                                                <span className={`px-4 py-1.5 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                                    (lead.paymentStatus === 'Paid' || lead.status === 'completed' || lead.status === 'converted') ? 'bg-green-100 text-green-600' : 'bg-amber-100 text-amber-600'
                                                 }`}>
                                                     {lead.paymentStatus || lead.status}
                                                 </span>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <p className={`font-black text-sm ${(lead.paymentStatus === 'Paid' || lead.status === 'converted') ? 'text-blue-600' : 'text-slate-300'}`}>
+                                                <p className={`font-black text-sm ${(lead.paymentStatus === 'Paid' || lead.status === 'completed' || lead.status === 'converted') ? 'text-indigo-600' : 'text-slate-300'}`}>
                                                     ₹{activeTab === 'insurance' ? (lead.commissionEarned * 0.5).toFixed(0) : (lead.commissionEarned || 0)}
                                                 </p>
                                             </td>
                                         </tr>
                                     ))}
-                                    {(activeTab === 'insurance' ? insuranceLeads : slnLeads).length === 0 && (
-                                        <tr>
-                                            <td colSpan="5" className="py-20 text-center font-bold text-slate-300">No {activeTab} leads found yet.</td>
-                                        </tr>
-                                    )}
                                 </tbody>
                             </table>
                         )}
