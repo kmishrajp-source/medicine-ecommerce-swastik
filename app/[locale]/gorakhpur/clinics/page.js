@@ -59,14 +59,40 @@ export default function ClinicDirectory() {
         <div className="min-h-screen bg-[#f0f0f5] font-sans text-[#414146]">
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
-            {/* Breadcrumbs & Search Area */}
+            {/* Breadcrumbs & Navigation Hub */}
             <div className="bg-white pt-24 pb-6 px-6 border-b border-slate-200">
                 <div className="max-w-7xl mx-auto">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                        Home / Gorakhpur / <span className="text-slate-900">Clinics</span>
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                            Home / Healthcare Directory / Uttar Pradesh / <span className="text-slate-900">Gorakhpur</span>
+                        </div>
+                        <div className="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100">
+                            639 Verified Specialists in Gorakhpur
+                        </div>
                     </div>
-                    <h1 className="text-2xl font-black text-slate-900 mb-2">{clinics.length} Clinics in Gorakhpur</h1>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Verified and Standardized Healthcare Listings</p>
+                    
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-6">
+                        <div>
+                            <h1 className="text-4xl font-black text-slate-900 mb-2">Clinics in Gorakhpur</h1>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <i className="fa-solid fa-circle-check text-emerald-500"></i> Local & Verified Medical Facilities
+                            </p>
+                        </div>
+                        
+                        <div className="flex gap-4 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-48">
+                                <i className="fa-solid fa-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter Pin-code" 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-10 pr-4 text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                />
+                            </div>
+                            <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-black transition-all">
+                                Filter Results
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 

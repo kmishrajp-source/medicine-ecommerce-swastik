@@ -11,6 +11,7 @@ export async function GET(req) {
 
         const { searchParams } = new URL(req.url);
         const status = searchParams.get('status');
+        const pincode = searchParams.get('pincode');
         
         const where = {
             OR: [
@@ -21,6 +22,13 @@ export async function GET(req) {
         
         if (status) {
             where.status = status;
+        }
+
+        if (pincode) {
+            where.OR = [
+                { location: { contains: pincode } },
+                { hospital: { contains: pincode } }
+            ];
         }
 
         const doctors = await prisma.doctor.findMany({
