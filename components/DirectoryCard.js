@@ -2,6 +2,7 @@ import { useSession } from "next-auth/react";
 import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { maskPhone } from "@/lib/security";
+import VerifiedBadge from "./VerifiedBadge";
 
 export default function DirectoryCard({ item, type, onBook }) {
     const { data: session } = useSession();
@@ -58,16 +59,38 @@ export default function DirectoryCard({ item, type, onBook }) {
     return (
         <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all group">
             <div className="flex justify-between items-start mb-4">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-blue-50 text-blue-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-green-50 text-green-500')}`}>
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500')}`}>
                     <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
                 </div>
                 {item.verified && (
-                    <span className="bg-green-100 text-green-600 text-[10px] font-black px-2 py-1 rounded-lg uppercase">Verified</span>
+                    <VerifiedBadge timestamp={item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : undefined} />
                 )}
             </div>
 
             <h3 className="text-xl font-bold text-slate-900 mb-1">{displayName}</h3>
-            <p className="text-sm text-slate-500 mb-4 line-clamp-1">{subText}</p>
+            <div className="flex items-center gap-2 mb-4">
+                <p className="text-sm text-slate-500 line-clamp-1">{subText}</p>
+                {item.qualityScore > 0 && (
+                    <span className="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                        {item.qualityScore}% Trust
+                    </span>
+                )}
+            </div>
+
+            {/* Practo-style UX Metrics */}
+            {type === 'doctor' && (
+                <div className="flex items-center gap-4 mb-6 pt-4 border-t border-slate-50">
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Wait Time</span>
+                        <span className="text-xs font-bold text-slate-800">{item.waitTime || '15 min'}</span>
+                    </div>
+                    <div className="h-8 w-px bg-slate-100"></div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Feedback</span>
+                        <span className="text-xs font-bold text-emerald-600 whitespace-nowrap"><i className="fa-solid fa-thumbs-up"></i> {item.recommendationRate || 95}%</span>
+                    </div>
+                </div>
+            )}
 
             <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-sm">
