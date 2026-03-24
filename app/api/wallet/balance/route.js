@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../auth/[...nextauth]/route';
-import { prisma } from '../../../lib/prisma';
+import prisma from '@/lib/prisma';
 
 export async function GET() {
   const session = await getServerSession(authOptions);
@@ -10,12 +10,13 @@ export async function GET() {
   }
 
   try {
-    const wallet = await prisma.wallet.findUnique({
-      where: { userId: session.user.id }
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { walletBalance: true }
     });
 
     return Response.json({
-      balance: wallet ? wallet.balance / 100 : 0, // Convert paise to major currency unit
+      balance: user ? user.walletBalance : 0,
       currency: 'INR'
     });
   } catch (error) {
