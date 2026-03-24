@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 
 import { useSession, signOut } from "next-auth/react";
 import LanguageSwitcher from "./LanguageSwitcher";
+import MiniHeader from "./MiniHeader";
 
 export default function Navbar({ cartCount, openCart }) {
     const { data: session } = useSession() || {};
@@ -61,8 +62,9 @@ export default function Navbar({ cartCount, openCart }) {
     }, [searchQuery]);
 
     return (
-        <header className="glass-header">
-            <div className="container header-content">
+        <header className="glass-header" style={{ padding: 0 }}>
+            <MiniHeader />
+            <div className="container header-content" style={{ padding: '15px 20px' }}>
                 <div className="logo">
                     <i className="fa-solid fa-heart-pulse"></i> Swastik <strong>Medicare</strong>
                 </div>
@@ -101,7 +103,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <i className="fa-solid fa-search"></i>
                         <input 
                             type="text" 
-                            placeholder={tHome('search_placeholder')} 
+                            placeholder="Search Specialist Doctors, Hospitals & Clinics..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
