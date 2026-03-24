@@ -597,7 +597,7 @@ model Hospital {
   specialties    String?  // JSON string or comma-separated
   verified       Boolean  @default(false)
   bankDetails    Json?    // UPI/Bank Details for settlement
-  createdAt      DateTime @now()
+  createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   doctors        Doctor[] @relation("HospitalDoctors")
   appointments   Appointment[]
