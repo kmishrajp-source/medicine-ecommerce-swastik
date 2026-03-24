@@ -82,9 +82,13 @@ export default function Navbar({ cartCount, openCart }) {
                         {session?.user?.role === 'ADMIN' && (
                             <>
                                 <li><Link href="/admin/leads" style={{ color: '#4338ca', fontWeight: 'bold' }}>SLN Leads</Link></li>
+                                <li><Link href="/admin/crm" style={{ color: '#ec4899', fontWeight: 'bold' }}>Lead CRM</Link></li>
                                 <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
                                 <li><Link href="/admin/inventory">{t('inventory')}</Link></li>
                             </>
+                        )}
+                        {session?.user?.role === 'AGENT' && (
+                            <li><Link href="/agent/dashboard" style={{ color: '#f59e0b', fontWeight: 'bold' }}>Lead Dashboard</Link></li>
                         )}
                         <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>{t('support')}</Link></li>
                         {session?.user?.role === 'DELIVERY' && (
