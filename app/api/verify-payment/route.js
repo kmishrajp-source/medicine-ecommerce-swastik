@@ -141,6 +141,50 @@ export async function POST(req) {
             return NextResponse.json({ success: true, message: "Lead Commission Distributed" });
         }
 
+        // 1.9 Handle Plan Purchases (Partner Onboarding)
+        if (orderType === 'PLAN_PURCHASE') {
+            const session = await getServerSession(authOptions);
+            const planId = targetId; // from landing page
+            
+            if (session?.user) {
+                // Update User Role/Status
+                await prisma.user.update({
+                    where: { id: session.user.id },
+                    data: { 
+                        role: 'PARTNER', // General partner role or specific
+                        // Assuming metadata/status fields exist or use a generic flag
+                        isVerified: planId === 'featured'
+                    }
+                });
+
+                // Auto-convert any Lead matching this user's phone
+                const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+                if (user?.phone) {
+                    const cleanPhone = user.phone.slice(-10);
+                    await prisma.lead.updateMany({
+                        where: {
+                            guestPhone: { contains: cleanPhone },
+                            status: { not: 'converted' }
+                        },
+                        data: { status: 'converted' }
+                    });
+                }
+
+                // Log Revenue
+                await prisma.partnerRevenue.create({
+                    data: {
+                        partnerId: session.user.id,
+                        partnerType: 'PARTNER',
+                        revenueType: 'LISTING_FEE',
+                        amount: parseFloat(amount),
+                        paymentStatus: 'paid'
+                    }
+                });
+
+                return NextResponse.json({ success: true, message: "Plan Activated & Partner Verified" });
+            }
+        }
+
         // 2. Identify User
         let userId = null;
         const session = await getServerSession(authOptions);
