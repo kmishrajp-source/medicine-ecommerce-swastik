@@ -39,10 +39,27 @@ export function middleware(req) {
         }
     }
 
+    // 2. Referral Tracking
+    const ref = req.nextUrl.searchParams.get('ref');
+    if (ref) {
+        const response = NextResponse.next();
+        // Store referral code in a cookie for 30 days
+        response.cookies.set('publisher_ref', ref, {
+            maxAge: 30 * 24 * 60 * 60,
+            path: '/',
+            httpOnly: false, // Accessible from client-side if needed
+            sameSite: 'lax'
+        });
+        return response;
+    }
+
     return NextResponse.next();
 }
 
 // Config ensures middleware only runs on relevant paths, keeping static assets fast
 export const config = {
-    matcher: ['/api/:path*'],
+    matcher: [
+        '/api/:path*',
+        '/((?!_next/static|_next/image|favicon.ico).*)', // All pages except static assets
+    ],
 };

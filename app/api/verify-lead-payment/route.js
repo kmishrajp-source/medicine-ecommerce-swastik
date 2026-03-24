@@ -3,6 +3,8 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { cookies } from "next/headers";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -64,22 +66,80 @@ export async function POST(req) {
             return NextResponse.json({ success: true, unlock, message: "Contact Unlocked Successfully" });
 
         } else if (type === "LEAD") {
-            const { serviceType, providerId, guestName, guestPhone, guestEmail, leadDetails } = details;
+            const { serviceType, providerId, guestName, guestPhone, guestEmail, leadDetails, amount } = details;
+
+            // 3.1 Check for Publisher Referral
+            const cookieStore = await cookies();
+            const publisherRef = cookieStore.get('publisher_ref')?.value;
+            let publisherId = null;
+            let commission = 0;
+
+            if (publisherRef) {
+                const publisher = await prisma.publisher.findUnique({
+                    where: { referralCode: publisherRef },
+                    include: { user: true }
+                });
+
+                if (publisher) {
+                    publisherId = publisher.id;
+                    // Logic: 10% commission or fixed amount? 
+                    // Let's use 10% of the payment amount (₹1000 = ₹100 commission)
+                    commission = parseFloat(amount) * 0.1;
+
+                    // Credit Publisher Wallet
+                    if (publisher.userId) {
+                        await prisma.user.update({
+                            where: { id: publisher.userId },
+                            data: { 
+                                walletBalance: { increment: commission },
+                                transactions: {
+                                    create: {
+                                        amount: commission,
+                                        type: "CREDIT",
+                                        description: `Commission for Lead: ${serviceType}`
+                                    }
+                                }
+                            }
+                        });
+                    }
+                }
+            }
 
             const lead = await prisma.lead.create({
                 data: {
                     userId: userId || null,
+                    publisherId: publisherId, // Link to generic Lead publisherId field
                     serviceType,
                     providerId,
                     guestName,
                     guestPhone,
                     guestEmail,
                     details: leadDetails,
-                    status: "paid" // Marking it as paid since payment is verified
+                    status: "paid",
+                    commissionEarned: commission
                 }
             });
 
-            return NextResponse.json({ success: true, lead, message: "Lead Created Successfully" });
+            // 3.2 Create PublisherLead record for tracking (If publisher exists)
+            if (publisherId) {
+                await prisma.publisherLead.create({
+                    data: {
+                        publisherId: publisherId,
+                        userId: userId || null,
+                        leadId: lead.id,
+                        commission: commission,
+                        status: "completed"
+                    }
+                });
+            }
+
+            // 4. Trigger WhatsApp Notifications
+            const customerPhone = guestPhone || session?.user?.phone;
+            if (customerPhone) {
+                await WhatsAppTriggers.paymentSuccess(customerPhone, amount, serviceType);
+            }
+
+            return NextResponse.json({ success: true, lead, message: "Lead Created & Publisher Credited" });
         }
 
         return NextResponse.json({ error: "Invalid transaction type" }, { status: 400 });

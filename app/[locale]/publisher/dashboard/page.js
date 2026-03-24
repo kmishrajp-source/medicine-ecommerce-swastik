@@ -15,11 +15,12 @@ export default function PublisherDashboard() {
     const [activeTab, setActiveTab] = useState("insurance");
 
     const getReferralLinks = () => {
-        if (!session?.user?.id) return { insurance: "", directory: "" };
+        if (!session?.user?.publisher_ref && !session?.user?.id) return { insurance: "", directory: "" };
         const origin = typeof window !== 'undefined' ? window.location.origin : '';
+        const ref = session?.user?.referralCode || session?.user?.id; // Fallback to id if no code
         return {
-            insurance: `${origin}/medical-insurance?pubId=${session.user.id}`,
-            directory: `${origin}/hospitals?pubId=${session.user.id}`
+            insurance: `${origin}/medical-insurance?ref=${ref}`,
+            directory: `${origin}/hospitals?ref=${ref}`
         };
     };
 
@@ -40,13 +41,9 @@ export default function PublisherDashboard() {
                 setInsuranceLeads(data.insuranceLeads || []);
                 setSlnLeads(data.slnLeads || []);
                 
-                // Calculate stats
-                const insuranceEarned = (data.insuranceLeads || []).reduce((acc, l) => acc + (l.paymentStatus === 'Paid' ? (l.commissionEarned * 0.5) : 0), 0);
-                const slnEarned = (data.slnLeads || []).reduce((acc, l) => acc + (l.commissionEarned || 0), 0);
-                
                 setStats({
                     totalLeads: (data.insuranceLeads?.length || 0) + (data.slnLeads?.length || 0),
-                    totalEarned: insuranceEarned + slnEarned,
+                    totalEarned: data.walletBalance || 0,
                     activeLeads: (data.insuranceLeads?.filter(l => l.paymentStatus === 'Pending').length || 0) + (data.slnLeads?.filter(l => l.status === 'new').length || 0)
                 });
             }
@@ -54,6 +51,27 @@ export default function PublisherDashboard() {
             console.error("Failed to fetch publisher data", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleWithdraw = async () => {
+        if (stats.totalEarned < 500) {
+            alert("Minimum withdrawal is ₹500");
+            return;
+        }
+
+        const res = await fetch("/api/publisher/withdraw", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ amount: stats.totalEarned })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("Withdrawal request sent for admin approval!");
+            fetchPublisherData();
+        } else {
+            alert(data.error || "Failed to submit withdrawal request");
         }
     };
 
@@ -113,8 +131,18 @@ export default function PublisherDashboard() {
                     </div>
                     <div className="bg-slate-900 p-8 rounded-[2.5rem] shadow-2xl text-white relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-8 text-white/5 text-6xl"><i className="fa-solid fa-wallet"></i></div>
-                        <p className="text-sm font-black text-white/60 uppercase tracking-widest mb-2 relative">Total Earnings</p>
-                        <h3 className="text-4xl font-black relative">₹{stats.totalEarned.toLocaleString()}</h3>
+                        <div className="flex justify-between items-start relative">
+                            <div>
+                                <p className="text-sm font-black text-white/60 uppercase tracking-widest mb-2">Available Wallet</p>
+                                <h3 className="text-4xl font-black">₹{stats.totalEarned.toLocaleString()}</h3>
+                            </div>
+                            <button 
+                                onClick={handleWithdraw}
+                                className="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-black px-6 py-3 rounded-2xl transition-all shadow-xl"
+                            >
+                                WITHDRAW
+                            </button>
+                        </div>
                     </div>
                     <div className="bg-white p-8 rounded-[2.5rem] shadow-lg border border-slate-100 relative overflow-hidden">
                          <div className="absolute top-0 right-0 p-8 text-red-50 text-6xl"><i className="fa-solid fa-clock"></i></div>

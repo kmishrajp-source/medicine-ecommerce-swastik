@@ -10,8 +10,17 @@ export async function GET() {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
+        const user = await prisma.user.findUnique({
+            where: { id: session.user.id },
+            include: { publisher: true }
+        });
+
+        if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
+        const publisherId = user.publisher?.id;
+
         const insuranceLeads = await prisma.insuranceLead.findMany({
-            where: { publisherId: session.user.id },
+            where: { OR: [{ publisherId: session.user.id }, { publisherId: publisherId }] },
             include: { 
                 plan: { include: { company: true } }
             },
@@ -19,12 +28,13 @@ export async function GET() {
         });
 
         const slnLeads = await prisma.lead.findMany({
-            where: { publisherId: session.user.id },
+            where: { OR: [{ publisherId: session.user.id }, { publisherId: publisherId }] },
             orderBy: { createdAt: 'desc' }
         });
 
         return NextResponse.json({ 
             success: true, 
+            walletBalance: user.walletBalance,
             insuranceLeads, 
             slnLeads,
             // For backward compatibility if needed

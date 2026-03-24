@@ -1,12 +1,21 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { cookies } from "next/headers";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
-        const { serviceType, providerId, guestName, guestPhone, guestEmail, details, userId, publisherId } = await req.json();
-
-        if (!serviceType || !guestPhone) {
-            return NextResponse.json({ error: "Service type and phone are required" }, { status: 400 });
+        // 1. Check for Publisher Referral in Cookie if not provided in body
+        let finalPublisherId = publisherId;
+        if (!finalPublisherId) {
+            const cookieStore = await cookies();
+            const publisherRef = cookieStore.get('publisher_ref')?.value;
+            if (publisherRef) {
+                const publisher = await prisma.publisher.findUnique({
+                    where: { referralCode: publisherRef }
+                });
+                if (publisher) finalPublisherId = publisher.id;
+            }
         }
 
         const lead = await prisma.lead.create({
@@ -14,7 +23,7 @@ export async function POST(req) {
                 serviceType,
                 providerId: providerId || null,
                 userId: userId || null,
-                publisherId: publisherId || null,
+                publisherId: finalPublisherId || null,
                 guestName,
                 guestPhone,
                 guestEmail,
@@ -23,8 +32,17 @@ export async function POST(req) {
             }
         });
 
-        // Trigger notifications here (WhatsApp/Email)
-        // sendSLNNotification(lead);
+        // 2. Trigger WhatsApp Notifications
+        try {
+            // Customer Confirmation
+            await WhatsAppTriggers.leadCreatedCustomer(guestPhone, guestName || "Customer", serviceType);
+            
+            // Provider Notification (If providerId exists, we'd find their phone, for now alert admin or use a default)
+            // Example: const doc = await prisma.doctor.findUnique({ where: { id: providerId } });
+            // if (doc?.phone) await WhatsAppTriggers.leadCreatedProvider(doc.phone, guestName, guestPhone, serviceType);
+        } catch (err) {
+            console.error("WhatsApp Notification failed:", err);
+        }
 
         return NextResponse.json({ 
             success: true, 
