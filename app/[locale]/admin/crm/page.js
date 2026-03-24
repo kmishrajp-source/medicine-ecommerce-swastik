@@ -397,7 +397,9 @@ export default function AdminCRMDashboard() {
                                     <tr>
                                         <th style={{ padding: '15px' }}>Campaign Name</th>
                                         <th style={{ padding: '15px' }}>Template</th>
-                                        <th style={{ padding: '15px' }}>Stats (Sent/Total)</th>
+                                        <th style={{ padding: '15px' }}>Sent</th>
+                                        <th style={{ padding: '15px' }}>Delivered</th>
+                                        <th style={{ padding: '15px' }}>Read</th>
                                         <th style={{ padding: '15px' }}>Status</th>
                                         <th style={{ padding: '15px' }}>Date</th>
                                     </tr>
@@ -408,10 +410,20 @@ export default function AdminCRMDashboard() {
                                             <td style={{ padding: '15px', fontWeight: 600 }}>{b.name}</td>
                                             <td style={{ padding: '15px' }}>{b.templateName}</td>
                                             <td style={{ padding: '15px' }}>
-                                                <div style={{ width: '100px', background: '#f3f4f6', height: '8px', borderRadius: '4px', overflow: 'hidden', marginBottom: '5px' }}>
-                                                    <div style={{ width: `${(b.sentCount/b.totalLeads)*100}%`, background: '#2563eb', height: '100%' }}></div>
+                                                <div style={{ fontWeight: 'bold' }}>{b.sentCount}</div>
+                                                <div style={{ fontSize: '0.7rem', color: '#9ca3af' }}>of {b.totalLeads}</div>
+                                            </td>
+                                            <td style={{ padding: '15px' }}>
+                                                <div style={{ fontWeight: 'bold', color: '#059669' }}>{b.deliveredCount}</div>
+                                                <div style={{ width: '60px', background: '#f3f4f6', height: '4px', borderRadius: '2px', overflow: 'hidden', marginTop: '4px' }}>
+                                                    <div style={{ width: `${(b.deliveredCount/b.sentCount)*100}%`, background: '#10b981', height: '100%' }}></div>
                                                 </div>
-                                                {b.sentCount} / {b.totalLeads}
+                                            </td>
+                                            <td style={{ padding: '15px' }}>
+                                                <div style={{ fontWeight: 'bold', color: '#2563eb' }}>{b.readCount}</div>
+                                                <div style={{ width: '60px', background: '#f3f4f6', height: '4px', borderRadius: '2px', overflow: 'hidden', marginTop: '4px' }}>
+                                                    <div style={{ width: `${(b.readCount/b.deliveredCount)*100}%`, background: '#3b82f6', height: '100%' }}></div>
+                                                </div>
                                             </td>
                                             <td style={{ padding: '15px' }}>
                                                 <span style={{ 

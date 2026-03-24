@@ -38,8 +38,8 @@ export async function POST(req) {
         let sent = 0;
         for (const lead of leads) {
             try {
-                // Mocking individual send logic
-                await WhatsAppMessageSender.sendBulkTemplate(lead.guestPhone, templateName, { name: lead.guestName });
+                // Pass batch.id for status reconciliation
+                await WhatsAppMessageSender.sendBulkTemplate(lead.guestPhone, templateName, { name: lead.guestName }, batch.id);
                 sent++;
             } catch (err) {
                 console.error(`Failed to send to ${lead.guestPhone}`, err);

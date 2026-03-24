@@ -7,12 +7,40 @@ export async function POST(req) {
         console.log("[WHATSAPP WEBHOOK] Received:", JSON.stringify(body, null, 2));
 
         // Meta/WATI/Twilio message structure varies, but we extract common fields
-        let from = body.waId || body.senderNumber || body.From?.replace('whatsapp:', '');
-        let text = (body.text || body.messageText || body.Body || "").toUpperCase();
+        let from = body.waId || body.senderNumber || body.From?.replace('whatsapp:', '') || body.contacts?.[0]?.wa_id;
+        let text = (body.text || body.messageText || body.Body || body.messages?.[0]?.text?.body || "").toUpperCase();
+        let status = body.status || body.statuses?.[0]?.status; // delivered, read, sent, failed
+        let messageId = body.id || body.statuses?.[0]?.id;
 
-        if (from && text.includes("YES")) {
-            // Find Lead by Phone (normalized)
-            const cleanPhone = from.slice(-10); // Last 10 digits
+        // 1. Handle Status Updates (delivered/read)
+        if (status) {
+            console.log(`[WHATSAPP WEBHOOK] Status Update: ${status} for ${from}`);
+            // Find the most recent active batch for this number or general stats
+            // In a real system, we'd use messageId mapping. For now, we update the latest campaign.
+            const latestBatch = await prisma.whatsappBatch.findFirst({
+                where: { status: { in: ['in_progress', 'completed'] } },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (latestBatch) {
+                if (status === 'delivered') {
+                    await prisma.whatsappBatch.update({
+                        where: { id: latestBatch.id },
+                        data: { deliveredCount: { increment: 1 } }
+                    });
+                } else if (status === 'read') {
+                    await prisma.whatsappBatch.update({
+                        where: { id: latestBatch.id },
+                        data: { readCount: { increment: 1 } }
+                    });
+                }
+            }
+        }
+
+        // 2. Handle Incoming Replies
+        if (from && text) {
+            // Normalize phone
+            const cleanPhone = from.slice(-10);
             const lead = await prisma.lead.findFirst({
                 where: {
                     OR: [
@@ -24,16 +52,30 @@ export async function POST(req) {
             });
 
             if (lead) {
+                const updateData = {
+                    lastAction: `WhatsApp Reply: "${text.slice(0, 20)}..."`,
+                    updatedAt: new Date()
+                };
+
+                // Specific "YES" logic
+                if (text.includes("YES")) {
+                    updateData.status = "interested";
+                    updateData.qualityScore = 90;
+                    if (!lead.tags.includes("HIGH_INTENT")) {
+                        updateData.tags = { push: "HIGH_INTENT" };
+                    }
+                    updateData.notes = (lead.notes || "") + `\n[System] Marked HIGH_INTENT via "YES" reply. (${new Date().toLocaleString()})`;
+                } else {
+                    // General replied status boost
+                    updateData.qualityScore = Math.min((lead.qualityScore || 0) + 10, 80);
+                    updateData.notes = (lead.notes || "") + `\n[System] Replied to WhatsApp. (${new Date().toLocaleString()})`;
+                }
+
                 await prisma.lead.update({
                     where: { id: lead.id },
-                    data: { 
-                        status: "interested",
-                        qualityScore: 90,
-                        tags: { push: "HIGH_INTENT" },
-                        notes: (lead.notes || "") + "\n[System] Marked HIGH_INTENT via WhatsApp reply."
-                    }
+                    data: updateData
                 });
-                console.log(`[WHATSAPP WEBHOOK] Lead ${lead.id} marked as interested.`);
+                console.log(`[WHATSAPP WEBHOOK] Updated Lead ${lead.id} on reply.`);
             }
         }
 
