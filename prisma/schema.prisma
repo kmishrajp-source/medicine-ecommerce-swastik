@@ -60,6 +60,7 @@ model User {
   systemLogs     SystemLog[]
   publisher      Publisher?
   publisherLeadsTable PublisherLead[] @relation("UserPublisherLeads")
+  assignedLeads  Lead[] @relation("AgentLeads")
 }
 
 model SystemSettings {
@@ -619,11 +620,43 @@ model Lead {
   guestName     String?
   guestPhone    String?
   guestEmail    String?
+  area          String?  // Gorakhpur Area
+  source        String   @default("direct") // manual, bulk_upload, facebook, direct
+  assignedAgentId String?
+  assignedAgent   User?    @relation("AgentLeads", fields: [assignedAgentId], references: [id])
+  lastContactDate DateTime?
+  notes         String?  // Replaces details if needed or used alongside
   details       String?  // Special requirements
-  status        String   @default("new") // new, contacted, converted, rejected
+  status        String   @default("new") // new, contacted, interested, converted, rejected
   commissionEarned Float @default(0.0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([area])
+  @@index([assignedAgentId])
+}
+
+model PartnerRevenue {
+  id            String   @id @default(cuid())
+  partnerId     String   // Doctor or Retailer ID
+  partnerType   String   // DOCTOR, RETAILER
+  revenueType   String   // LISTING_FEE, LEAD_FEE, COMMISSION
+  amount        Float
+  paymentStatus String   @default("pending") // pending, paid
+  createdAt     DateTime @default(now())
+}
+
+model WhatsAppBatch {
+  id            String   @id @default(cuid())
+  name          String
+  templateName  String
+  totalLeads    Int
+  sentCount     Int      @default(0)
+  deliveredCount Int     @default(0)
+  readCount      Int     @default(0)
+  status        String   @default("pending") // pending, in_progress, completed
+  createdAt     DateTime @default(now())
 }
 
 model ComplianceAuditLog {
