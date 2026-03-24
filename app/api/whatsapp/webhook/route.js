@@ -28,7 +28,9 @@ export async function POST(req) {
                     where: { id: lead.id },
                     data: { 
                         status: "interested",
-                        notes: (lead.notes || "") + "\n[System] Marked interested via WhatsApp reply."
+                        qualityScore: 90,
+                        tags: { push: "HIGH_INTENT" },
+                        notes: (lead.notes || "") + "\n[System] Marked HIGH_INTENT via WhatsApp reply."
                     }
                 });
                 console.log(`[WHATSAPP WEBHOOK] Lead ${lead.id} marked as interested.`);

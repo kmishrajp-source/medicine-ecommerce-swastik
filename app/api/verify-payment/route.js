@@ -181,6 +181,12 @@ export async function POST(req) {
                     }
                 });
 
+                // Notify Partner (WhatsApp)
+                const partnerPhone = user?.phone || guestPhone;
+                if (partnerPhone) {
+                    await WhatsAppTriggers.planPurchaseConfirmed(partnerPhone, planId === 'featured' ? 'Featured Partner' : 'Basic Partner');
+                }
+
                 return NextResponse.json({ success: true, message: "Plan Activated & Partner Verified" });
             }
         }

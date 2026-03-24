@@ -639,6 +639,7 @@ model Lead {
   qualityScore  Int      @default(0) // 0-100 score based on activity
   isVerified    Boolean  @default(false)
   lastAction    String?  // Description of the most recent lead event
+  tags          String[] @default([]) // Array of tags for intelligent filtering
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
