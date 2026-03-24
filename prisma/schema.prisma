@@ -210,6 +210,14 @@ model Doctor {
   isDirectory    Boolean  @default(false)
   location       String?
   isClaimed      Boolean  @default(false)
+  
+  // Professional Metadata (Screenshot Sync)
+  rating         Float    @default(4.0)
+  ratingCount    Int      @default(0)
+  recommendationRate Int  @default(80) // %
+  patientStoriesCount Int @default(0)
+  openingHours   String   @default("9:00 AM - 5:00 PM")
+  
   createdAt      DateTime @default(now())
   prescriptions  Prescription[]
   appointments   Appointment[]
