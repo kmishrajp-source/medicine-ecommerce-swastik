@@ -9,97 +9,10 @@ import MotivationalVideo from "@/components/MotivationalVideo";
 import { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
 
-// Sub-components moved to top for better scoping
-function SectionTitle({ title }) {
-  return (
-    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-      {title}
-      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
-    </h2>
-  );
-}
-
-function ProductGrid({ products, addToCart }) {
-  const t = useTranslations('Homepage');
-  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-      {products.map(p => (
-        <ProductCard key={p.id} product={p} onAdd={addToCart} />
-      ))}
-    </div>
-  );
-}
-
-function ContactItem({ icon, title, value, color, href }) {
-  return (
-    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
-      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
-        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
-      </div>
-      <div style={{ fontWeight: 'bold' }}>{title}</div>
-      <div style={{ color: '#666' }}>{value}</div>
-    </a>
-  );
-}
-
-function TrustItem({ icon, text }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
-      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
-      <span>{text}</span>
-    </div>
-  );
-}
-
-function FeatureCard({ href, icon, title, desc, color }) {
-  return (
-    <Link href={href} style={{ 
-      textDecoration: 'none', 
-      color: 'inherit',
-      background: 'white',
-      padding: '25px',
-      borderRadius: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      border: '1px solid #f0f0f0',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-    }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = 'translateY(-5px)';
-      e.currentTarget.style.boxShadow = '0 10px 25px rgba(0,0,0,0.1)';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.05)';
-    }}>
-      <div style={{ 
-        width: '60px', 
-        height: '60px', 
-        borderRadius: '50%', 
-        background: `${color}15`, 
-        color: color, 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center', 
-        fontSize: '1.5rem', 
-        marginBottom: '15px' 
-      }}>
-        <i className={`fa-solid ${icon}`}></i>
-      </div>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#1e293b' }}>{title}</h3>
-      <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>{desc}</p>
-    </Link>
-  );
-}
-
-
 export default function Home() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  
   const t = useTranslations('Homepage');
   const tTrust = useTranslations('Trust');
   const tEmergency = useTranslations('Emergency');
@@ -114,7 +27,6 @@ export default function Home() {
     });
   }, []);
 
-  // Simulating different categories from the same list for now
   const bestSelling = products.slice(0, 4);
   const trending = products.slice(4, 8);
   const essentials = products.slice(8, 12);
@@ -124,7 +36,7 @@ export default function Home() {
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
       <main style={{ marginTop: '80px' }}>
 
-        {/* BIG OFFERS BANNER */}
+        {/* HERO SECTION */}
         <div style={{ background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: 'white', padding: '60px 20px', textAlign: 'center', marginBottom: '40px', borderRadius: '0 0 50px 50px', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)' }}>
           <h1 style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
             💊 {t('hero_title')}
@@ -135,10 +47,15 @@ export default function Home() {
           </div>
           <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
             <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
-              {t('search_placeholder').split(' ')[0]} Now
+              Shop Now
             </Link>
             <Link href="/upload-prescription" className="btn" style={{ background: 'transparent', border: '2px solid white', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold' }}>
               Upload Rx
+            </Link>
+          </div>
+          <div style={{ marginTop: '20px' }}>
+            <Link href="/doctor/register" style={{ color: 'white', textDecoration: 'underline', fontSize: '1.1rem', fontWeight: 600 }}>
+              👨‍⚕️ Join as Doctor – Start Earning Online
             </Link>
           </div>
         </div>
@@ -169,9 +86,8 @@ export default function Home() {
         <div className="container">
           <AdBanner position="Home-Banner" />
           
+          {/* SMART AI TOOLS */}
           <SectionTitle title="🧠 Smart Healthcare AI" />
-
-          {/* SMART HEALTHCARE TOOLS */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', margin: '40px 0' }}>
             <FeatureCard 
               href="/ai-assistant" 
@@ -201,15 +117,9 @@ export default function Home() {
               desc="Check if your medicines are safe together."
               color="#D97706"
             />
-            <FeatureCard 
-              href="/advertise" 
-              icon="fa-ad" 
-              title="Advertise With Us" 
-              desc="Grow your brand with India's fastest medical site."
-              color="#7C3AED"
-            />
           </div>
 
+          {/* PARTNER MOTIVATION VIDEOS */}
           <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', margin: '40px 0' }}>
             <MotivationalVideo 
@@ -234,14 +144,6 @@ export default function Home() {
               ctaLink="/manufacturer/register"
             />
           </div>
-
-          <MotivationalVideo 
-            title="Your Health, Our Mission" 
-            description="Experience a new era of healthcare where technology meets compassion. Watch how Swastik Medicare is transforming lives across India."
-            videoUrl="https://www.youtube.com/embed/90ce3aCwpnw" // User provided customer video
-            ctaText="Explore Shop"
-            ctaLink="/shop"
-          />
 
           {/* BEST SELLING */}
           <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
@@ -276,10 +178,9 @@ export default function Home() {
             ))}
           </div>
 
-          {/* TRENDING HEALTH PRODUCTS */}
+          {/* TRENDING PRODUCTS */}
           <SectionTitle title={`📈 ${tSections('trending')}`} />
           <ProductGrid products={trending} addToCart={addToCart} />
-
 
           {/* AYURVEDIC CORNER */}
           <SectionTitle title={`🌿 ${tSections('ayurvedic')}`} />
@@ -292,7 +193,7 @@ export default function Home() {
           <SectionTitle title={`☀️ ${tSections('essentials')}`} />
           <ProductGrid products={essentials} addToCart={addToCart} />
 
-          {/* CUSTOMER REVIEWS */}
+          {/* REVIEWS */}
           <SectionTitle title={`💬 ${t('customer_reviews')}`} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>
             {[
@@ -314,7 +215,38 @@ export default function Home() {
             ))}
           </div>
 
-          {/* DELIVERY COVERAGE */}
+          {/* PROVIDER CALL TO ACTION */}
+          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', borderRadius: '3rem', padding: '60px', color: 'white', marginBottom: '60px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ position: 'relative', zIndex: 10 }}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '40px' }}>
+                <div style={{ flex: 1, minWidth: '300px' }}>
+                  <span style={{ background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', px: '15px', py: '5px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', display: 'inline-block', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
+                    🚀 Grow Your Practice / Business
+                  </span>
+                  <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px', lineHeight: 1.1 }}>Join the Swastik Healthcare Network</h2>
+                  <p style={{ fontSize: '1.1rem', opacity: 0.8, marginBottom: '30px', maxWidth: '500px' }}>
+                    Are you a Doctor, Retailer, or Insurance Provider? Digitally transform your services and reach thousands of customers in Gorakhpur and beyond.
+                  </p>
+                  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                    <Link href="/partner" className="btn" style={{ background: 'white', color: '#1e1b4b', padding: '15px 40px', borderRadius: '20px', fontWeight: 'bold', fontSize: '1.1rem' }}>
+                      Become a Partner
+                    </Link>
+                    <Link href="/about" className="btn" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.2)', color: 'white', padding: '15px 40px', borderRadius: '20px', fontWeight: 'bold' }}>
+                      Learn More
+                    </Link>
+                  </div>
+                </div>
+                <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <PartnerFeature icon="fa-user-doctor" title="Doctors" desc="Manage appointments online." />
+                  <PartnerFeature icon="fa-shop" title="Retailers" desc="Supply medicines locally." />
+                  <PartnerFeature icon="fa-shield-halved" title="Insurers" desc="List plans & get leads." />
+                  <PartnerFeature icon="fa-flask" title="Labs" desc="Publish test menus." />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* DELIVERY AREAS */}
           <div style={{ background: '#eff6ff', borderRadius: '24px', padding: '40px', textAlign: 'center', border: '1px solid #dbeafe', marginBottom: '60px' }}>
             <h2 style={{ color: '#1e40af', marginBottom: '20px' }}>📍 {tSections('delivery_areas')}</h2>
             <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>{tSections('delivery_areas_desc')}</p>
@@ -344,7 +276,7 @@ export default function Home() {
             </div>
           </div>
 
-          {/* CONTACT DETAILS with WhatsApp */}
+          {/* CONTACT */}
           <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
             <h2 style={{ marginBottom: '30px' }}>{tContact('title')}</h2>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
@@ -357,8 +289,85 @@ export default function Home() {
         </div>
       </main>
       <Footer />
-      <div id="deployment-canary" style={{ display: 'none' }}>2026-03-22-V6-FIXED</div>
     </>
   );
 }
 
+function SectionTitle({ title }) {
+  return (
+    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {title}
+      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
+    </h2>
+  );
+}
+
+function ProductGrid({ products, addToCart }) {
+  const t = useTranslations('Homepage');
+  if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+      {products.map(p => (
+        <ProductCard key={p.id} product={p} onAdd={addToCart} />
+      ))}
+    </div>
+  );
+}
+
+function TrustItem({ icon, text }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
+      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
+      <span>{text}</span>
+    </div>
+  );
+}
+
+function FeatureCard({ href, icon, title, desc, color }) {
+  return (
+    <Link href={href} style={{ 
+      textDecoration: 'none', 
+      color: 'inherit',
+      background: 'white',
+      padding: '25px',
+      borderRadius: '20px',
+      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+      border: '1px solid #f0f0f0',
+      transition: 'transform 0.2s',
+    }}
+    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
+    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '15px' }}>
+        <i className={`fa-solid ${icon}`}></i>
+      </div>
+      <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#1e293b' }}>{title}</h3>
+      <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>{desc}</p>
+    </Link>
+  );
+}
+
+function PartnerFeature({ icon, title, desc }) {
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
+      <i className={`fa-solid ${icon}`} style={{ fontSize: '1.5rem', color: '#818cf8', marginBottom: '10px', display: 'block' }}></i>
+      <div style={{ fontWeight: 'bold', fontSize: '1rem', marginBottom: '5px' }}>{title}</div>
+      <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{desc}</div>
+    </div>
+  );
+}
+
+function ContactItem({ icon, title, value, color, href }) {
+  return (
+    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
+      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
+        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
+      </div>
+      <div style={{ fontWeight: 'bold' }}>{title}</div>
+      <div style={{ color: '#666' }}>{value}</div>
+    </a>
+  );
+}

@@ -71,14 +71,21 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/">{t('home')}</Link></li>
                         <li><Link href="/refer">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
+                        <li><Link href="/hospitals">Hospitals</Link></li>
+                        <li><Link href="/retailers">Chemists</Link></li>
                         <li><Link href="/ambulance" style={{ color: '#DC2626' }}>{t('ambulance')}</Link></li>
                         <li><Link href="/labs">{t('labs')}</Link></li>
                         <li><Link href="/ai-assistant" style={{ color: '#3B82F6', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
                         <li><Link href="/symptom-checker" style={{ color: '#2563EB', fontWeight: 'bold' }}>{t('symptom_checker')}</Link></li>
                         <li><Link href="/prescription-analyzer" style={{ color: '#059669', fontWeight: 'bold' }}>{t('rx_analyzer')}</Link></li>
                         <li><Link href="/drug-interaction-checker" style={{ color: '#D97706', fontWeight: 'bold' }}>{t('interaction_checker')}</Link></li>
-                        <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
-                        <li><Link href="/admin/inventory">{t('inventory')}</Link></li>
+                        {session?.user?.role === 'ADMIN' && (
+                            <>
+                                <li><Link href="/admin/leads" style={{ color: '#4338ca', fontWeight: 'bold' }}>SLN Leads</Link></li>
+                                <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
+                                <li><Link href="/admin/inventory">{t('inventory')}</Link></li>
+                            </>
+                        )}
                         <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>{t('support')}</Link></li>
                         {session?.user?.role === 'DELIVERY' && (
                             <li><Link href="/agent/dashboard" style={{ color: '#F59E0B', fontWeight: 'bold' }}>{t('delivery_agent')}</Link></li>
@@ -212,8 +219,8 @@ export default function Navbar({ cartCount, openCart }) {
                         </button>
                     )}
 
-                    <Link href="/partner" className="btn glass" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, textDecoration: 'none' }}>
-                        {t('growth_partner')}
+                    <Link href="/partner" className="btn" style={{ marginLeft: '10px', padding: '8px 16px', fontSize: '0.85rem', fontWeight: 800, textDecoration: 'none', background: '#4338ca', color: 'white', borderRadius: '12px', boxShadow: '0 4px 10px rgba(67, 56, 202, 0.3)' }}>
+                        <i className="fa-solid fa-handshake-angle" style={{ marginRight: '6px' }}></i> For Providers
                     </Link>
 
                     {/* Next-Intl Language Translator Switch */}

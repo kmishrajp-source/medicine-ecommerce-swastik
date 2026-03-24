@@ -28,7 +28,9 @@ model User {
   ambulance    Ambulance[]
   ambulanceBookings AmbulanceBooking[]
   medicalRep   MedicalRep?
-  pharmaCompany PharmaCompany[]
+  pharmaCompany PharmaCompany?
+  insuranceCompany InsuranceCompany? @relation("CompanyUser", fields: [insuranceCompanyId], references: [id])
+  insuranceCompanyId String? @unique
   hospital      Hospital?
   insurance     InsuranceProvider?
   manufacturer  Manufacturer?
@@ -50,6 +52,12 @@ model User {
   referralsMade  ReferralConnection[] @relation("ReferrerLinks")
   referralsReceived ReferralConnection[] @relation("RefereeLink")
   systemFailureLogs SystemFailureLog[]
+  customerLeads  InsuranceLead[] @relation("CustomerLeads")
+  publisherLeads InsuranceLead[] @relation("PublisherLeads")
+  userLeads      Lead[] @relation("UserLeads")
+  publisherSlnLeads Lead[] @relation("PublisherSlnLeads")
+  contactUnlocks ContactUnlock[] @relation("UserUnlocks")
+  systemLogs     SystemLog[]
 }
 
 model SystemSettings {
@@ -180,12 +188,20 @@ model Doctor {
   id             String   @id @default(cuid())
   userId         String?  @unique
   user           User?    @relation(fields: [userId], references: [id])
-  name           String?
+  name           String?  // For unverified/scraped entries
   specialization String
-  hospital       String?
+  hospital       String?  // Text name for non-linked hospitals
+  hospitalId     String?
+  hospitalLink   Hospital? @relation("HospitalDoctors", fields: [hospitalId], references: [id])
+  city           String   @default("Gorakhpur")
   experience     Int?
   verified       Boolean  @default(false)
+  status         String   @default("unverified") // unverified, verified, claimed
+  source         String   @default("field_agent") // google_maps, justdial, field_agent, self_registered
+  lat            Float?
+  lng            Float?
   phone          String?
+  photoUrl       String?
   consultationFee Float   @default(500.0)
   razorpayAccountId String?
   isDirectory    Boolean  @default(false)
@@ -288,15 +304,19 @@ model LabReport {
 
 model Retailer {
   id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id])
   shopName       String
   address        String
   licenseNumber  String
   phone          String
+  city           String   @default("Gorakhpur")
   verified       Boolean  @default(false)
+  status         String   @default("unverified") // unverified, verified, claimed
+  source         String   @default("field_agent") // google_maps, justdial, field_agent, self_registered
   lat            Float?
   lng            Float?
+  photoUrl       String?
   isOnline       Boolean  @default(false)
   createdAt      DateTime @default(now())
   bulkOrders     BulkOrder[]
@@ -381,7 +401,7 @@ model MedicalRep {
 
 model PharmaCompany {
   id             String   @id @default(cuid())
-  userId         String
+  userId         String   @unique
   user           User     @relation(fields: [userId], references: [id])
   companyName    String
   licenseNumber  String
@@ -506,6 +526,98 @@ model Withdrawal {
   status        String   @default("Pending") // Pending, Completed, Rejected
   paymentMethod String   // e.g., "UPI", "Bank Transfer"
   paymentDetails String  // JSON or string of account info
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InsuranceCompany {
+  id            String   @id @default(cuid())
+  name          String
+  logoUrl       String?
+  description   String?
+  phone         String?
+  email         String?
+  website       String?
+  plans         InsurancePlan[]
+  leads         InsuranceLead[]
+  user          User?    @relation("CompanyUser")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model InsurancePlan {
+  id              String   @id @default(cuid())
+  companyId       String
+  company         InsuranceCompany @relation(fields: [companyId], references: [id])
+  name            String
+  description     String?
+  coverageType    String   // Individual, Family, Hospitalization
+  premium         Float
+  commissionRate  Float    // Percentage or Fixed amount
+  features        String[] // Array of features
+  leads           InsuranceLead[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model InsuranceLead {
+  id                String   @id @default(cuid())
+  planId            String
+  plan              InsurancePlan @relation(fields: [planId], references: [id])
+  companyId         String
+  company           InsuranceCompany @relation(fields: [companyId], references: [id])
+  userId            String?  // Customer
+  user              User?    @relation("CustomerLeads", fields: [userId], references: [id])
+  publisherId       String?  // Referrer
+  publisher         User?    @relation("PublisherLeads", fields: [publisherId], references: [id])
+  guestName         String?
+  guestPhone        String?
+  guestEmail        String?
+  healthDetails     String?
+  paymentStatus     String   @default("Pending") // Pending, Paid, Failed
+  leadStatus        String   @default("New")     // New, Contacted, Converted, Rejected
+  commissionEarned  Float    @default(0.0)
+  totalPremium      Float
+  paymentId         String?  // Razorpay/PhonePe ID
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Hospital {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id])
+  name           String
+  address        String
+  city           String   @default("Gorakhpur")
+  licenseNumber  String?  // From headspace
+  phone          String
+  email          String?
+  website        String?
+  specialties    String?  // JSON string or comma-separated
+  verified       Boolean  @default(false)
+  bankDetails    Json?    // UPI/Bank Details for settlement
+  createdAt      DateTime @now()
+  updatedAt      DateTime @updatedAt
+  doctors        Doctor[] @relation("HospitalDoctors")
+  appointments   Appointment[]
+  labBookings    LabBooking[]
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  userId        String?
+  user          User?    @relation("UserLeads", fields: [userId], references: [id])
+  publisherId   String?
+  publisher     User?    @relation("PublisherSlnLeads", fields: [publisherId], references: [id])
+  serviceType   String   // doctor, lab, ambulance, insurance, retailer
+  providerId    String?  // ID of the target (Doctor, Retailer, Hospital, etc.)
+  guestName     String?
+  guestPhone    String?
+  guestEmail    String?
+  details       String?  // Special requirements
+  status        String   @default("new") // new, contacted, converted, rejected
+  commissionEarned Float @default(0.0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -709,21 +821,6 @@ model SystemFailureLog {
   createdAt      DateTime @default(now())
 }
 
-model Hospital {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  name           String
-  address        String
-  licenseNumber  String
-  phone          String
-  verified       Boolean  @default(false)
-  bankDetails    Json?    // UPI/Bank Details for settlement
-  createdAt      DateTime @default(now())
-  appointments   Appointment[]
-  labBookings    LabBooking[]
-}
-
 model InsuranceProvider {
   id             String   @id @default(cuid())
   userId         String   @unique
@@ -762,4 +859,28 @@ model Manufacturer {
   bankDetails    Json?
   createdAt      DateTime @default(now())
   products       Product[]
+}
+
+model ContactUnlock {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation("UserUnlocks", fields: [userId], references: [id])
+  targetId    String   // ID of Doctor, Hospital, or Retailer
+  targetType  String   // "doctor", "hospital", "retailer"
+  amount      Float
+  paymentId   String?  // Razorpay Payment ID
+  createdAt   DateTime @default(now())
+
+  @@unique([userId, targetId, targetType])
+}
+
+model SystemLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  ip        String?
+  status    String   @default("success")
+  timestamp DateTime @default(now())
 }

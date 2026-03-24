@@ -92,6 +92,7 @@ export default function AdminDashboard() {
                         <Link href="/admin/prescriptions" className="btn btn-primary" style={{ background: '#7C3AED' }}>Scripts</Link>
                         <Link href="/admin/finance" className="btn btn-primary" style={{ background: '#10B981' }}>Finance</Link>
                         <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>
+                        <Link href="/admin/insurance" className="btn btn-primary" style={{ background: '#6366f1' }}>Insurance</Link>
                         <Link href="/admin/sms" className="btn btn-primary" style={{ background: '#F59E0B', color: 'black' }}>SMS History</Link>
                         <Link href="/admin/system-health" className="btn btn-primary" style={{ background: '#DC2626', color: 'white' }}>Sys Health</Link>
                         <Link href="/admin/withdrawals" className="btn btn-primary" style={{ background: '#1E3A8A', color: 'white' }}>Payouts</Link>

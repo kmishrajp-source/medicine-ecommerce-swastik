@@ -12,27 +12,26 @@ export default function RetailerDashboard() {
     const [inventory, setInventory] = useState([]);
     const [newItem, setNewItem] = useState({ medicineName: "", stock: "", price: "", deliveryArea: "" });
     const [showInvForm, setShowInvForm] = useState(false);
-
-    // --- Prescription Bidding State ---
+    
+    // Prescription Quoting State
     const [prescriptions, setPrescriptions] = useState([]);
-    const [showQuoteForm, setShowQuoteForm] = useState(null); // id of prescription
-    const [quoteData, setQuoteData] = useState({ amount: "", items: "" });
+    const [quotingRx, setQuotingRx] = useState(null); 
+    const [quoteItems, setQuoteItems] = useState([{ id: '', name: '', price: 0, quantity: 1 }]);
+    const [isQuoting, setIsQuoting] = useState(false);
 
-    // --- Phase 1: Polling State ---
+    // Incoming Orders State
     const [pendingOrders, setPendingOrders] = useState([]);
     const [countdownTimer, setCountdownTimer] = useState(60);
     const [isResponding, setIsResponding] = useState(false);
 
-    // --- Training Video Popup State ---
+    // Training Video Popup State
     const [showVideoPopup, setShowVideoPopup] = useState(false);
     const [dontShowAgain, setDontShowAgain] = useState(false);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const dismissed = localStorage.getItem('retailerTrainingDismissed');
-            if (!dismissed) {
-                setShowVideoPopup(true);
-            }
+            if (!dismissed) setShowVideoPopup(true);
         }
     }, []);
 
@@ -47,23 +46,22 @@ export default function RetailerDashboard() {
         let pollingInterval;
         if (status === 'authenticated' && session?.user?.role === 'RETAILER') {
             fetchInventory();
-            fetchPendingOrders(); // Initial fetch
+            fetchPendingOrders();
             fetchPrescriptions();
             pollingInterval = setInterval(() => {
                 fetchPendingOrders();
                 fetchPrescriptions();
-            }, 10000); // Poll every 10 seconds
+            }, 10000); 
         }
         return () => clearInterval(pollingInterval);
     }, [status, session]);
 
-    // Visually decay the countdown when there's an active order
     useEffect(() => {
         let timer;
         if (pendingOrders.length > 0 && countdownTimer > 0) {
             timer = setInterval(() => setCountdownTimer(prev => prev - 1), 1000);
         } else if (pendingOrders.length === 0) {
-            setCountdownTimer(60); // Reset timer if no orders
+            setCountdownTimer(60);
         }
         return () => clearInterval(timer);
     }, [pendingOrders, countdownTimer]);
@@ -73,7 +71,6 @@ export default function RetailerDashboard() {
             const res = await fetch('/api/retailer/orders');
             const data = await res.json();
             if (data.success && data.pendingOrders.length > 0) {
-                // If a new order comes in, restart the local visual timer
                 if (pendingOrders.length === 0 || pendingOrders[0].id !== data.pendingOrders[0].id) {
                     setCountdownTimer(60);
                 }
@@ -98,7 +95,7 @@ export default function RetailerDashboard() {
                 setPendingOrders(prev => prev.filter(o => o.id !== orderId));
             } else {
                 alert(data.error);
-                fetchPendingOrders(); // Refresh state if it failed
+                fetchPendingOrders();
             }
         } finally { setIsResponding(false); }
     };
@@ -125,37 +122,47 @@ export default function RetailerDashboard() {
             const res = await fetch('/api/retailer/prescriptions');
             const data = await res.json();
             if (data.success) setPrescriptions(data.prescriptions);
-        } catch (e) { console.error("Prescr fetch error", e); }
+        } catch (e) { console.error("Rx fetch error", e); }
     };
 
-    const handleSubmitQuote = async (e) => {
+    const handleQuoteSubmit = async (e) => {
         e.preventDefault();
+        if (!quotingRx) return;
+        setIsQuoting(true);
+
+        const total = quoteItems.reduce((sum, item) => sum + (parseFloat(item.price) * parseInt(item.quantity)), 0);
+
         try {
-            const res = await fetch('/api/retailer/quote', {
+            const res = await fetch('/api/retailer/prescriptions/quote', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    prescriptionId: showQuoteForm,
-                    quotedAmount: parseFloat(quoteData.amount),
-                    items: quoteData.items
+                    prescriptionId: quotingRx.id,
+                    patientId: quotingRx.patientId,
+                    items: quoteItems.filter(i => i.id),
+                    total
                 })
             });
             const data = await res.json();
             if (data.success) {
-                alert("Quote submitted successfully!");
-                setShowQuoteForm(null);
-                setQuoteData({ amount: "", items: "" });
+                alert("Quote Sent! Customer will be notified to pay.");
+                setQuotingRx(null);
+                setQuoteItems([{ id: '', name: '', price: 0, quantity: 1 }]);
                 fetchPrescriptions();
             } else {
-                alert(data.error);
+                alert("Failed: " + data.error);
             }
-        } catch (e) { alert("Error submitting quote"); }
+        } finally { setIsQuoting(false); }
     };
 
+    const addQuoteItem = () => setQuoteItems([...quoteItems, { id: '', name: '', price: 0, quantity: 1 }]);
+
     const fetchInventory = async () => {
-        const res = await fetch('/api/retailer/inventory');
-        const data = await res.json();
-        if (data.success) setInventory(data.inventory);
+        try {
+            const res = await fetch('/api/retailer/inventory');
+            const data = await res.json();
+            if (data.success) setInventory(data.inventory);
+        } catch (e) { console.error("Inventory fetch error", e); }
     };
 
     const handleAddItem = async (e) => {
@@ -182,321 +189,143 @@ export default function RetailerDashboard() {
         <>
             <Navbar cartCount={0} />
 
-            {/* --- Retailer Training Video Popup --- */}
+            {/* Training Video Popup */}
             {showVideoPopup && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(15, 23, 42, 0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(6px)' }}>
-                    <div style={{ background: '#ffffff', borderRadius: '24px', width: '90%', maxWidth: '700px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', border: '1px solid #e2e8f0', animation: 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}>
-                        {/* Header */}
+                    <div style={{ background: '#ffffff', borderRadius: '24px', width: '90%', maxWidth: '700px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                         <div style={{ background: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)', padding: '20px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'white' }}>
                             <div>
-                                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                    <i className="fa-solid fa-graduation-cap"></i> Retailer Training
-                                </h2>
-                                <p style={{ margin: '5px 0 0 0', fontSize: '0.9rem', opacity: 0.9 }}>How Swastik Medicare Works</p>
+                                <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 'bold' }}><i className="fa-solid fa-graduation-cap"></i> Retailer Training</h2>
                             </div>
-                            <button onClick={closeVideoPopup} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.2rem', transition: 'background 0.2s' }} onMouseOver={e => e.currentTarget.style.background = 'rgba(255,255,255,0.3)'} onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}>
+                            <button onClick={closeVideoPopup} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', color: 'white', width: '36px', height: '36px', borderRadius: '50%', cursor: 'pointer' }}>
                                 <i className="fa-solid fa-times"></i>
                             </button>
                         </div>
-
-                        {/* Body - Video Embed */}
                         <div style={{ padding: '30px' }}>
-                            <p style={{ color: '#475569', marginBottom: '20px', fontSize: '1.05rem', lineHeight: '1.6' }}>
-                                Welcome to the Swastik Medicare Pharmacy Network! Watch this quick guide to understand how to automatically receive local prescriptions, accept nearby delivery requests, and boost your monthly revenue.
-                            </p>
-
-                            <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)', background: '#0f172a' }}>
-                                {/* Example placeholder video embed */}
-                                <iframe
-                                    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
-                                    src="https://www.youtube.com/embed/jfKfPfyJRdk?autoplay=0&rel=0&showinfo=0"
-                                    title="Swastik Medicare Training"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowFullScreen
-                                ></iframe>
+                            <p style={{ color: '#475569', marginBottom: '20px' }}>Welcome! Watch this guide to understand how to handle orders and quotes.</p>
+                            <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: '16px', overflow: 'hidden', background: '#0f172a' }}>
+                                <iframe style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }} src="https://www.youtube.com/embed/jfKfPfyJRdk" allowFullScreen></iframe>
                             </div>
                         </div>
-
-                        {/* Footer - Actions & Checkbox */}
-                        <div style={{ background: '#f8fafc', padding: '20px 30px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '15px' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', color: '#64748b', fontSize: '0.95rem', fontWeight: 500 }}>
-                                <input
-                                    type="checkbox"
-                                    checked={dontShowAgain}
-                                    onChange={(e) => setDontShowAgain(e.target.checked)}
-                                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#2563eb' }}
-                                />
-                                Don't show again
+                        <div style={{ background: '#f8fafc', padding: '20px 30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <label style={{ cursor: 'pointer', color: '#64748b' }}>
+                                <input type="checkbox" checked={dontShowAgain} onChange={(e) => setDontShowAgain(e.target.checked)} /> Don't show again
                             </label>
-
-                            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                                <button onClick={() => { closeVideoPopup(); router.push('/refer'); }} style={{ background: 'transparent', color: '#2563eb', border: '2px solid #2563eb', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#eff6ff'} onMouseOut={e => e.currentTarget.style.background = 'transparent'}>
-                                    View Referral Program
-                                </button>
-                                <button onClick={closeVideoPopup} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(37, 99, 235, 0.3)', transition: 'all 0.2s' }} onMouseOver={e => e.currentTarget.style.background = '#1d4ed8'} onMouseOut={e => e.currentTarget.style.background = '#2563eb'}>
-                                    Start Using Dashboard
-                                </button>
-                            </div>
+                            <button onClick={closeVideoPopup} style={{ background: '#2563eb', color: 'white', padding: '10px 20px', borderRadius: '12px', fontWeight: 'bold', border: 'none' }}>Start Using Dashboard</button>
                         </div>
-                        <style>{`
-                            @keyframes slideUp {
-                                from { opacity: 0; transform: translateY(40px) scale(0.95); }
-                                to { opacity: 1; transform: translateY(0) scale(1); }
-                            }
-                        `}</style>
                     </div>
                 </div>
             )}
+
             <div className="container" style={{ marginTop: "100px", maxWidth: "1200px" }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                     <div>
-                        <h2 style={{ marginBottom: '5px' }}>Pharmacy Partner Dashboard</h2>
+                        <h2>Pharmacy Partner Dashboard</h2>
                         <p style={{ color: '#666' }}>Welcome back, {session?.user?.name}</p>
                     </div>
                 </div>
 
-                {/* Earnings & Wallet Module */}
                 <div className="mb-8">
                     <ProviderWallet />
                 </div>
 
-                {/* --- Incoming Order Polling Alert --- */}
+                {/* Incoming Orders Area */}
                 {pendingOrders.length > 0 && (
-                    <div style={{ background: '#FFF7ED', border: '2px solid #F97316', padding: '30px', borderRadius: '16px', marginBottom: '40px', boxShadow: '0 10px 15px -3px rgba(249, 115, 22, 0.2)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '20px' }}>
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '15px', marginBottom: '10px' }}>
-                                    <h2 style={{ color: '#C2410C', margin: 0 }}>🚨 New Incoming Order!</h2>
-                                    <span style={{ background: countdownTimer < 15 ? '#DC2626' : '#EA580C', color: 'white', padding: '5px 15px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                        <i className="fa-solid fa-clock"></i> 00:{countdownTimer < 10 ? `0${countdownTimer}` : countdownTimer}
-                                    </span>
-                                </div>
-                                <p style={{ color: '#9A3412', fontSize: '1.1rem', margin: 0 }}>Accept quickly before it bypasses to the next pharmacy.</p>
-                            </div>
-
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <button
-                                    onClick={() => handleRejectOrder(pendingOrders[0].id)}
-                                    disabled={isResponding}
-                                    style={{ background: 'transparent', color: '#DC2626', border: '2px solid #DC2626', padding: '12px 24px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.1rem', cursor: isResponding ? 'not-allowed' : 'pointer' }}>
-                                    Reject
-                                </button>
-                                <button
-                                    onClick={() => handleAcceptOrder(pendingOrders[0].id)}
-                                    disabled={isResponding}
-                                    style={{ background: '#16A34A', color: 'white', border: 'none', padding: '12px 30px', borderRadius: '8px', fontWeight: 'bold', fontSize: '1.2rem', cursor: isResponding ? 'not-allowed' : 'pointer', boxShadow: '0 4px 6px rgba(22, 163, 74, 0.3)' }}>
-                                    {isResponding ? "Processing..." : "ACCEPT ORDER"}
-                                </button>
-                            </div>
+                    <div style={{ background: '#FFF7ED', border: '2px solid #F97316', padding: '30px', borderRadius: '16px', marginBottom: '40px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h2 style={{ color: '#C2410C', margin: 0 }}>🚨 New Incoming Order!</h2>
+                            <span style={{ background: '#EA580C', color: 'white', padding: '5px 15px', borderRadius: '50px', fontWeight: 'bold' }}>
+                                {countdownTimer}s Left
+                            </span>
                         </div>
-
-                        <div style={{ marginTop: '20px', background: 'white', padding: '20px', borderRadius: '8px', border: '1px solid #FED7AA' }}>
-                            <h4 style={{ margin: '0 0 10px 0', color: '#333' }}>Order Details #{pendingOrders[0].id.slice(-6).toUpperCase()}</h4>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                <div>
-                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Customer</p>
-                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{pendingOrders[0].guestName || pendingOrders[0].user?.name} ({pendingOrders[0].guestPhone || pendingOrders[0].user?.phone})</p>
-                                </div>
-                                <div>
-                                    <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>Total Value</p>
-                                    <p style={{ margin: 0, fontWeight: 'bold', color: '#16A34A', fontSize: '1.2rem' }}>₹{pendingOrders[0].total.toFixed(2)}</p>
-                                </div>
-                            </div>
-                            <div style={{ marginTop: '15px', borderTop: '1px solid #eee', paddingTop: '15px' }}>
-                                <p style={{ margin: '0 0 10px 0', color: '#666', fontSize: '0.9rem' }}>Items Requested:</p>
-                                <ul style={{ margin: 0, paddingLeft: '20px' }}>
-                                    {pendingOrders[0].items.map(item => (
-                                        <li key={item.id}>
-                                            <strong>{item.quantity}x</strong> {item.product.name} (₹{item.price})
-                                        </li>
-                                    ))}
-                                </ul>
+                        <div style={{ background: 'white', padding: '20px', borderRadius: '8px' }}>
+                            <p><strong>Total Value:</strong> ₹{pendingOrders[0].total.toFixed(2)}</p>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
+                                <button onClick={() => handleAcceptOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 2, background: '#16A34A', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>ACCEPT</button>
+                                <button onClick={() => handleRejectOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 1, background: '#DC2626', color: 'white', padding: '12px', borderRadius: '8px', border: 'none' }}>Reject</button>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "20px", marginBottom: "40px" }}>
-                    {/* Card 1: View Orders */}
-                    <div style={{ padding: "25px", border: "1px solid #e5e7eb", borderRadius: "16px", background: "#f0fdf4" }}>
-                        <div style={{ fontSize: '2rem', color: '#16a34a', marginBottom: '10px' }}><i className="fa-solid fa-clipboard-list"></i></div>
-                        <h3>Local Orders</h3>
-                        <p style={{ color: '#666', marginBottom: '15px' }}>View orders in your area ({inventory.length > 0 ? 'Active' : 'Setup Required'}).</p>
-                        <button style={{ padding: "8px 16px", background: "#16a34a", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
-                            View Orders
-                        </button>
-                    </div>
-
-                    {/* Card 2: Request Stock */}
-                    <div style={{ padding: "25px", border: "1px solid #e5e7eb", borderRadius: "16px", background: "#fff" }}>
-                        <div style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}><i className="fa-solid fa-boxes-stacked"></i></div>
-                        <h3>Restock Inventory</h3>
-                        <p style={{ color: '#666', marginBottom: '15px' }}>Order bulk medicines from Stockists.</p>
-                        <button style={{ padding: "8px 16px", background: "#333", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
-                            Place Bulk Order
-                        </button>
-                    </div>
-
-                    {/* Card 3: Profile */}
-                    <div style={{ padding: "25px", border: "1px solid #e5e7eb", borderRadius: "16px", background: "#fff" }}>
-                        <div style={{ fontSize: '2rem', color: '#333', marginBottom: '10px' }}><i className="fa-solid fa-shop"></i></div>
-                        <h3>Shop Profile</h3>
-                        <p style={{ color: '#666', marginBottom: '15px' }}>Update license and address details.</p>
-                        <button style={{ padding: "8px 16px", background: "#333", color: "white", border: "none", borderRadius: "8px", cursor: "pointer" }}>
-                            Edit Profile
-                        </button>
+                {/* Prescription Bidding Area */}
+                <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb', marginBottom: '40px' }}>
+                    <h3>📄 Pending Prescriptions</h3>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px', marginTop: '20px' }}>
+                        {prescriptions.map(rx => (
+                            <div key={rx.id} style={{ border: '1px solid #eee', borderRadius: '12px', padding: '15px' }}>
+                                <img src={rx.imageUrl} style={{ width: '100%', height: '150px', objectFit: 'cover', borderRadius: '8px' }} onClick={() => window.open(rx.imageUrl)}/>
+                                <p><strong>User:</strong> {rx.patient?.name}</p>
+                                <button onClick={() => setQuotingRx(rx)} className="btn btn-primary" style={{ width: '100%', marginTop: '10px' }}>Quote Price</button>
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                {/* --- Inventory Section --- */}
-                <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h3>📦 My Inventory & Coverage</h3>
-                        <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary" style={{ background: '#2563eb' }}>
-                            {showInvForm ? 'Close Form' : '+ Add Medicine'}
-                        </button>
-                    </div>
-
-                    {showInvForm && (
-                        <div style={{ background: '#f8fafc', padding: '20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #e2e8f0' }}>
-                            <h4 style={{ marginBottom: '15px' }}>Add New Stock</h4>
-                            <form onSubmit={handleAddItem} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-                                <input type="text" placeholder="Medicine Name" required
-                                    value={newItem.medicineName} onChange={e => setNewItem({ ...newItem, medicineName: e.target.value })}
-                                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                <input type="number" placeholder="Stock Qty" required
-                                    value={newItem.stock} onChange={e => setNewItem({ ...newItem, stock: e.target.value })}
-                                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                <input type="number" placeholder="Price (₹)" required
-                                    value={newItem.price} onChange={e => setNewItem({ ...newItem, price: e.target.value })}
-                                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                <input type="text" placeholder="Delivery Area (e.g. Sector 62)" required
-                                    value={newItem.deliveryArea} onChange={e => setNewItem({ ...newItem, deliveryArea: e.target.value })}
-                                    style={{ padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }} />
-                                <button type="submit" style={{ background: '#2563eb', color: 'white', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}>
-                                    Save Item
-                                </button>
-                            </form>
-                        </div>
-                    )}
-
-                    {inventory.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No inventory added yet. Add items to start selling.</p>
-                    ) : (
-                        <div style={{ overflowX: 'auto' }}>
-                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                                <thead>
-                                    <tr style={{ background: '#f1f5f9', borderBottom: '2px solid #e2e8f0' }}>
-                                        <th style={{ padding: '12px' }}>Medicine Name</th>
-                                        <th style={{ padding: '12px' }}>Stock</th>
-                                        <th style={{ padding: '12px' }}>Price</th>
-                                        <th style={{ padding: '12px' }}>Delivery Area</th>
-                                        <th style={{ padding: '12px' }}>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {inventory.map((item) => (
-                                        <tr key={item.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                                            <td style={{ padding: '12px', fontWeight: '500' }}>{item.medicineName}</td>
-                                            <td style={{ padding: '12px' }}>
-                                                <span style={{ padding: '4px 8px', borderRadius: '12px', background: item.stock > 10 ? '#dcfce7' : '#fee2e2', color: item.stock > 10 ? '#166534' : '#991b1b', fontSize: '0.85rem' }}>
-                                                    {item.stock} units
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '12px' }}>₹{item.price}</td>
-                                            <td style={{ padding: '12px', color: '#64748b' }}>{item.deliveryArea}</td>
-                                            <td style={{ padding: '12px' }}>Active</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </div>
-
-                {/* --- Prescription Bidding Section --- */}
-                <div style={{ marginTop: '40px', background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h3 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <i className="fa-solid fa-file-prescription" style={{ color: '#7C3AED' }}></i> 
-                            Prescription Bidding (Open Requests)
-                        </h3>
-                        <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Submit quotes for prescription-only medicines</span>
-                    </div>
-
-                    {prescriptions.length === 0 ? (
-                        <p style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No new prescriptions to bid on. Check back later!</p>
-                    ) : (
-                        <div style={{ display: 'grid', gap: '20px' }}>
-                            {prescriptions.map((p) => (
-                                <div key={p.id} style={{ border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', background: p.hasQuoted ? '#f8fafc' : 'white' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '15px' }}>
-                                        <div style={{ display: 'flex', gap: '15px' }}>
-                                            <div 
-                                                onClick={() => window.open(p.imageUrl, '_blank')}
-                                                style={{ width: '80px', height: '80px', borderRadius: '8px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #cbd5e1' }}
-                                            >
-                                                <img src={p.imageUrl} alt="Prescription" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                            </div>
-                                            <div>
-                                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>#{p.id.slice(-8).toUpperCase()} • {new Date(p.createdAt).toLocaleDateString()}</div>
-                                                <div style={{ fontWeight: '600', color: '#111827', marginTop: '4px' }}>Patient: {p.patient?.name || "Unknown"}</div>
-                                                <div style={{ fontSize: '0.875rem', color: '#4b5563', marginTop: '4px' }}>Status: {p.status}</div>
-                                            </div>
-                                        </div>
-
-                                        {p.hasQuoted ? (
-                                            <div style={{ background: '#dcfce7', color: '#166534', padding: '8px 16px', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 'bold' }}>
-                                                <i className="fa-solid fa-check-circle"></i> Quote Submitted: ₹{p.quotes[0].quotedAmount}
-                                            </div>
-                                        ) : (
-                                            <button 
-                                                onClick={() => setShowQuoteForm(p.id)}
-                                                className="btn btn-primary" 
-                                                style={{ background: '#7C3AED' }}
-                                            >
-                                                Submit Quote
-                                            </button>
-                                        )}
+                {/* Quoting Modal */}
+                {quotingRx && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                        <div style={{ background: 'white', padding: '30px', borderRadius: '16px', maxWidth: '600px', width: '90%' }}>
+                            <h3>Quote for {quotingRx.patient?.name}</h3>
+                            <div style={{ marginTop: '20px' }}>
+                                {quoteItems.map((item, idx) => (
+                                    <div key={idx} style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
+                                        <select 
+                                            value={item.id}
+                                            onChange={e => {
+                                                const p = inventory.find(inv => inv.id === e.target.value);
+                                                const newItems = [...quoteItems];
+                                                newItems[idx] = { ...newItems[idx], id: p.id, name: p.medicineName, price: p.price };
+                                                setQuoteItems(newItems);
+                                            }}
+                                            style={{ flex: 2, padding: '8px' }}>
+                                            <option value="">-- Select Product --</option>
+                                            {inventory.map(inv => <option key={inv.id} value={inv.id}>{inv.medicineName}</option>)}
+                                        </select>
+                                        <input type="number" value={item.quantity} onChange={e => {
+                                            const newItems = [...quoteItems];
+                                            newItems[idx].quantity = e.target.value;
+                                            setQuoteItems(newItems);
+                                        }} style={{ width: '60px', padding: '8px' }} />
                                     </div>
-
-                                    {showQuoteForm === p.id && (
-                                        <div style={{ marginTop: '20px', padding: '20px', background: '#f5f3ff', borderRadius: '8px', border: '1px solid #ddd6fe' }}>
-                                            <h4 style={{ color: '#5b21b6', marginBottom: '15px' }}>Prepare Your Quote</h4>
-                                            <form onSubmit={handleSubmitQuote} style={{ display: 'grid', gap: '15px' }}>
-                                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                                                    <div>
-                                                        <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4b5563', display: 'block', marginBottom: '5px' }}>ESTIMATED TOTAL (₹)</label>
-                                                        <input 
-                                                            type="number" step="0.01" required placeholder="Enter total price"
-                                                            value={quoteData.amount} onChange={e => setQuoteData({...quoteData, amount: e.target.value})}
-                                                            style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1' }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <label style={{ fontSize: '0.75rem', fontWeight: '700', color: '#4b5563', display: 'block', marginBottom: '5px' }}>MEDICINES & AVAILABILITY</label>
-                                                    <textarea 
-                                                        placeholder="List medicines found in RX and their prices..."
-                                                        value={quoteData.items} onChange={e => setQuoteData({...quoteData, items: e.target.value})}
-                                                        style={{ width: '100%', padding: '10px', borderRadius: '6px', border: '1px solid #cbd5e1', height: '80px' }}
-                                                    />
-                                                </div>
-                                                <div style={{ display: 'flex', gap: '10px' }}>
-                                                    <button type="submit" style={{ background: '#7C3AED', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
-                                                        Send Quote to Patient
-                                                    </button>
-                                                    <button type="button" onClick={() => setShowQuoteForm(null)} style={{ background: 'white', color: '#4b5563', border: '1px solid #cbd5e1', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer' }}>
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    )}
-                                </div>
-                            ))}
+                                ))}
+                                <button onClick={addQuoteItem} style={{ color: '#2563eb', border: 'none', background: 'none' }}>+ Add Row</button>
+                            </div>
+                            <button onClick={handleQuoteSubmit} disabled={isQuoting} style={{ width: '100%', marginTop: '20px', padding: '15px', background: '#16a34a', color: 'white', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>
+                                {isQuoting ? 'Sending...' : 'Send Quote'}
+                            </button>
+                            <button onClick={() => setQuotingRx(null)} style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#eee', borderRadius: '8px', border: 'none' }}>Cancel</button>
                         </div>
+                    </div>
+                )}
+
+                {/* Inventory Area */}
+                <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                        <h3>📦 My Inventory</h3>
+                        <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary">{showInvForm ? 'Close' : '+ Add Item'}</button>
+                    </div>
+                    {showInvForm && (
+                        <form onSubmit={handleAddItem} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', marginBottom: '20px' }}>
+                            <input type="text" placeholder="Name" value={newItem.medicineName} onChange={e => setNewItem({...newItem, medicineName: e.target.value})} required/>
+                            <input type="number" placeholder="Stock" value={newItem.stock} onChange={e => setNewItem({...newItem, stock: e.target.value})} required/>
+                            <input type="number" placeholder="Price" value={newItem.price} onChange={e => setNewItem({...newItem, price: e.target.value})} required/>
+                            <input type="text" placeholder="Area" value={newItem.deliveryArea} onChange={e => setNewItem({...newItem, deliveryArea: e.target.value})} required/>
+                            <button type="submit" style={{ background: '#2563eb', color: 'white', border: 'none', padding: '10px', borderRadius: '8px' }}>Save</button>
+                        </form>
                     )}
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead><tr style={{ textAlign: 'left', borderBottom: '2px solid #eee' }}><th style={{ padding: '10px' }}>Name</th><th style={{ padding: '10px' }}>Stock</th><th style={{ padding: '10px' }}>Price</th></tr></thead>
+                        <tbody>
+                            {inventory.map(item => (
+                                <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
+                                    <td style={{ padding: '10px' }}>{item.medicineName}</td>
+                                    <td style={{ padding: '10px' }}>{item.stock}</td>
+                                    <td style={{ padding: '10px' }}>₹{item.price}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </>

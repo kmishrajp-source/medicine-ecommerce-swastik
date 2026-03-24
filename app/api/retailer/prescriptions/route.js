@@ -11,8 +11,7 @@ export async function GET(req) {
     }
 
     try {
-        // Fetch prescriptions that are 'Pending' and don't have an order yet
-        // OR are specifically marked for bidding
+        // Fetch prescriptions that are 'Pending' and not yet linked to an order
         const prescriptions = await prisma.prescription.findMany({
             where: {
                 status: 'Pending',
@@ -22,7 +21,7 @@ export async function GET(req) {
                 patient: {
                     select: {
                         name: true,
-                        email: true
+                        phone: true
                     }
                 },
                 quotes: {
@@ -46,6 +45,7 @@ export async function GET(req) {
 
         return NextResponse.json({ success: true, prescriptions: formatted });
     } catch (error) {
+        console.error("Fetch Prescriptions Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

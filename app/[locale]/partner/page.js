@@ -62,6 +62,15 @@ export default function PartnerPortal() {
             btnText: "Driver Login"
         },
         {
+            title: "Insurance Provider",
+            icon: "fa-shield-halved",
+            color: "#6366f1",
+            desc: "Manage health plans and track referrals.",
+            link: "/partner/insurance/dashboard",
+            register: "/partner/register?type=insurance",
+            btnText: "Provider Login"
+        },
+        {
             title: "Pharma Company",
             icon: "fa-building",
             color: "#4F46E5",
