@@ -42,19 +42,31 @@ export default function JoinSwastik() {
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
             {/* Hero Section */}
-            <div className="pt-32 pb-20 px-6 text-center bg-white border-b border-slate-100">
-                <div className="max-w-4xl mx-auto">
-                    <span className="bg-indigo-50 text-indigo-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 inline-block">
-                        Scale Your Practice
-                    </span>
-                    <h1 className="text-5xl md:text-6xl font-black text-slate-900 mb-6 leading-tight">
-                        Join Gorakhpur's Largest <br/>
-                        <span className="text-indigo-600">Health Network</span>
+            <div className="pt-32 pb-24 px-6 text-center bg-white border-b border-slate-100 relative overflow-hidden">
+                <div className="max-w-4xl mx-auto relative z-10">
+                    <div className="inline-flex items-center gap-2 bg-indigo-50 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-8">
+                        <i className="fa-solid fa-bolt-lightning text-amber-500 animate-pulse"></i>
+                        The Future of Practice Growth
+                    </div>
+                    <h1 className="text-6xl md:text-7xl font-black text-slate-900 mb-8 leading-[1.1] tracking-tighter">
+                        Verified Contact Data. <br/>
+                        <span className="text-indigo-600 underline decoration-indigo-200 underline-offset-8">Real Results.</span>
                     </h1>
-                    <p className="text-xl text-slate-500 mb-10 max-w-2xl mx-auto">
-                        Convert more leads, manage patient records, and automate your clinic's outreach with Swastik Medicare.
+                    <p className="text-xl text-slate-500 mb-12 max-w-2xl mx-auto font-medium leading-relaxed">
+                        Stop chasing dead-ends. Reach the right patients and referral partners with Swastik Intelligence—the most intuitive healthcare data platform in Gorakhpur.
                     </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                        <a href="#pricing" className="bg-slate-900 text-white px-10 py-5 rounded-2xl font-black text-sm shadow-2xl hover:bg-black hover:-translate-y-1 transition-all">
+                            Launch Your Intelligence Account
+                        </a>
+                        <div className="flex items-center gap-3 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                            <i className="fa-solid fa-shield-check text-emerald-500"></i>
+                            800+ Verified Records
+                        </div>
+                    </div>
                 </div>
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-indigo-50/30 to-transparent"></div>
             </div>
 
             {/* Pricing Section */}
@@ -105,24 +117,32 @@ export default function JoinSwastik() {
             </div>
 
             {/* Value Props */}
-            <div className="bg-slate-900 py-24 px-6">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+            <div className="bg-slate-900 py-32 px-6 relative overflow-hidden">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-16 text-center">
                     <div className="text-white">
-                        <div className="text-indigo-400 text-4xl mb-6"><i className="fa-solid fa-bolt"></i></div>
-                        <h4 className="text-xl font-black mb-4">Instant Setup</h4>
-                        <p className="text-slate-400 text-sm">Get listed in the Gorakhpur Directory within 5 minutes of payment.</p>
+                        <div className="w-16 h-16 bg-white/5 rounded-3xl mb-8 flex items-center justify-center mx-auto text-indigo-400 text-2xl group hover:bg-white hover:text-slate-900 transition-all">
+                            <i className="fa-solid fa-magnifying-glass-chart"></i>
+                        </div>
+                        <h4 className="text-xl font-black mb-4">Lead Intelligence</h4>
+                        <p className="text-slate-400 text-sm leading-relaxed">Not just a list. We provide intent-based scoring so you focus only on patients ready to book.</p>
                     </div>
                     <div className="text-white">
-                        <div className="text-indigo-400 text-4xl mb-6"><i className="fa-solid fa-robot"></i></div>
-                        <h4 className="text-xl font-black mb-4">AI Automation</h4>
-                        <p className="text-slate-400 text-sm">Automated WhatsApp follow-ups that convert leads while you sleep.</p>
+                        <div className="w-16 h-16 bg-white/5 rounded-3xl mb-8 flex items-center justify-center mx-auto text-indigo-400 text-2xl group hover:bg-white hover:text-slate-900 transition-all">
+                            <i className="fa-solid fa-address-card"></i>
+                        </div>
+                        <h4 className="text-xl font-black mb-4">Verified Data</h4>
+                        <p className="text-slate-400 text-sm leading-relaxed">Every contact is double-verified by our local field agents for 100% accuracy and trust.</p>
                     </div>
                     <div className="text-white">
-                        <div className="text-indigo-400 text-4xl mb-6"><i className="fa-solid fa-chart-line"></i></div>
-                        <h4 className="text-xl font-black mb-4">Real-time CRM</h4>
-                        <p className="text-slate-400 text-sm">Track every conversion and leads lifecycle in one dashboard.</p>
+                        <div className="w-16 h-16 bg-white/5 rounded-3xl mb-8 flex items-center justify-center mx-auto text-indigo-400 text-2xl group hover:bg-white hover:text-slate-900 transition-all">
+                            <i className="fa-solid fa-code-merge"></i>
+                        </div>
+                        <h4 className="text-xl font-black mb-4">CRM Integration</h4>
+                        <p className="text-slate-400 text-sm leading-relaxed">Seamlessly export verified data to your existing workflows or use our built-in conversion engine.</p>
                     </div>
                 </div>
+                {/* Visual Flair */}
+                <div className="absolute left-0 bottom-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent"></div>
             </div>
 
             {/* Footer Minimal */}

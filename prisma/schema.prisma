@@ -636,7 +636,9 @@ model Lead {
   notes         String?  // Replaces details if needed or used alongside
   details       String?  // Special requirements
   status        String   @default("new") // new, contacted, interested, converted, rejected
-  commissionEarned Float @default(0.0)
+  qualityScore  Int      @default(0) // 0-100 score based on activity
+  isVerified    Boolean  @default(false)
+  lastAction    String?  // Description of the most recent lead event
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
