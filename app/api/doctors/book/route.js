@@ -8,7 +8,7 @@ import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
+        key_id: process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY,
         key_secret: process.env.RAZORPAY_KEY_SECRET,
     });
     const session = await getServerSession(authOptions);

@@ -3,13 +3,13 @@ import Razorpay from "razorpay";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-const razorpay = new Razorpay({
-    key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
-
 export async function POST(req) {
     try {
+        const razorpay = new Razorpay({
+            key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY,
+            key_secret: process.env.RAZORPAY_KEY_SECRET,
+        });
+
         const session = await getServerSession(authOptions);
         const { amount, currency = "INR", receipt = "receipt_" + Date.now() } = await req.json();
 
