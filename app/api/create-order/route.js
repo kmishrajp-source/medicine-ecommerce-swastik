@@ -7,14 +7,17 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
-    if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
+    const key_id = process.env.RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET || process.env.RAZORPAY_SECRET;
+
+    if (!key_id || !key_secret) {
         console.error("Razorpay keys are missing");
         return NextResponse.json({ error: "Payment configuration missing" }, { status: 500 });
     }
 
     const razorpay = new Razorpay({
-        key_id: process.env.RAZORPAY_KEY_ID,
-        key_secret: process.env.RAZORPAY_KEY_SECRET,
+        key_id,
+        key_secret,
     });
 
     const { amount, couponCode } = await req.json();
