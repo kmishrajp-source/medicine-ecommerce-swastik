@@ -118,6 +118,16 @@ export default function Home() {
         {/* BENEFITS SECTION */}
         <BenefitsSection />
 
+        <div className="container px-8 mb-20">
+          <MotivationalVideo 
+            title="Sophisticated Healthcare, Simple Connection" 
+            description="Watch how Swastik Medicare is bridging the gap between patients and healthcare providers in Gorakhpur."
+            videoUrl="https://www.youtube.com/embed/90ce3aCwpnw" 
+            ctaText="Find Doctors Now"
+            ctaLink="/doctors"
+          />
+        </div>
+
         {/* SOCIAL PROOF SECTION */}
         <div className="py-24 bg-slate-900 overflow-hidden relative">
             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>

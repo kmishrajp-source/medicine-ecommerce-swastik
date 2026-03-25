@@ -49,7 +49,20 @@ export default function middleware(request) {
         // For now, we allow known bots but restrict others.
     }
 
-    // 3. Internationalization & Routing
+    // 3. Referral Tracking Logic
+    const { searchParams } = new URL(request.url);
+    const referral = searchParams.get('ref');
+
+    if (referral) {
+        const response = intlMiddleware(request);
+        response.cookies.set('swastik_referral', referral, {
+            maxAge: 60 * 60 * 24 * 30, // 30 days
+            path: '/',
+        });
+        return response;
+    }
+
+    // 4. Internationalization & Routing
     return intlMiddleware(request);
 }
 
