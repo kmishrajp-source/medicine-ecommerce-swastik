@@ -168,13 +168,13 @@ export default function Navbar({ cartCount, openCart }) {
                                     <button onClick={() => signOut()} className="p-2 text-slate-400 hover:text-red-500"><i className="fa-solid fa-power-off"></i></button>
                                 </div>
                             ) : (
-                                <Link href="/login" className="px-5 py-2 bg-emerald-500 text-white rounded-xl font-black text-xs shadow-md shadow-emerald-200 hover:bg-emerald-600 transition-all uppercase tracking-wider">
+                                <Link href="/login" className="px-5 py-2 text-slate-500 font-black text-xs hover:text-indigo-600 transition-all uppercase tracking-wider">
                                     {t('login')}
                                 </Link>
                             )}
                             
-                            <Link href="/partner" className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-black text-xs shadow-md shadow-indigo-200 hover:bg-indigo-700 transition-all uppercase tracking-wider">
-                                <i className="fa-solid fa-rocket mr-1.5"></i> For Providers
+                            <Link href="/join" className="px-6 py-2.5 bg-indigo-600 text-white rounded-full font-black text-[10px] shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:scale-105 active:scale-95 transition-all uppercase tracking-widest whitespace-nowrap">
+                                <i className="fa-solid fa-rocket mr-2"></i> Join as Partner
                             </Link>
                             
                             <LanguageSwitcher />

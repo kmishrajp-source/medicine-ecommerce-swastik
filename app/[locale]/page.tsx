@@ -43,67 +43,65 @@ export default function Home() {
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
       <main style={{ marginTop: '80px' }}>
 
-        {/* HIGH-CONVERSION HERO (SHOPIFY INSPIRED) */}
+        {/* HIGH-CONVERSION HERO (SWASTIK BRANDING) */}
         <div className="relative bg-[#f8fafc] py-24 pb-40 overflow-hidden">
              {/* Background Decoration */}
              <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/5 rounded-l-[200px] -z-10 translate-x-20"></div>
              
              <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12">
                 <div className="flex-1 text-center md:text-left">
-                    <span className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 inline-block">
-                        <i className="fa-solid fa-bolt mr-2"></i> Join 500+ Local Healthcare Leaders
+                    <span className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 inline-block shadow-sm">
+                        <i className="fa-solid fa-bolt mr-2 text-indigo-500"></i> Your Local Healthcare Network
                     </span>
                     <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
-                        {tConv('hero_title').split(' ').map((word, i) => (
-                            <span key={i} className={word.toLowerCase() === 'patients' || word.toLowerCase() === 'customers' ? 'text-indigo-600' : ''}>
-                                {word}{' '}
-                            </span>
-                        ))}
+                        Find Doctors <br/> <span className="text-indigo-600">Instantly</span> <br/> In Gorakhpur
                     </h1>
                     <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
-                        {tConv('hero_subtitle')}
+                        Connect with top-rated doctors and medical stores in seconds via call or WhatsApp. No login required.
                     </p>
 
-                    <div className="bg-white p-2 rounded-[40px] shadow-2xl shadow-indigo-200 border border-slate-100 flex flex-col sm:flex-row gap-2 max-w-xl mx-auto md:mx-0">
-                        <input 
-                            type="tel" 
-                            placeholder={tConv('phone_placeholder')}
-                            value={userPhone}
-                            onChange={(e) => setUserPhone(e.target.value)}
-                            className="flex-1 p-5 rounded-[30px] bg-slate-50 border-none outline-none text-slate-700 font-bold"
-                        />
-                        <button className="bg-slate-900 text-white px-8 py-5 rounded-[30px] font-black uppercase tracking-widest text-xs hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10">
-                            {tConv('start_listing')}
-                        </button>
+                    <div className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto md:mx-0">
+                        <Link href="/doctors" className="flex-1 bg-slate-900 text-white px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center">
+                            Find Doctor Now
+                        </Link>
+                        <Link href="/join" className="flex-1 bg-white text-slate-900 border-2 border-slate-100 px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:border-indigo-600 transition-all text-center">
+                            Join as Partner
+                        </Link>
                     </div>
-                    <p className="mt-6 text-[10px] font-black text-indigo-400 uppercase tracking-widest">
-                        <i className="fa-solid fa-shield-check mr-2"></i> {tConv('trust_line')}
+                    
+                    <p className="mt-8 text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
+                        <i className="fa-solid fa-shield-check text-indigo-500"></i> Trusted by 100+ Verified Doctors & Pharmacies
                     </p>
                 </div>
 
                 <div className="flex-1 relative hidden md:block">
-                     <div className="bg-white rounded-[60px] p-8 shadow-2xl border border-slate-100 rotate-3 transform-gpu relative z-10">
-                        <div className="flex items-center gap-4 mb-8">
-                             <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black">S</div>
-                             <div>
-                                <div className="text-sm font-black text-slate-900">Dr. Swastik Connect</div>
-                                <div className="text-[10px] font-bold text-slate-400">Online Specialist</div>
-                             </div>
+                     <div className="bg-white rounded-[60px] p-8 shadow-2xl border border-slate-100 rotate-3 transform-gpu relative z-10 transition-transform hover:rotate-0 duration-500">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">S</div>
+                                <div>
+                                    <div className="text-sm font-black text-slate-900">Dr. Vivek Sharma</div>
+                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cardiologist • Golghar</div>
+                                </div>
+                            </div>
+                            <div className="bg-emerald-100 text-emerald-600 text-[8px] font-black px-2 py-1 rounded-full uppercase">Online</div>
                         </div>
                         <div className="space-y-4">
                              <div className="h-4 w-3/4 bg-slate-50 rounded-full"></div>
                              <div className="h-4 w-1/2 bg-slate-50 rounded-full"></div>
                              <div className="grid grid-cols-2 gap-4 mt-8">
-                                <div className="h-20 bg-indigo-50 rounded-3xl border-2 border-dashed border-indigo-100 flex items-center justify-center">
-                                    <i className="fa-solid fa-phone text-indigo-300"></i>
+                                <div className="h-24 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-slate-900 transition-all">
+                                    <i className="fa-solid fa-phone text-slate-300 group-hover:text-white transition-colors"></i>
+                                    <span className="text-[8px] font-black text-slate-400 group-hover:text-white uppercase tracking-widest">Call</span>
                                 </div>
-                                <div className="h-20 bg-emerald-50 rounded-3xl border-2 border-dashed border-emerald-100 flex items-center justify-center">
-                                    <i className="fa-brands fa-whatsapp text-emerald-300"></i>
+                                <div className="h-24 bg-emerald-50 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-emerald-500 transition-all">
+                                    <i className="fa-brands fa-whatsapp text-emerald-300 group-hover:text-white transition-colors"></i>
+                                    <span className="text-[8px] font-black text-emerald-400 group-hover:text-white uppercase tracking-widest">WhatsApp</span>
                                 </div>
                              </div>
                         </div>
                      </div>
-                     <div className="absolute top-20 -left-10 w-full h-full bg-indigo-600/5 rounded-[60px] -rotate-3"></div>
+                     <div className="absolute top-20 -left-10 w-full h-full bg-indigo-600/5 rounded-[60px] -rotate-3 -z-10 border border-indigo-100/20"></div>
                 </div>
              </div>
         </div>
@@ -120,32 +118,67 @@ export default function Home() {
         {/* BENEFITS SECTION */}
         <BenefitsSection />
 
-        {/* CONNECTION FLOW (VISUAL) */}
-        <div className="py-20 bg-white">
-            <div className="max-w-7xl mx-auto px-8">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">{tConv('flow_title')}</h2>
-                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">How it works for your patients</p>
-                </div>
-                
-                <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative">
-                    {/* Connection Line */}
-                    <div className="absolute top-1/2 left-0 w-full h-1 bg-indigo-100 -z-10 hidden md:block"></div>
-                    
+        {/* SOCIAL PROOF SECTION */}
+        <div className="py-24 bg-slate-900 overflow-hidden relative">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="max-w-7xl mx-auto px-8 relative z-10">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
                     {[
-                        { step: '01', title: tConv('flow_step_1'), icon: 'fa-magnifying-glass' },
-                        { step: '02', title: tConv('flow_step_2'), icon: 'fa-hand-pointer' },
-                        { step: '03', title: tConv('flow_step_3'), icon: 'fa-phone-flip' }
-                    ].map((step, i) => (
-                        <div key={i} className="bg-white p-8 rounded-[40px] border-2 border-indigo-50 flex flex-col items-center text-center w-full md:w-64 relative group hover:border-indigo-500 transition-all">
-                            <div className="absolute -top-4 -right-4 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg">{step.step}</div>
-                            <div className="w-16 h-16 bg-slate-900 text-white rounded-3xl flex items-center justify-center text-2xl mb-6 shadow-xl shadow-slate-900/20 group-hover:bg-indigo-600 transition-colors">
-                                <i className={`fa-solid ${step.icon}`}></i>
+                        { count: "100+", label: "Verified Doctors", icon: "fa-user-doctor", color: "text-blue-400" },
+                        { count: "500+", label: "Patients Helped", icon: "fa-hospital-user", color: "text-emerald-400" },
+                        { count: "50+", label: "Medical Stores", icon: "fa-shop", color: "text-indigo-400" },
+                        { count: "Gorakhpur", label: "Growing Network", icon: "fa-map-location-dot", color: "text-rose-400" }
+                    ].map((stat, i) => (
+                        <div key={i} className="text-center group">
+                            <div className={`w-16 h-16 mx-auto bg-white/5 rounded-2xl flex items-center justify-center text-2xl ${stat.color} mb-6 group-hover:bg-white/10 group-hover:scale-110 transition-all shadow-inner`}>
+                                <i className={`fa-solid ${stat.icon}`}></i>
                             </div>
-                            <h3 className="text-xl font-black text-slate-900">{step.title}</h3>
+                            <div className="text-4xl font-black text-white mb-2 tracking-tighter">{stat.count}</div>
+                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
                         </div>
                     ))}
                 </div>
+            </div>
+        </div>
+
+        {/* MULTI-ENTRY SYSTEM */}
+        <div className="py-24 bg-white relative">
+            <div className="max-w-7xl mx-auto px-8 text-center mb-16">
+                 <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">India's Fastest Growing Healthcare Network</h2>
+                 <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Select your path to get started</p>
+            </div>
+            
+            <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+                 {/* For Patients */}
+                 <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 flex flex-col items-center text-center transition-all hover:bg-white hover:shadow-2xl hover:border-indigo-100 group">
+                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-3xl mb-8 group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner">
+                        <i className="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">For Patients</h3>
+                    <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">Search top doctors near you and connect instantly via Call or WhatsApp.</p>
+                    <Link href="/doctors" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all">Find Doctor Now</Link>
+                 </div>
+
+                 {/* For Doctors */}
+                 <div className="bg-indigo-600 p-10 rounded-[3rem] shadow-2xl text-white flex flex-col items-center text-center transition-all hover:scale-[1.05] relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-[100px]"></div>
+                    <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-3xl mb-8 shadow-inner">
+                        <i className="fa-solid fa-user-doctor"></i>
+                    </div>
+                    <h3 className="text-2xl font-black mb-2">For Doctors</h3>
+                    <p className="text-white/80 font-bold text-sm mb-8 leading-relaxed">Grow your practice and get more patient inquiries verified in Gorakhpur.</p>
+                    <Link href="/join" className="w-full bg-white text-indigo-600 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all shadow-lg">Join as Doctor</Link>
+                 </div>
+
+                 {/* For Pharmacies */}
+                 <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 flex flex-col items-center text-center transition-all hover:bg-white hover:shadow-2xl hover:border-emerald-100 group">
+                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-3xl mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
+                        <i className="fa-solid fa-shop"></i>
+                    </div>
+                    <h3 className="text-2xl font-black text-slate-900 mb-2">For Pharmacies</h3>
+                    <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">Receive more medicine orders and join the local digital healthcare network.</p>
+                    <Link href="/join" className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all">Join as Pharmacy</Link>
+                 </div>
             </div>
         </div>
 

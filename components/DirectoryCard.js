@@ -33,8 +33,13 @@ export default function DirectoryCard({ item, type, onBook }) {
                 {item.verified ? (
                     <VerifiedBadge timestamp={item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : undefined} />
                 ) : (
-                    <div className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-slate-200">
-                        <i className="fa-solid fa-circle-info mr-1"></i> Unverified
+                    <div className="flex flex-col items-end gap-2">
+                        <div className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-slate-200">
+                            <i className="fa-solid fa-circle-info mr-1"></i> Unverified
+                        </div>
+                        <Link href={`/join?claim=${item.id}&name=${encodeURIComponent(displayName)}`} className="bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-indigo-100">
+                            Claim this Profile
+                        </Link>
                     </div>
                 )}
             </div>

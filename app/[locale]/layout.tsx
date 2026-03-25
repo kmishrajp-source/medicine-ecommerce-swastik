@@ -66,6 +66,20 @@ export default async function RootLayout({
               <CartProvider>
                 <PwaRegistrar />
                 {children}
+
+                {/* FLOATING ENGAGEMENT TOOLS */}
+                <div className="fixed bottom-8 right-8 z-[2000] flex flex-col gap-4">
+                    <a 
+                        href="https://wa.me/919999999999?text=Hello, I need help with Swastik Medicare."
+                        target="_blank"
+                        className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all group relative"
+                    >
+                         <div className="absolute right-full mr-4 bg-white px-4 py-2 rounded-xl text-slate-900 text-xs font-black uppercase tracking-widest shadow-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                            Chat on WhatsApp
+                         </div>
+                         <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
                 <CartDrawer />
                 <FloatingWhatsApp />
                 <CustomerSupportWidget />
