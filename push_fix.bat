@@ -3,7 +3,7 @@ echo Navigating to project directory...
 cd /d "%~dp0"
 echo.
 echo Adding changes...
-git add app/api/search/route.js app/api/products/route.js
+git add .
 if %ERRORLEVEL% NEQ 0 (
     echo Failed to add files.
     pause

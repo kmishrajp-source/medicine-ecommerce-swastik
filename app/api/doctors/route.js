@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sanitizeProfile } from "@/lib/security";
+import fs from "fs";
+import path from "path";
 
 export async function GET() {
     try {

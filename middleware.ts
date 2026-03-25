@@ -38,6 +38,7 @@ export default function middleware(request) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
+        return NextResponse.next(); // Bypass intl for API
     }
 
     // 2. Bot Protection (Basic)
