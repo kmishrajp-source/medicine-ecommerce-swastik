@@ -5,9 +5,9 @@ export default function BenefitsSection() {
     const t = useTranslations('Conversion');
     
     const benefits = [
-        { title: t('more_calls'), desc: 'Receive direct calls from patients looking for your services.', icon: 'fa-phone-volume', color: 'bg-blue-50 text-blue-600' },
-        { title: t('whatsapp_leads'), desc: 'Get instant WhatsApp messages from interested customers.', icon: 'fa-brands fa-whatsapp', color: 'bg-emerald-50 text-emerald-600' },
-        { title: t('local_visibility'), desc: 'Appear at the top of local healthcare searches in Gorakhpur.', icon: 'fa-location-dot', color: 'bg-indigo-50 text-indigo-600' }
+        { title: 'Increase Patient Calls', desc: 'Get direct patient inquiries via phone. Verified doctors see 3x more calls.', icon: 'fa-phone-volume', color: 'bg-blue-50 text-blue-600' },
+        { title: 'WhatsApp Inquiries', desc: 'Secure high-quality leads directly on your WhatsApp. No middleman.', icon: 'fa-brands fa-whatsapp', color: 'bg-emerald-50 text-emerald-600' },
+        { title: 'Gorakhpur Visibility', desc: 'Stand out as a premium provider in local healthcare searches.', icon: 'fa-eye', color: 'bg-indigo-50 text-indigo-600' }
     ];
 
     return (

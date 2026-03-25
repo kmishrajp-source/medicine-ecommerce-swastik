@@ -155,12 +155,17 @@ export default function Navbar({ cartCount, openCart }) {
                         </div>
 
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <button className="relative p-2 text-slate-600 hover:text-blue-600 transition-colors" onClick={openCart}>
-                                <i className="fa-solid fa-cart-shopping text-xl"></i>
-                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">{cartCount}</span>
-                            </button>
+                             <button className="relative p-2 text-slate-600 hover:text-blue-600 transition-colors" onClick={openCart}>
+                                 <i className="fa-solid fa-cart-shopping text-xl"></i>
+                                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">{cartCount}</span>
+                             </button>
 
-                            {session ? (
+                             {/* Mobile-Only Call Now Icon */}
+                             <a href="tel:+917992122974" className="md:hidden flex items-center justify-center w-10 h-10 bg-indigo-600 text-white rounded-full shadow-lg hover:bg-indigo-700 transition-all active:scale-95">
+                                 <i className="fa-solid fa-phone"></i>
+                             </a>
+
+                             {session ? (
                                 <div className="flex items-center gap-2">
                                     <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100 font-bold text-xs hover:bg-blue-600 hover:text-white transition-all">
                                         <i className="fa-solid fa-user-circle"></i> {session.user.name.split(' ')[0]}

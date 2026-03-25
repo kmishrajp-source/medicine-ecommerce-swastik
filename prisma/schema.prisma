@@ -796,8 +796,17 @@ model MedicinePriceMemory {
   updatedAt        DateTime @updatedAt
 }
 
-model SubstitutionRule {
-  id               String   @id @default(cuid())
+model Interaction {
+  id          String   @id @default(cuid())
+  type        String   // 'call', 'whatsapp', 'view'
+  targetId    String   // Doctor, Store, or Product ID
+  targetType  String   // 'doctor', 'retailer', 'product'
+  area        String   @default("Unknown")
+  timestamp   DateTime @default(now())
+
+  @@index([targetId])
+  @@index([type])
+}
   sourceMedicine   String   @unique
   substituteGeneric String
   isActive         Boolean  @default(true)

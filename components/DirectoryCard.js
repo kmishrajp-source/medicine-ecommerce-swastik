@@ -21,8 +21,8 @@ export default function DirectoryCard({ item, type, onBook }) {
     return (
         <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all group relative overflow-hidden">
             {item.availableNow && (
-                <div className="absolute top-4 right-4 bg-emerald-100 text-emerald-600 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full animate-pulse">
-                    Available Now
+                <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg shadow-emerald-200 z-10 animate-pulse">
+                    <i className="fa-solid fa-circle-check mr-1 text-[8px]"></i> Available Now
                 </div>
             )}
             
@@ -55,17 +55,22 @@ export default function DirectoryCard({ item, type, onBook }) {
             </div>
 
             {/* Timings / Locality Info */}
-            <div className="flex items-center gap-3 mb-6 bg-slate-50 p-3 rounded-2xl">
-                 <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Locality</span>
-                    <span className="text-[10px] font-black text-slate-800">{item.locality || 'Gorakhpur'}</span>
-                 </div>
-                 <div className="h-6 w-px bg-slate-200"></div>
-                 <div className="flex flex-col">
-                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">OPD Fee</span>
-                    <span className="text-[10px] font-black text-indigo-600">₹{item.fee || 'Consultation Only'}</span>
-                 </div>
-            </div>
+             <div className="flex items-center gap-3 mb-6 bg-slate-50 p-3 rounded-2xl">
+                  <div className="flex flex-col">
+                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Experience</span>
+                     <span className="text-[10px] font-black text-slate-800">{type === 'doctor' ? (item.experience ? `${item.experience} Years` : '10+ Years') : 'Gorakhpur'}</span>
+                  </div>
+                  <div className="h-6 w-px bg-slate-200"></div>
+                  <div className="flex flex-col">
+                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Rating</span>
+                     <span className="text-[10px] font-black text-amber-500"><i className="fa-solid fa-star mr-1"></i>{item.rating || '4.5'}</span>
+                  </div>
+                  <div className="h-6 w-px bg-slate-200"></div>
+                  <div className="flex flex-col">
+                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">OPD Fee</span>
+                     <span className="text-[10px] font-black text-indigo-600">₹{item.fee || item.consultationFee || '500'}</span>
+                  </div>
+             </div>
 
             <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-sm">

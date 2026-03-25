@@ -28,6 +28,25 @@ export default function Home() {
   const tSections = useTranslations('Sections');
   const tReviews = useTranslations('Reviews');
 
+  const [location, setLocation] = useState("Gorakhpur");
+
+  useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`);
+            const data = await res.json();
+            if (data.city) setLocation(data.city);
+          } catch (e) {
+            console.log("Location detection failed, fallback to Gorakhpur");
+          }
+        },
+        () => console.log("Geolocation permission denied")
+      );
+    }
+  }, []);
+
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => {
       if (data.success) setProducts(data.products);
@@ -54,7 +73,7 @@ export default function Home() {
                         <i className="fa-solid fa-bolt mr-2 text-indigo-500"></i> Your Local Healthcare Network
                     </span>
                     <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
-                        Find Doctors <br/> <span className="text-indigo-600">Instantly</span> <br/> In Gorakhpur
+                        Find Doctors <br/> <span className="text-indigo-600">Instantly</span> <br/> In {location}
                     </h1>
                     <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
                         Connect with top-rated doctors and medical stores in seconds via call or WhatsApp. No login required.
@@ -68,10 +87,37 @@ export default function Home() {
                             Join as Partner
                         </Link>
                     </div>
-                    
-                    <p className="mt-8 text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
-                        <i className="fa-solid fa-shield-check text-indigo-500"></i> Trusted by 100+ Verified Doctors & Pharmacies
-                    </p>
+
+                    {/* Urgency & Trust Badges */}
+                    <div className="mt-8 space-y-4">
+                        <p className="text-[12px] font-black text-indigo-600 uppercase tracking-widest flex items-center justify-center md:justify-start gap-2">
+                             <i className="fa-solid fa-bolt animate-pulse"></i> ⚡ Connect with doctors in under 60 seconds
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
+                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> No login required</span>
+                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> Verified doctors</span>
+                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> Local expertise</span>
+                        </div>
+                    </div>
+
+                    {/* Explainer Video Block */}
+                    <div className="mt-12 p-6 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-indigo-100/20 max-w-md mx-auto md:mx-0 group cursor-pointer hover:border-indigo-200 transition-all">
+                         <div className="flex items-center gap-4 mb-4">
+                              <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                   <i className="fa-solid fa-play ml-1"></i>
+                              </div>
+                              <div>
+                                   <div className="text-sm font-black text-slate-900 uppercase tracking-tight">How it works in 30 seconds</div>
+                                   <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Search • WhatsApp • Call</div>
+                              </div>
+                         </div>
+                         <div className="aspect-video bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-50">
+                              <img src="https://images.unsplash.com/photo-1576091160550-2173dad99978?auto=format&fit=crop&w=400" className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+                              <div className="absolute inset-0 flex items-center justify-center text-indigo-600/50 text-4xl group-hover:text-indigo-600 transition-colors">
+                                   <i className="fa-solid fa-video"></i>
+                              </div>
+                         </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 relative hidden md:block">
@@ -84,7 +130,7 @@ export default function Home() {
                                     <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cardiologist • Golghar</div>
                                 </div>
                             </div>
-                            <div className="bg-emerald-100 text-emerald-600 text-[8px] font-black px-2 py-1 rounded-full uppercase">Online</div>
+                            <div className="bg-emerald-500 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-lg shadow-emerald-100 animate-pulse">Available Now</div>
                         </div>
                         <div className="space-y-4">
                              <div className="h-4 w-3/4 bg-slate-50 rounded-full"></div>
@@ -106,12 +152,38 @@ export default function Home() {
              </div>
         </div>
 
-        {/* SOCIAL PROOF & STATS */}
-        <div className="-mt-20 relative z-20 container px-8 mb-20">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                 <StatCounter end={200} label={tConv('doctors')} icon="fa-user-doctor" />
-                 <StatCounter end={150} label={tConv('medical_stores')} icon="fa-shop" />
-                 <StatCounter end={1000} label={tConv('patients')} icon="fa-users" />
+        {/* SOCIAL PROOF & STATS (CONSOLIDATED) */}
+        <div className="-mt-20 relative z-30 container px-8 mb-20">
+            <div className="bg-white rounded-[40px] p-12 shadow-2xl shadow-indigo-100/50 border border-slate-100">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
+                        {[
+                            { count: "200+", label: "Verified Doctors", icon: "fa-user-doctor", color: "text-blue-400" },
+                            { count: "5000+", label: "Patient Inquiries", icon: "fa-hospital-user", color: "text-emerald-400" },
+                            { count: "150+", label: "Medical Stores", icon: "fa-shop", color: "text-indigo-400" },
+                            { count: location, label: "Live Service", icon: "fa-map-location-dot", color: "text-rose-400" }
+                        ].map((stat, i) => (
+                            <div key={i} className="text-center group">
+                                <div className={`w-12 h-12 mx-auto bg-slate-50 rounded-2xl flex items-center justify-center text-xl ${stat.color} mb-4 group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner`}>
+                                    <i className={`fa-solid ${stat.icon}`}></i>
+                                </div>
+                                <div className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stat.count}</div>
+                                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
+                            </div>
+                        ))}
+                </div>
+                
+                {/* Local Urgency Bar */}
+                <div className="mt-12 pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                     <div className="flex items-center gap-4">
+                          <div className="flex -space-x-4">
+                               {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-sm"><img src={`https://i.pravatar.cc/100?u=${i}`} /></div>)}
+                          </div>
+                          <div className="text-xs font-bold text-slate-500 italic">"Joined Swastik in the last 24 hours"</div>
+                     </div>
+                     <div className="bg-amber-50 text-amber-600 px-6 py-3 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-100 flex items-center gap-2">
+                          <i className="fa-solid fa-clock animate-pulse"></i> Only 5 doctor slots left in {location}
+                     </div>
+                </div>
             </div>
         </div>
 
@@ -128,28 +200,6 @@ export default function Home() {
           />
         </div>
 
-        {/* SOCIAL PROOF SECTION */}
-        <div className="py-24 bg-slate-900 overflow-hidden relative">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="max-w-7xl mx-auto px-8 relative z-10">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
-                    {[
-                        { count: "100+", label: "Verified Doctors", icon: "fa-user-doctor", color: "text-blue-400" },
-                        { count: "500+", label: "Patients Helped", icon: "fa-hospital-user", color: "text-emerald-400" },
-                        { count: "50+", label: "Medical Stores", icon: "fa-shop", color: "text-indigo-400" },
-                        { count: "Gorakhpur", label: "Growing Network", icon: "fa-map-location-dot", color: "text-rose-400" }
-                    ].map((stat, i) => (
-                        <div key={i} className="text-center group">
-                            <div className={`w-16 h-16 mx-auto bg-white/5 rounded-2xl flex items-center justify-center text-2xl ${stat.color} mb-6 group-hover:bg-white/10 group-hover:scale-110 transition-all shadow-inner`}>
-                                <i className={`fa-solid ${stat.icon}`}></i>
-                            </div>
-                            <div className="text-4xl font-black text-white mb-2 tracking-tighter">{stat.count}</div>
-                            <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
 
         {/* MULTI-ENTRY SYSTEM */}
         <div className="py-24 bg-white relative">
@@ -165,7 +215,8 @@ export default function Home() {
                         <i className="fa-solid fa-magnifying-glass"></i>
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 mb-2">For Patients</h3>
-                    <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">Search top doctors near you and connect instantly via Call or WhatsApp.</p>
+                    <p className="text-slate-500 font-bold text-sm mb-2 leading-relaxed">Search top doctors near you and connect instantly via Call or WhatsApp.</p>
+                    <div className="text-indigo-600 font-black text-[10px] uppercase mb-8">⚡ Find doctor in seconds</div>
                     <Link href="/doctors" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all">Find Doctor Now</Link>
                  </div>
 
@@ -176,7 +227,8 @@ export default function Home() {
                         <i className="fa-solid fa-user-doctor"></i>
                     </div>
                     <h3 className="text-2xl font-black mb-2">For Doctors</h3>
-                    <p className="text-white/80 font-bold text-sm mb-8 leading-relaxed">Grow your practice and get more patient inquiries verified in Gorakhpur.</p>
+                    <p className="text-white/80 font-bold text-sm mb-2 leading-relaxed">Grow your practice and get more patient inquiries verified in {location}.</p>
+                    <div className="text-indigo-200 font-black text-[10px] uppercase mb-8">📈 Get daily patient leads</div>
                     <Link href="/join" className="w-full bg-white text-indigo-600 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all shadow-lg">Join as Doctor</Link>
                  </div>
 
@@ -186,7 +238,8 @@ export default function Home() {
                         <i className="fa-solid fa-shop"></i>
                     </div>
                     <h3 className="text-2xl font-black text-slate-900 mb-2">For Pharmacies</h3>
-                    <p className="text-slate-500 font-bold text-sm mb-8 leading-relaxed">Receive more medicine orders and join the local digital healthcare network.</p>
+                    <p className="text-slate-500 font-bold text-sm mb-2 leading-relaxed">Receive more medicine orders and join the local digital healthcare network.</p>
+                    <div className="text-emerald-600 font-black text-[10px] uppercase mb-8">💰 Increase medicine orders</div>
                     <Link href="/join" className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all">Join as Pharmacy</Link>
                  </div>
             </div>
@@ -199,29 +252,29 @@ export default function Home() {
             <FeatureCard 
               href="/symptom-helper" 
               icon="fa-wand-sparkles" 
-              title="Symptom Helper"
-              desc="AI specialist matching tool."
+              title="Symptom Checker"
+              desc="Check symptoms instantly"
               color="#4F46E5"
             />
             <FeatureCard 
               href="/blog" 
               icon="fa-newspaper" 
               title="Health Blog"
-              desc="Disease guides & local tips."
+              desc="Disease guides & local tips"
               color="#F59E0B"
             />
             <FeatureCard 
-              href="/doctors" 
-              icon="fa-user-doctor" 
-              title="Find Doctors"
-              desc="Verified local specialists."
+              href="/prescription-analyzer" 
+              icon="fa-file-medical" 
+              title="Rx Analyzer"
+              desc="Analyze prescription safely"
               color="#3B82F6"
             />
             <FeatureCard 
-              href="/pharmacy" 
-              icon="fa-shop" 
-              title="Medical Stores"
-              desc="Find medicines near you."
+              href="/drug-interaction-checker" 
+              icon="fa-capsules" 
+              title="Interaction Checker"
+              desc="Avoid harmful drug interactions"
               color="#10B981"
             />
           </div>
