@@ -807,6 +807,7 @@ model Interaction {
   @@index([targetId])
   @@index([type])
 }
+model SubstitutionRule {
   sourceMedicine   String   @unique
   substituteGeneric String
   isActive         Boolean  @default(true)
