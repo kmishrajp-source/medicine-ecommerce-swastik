@@ -62,175 +62,124 @@ export default function Navbar({ cartCount, openCart }) {
     }, [searchQuery]);
 
     return (
-        <header className="glass-header" style={{ padding: 0 }}>
+        <header className="glass-header" style={{ padding: 0, position: 'fixed', top: 0, width: '100%', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <MiniHeader />
-            <div className="container header-content" style={{ padding: '15px 20px' }}>
-                <div className="logo">
-                    <i className="fa-solid fa-heart-pulse"></i> Swastik <strong>Medicare</strong>
-                </div>
-                <nav className="nav">
-                    <ul>
-                        <li><Link href="/">{t('home')}</Link></li>
-                        <li><Link href="/refer">{t('refer_earn')}</Link></li>
-                        <li><Link href="/doctors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/hospitals">Hospitals</Link></li>
-                        <li><Link href="/retailers">Chemists</Link></li>
-                        <li><Link href="/ambulance" style={{ color: '#DC2626' }}>{t('ambulance')}</Link></li>
-                        <li><Link href="/labs">{t('labs')}</Link></li>
-                        <li><Link href="/ai-assistant" style={{ color: '#3B82F6', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
-                        <li><Link href="/symptom-checker" style={{ color: '#2563EB', fontWeight: 'bold' }}>{t('symptom_checker')}</Link></li>
-                        <li><Link href="/prescription-analyzer" style={{ color: '#059669', fontWeight: 'bold' }}>{t('rx_analyzer')}</Link></li>
-                        <li><Link href="/drug-interaction-checker" style={{ color: '#D97706', fontWeight: 'bold' }}>{t('interaction_checker')}</Link></li>
-                        {session?.user?.role === 'ADMIN' && (
-                            <>
-                                <li><Link href="/admin/leads" style={{ color: '#4338ca', fontWeight: 'bold' }}>SLN Leads</Link></li>
-                                <li><Link href="/admin/crm" style={{ color: '#ec4899', fontWeight: 'bold' }}>Lead CRM</Link></li>
-                                <li><Link href="/admin" style={{ color: '#7C3AED', fontWeight: 'bold' }}>{t('admin_panel')}</Link></li>
-                                <li><Link href="/admin/inventory">{t('inventory')}</Link></li>
-                            </>
-                        )}
-                        {session?.user?.role === 'AGENT' && (
-                            <li><Link href="/agent/dashboard" style={{ color: '#f59e0b', fontWeight: 'bold' }}>Lead Dashboard</Link></li>
-                        )}
-                        <li><Link href="/support" style={{ color: '#2563eb', fontWeight: 'bold' }}>{t('support')}</Link></li>
-                        {session?.user?.role === 'DELIVERY' && (
-                            <li><Link href="/agent/dashboard" style={{ color: '#F59E0B', fontWeight: 'bold' }}>{t('delivery_agent')}</Link></li>
-                        )}
-                    </ul>
-                </nav>
-                <div className="header-actions">
-                    <div className="search-bar" style={{ position: 'relative' }}>
-                        <i className="fa-solid fa-search"></i>
-                        <input 
-                            type="text" 
-                            placeholder="Search Specialist Doctors, Hospitals & Clinics..." 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        
-                        {/* Autocomplete Dropdown */}
-                        {searchQuery.length > 1 && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '100%',
-                                left: 0,
-                                right: 0,
-                                background: 'white',
-                                borderRadius: '8px',
-                                boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
-                                zIndex: 50,
-                                marginTop: '8px',
-                                border: '1px solid #e5e7eb',
-                                maxHeight: '400px',
-                                overflowY: 'auto'
-                            }}>
-                                {isSearching ? (
-                                    <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
-                                        <i className="fa-solid fa-circle-notch fa-spin"></i> {tHome('searching')}
-                                    </div>
-                                ) : searchResults.length > 0 ? (
-                                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                                        {searchResults.map((item) => (
-                                            <li key={item.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                                                <button 
-                                                    onClick={() => {
-                                                        router.push(`/medicine/${item.id}`);
-                                                        setSearchQuery("");
-                                                    }}
-                                                    style={{
-                                                        width: '100%',
-                                                        textAlign: 'left',
-                                                        padding: '12px 15px',
-                                                        background: 'transparent',
-                                                        border: 'none',
-                                                        cursor: 'pointer',
-                                                        display: 'flex',
-                                                        alignItems: 'center',
-                                                        gap: '12px',
-                                                        transition: 'background 0.2s'
-                                                    }}
-                                                    onMouseOver={(e) => e.currentTarget.style.background = '#f9fafb'}
-                                                    onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
-                                                >
-                                                    <div style={{ width: '40px', height: '40px', borderRadius: '6px', background: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-                                                        {item.imageUrl ? (
-                                                            <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                                                        ) : (
-                                                            <i className="fa-solid fa-pills" style={{ color: '#9ca3af' }}></i>
-                                                        )}
-                                                    </div>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                                            <span style={{ fontWeight: '600', color: '#1f2937', fontSize: '0.95rem' }}>
-                                                                {item.name}
-                                                            </span>
-                                                            <span style={{ fontWeight: 'bold', color: '#059669', fontSize: '0.95rem' }}>
-                                                                ₹{item.price}
-                                                            </span>
-                                                        </div>
-                                                        {(item.brand || item.manufacturer || item.salt || item.composition) && (
-                                                            <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '2px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                                                                {(item.brand || item.manufacturer) && <span>{tProduct('brand')}: {item.brand || item.manufacturer}</span>}
-                                                                {(item.salt || item.composition) && (
-                                                                    <span>{tProduct('salt')}: {(item.salt || item.composition).substring(0, 30)}{(item.salt || item.composition).length > 30 ? '...' : ''}</span>
-                                                                )}
-                                                            </div>
-                                                        )}
-                                                        {item.isRecommended && (
-                                                            <span style={{ display: 'inline-block', marginTop: '4px', background: '#dcfce7', color: '#166534', padding: '2px 6px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                                                                <i className="fa-solid fa-star"></i> Swastik Recommended
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </button>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    <div style={{ padding: '15px', textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>
-                                        {tHome('no_medicines_found')}
-                                    </div>
-                                )}
-                            </div>
-                        )}
+            
+            {/* ROW 2: PRIMARY SERVICES */}
+            <div className="bg-white border-b border-gray-100">
+                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px' }}>
+                    <div className="logo" style={{ fontSize: '1.4rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <i className="fa-solid fa-heart-pulse text-blue-600"></i> Swastik <strong>Medicare</strong>
                     </div>
-                    <button className="icon-btn cart-btn" onClick={openCart}>
-                        <i className="fa-solid fa-shopping-cart"></i>
-                        <span className="badge">{cartCount}</span>
-                    </button>
-                    {session ? (
-                        <div className="user-profile" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>{session.user.name}</span>
-                            <Link href="/profile" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#e0e7ff', color: '#4338ca', border: '1px solid #6366f1', textDecoration: 'none' }} title={t('profile')}>
-                                <i className="fa-solid fa-user"></i> {t('profile')}
-                            </Link>
-                            <Link href="/my-prescriptions" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#f5f3ff', color: '#7c3aed', border: '1px solid #c084fc', textDecoration: 'none' }} title={t('my_rx')}>
-                                <i className="fa-solid fa-file-prescription"></i> {t('my_rx')}
-                            </Link>
-                            <Link href="/wallet" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', textDecoration: 'none' }} title={t('wallet', { balance: "0" })}>
-                                <i className="fa-solid fa-wallet"></i> {t('wallet', { balance: "0" })}
-                            </Link>
-                            <Link href="/partner-growth" className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px', background: '#fef3c7', color: '#d97706', border: '1px solid #f59e0b', textDecoration: 'none' }} title={t('growth_partner')}>
-                                <i className="fa-solid fa-chart-line"></i> {t('growth_partner')}
-                            </Link>
-                            <button onClick={() => signOut()} className="btn-small" style={{ fontSize: '0.8rem', padding: '4px 8px' }}>{t('logout')}</button>
+                    <nav className="nav">
+                        <ul style={{ display: 'flex', gap: '20px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.85rem', fontWeight: 700 }}>
+                            <li><Link href="/" className="hover:text-blue-600 transition-colors">{t('home')}</Link></li>
+                            <li><Link href="/refer" className="hover:text-blue-600 transition-colors">{t('refer_earn')}</Link></li>
+                            <li><Link href="/doctors" className="hover:text-blue-600 transition-colors">{t('doctor_consult')}</Link></li>
+                            <li><Link href="/hospitals" className="hover:text-blue-600 transition-colors">Hospitals</Link></li>
+                            <li><Link href="/retailers" className="hover:text-blue-600 transition-colors">Chemists</Link></li>
+                            <li><Link href="/ambulance" style={{ color: '#ef4444' }}>{t('ambulance')}</Link></li>
+                            <li><Link href="/labs" className="hover:text-blue-600 transition-colors">{t('labs')}</Link></li>
+                            <li><Link href="/ai-assistant" style={{ color: '#3b82f6' }}>{t('ai_assistant')}</Link></li>
+                            {session?.user?.role === 'ADMIN' && (
+                                <>
+                                    <li><Link href="/admin/leads" style={{ color: '#4338ca' }}>Leads</Link></li>
+                                    <li><Link href="/admin" style={{ color: '#7C3AED' }}>Admin</Link></li>
+                                </>
+                            )}
+                            {(session?.user?.role === 'AGENT' || session?.user?.role === 'DELIVERY') && (
+                                <li><Link href="/agent/dashboard" style={{ color: '#f59e0b' }}>Dashboard</Link></li>
+                            )}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+
+            {/* ROW 3: AI TOOLS & SEARCH & ACTIONS */}
+            <div className="bg-slate-50/80 backdrop-blur-md">
+                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', gap: '20px' }}>
+                    <nav className="ai-tools-nav">
+                        <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                            <li><Link href="/symptom-checker" style={{ color: '#2563eb' }}><i className="fa-solid fa-stethoscope mr-1"></i> {t('symptom_checker')}</Link></li>
+                            <li><Link href="/prescription-analyzer" style={{ color: '#059669' }}><i className="fa-solid fa-file-medical mr-1"></i> {t('rx_analyzer')}</Link></li>
+                            <li><Link href="/drug-interaction-checker" style={{ color: '#d97706' }}><i className="fa-solid fa-capsules mr-1"></i> {t('interaction_checker')}</Link></li>
+                            <li><Link href="/support" style={{ color: '#6366f1' }}><i className="fa-solid fa-headset mr-1"></i> {t('support')}</Link></li>
+                        </ul>
+                    </nav>
+
+                    <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '15px', flex: 1, justifyContent: 'flex-end' }}>
+                        <div className="search-bar" style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                            <i className="fa-solid fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.9rem' }}></i>
+                            <input 
+                                type="text" 
+                                placeholder="Search Doctors, Medicines, Labs..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{ width: '100%', padding: '10px 15px 10px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.85rem', outline: 'none', transition: 'box-shadow 0.2s' }}
+                            />
+                            
+                            {/* Autocomplete Dropdown */}
+                            {searchQuery.length > 1 && (
+                                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 2000, marginTop: '10px', border: '1px solid #e2e8f0', maxHeight: '350px', overflowY: 'auto' }}>
+                                    {isSearching ? (
+                                        <div style={{ padding: '15px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+                                            <i className="fa-solid fa-circle-notch fa-spin"></i> {tHome('searching')}
+                                        </div>
+                                    ) : searchResults.length > 0 ? (
+                                        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                                            {searchResults.map((item) => (
+                                                <li key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                                    <button 
+                                                        onClick={() => { router.push(`/medicine/${item.id}`); setSearchQuery(""); }}
+                                                        style={{ width: '100%', textAlign: 'left', padding: '12px 15px', background: 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '12px' }}
+                                                    >
+                                                        <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                                                            {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className="fa-solid fa-pills text-slate-400"></i>}
+                                                        </div>
+                                                        <div style={{ flex: 1 }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>{item.name}</span>
+                                                                <span style={{ fontWeight: 800, color: '#059669', fontSize: '0.85rem' }}>₹{item.price}</span>
+                                                            </div>
+                                                            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{item.brand || item.manufacturer}</div>
+                                                        </div>
+                                                    </button>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    ) : (
+                                        <div style={{ padding: '15px', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>{tHome('no_medicines_found')}</div>
+                                    )}
+                                </div>
+                            )}
                         </div>
-                    ) : (
-                        <Link href="/login" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.9rem' }}>{t('login')}</Link>
-                    )}
 
-                    {deferredPrompt && (
-                        <button onClick={handleInstallClick} className="btn" style={{ marginLeft: '10px', padding: '8px 12px', fontSize: '0.8rem', fontWeight: 600, background: '#0D8ABC', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            <i className="fa-solid fa-download"></i> {t('install_app')}
-                        </button>
-                    )}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <button className="relative p-2 text-slate-600 hover:text-blue-600 transition-colors" onClick={openCart}>
+                                <i className="fa-solid fa-cart-shopping text-xl"></i>
+                                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm">{cartCount}</span>
+                            </button>
 
-                    <Link href="/partner" className="btn" style={{ marginLeft: '10px', padding: '8px 16px', fontSize: '0.85rem', fontWeight: 800, textDecoration: 'none', background: '#4338ca', color: 'white', borderRadius: '12px', boxShadow: '0 4px 10px rgba(67, 56, 202, 0.3)' }}>
-                        <i className="fa-solid fa-handshake-angle" style={{ marginRight: '6px' }}></i> For Providers
-                    </Link>
-
-                    {/* Next-Intl Language Translator Switch */}
-                    <LanguageSwitcher />
+                            {session ? (
+                                <div className="flex items-center gap-2">
+                                    <Link href="/profile" className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-full border border-blue-100 font-bold text-xs hover:bg-blue-600 hover:text-white transition-all">
+                                        <i className="fa-solid fa-user-circle"></i> {session.user.name.split(' ')[0]}
+                                    </Link>
+                                    <button onClick={() => signOut()} className="p-2 text-slate-400 hover:text-red-500"><i className="fa-solid fa-power-off"></i></button>
+                                </div>
+                            ) : (
+                                <Link href="/login" className="px-5 py-2 bg-emerald-500 text-white rounded-xl font-black text-xs shadow-md shadow-emerald-200 hover:bg-emerald-600 transition-all uppercase tracking-wider">
+                                    {t('login')}
+                                </Link>
+                            )}
+                            
+                            <Link href="/partner" className="px-5 py-2 bg-indigo-600 text-white rounded-xl font-black text-xs shadow-md shadow-indigo-200 hover:bg-indigo-700 transition-all uppercase tracking-wider">
+                                <i className="fa-solid fa-rocket mr-1.5"></i> For Providers
+                            </Link>
+                            
+                            <LanguageSwitcher />
+                        </div>
+                    </div>
                 </div>
             </div>
         </header >

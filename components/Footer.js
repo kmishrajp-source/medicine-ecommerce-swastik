@@ -88,6 +88,14 @@ export default function Footer() {
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Verified Pharmacy Partners</div>
                         </div>
                     </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <i className="fa-solid fa-handshake" style={{ fontSize: '1.5rem', color: '#6366f1' }}></i>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>Information Partners</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Doctor Duniya & Medindia</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ maxWidth: '800px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280', lineHeight: '1.6' }}>

@@ -4,53 +4,19 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import { sanitizeProfile } from "@/lib/security";
 
-export async function GET(req) {
+export async function GET() {
     try {
-        const session = await getServerSession(authOptions);
-        const isAuthenticated = !!session;
-
-        const { searchParams } = new URL(req.url);
-        const status = searchParams.get('status');
-        const pincode = searchParams.get('pincode');
+        const filePath = path.join(process.cwd(), 'data', 'gorakhpur-healthcare.json');
+        const fileData = fs.readFileSync(filePath, 'utf-8');
+        const data = JSON.parse(fileData);
         
-        const where = {
-            OR: [
-                { verified: true },
-                { isDirectory: true }
-            ]
-        };
+        const doctors = data.filter(item => item.type === 'doctor');
         
-        if (status) {
-            where.status = status;
-        }
-
-        if (pincode) {
-            where.OR = [
-                { location: { contains: pincode } },
-                { hospital: { contains: pincode } }
-            ];
-        }
-
-        const doctors = await prisma.doctor.findMany({
-            where: where,
-            include: { user: { select: { name: true, email: true, phone: true } } },
-            orderBy: { createdAt: 'desc' }
-        });
+        // Also include clinics as doctor-type for the main listing if they have a doctorName
+        const clinicsWithDoctors = data.filter(item => item.type === 'clinic' && item.doctorName);
         
-        const formattedDoctors = doctors.map(d => {
-            const baseData = {
-                ...d,
-                name: d.name || d.user?.name || "Doctor",
-                email: d.email || d.user?.email || null,
-                phone: d.phone || d.user?.phone || null,
-                verified: d.status === 'verified' || d.verified
-            };
-            return sanitizeProfile(baseData, isAuthenticated);
-        });
-
-        return NextResponse.json({ success: true, doctors: formattedDoctors });
+        return NextResponse.json({ success: true, doctors: [...doctors, ...clinicsWithDoctors] });
     } catch (error) {
-        console.error("Doctors API Error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Failed to fetch doctors' }, { status: 500 });
     }
 }

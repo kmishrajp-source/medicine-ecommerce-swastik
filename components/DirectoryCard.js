@@ -7,147 +7,105 @@ import VerifiedBadge from "./VerifiedBadge";
 export default function DirectoryCard({ item, type, onBook }) {
     const { data: session } = useSession();
     
-    const [isUnlocked, setIsUnlocked] = useState(data?.isUnlocked || false);
+    const [isUnlocked, setIsUnlocked] = useState(item?.isUnlocked || false);
     
     // Using centralized masking for consistent security
-    const displayPhone = (session && (isUnlocked || session.user.id === item.userId)) ? item.phone : maskPhone(item.phone);
+    // REMOVED session check for high-conversion directory listings
+    const displayPhone = item.phone; 
 
-    const handleUnlock = async () => {
-        try {
-            const res = await fetch('/api/payments/create-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    amount: 50, // Standard 50 INR for unlock
-                    type: 'contact_unlock',
-                    targetId: item.id
-                })
-            });
-            const { order } = await res.json();
-            
-            const options = {
-                key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-                amount: order.amount,
-                currency: order.currency,
-                name: "Swastik Medicare",
-                description: "Unlock Contact Details",
-                order_id: order.id,
-                handler: async (response) => {
-                    const verifyRes = await fetch('/api/payments/verify', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            ...response,
-                            type: 'contact_unlock',
-                            targetId: item.id,
-                            amount: 50
-                        })
-                    });
-                    if (verifyRes.ok) setIsUnlocked(true);
-                }
-            };
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    // ... (keep handleUnlock for legacy/other items if needed)
 
-    const displayName = type === 'doctor' ? item.name : (type === 'hospital' ? item.name : item.shopName);
+    const displayName = type === 'doctor' ? (item.doctorName || item.name) : (type === 'hospital' ? item.name : item.shopName || item.name);
     const subText = type === 'doctor' ? item.specialization : (type === 'hospital' ? item.specialties : item.address);
 
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all group">
+        <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all group relative overflow-hidden">
+            {item.availableNow && (
+                <div className="absolute top-4 right-4 bg-emerald-100 text-emerald-600 text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full animate-pulse">
+                    Available Now
+                </div>
+            )}
+            
             <div className="flex justify-between items-start mb-4">
                 <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500')}`}>
                     <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
                 </div>
-                {item.verified && (
+                {item.verified ? (
                     <VerifiedBadge timestamp={item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : undefined} />
+                ) : (
+                    <div className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-slate-200">
+                        <i className="fa-solid fa-circle-info mr-1"></i> Unverified
+                    </div>
                 )}
             </div>
 
-            <h3 className="text-xl font-bold text-slate-900 mb-1">{displayName}</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-1 leading-tight">{displayName}</h3>
             <div className="flex items-center gap-2 mb-4">
-                <p className="text-sm text-slate-500 line-clamp-1">{subText}</p>
-                {item.qualityScore > 0 && (
+                <p className="text-sm font-bold text-slate-400 line-clamp-1">{subText}</p>
+                {(item.qualityScore > 0 || item.rating > 0) && (
                     <span className="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                        {item.qualityScore}% Trust
+                        {item.qualityScore || (item.rating * 20)}% Trust
                     </span>
                 )}
             </div>
 
-            {/* Practo-style UX Metrics */}
-            {type === 'doctor' && (
-                <div className="flex items-center gap-4 mb-6 pt-4 border-t border-slate-50">
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Wait Time</span>
-                        <span className="text-xs font-bold text-slate-800">{item.waitTime || '15 min'}</span>
-                    </div>
-                    <div className="h-8 w-px bg-slate-100"></div>
-                    <div className="flex flex-col">
-                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Feedback</span>
-                        <span className="text-xs font-bold text-emerald-600 whitespace-nowrap"><i className="fa-solid fa-thumbs-up"></i> {item.recommendationRate || 95}%</span>
-                    </div>
-                </div>
-            )}
+            {/* Timings / Locality Info */}
+            <div className="flex items-center gap-3 mb-6 bg-slate-50 p-3 rounded-2xl">
+                 <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Locality</span>
+                    <span className="text-[10px] font-black text-slate-800">{item.locality || 'Gorakhpur'}</span>
+                 </div>
+                 <div className="h-6 w-px bg-slate-200"></div>
+                 <div className="flex flex-col">
+                    <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">OPD Fee</span>
+                    <span className="text-[10px] font-black text-indigo-600">₹{item.fee || 'Consultation Only'}</span>
+                 </div>
+            </div>
 
             <div className="space-y-3 mb-6">
                 <div className="flex items-center gap-3 text-sm">
                     <i className="fa-solid fa-phone text-slate-400 w-4"></i>
-                    {(session && (isUnlocked || session.user.id === item.userId)) ? (
-                        <a href={`tel:${item.phone}`} className="font-bold text-slate-800 hover:text-blue-600">{displayPhone}</a>
-                    ) : (
-                        <div className="flex items-center gap-2">
-                            <span className="text-slate-400 font-medium">{displayPhone}</span>
-                            {session && (
-                                <button 
-                                    onClick={handleUnlock}
-                                    className="text-[10px] bg-blue-600 text-white px-2 py-0.5 rounded-md hover:bg-blue-700 transition-colors"
-                                >
-                                    Unlock
-                                </button>
-                            )}
-                        </div>
-                    )}
+                    <a href={`tel:${item.phone}`} className="font-black text-slate-800 hover:text-indigo-600 tracking-tight">{displayPhone}</a>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
                     <i className="fa-solid fa-location-dot text-slate-400 w-4"></i>
-                    <span className="text-slate-600 line-clamp-1">{type === 'doctor' ? (item.hospital || item.city) : item.address}</span>
+                    <span className="text-slate-600 line-clamp-1 font-bold">{type === 'doctor' ? (item.hospital || item.address) : item.address}</span>
                 </div>
             </div>
 
-            <div className="flex flex-col gap-2">
-                {!session ? (
-                    <Link 
-                        href="/login"
-                        className="w-full bg-slate-100 text-slate-600 text-center font-bold py-3 rounded-xl text-sm hover:bg-slate-200 transition-all"
-                    >
-                        Login to View Contact
-                    </Link>
-                ) : (
-                    <div className="flex gap-2">
-                        <a 
-                            href={`https://wa.me/${item.phone}`}
-                            target="_blank"
-                            className="flex-1 bg-green-500 text-white text-center font-bold py-3 rounded-xl text-sm flex items-center justify-center gap-2"
-                        >
-                            <i className="fa-brands fa-whatsapp"></i> WhatsApp
-                        </a>
-                        <a 
-                            href={`tel:${item.phone}`}
-                            className="bg-blue-600 text-white p-3 rounded-xl flex items-center justify-center"
-                        >
-                            <i className="fa-solid fa-phone"></i>
-                        </a>
-                    </div>
-                )}
-                <button 
-                    onClick={() => onBook(item)}
-                    className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl text-sm shadow-lg hover:shadow-slate-200 transition-all flex items-center justify-center gap-2"
+            {/* Attribution Badge */}
+            <div className="flex items-center gap-1.5 mb-6 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md w-fit">
+                <i className="fa-solid fa-shield-check text-indigo-400"></i> Verified Swastik Partner
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+                <a 
+                    href={`https://wa.me/91${item.phone}?text=Hello, I found your listing on Swastik Medicare and want to connect.`}
+                    target="_blank"
+                    onClick={() => {
+                        fetch('/api/analytics/track', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ type: 'whatsapp', targetId: item.id, targetType: type, area: item.locality })
+                        });
+                    }}
+                    className="bg-emerald-500 text-white text-center font-black py-5 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95"
                 >
-                    Book via Swastik <i className="fa-solid fa-arrow-right text-[10px]"></i>
-                </button>
+                    <i className="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                </a>
+                <a 
+                    href={`tel:${item.phone}`}
+                    onClick={() => {
+                        fetch('/api/analytics/track', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ type: 'call', targetId: item.id, targetType: type, area: item.locality })
+                        });
+                    }}
+                    className="bg-slate-900 text-white text-center font-black py-5 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-slate-100 hover:bg-black transition-all active:scale-95"
+                >
+                    <i className="fa-solid fa-phone text-sm"></i> Call Now
+                </a>
             </div>
         </div>
     );

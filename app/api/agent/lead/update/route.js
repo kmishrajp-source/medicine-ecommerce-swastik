@@ -34,6 +34,14 @@ export async function POST(req) {
             }
         });
 
+        // Trigger Automation based on status
+        try {
+            const { SSMSAutomation } = await import("@/lib/ssms-automation");
+            await SSMSAutomation.onStatusChange(leadId, status);
+        } catch (autoErr) {
+            console.error("SSMS Automation Trigger Failed:", autoErr);
+        }
+
         return NextResponse.json({ success: true, lead: updatedLead });
     } catch (error) {
         console.error("Update Lead Error:", error);

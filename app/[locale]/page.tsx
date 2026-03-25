@@ -8,12 +8,19 @@ import { useCart } from "@/context/CartContext";
 import MotivationalVideo from "@/components/MotivationalVideo";
 import { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
+import StatCounter from "@/components/StatCounter";
+import BenefitsSection from "@/components/BenefitsSection";
+import PricingSection from "@/components/PricingSection";
+import FAQSection from "@/components/FAQSection";
+import StickyContact from "@/components/StickyContact";
 
 export default function Home() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  const [userPhone, setUserPhone] = useState("");
   
   const t = useTranslations('Homepage');
+  const tConv = useTranslations('Conversion');
   const tTrust = useTranslations('Trust');
   const tEmergency = useTranslations('Emergency');
   const tSub = useTranslations('Subscription');
@@ -36,162 +43,213 @@ export default function Home() {
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
       <main style={{ marginTop: '80px' }}>
 
-        {/* HERO SECTION */}
-        <div style={{ background: 'linear-gradient(135deg, #4338ca 0%, #6366f1 100%)', color: 'white', padding: '60px 20px', textAlign: 'center', marginBottom: '40px', borderRadius: '0 0 50px 50px', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.4)' }}>
-          <h1 style={{ fontSize: '3.5rem', fontWeight: 800, margin: '0 0 10px 0', textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-            💊 {t('hero_title')}
-          </h1>
-          <p style={{ fontSize: '1.5rem', opacity: 0.9 }}>{t('hero_subtitle')}</p>
-          <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
-            <i className="fa-solid fa-truck-fast"></i> {t('free_delivery')}
-          </div>
-          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
-            <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
-              Shop Now
-            </Link>
-            <Link href="/upload-prescription" className="btn" style={{ background: 'transparent', border: '2px solid white', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold' }}>
-              Upload Rx
-            </Link>
-          </div>
-          <div style={{ marginTop: '20px' }}>
-            <Link href="/doctor/register" style={{ color: 'white', textDecoration: 'underline', fontSize: '1.1rem', fontWeight: 600 }}>
-              👨‍⚕️ Join as Doctor – Start Earning Online
-            </Link>
-          </div>
+        {/* HIGH-CONVERSION HERO (SHOPIFY INSPIRED) */}
+        <div className="relative bg-[#f8fafc] py-24 pb-40 overflow-hidden">
+             {/* Background Decoration */}
+             <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/5 rounded-l-[200px] -z-10 translate-x-20"></div>
+             
+             <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center gap-12">
+                <div className="flex-1 text-center md:text-left">
+                    <span className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 inline-block">
+                        <i className="fa-solid fa-bolt mr-2"></i> Join 500+ Local Healthcare Leaders
+                    </span>
+                    <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
+                        {tConv('hero_title').split(' ').map((word, i) => (
+                            <span key={i} className={word.toLowerCase() === 'patients' || word.toLowerCase() === 'customers' ? 'text-indigo-600' : ''}>
+                                {word}{' '}
+                            </span>
+                        ))}
+                    </h1>
+                    <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
+                        {tConv('hero_subtitle')}
+                    </p>
+
+                    <div className="bg-white p-2 rounded-[40px] shadow-2xl shadow-indigo-200 border border-slate-100 flex flex-col sm:flex-row gap-2 max-w-xl mx-auto md:mx-0">
+                        <input 
+                            type="tel" 
+                            placeholder={tConv('phone_placeholder')}
+                            value={userPhone}
+                            onChange={(e) => setUserPhone(e.target.value)}
+                            className="flex-1 p-5 rounded-[30px] bg-slate-50 border-none outline-none text-slate-700 font-bold"
+                        />
+                        <button className="bg-slate-900 text-white px-8 py-5 rounded-[30px] font-black uppercase tracking-widest text-xs hover:bg-indigo-600 transition-all shadow-xl shadow-slate-900/10">
+                            {tConv('start_listing')}
+                        </button>
+                    </div>
+                    <p className="mt-6 text-[10px] font-black text-indigo-400 uppercase tracking-widest">
+                        <i className="fa-solid fa-shield-check mr-2"></i> {tConv('trust_line')}
+                    </p>
+                </div>
+
+                <div className="flex-1 relative hidden md:block">
+                     <div className="bg-white rounded-[60px] p-8 shadow-2xl border border-slate-100 rotate-3 transform-gpu relative z-10">
+                        <div className="flex items-center gap-4 mb-8">
+                             <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black">S</div>
+                             <div>
+                                <div className="text-sm font-black text-slate-900">Dr. Swastik Connect</div>
+                                <div className="text-[10px] font-bold text-slate-400">Online Specialist</div>
+                             </div>
+                        </div>
+                        <div className="space-y-4">
+                             <div className="h-4 w-3/4 bg-slate-50 rounded-full"></div>
+                             <div className="h-4 w-1/2 bg-slate-50 rounded-full"></div>
+                             <div className="grid grid-cols-2 gap-4 mt-8">
+                                <div className="h-20 bg-indigo-50 rounded-3xl border-2 border-dashed border-indigo-100 flex items-center justify-center">
+                                    <i className="fa-solid fa-phone text-indigo-300"></i>
+                                </div>
+                                <div className="h-20 bg-emerald-50 rounded-3xl border-2 border-dashed border-emerald-100 flex items-center justify-center">
+                                    <i className="fa-brands fa-whatsapp text-emerald-300"></i>
+                                </div>
+                             </div>
+                        </div>
+                     </div>
+                     <div className="absolute top-20 -left-10 w-full h-full bg-indigo-600/5 rounded-[60px] -rotate-3"></div>
+                </div>
+             </div>
         </div>
 
-        {/* TRUST SIGNALS */}
-        <div style={{ background: '#f8fafc', padding: '20px 0', borderBottom: '1px solid #e2e8f0', marginBottom: '40px' }}>
-          <div className="container" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '30px', textAlign: 'center' }}>
-            <TrustItem icon="fa-user-shield" text={tTrust('verified_pharmacy')} />
-            <TrustItem icon="fa-file-shield" text={tTrust('secure_rx')} />
-            <TrustItem icon="fa-user-doctor" text={tTrust('licensed_pharmacist')} />
-            <TrustItem icon="fa-lock" text={tTrust('data_privacy')} />
-          </div>
-        </div>
-
-        {/* EMERGENCY AMBULANCE BANNER */}
-        <div className="container" style={{ marginBottom: '60px' }}>
-          <div style={{ background: 'linear-gradient(90deg, #ef4444 0%, #b91c1c 100%)', borderRadius: '16px', padding: '30px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: 'white', flexWrap: 'wrap', gap: '20px', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)' }}>
-            <div style={{ flex: 1 }}>
-              <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '10px' }}>🚑 {tEmergency('title')}</h2>
-              <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>{tEmergency('subtitle')}</p>
+        {/* SOCIAL PROOF & STATS */}
+        <div className="-mt-20 relative z-20 container px-8 mb-20">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 <StatCounter end={200} label={tConv('doctors')} icon="fa-user-doctor" />
+                 <StatCounter end={150} label={tConv('medical_stores')} icon="fa-shop" />
+                 <StatCounter end={1000} label={tConv('patients')} icon="fa-users" />
             </div>
-            <Link href="/ambulance" className="btn" style={{ background: 'white', color: '#b91c1c', padding: '15px 30px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <i className="fa-solid fa-phone-volume"></i> {tEmergency('book_now')}
-            </Link>
+        </div>
+
+        {/* BENEFITS SECTION */}
+        <BenefitsSection />
+
+        {/* CONNECTION FLOW (VISUAL) */}
+        <div className="py-20 bg-white">
+            <div className="max-w-7xl mx-auto px-8">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">{tConv('flow_title')}</h2>
+                    <p className="text-slate-500 font-bold uppercase tracking-widest text-[10px]">How it works for your patients</p>
+                </div>
+                
+                <div className="flex flex-col md:flex-row items-center justify-between gap-12 relative">
+                    {/* Connection Line */}
+                    <div className="absolute top-1/2 left-0 w-full h-1 bg-indigo-100 -z-10 hidden md:block"></div>
+                    
+                    {[
+                        { step: '01', title: tConv('flow_step_1'), icon: 'fa-magnifying-glass' },
+                        { step: '02', title: tConv('flow_step_2'), icon: 'fa-hand-pointer' },
+                        { step: '03', title: tConv('flow_step_3'), icon: 'fa-phone-flip' }
+                    ].map((step, i) => (
+                        <div key={i} className="bg-white p-8 rounded-[40px] border-2 border-indigo-50 flex flex-col items-center text-center w-full md:w-64 relative group hover:border-indigo-500 transition-all">
+                            <div className="absolute -top-4 -right-4 w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center font-black text-xs shadow-lg">{step.step}</div>
+                            <div className="w-16 h-16 bg-slate-900 text-white rounded-3xl flex items-center justify-center text-2xl mb-6 shadow-xl shadow-slate-900/20 group-hover:bg-indigo-600 transition-colors">
+                                <i className={`fa-solid ${step.icon}`}></i>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-900">{step.title}</h3>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        {/* SMART TOOLS (INTEGRATED) */}
+        <div className="container px-8">
+          <SectionTitle title="⚡ Smart Healthcare Tools" />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', margin: '40px 0' }}>
+            <FeatureCard 
+              href="/symptom-helper" 
+              icon="fa-wand-sparkles" 
+              title="Symptom Helper"
+              desc="AI specialist matching tool."
+              color="#4F46E5"
+            />
+            <FeatureCard 
+              href="/blog" 
+              icon="fa-newspaper" 
+              title="Health Blog"
+              desc="Disease guides & local tips."
+              color="#F59E0B"
+            />
+            <FeatureCard 
+              href="/doctors" 
+              icon="fa-user-doctor" 
+              title="Find Doctors"
+              desc="Verified local specialists."
+              color="#3B82F6"
+            />
+            <FeatureCard 
+              href="/pharmacy" 
+              icon="fa-shop" 
+              title="Medical Stores"
+              desc="Find medicines near you."
+              color="#10B981"
+            />
           </div>
         </div>
+
+        {/* SPEED & TRUST MODULE */}
+        <div className="py-20 bg-slate-900 text-white overflow-hidden relative">
+            <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center gap-16">
+                 <div className="flex-1">
+                    <h2 className="text-5xl font-black uppercase tracking-tighter mb-8 leading-none">Built for <span className="text-indigo-400">Speed & Trust</span></h2>
+                    <div className="space-y-8">
+                         <div className="flex gap-6">
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0"><i className="fa-solid fa-bolt text-indigo-400"></i></div>
+                            <div>
+                                <h4 className="text-lg font-black mb-1">Fast Loading</h4>
+                                <p className="text-slate-400 font-bold text-sm">Optimized for 2G/3G speeds in rural areas.</p>
+                            </div>
+                         </div>
+                         <div className="flex gap-6">
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0"><i className="fa-solid fa-circle-check text-emerald-400"></i></div>
+                            <div>
+                                <h4 className="text-lg font-black mb-1">99% Uptime Guarantee</h4>
+                                <p className="text-slate-400 font-bold text-sm">Always available for your patients and customers.</p>
+                            </div>
+                         </div>
+                         <div className="flex gap-6">
+                            <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center shrink-0"><i className="fa-solid fa-user-lock text-amber-400"></i></div>
+                            <div>
+                                <h4 className="text-lg font-black mb-1">No Login Required</h4>
+                                <p className="text-slate-400 font-bold text-sm">Patients can search and connect without registration friction.</p>
+                            </div>
+                         </div>
+                    </div>
+                 </div>
+                 <div className="flex-1 relative">
+                    <div className="bg-gradient-to-tr from-indigo-600 to-indigo-400 p-12 rounded-[60px] shadow-2xl relative z-10">
+                         <div className="text-6xl font-black mb-4">A+</div>
+                         <div className="text-[10px] font-black uppercase tracking-[10px] opacity-60">Performance Rating</div>
+                    </div>
+                    <div className="absolute -bottom-10 -right-10 w-full h-full bg-white/5 rounded-[60px] rotate-6 border border-white/10"></div>
+                 </div>
+            </div>
+        </div>
+
+        {/* PRICING PLANS */}
+        <PricingSection />
+
+        {/* FAQ SECTION */}
+        <FAQSection />
+
+        {/* FINAL CTA REPEAT */}
+        <div className="py-32 bg-indigo-600 text-center relative overflow-hidden">
+             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
+             <div className="relative z-10 max-w-4xl mx-auto px-8">
+                <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter mb-8 leading-none">{tConv('join_today')}</h2>
+                <button className="bg-white text-indigo-600 px-12 py-6 rounded-[40px] font-black uppercase tracking-widest text-sm hover:bg-slate-100 transition-all shadow-2xl">
+                    Get Started Now
+                </button>
+                <div className="mt-8 text-white/60 font-black uppercase tracking-widest text-[10px]">Trusted by thousands in Uttar Pradesh</div>
+             </div>
+        </div>
+
+        {/* STICKY CONTACT (MOBILE) */}
+        <StickyContact />
 
         <div className="container">
           <AdBanner position="Home-Banner" />
           
-          {/* SMART AI TOOLS */}
-          <SectionTitle title="🧠 Smart Healthcare AI" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', margin: '40px 0' }}>
-            <FeatureCard 
-              href="/ai-assistant" 
-              icon="fa-robot" 
-              title="AI Medicine Assistant" 
-              desc="Ask about dosages, side effects & drug info."
-              color="#3B82F6"
-            />
-            <FeatureCard 
-              href="/symptom-checker" 
-              icon="fa-stethoscope" 
-              title="Symptom Checker" 
-              desc="Get instant guidance based on your symptoms."
-              color="#2563EB"
-            />
-            <FeatureCard 
-              href="/prescription-analyzer" 
-              icon="fa-file-medical" 
-              title="Rx Analyzer" 
-              desc="Understand your prescription details better."
-              color="#059669"
-            />
-            <FeatureCard 
-              href="/drug-interaction-checker" 
-              icon="fa-pills" 
-              title="Interaction Checker" 
-              desc="Check if your medicines are safe together."
-              color="#D97706"
-            />
-          </div>
-
-          {/* PARTNER MOTIVATION VIDEOS */}
-          <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))', gap: '20px', margin: '40px 0' }}>
-            <MotivationalVideo 
-              title="For Hospitals" 
-              description="Digitize your patient intake and fulfillment."
-              videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
-              ctaText="Register Hospital"
-              ctaLink="/hospital/register"
-            />
-            <MotivationalVideo 
-              title="For Insurance Providers" 
-              description="Verify claims and manage benefits in real-time."
-              videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
-              ctaText="Become a Provider"
-              ctaLink="/insurance/register"
-            />
-            <MotivationalVideo 
-              title="For Manufacturers" 
-              description="Supply medicines and manage your global catalog."
-              videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
-              ctaText="Join Supply Chain"
-              ctaLink="/manufacturer/register"
-            />
-          </div>
-
           {/* BEST SELLING */}
           <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
           <ProductGrid products={bestSelling} addToCart={addToCart} />
-
-          {/* SUBSCRIPTION MODEL BANNER */}
-          <div style={{ background: '#ecfdf5', borderRadius: '24px', padding: '40px', margin: '60px 0', border: '1px solid #a7f3d0', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '20px' }}>
-            <div style={{ flex: 1, minWidth: '300px' }}>
-              <h2 style={{ color: '#064e3b', fontSize: '2rem', marginBottom: '10px' }}>{tSub('title')}</h2>
-              <p style={{ fontSize: '1.1rem', color: '#047857', marginBottom: '20px' }}>
-                {tSub('subtitle')}
-              </p>
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 20px 0', color: '#065f46' }}>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_1')}</li>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_2')}</li>
-                <li style={{ marginBottom: '8px' }}><i className="fa-solid fa-check-circle"></i> {tSub('feature_3')}</li>
-              </ul>
-              <Link href="/subscription" className="btn btn-primary" style={{ background: '#059669' }}>{tSub('subscribe_now')}</Link>
-            </div>
-            <div style={{ fontSize: '10rem', color: '#10b981', opacity: 0.2 }}>
-              <i className="fa-solid fa-calendar-check"></i>
-            </div>
-          </div>
-
-          {/* TOP BRANDS */}
-          <SectionTitle title={`✨ ${t('top_brands')}`} />
-          <div style={{ display: 'flex', gap: '30px', overflowX: 'auto', padding: '10px 0', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-            {['Himalaya', 'Dabur', 'Patanjali', 'Baidyanath', 'Organic India', 'Dr. Morepen'].map((brand, i) => (
-              <div key={i} style={{ minWidth: '120px', height: '80px', background: 'white', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #eee', fontWeight: 'bold', color: '#555', boxShadow: '0 2px 5px rgba(0,0,0,0.05)' }}>
-                {brand}
-              </div>
-            ))}
-          </div>
-
-          {/* TRENDING PRODUCTS */}
-          <SectionTitle title={`📈 ${tSections('trending')}`} />
-          <ProductGrid products={trending} addToCart={addToCart} />
-
-          {/* AYURVEDIC CORNER */}
-          <SectionTitle title={`🌿 ${tSections('ayurvedic')}`} />
-          <ProductGrid products={products.filter(p => p.category === 'Ayurvedic').slice(0, 4)} addToCart={addToCart} />
-          <div style={{ textAlign: 'center', marginTop: '20px' }}>
-            <Link href="/shop" className="btn" style={{ border: '1px solid #059669', color: '#059669', padding: '10px 30px', borderRadius: '50px' }}>{tSections('view_all')} Ayurveda</Link>
-          </div>
-
-          {/* DAILY ESSENTIALS */}
-          <SectionTitle title={`☀️ ${tSections('essentials')}`} />
-          <ProductGrid products={essentials} addToCart={addToCart} />
 
           {/* REVIEWS */}
           <SectionTitle title={`💬 ${t('customer_reviews')}`} />
@@ -214,78 +272,6 @@ export default function Home() {
               </div>
             ))}
           </div>
-
-          {/* PROVIDER CALL TO ACTION */}
-          <div style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 100%)', borderRadius: '3rem', padding: '60px', color: 'white', marginBottom: '60px', position: 'relative', overflow: 'hidden' }}>
-            <div style={{ position: 'relative', zIndex: 10 }}>
-              <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '40px' }}>
-                <div style={{ flex: 1, minWidth: '300px' }}>
-                  <span style={{ background: 'rgba(99, 102, 241, 0.2)', color: '#a5b4fc', px: '15px', py: '5px', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', marginBottom: '20px', display: 'inline-block', border: '1px solid rgba(99, 102, 241, 0.3)' }}>
-                    🚀 Grow Your Practice / Business
-                  </span>
-                  <h2 style={{ fontSize: '3rem', fontWeight: 900, marginBottom: '20px', lineHeight: 1.1 }}>Join the Swastik Healthcare Network</h2>
-                  <p style={{ fontSize: '1.1rem', opacity: 0.8, marginBottom: '30px', maxWidth: '500px' }}>
-                    Are you a Doctor, Retailer, or Insurance Provider? Digitally transform your services and reach thousands of customers in Gorakhpur and beyond.
-                  </p>
-                  <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                    <Link href="/partner" className="btn" style={{ background: 'white', color: '#1e1b4b', padding: '15px 40px', borderRadius: '20px', fontWeight: 'bold', fontSize: '1.1rem' }}>
-                      Become a Partner
-                    </Link>
-                    <Link href="/about" className="btn" style={{ background: 'transparent', border: '2px solid rgba(255,255,255,0.2)', color: 'white', padding: '15px 40px', borderRadius: '20px', fontWeight: 'bold' }}>
-                      Learn More
-                    </Link>
-                  </div>
-                </div>
-                <div style={{ flex: 1, minWidth: '300px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <PartnerFeature icon="fa-user-doctor" title="Doctors" desc="Manage appointments online." />
-                  <PartnerFeature icon="fa-shop" title="Retailers" desc="Supply medicines locally." />
-                  <PartnerFeature icon="fa-shield-halved" title="Insurers" desc="List plans & get leads." />
-                  <PartnerFeature icon="fa-flask" title="Labs" desc="Publish test menus." />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* DELIVERY AREAS */}
-          <div style={{ background: '#eff6ff', borderRadius: '24px', padding: '40px', textAlign: 'center', border: '1px solid #dbeafe', marginBottom: '60px' }}>
-            <h2 style={{ color: '#1e40af', marginBottom: '20px' }}>📍 {tSections('delivery_areas')}</h2>
-            <p style={{ maxWidth: '600px', margin: '0 auto 30px auto', color: '#475569' }}>{tSections('delivery_areas_desc')}</p>
-
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
-              {[
-                { key: 'gorakhpur', label: tSections('gorakhpur') },
-                { key: 'delhi', label: tSections('delhi') },
-                { key: 'noida', label: tSections('noida') },
-                { key: 'indirapuram', label: tSections('indirapuram') },
-                { key: 'vaishali', label: tSections('vaishali') },
-                { key: 'greaternoida', label: tSections('greaternoida') }
-              ].map((area, i) => (
-                <div key={i} style={{ 
-                  background: area.key === 'gorakhpur' ? '#2563eb' : 'white', 
-                  padding: '10px 20px', 
-                  borderRadius: '50px', 
-                  color: area.key === 'gorakhpur' ? 'white' : '#1e40af', 
-                  fontWeight: 600, 
-                  boxShadow: '0 4px 10px rgba(30, 64, 175, 0.2)',
-                  border: area.key === 'gorakhpur' ? 'none' : '1px solid #dbeafe',
-                  transform: area.key === 'gorakhpur' ? 'scale(1.05)' : 'none'
-                }}>
-                  <i className="fa-solid fa-location-dot" style={{ marginRight: '8px' }}></i> {area.label}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CONTACT */}
-          <div style={{ marginTop: '80px', textAlign: 'center', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
-            <h2 style={{ marginBottom: '30px' }}>{tContact('title')}</h2>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
-              <ContactItem icon="phone" title={tContact('call_us')} value="+91 79921 22974" color="#3b82f6" href="tel:+917992122974" />
-              <ContactItem icon="whatsapp" title={tContact('whatsapp')} value={tContact('chat_now')} color="#22c55e" href="https://wa.me/917992122974" />
-              <ContactItem icon="envelope" title={tContact('email')} value={tContact('support_email')} color="#ef4444" href={`mailto:${tContact('support_email')}`} />
-            </div>
-          </div>
-
         </div>
       </main>
       <Footer />
@@ -295,10 +281,10 @@ export default function Home() {
 
 function SectionTitle({ title }) {
   return (
-    <h2 style={{ fontSize: '1.8rem', fontWeight: 700, margin: '60px 0 20px 0', display: 'flex', alignItems: 'center', gap: '10px' }}>
-      {title}
-      <div style={{ flex: 1, height: '2px', background: '#f3f4f6' }}></div>
-    </h2>
+    <div className="flex items-center gap-6 my-16 px-8">
+        <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter whitespace-nowrap">{title}</h2>
+        <div className="h-0.5 bg-slate-100 flex-1"></div>
+    </div>
   );
 }
 
@@ -306,7 +292,7 @@ function ProductGrid({ products, addToCart }) {
   const t = useTranslations('Homepage');
   if (products.length === 0) return <div style={{ padding: '20px', textAlign: 'center', color: '#999' }}>{t('searching')}</div>;
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-8 mb-20">
       {products.map(p => (
         <ProductCard key={p.id} product={p} onAdd={addToCart} />
       ))}
@@ -314,60 +300,14 @@ function ProductGrid({ products, addToCart }) {
   );
 }
 
-function TrustItem({ icon, text }) {
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#334155', fontWeight: 600 }}>
-      <i className={`fa-solid ${icon}`} style={{ color: '#059669', fontSize: '1.2rem' }}></i>
-      <span>{text}</span>
-    </div>
-  );
-}
-
 function FeatureCard({ href, icon, title, desc, color }) {
   return (
-    <Link href={href} style={{ 
-      textDecoration: 'none', 
-      color: 'inherit',
-      background: 'white',
-      padding: '25px',
-      borderRadius: '20px',
-      boxShadow: '0 4px 15px rgba(0,0,0,0.05)',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      border: '1px solid #f0f0f0',
-      transition: 'transform 0.2s',
-    }}
-    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
-      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}15`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '15px' }}>
+    <Link href={href} className="group bg-white p-10 rounded-[40px] border border-slate-50 shadow-sm hover:shadow-2xl transition-all hover:-translate-y-2 flex flex-col items-center text-center">
+      <div className="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center text-3xl mb-8 group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner">
         <i className={`fa-solid ${icon}`}></i>
       </div>
-      <h3 style={{ fontSize: '1.1rem', marginBottom: '8px', color: '#1e293b' }}>{title}</h3>
-      <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>{desc}</p>
+      <h3 className="text-xl font-black text-slate-900 mb-2">{title}</h3>
+      <p className="text-slate-500 font-bold text-sm tracking-tight">{desc}</p>
     </Link>
-  );
-}
-
-function PartnerFeature({ icon, title, desc }) {
-  return (
-    <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.1)' }}>
-      <i className={`fa-solid ${icon}`} style={{ fontSize: '1.5rem', color: '#818cf8', marginBottom: '10px', display: 'block' }}></i>
-      <div style={{ fontWeight: 'bold', fontSize: '1rem', marginBottom: '5px' }}>{title}</div>
-      <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{desc}</div>
-    </div>
-  );
-}
-
-function ContactItem({ icon, title, value, color, href }) {
-  return (
-    <a href={href} target="_blank" style={{ textDecoration: 'none', color: 'inherit', textAlign: 'center', minWidth: '150px' }}>
-      <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: `${color}20`, color: color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', margin: '0 auto 10px auto' }}>
-        <i className={`fa-brands fa-${icon === 'whatsapp' ? 'whatsapp' : ''} fa-${icon !== 'whatsapp' ? icon : ''} ${icon === 'phone' ? 'fa-solid' : ''} ${icon === 'envelope' ? 'fa-solid' : ''}`}></i>
-      </div>
-      <div style={{ fontWeight: 'bold' }}>{title}</div>
-      <div style={{ color: '#666' }}>{value}</div>
-    </a>
   );
 }

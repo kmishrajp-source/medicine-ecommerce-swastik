@@ -1,23 +1,16 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET(req) {
+export async function GET() {
     try {
-        const { searchParams } = new URL(req.url);
-        const city = searchParams.get('city') || 'Gorakhpur';
-
-        const retailers = await prisma.retailer.findMany({
-            where: { city },
-            orderBy: { shopName: 'asc' }
-        });
-
-        const formattedRetailers = retailers.map(r => ({
-            ...r,
-            verified: r.status === 'verified' || r.verified
-        }));
-
-        return NextResponse.json({ success: true, retailers: formattedRetailers });
+        const filePath = path.join(process.cwd(), 'data', 'gorakhpur-healthcare.json');
+        const fileData = fs.readFileSync(filePath, 'utf-8');
+        const data = JSON.parse(fileData);
+        
+        const retailers = data.filter(item => item.type === 'retailer');
+        
+        return NextResponse.json({ success: true, retailers });
     } catch (error) {
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json({ success: false, error: 'Failed to fetch retailers' }, { status: 500 });
     }
 }

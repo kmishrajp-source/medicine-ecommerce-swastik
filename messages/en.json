@@ -141,13 +141,13 @@
     "review_3_loc": "Delhi"
   },
   "AIAssistant": {
-    "title": "Swastik AI Medicine Assistant",
-    "placeholder": "Ask about Paracetamol dosage, fever advice...",
-    "initial_greeting": "Hello! I'm your Swastik AI Assistant. You can ask me about medicines, dosages, or general health concerns. How can I help you today?",
-    "thinking": "AI is thinking...",
+    "title": "Sofiya - Your Swastik AI Assistant",
+    "placeholder": "Ask Sofiya about Paracetamol, fever advice...",
+    "initial_greeting": "Hello! I'm Sofiya, your Swastik AI Assistant. You can ask me about medicines, dosages, or general health concerns. How can I help you today?",
+    "thinking": "Sofiya is thinking...",
     "error_processing": "I'm sorry, I'm having trouble processing that right now. Please try again or consult a doctor.",
     "error_connection": "An error occurred. Please check your connection.",
-    "powered_by": "Powered by Swastik Health Engine & OpenFDA API"
+    "powered_by": "Powered by Swastik Health Engine, Doctor Duniya, Medindia & OpenFDA API"
   },
   "SymptomChecker": {
     "title": "AI Health Guidance",
@@ -159,5 +159,35 @@
     "results_title": "Analysis Results",
     "advice_title": "Advice:",
     "wellness_info": "General Wellness Information regarding \"{symptom}\":"
+  },
+  "Admin": {
+    "import_leads": "Import Leads",
+    "crm_dashboard": "CRM Dashboard",
+    "bulk_upload": "Bulk Upload",
+    "agent_management": "Agent Management"
+  },
+  "Conversion": {
+    "hero_title": "Get More Patients & Customers in Gorakhpur",
+    "hero_subtitle": "Join Swastik Medicare – Connect instantly via Call & WhatsApp",
+    "phone_placeholder": "Enter your phone number",
+    "start_listing": "Start Free Listing",
+    "trust_line": "No setup cost | Activate in 2 minutes",
+    "social_proof_title": "Powering Healthcare in Gorakhpur",
+    "doctors": "Doctors",
+    "medical_stores": "Medical Stores",
+    "patients": "Patients Connected",
+    "benefits_title": "Grow Your Practice Locally",
+    "more_calls": "More Calls",
+    "whatsapp_leads": "WhatsApp Leads",
+    "local_visibility": "Local Visibility",
+    "flow_title": "Simple Connection Flow",
+    "flow_step_1": "Search",
+    "flow_step_2": "Click",
+    "flow_step_3": "Call/WhatsApp",
+    "pricing_title": "Clear & Transparent Pricing",
+    "basic_plan": "Basic Plan",
+    "featured_plan": "Featured Plan",
+    "join_today": "Join Swastik Medicare Today",
+    "faq_title": "Frequently Asked Questions"
   }
 }

@@ -61,6 +61,7 @@ model User {
   publisher      Publisher?
   publisherLeadsTable PublisherLead[] @relation("UserPublisherLeads")
   assignedLeads  Lead[] @relation("AgentLeads")
+  blogs          BlogPost[]
 }
 
 model SystemSettings {
@@ -222,6 +223,7 @@ model Doctor {
   prescriptions  Prescription[]
   appointments   Appointment[]
   visits         Visit[]
+  reports        Report[]
 }
 
 model Prescription {
@@ -337,6 +339,7 @@ model Retailer {
   assignedOrders Order[]  @relation("AssignedOrders")
   subOrders      SubOrder[]
   prescriptionQuotes PrescriptionQuote[]
+  reports            Report[]
 }
 
 model Stockist {
@@ -635,7 +638,11 @@ model Lead {
   lastContactDate DateTime?
   notes         String?  // Replaces details if needed or used alongside
   details       String?  // Special requirements
-  status        String   @default("new") // new, contacted, interested, converted, rejected
+  status        String   @default("new") // new, contacted, interested, follow_up, converted, rejected
+  planType      String?  // basic, featured
+  amount        Float?
+  paymentStatus String?  @default("pending") // pending, paid, failed, refunded
+  renewalDate   DateTime?
   qualityScore  Int      @default(0) // 0-100 score based on activity
   isVerified    Boolean  @default(false)
   lastAction    String?  // Description of the most recent lead event
@@ -969,3 +976,37 @@ model PublisherWithdrawal {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
+
+model BlogPost {
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  title           String
+  content         String   @db.Text
+  metaTitle       String?
+  metaDescription String?
+  featuredImage   String?
+  category        String?
+  authorId        String?
+  author          User?    @relation(fields: [authorId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Report {
+  id          String   @id @default(cuid())
+  doctorId    String?
+  doctor      Doctor?  @relation(fields: [doctorId], references: [id])
+  retailerId  String?
+  retailer    Retailer? @relation(fields: [retailerId], references: [id])
+  reason      String
+  details     String?  @db.Text
+  status      String   @default("OPEN") // OPEN, REVIEWED, RESOLVED
+  createdAt   DateTime @default(now())
+}
+
+model SymptomMap {
+  id                      String   @id @default(cuid())
+  symptom                 String   @unique
+  suggestedSpecialization String
+}
+

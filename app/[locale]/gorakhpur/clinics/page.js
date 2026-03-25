@@ -7,40 +7,35 @@ import DirectoryCard from '@/components/DirectoryCard';
 export default function ClinicDirectory() {
     const { cartCount, toggleCart } = useCart();
     const [clinics, setClinics] = useState([]);
-    const [stats, setStats] = useState({ min: 200, avg: 450, max: 1200 });
-
-    const mockClinics = [
-        {
-            id: '1',
-            name: 'Dr Tariq Khan Clinic',
-            specialization: 'Sexology & Men\'s Health',
-            location: 'B.R.D Medical College, Gorakhpur',
-            phone: '9161364908',
-            fee: 500,
-            verified: true,
-            qualityScore: 92,
-            recommendationRate: 88,
-            waitTime: '10 min',
-            type: 'doctor'
-        },
-        {
-            id: '2',
-            name: 'Life Ayurveda Clinic',
-            specialization: 'Ayurvedic Wellness',
-            location: 'Civil Lines, Gorakhpur',
-            phone: '9876543210',
-            fee: 300,
-            verified: true,
-            qualityScore: 98,
-            recommendationRate: 96,
-            waitTime: '5 min',
-            type: 'doctor'
-        }
-    ];
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({ min: 200, avg: 550, max: 1500 });
 
     useEffect(() => {
-        setClinics(mockClinics);
+        fetchClinics();
     }, []);
+
+    const fetchClinics = async () => {
+        try {
+            const res = await fetch('/api/clinics');
+            const data = await res.json();
+            if (data.success) {
+                setClinics(data.clinics);
+                // Update stats based on real data
+                const fees = data.clinics.map(c => c.fee).filter(f => f > 0);
+                if (fees.length > 0) {
+                    setStats({
+                        min: Math.min(...fees),
+                        avg: Math.round(fees.reduce((a, b) => a + b, 0) / fees.length),
+                        max: Math.max(...fees)
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch clinics", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     return (
         <div className="min-h-screen bg-[#f0f0f5] font-sans text-[#414146]">
@@ -96,15 +91,28 @@ export default function ClinicDirectory() {
             <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
                 
                 {/* Main Results Container */}
-                <div className="lg:col-span-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                    {clinics.map((clinic) => (
-                        <DirectoryCard 
-                            key={clinic.id} 
-                            item={clinic} 
-                            type={clinic.type} 
-                            onBook={(c) => console.log("Booking:", c)} 
-                        />
-                    ))}
+                <div className="lg:col-span-8">
+                    {loading ? (
+                        <div className="py-20 text-center">
+                            <i className="fa-solid fa-spinner fa-spin text-3xl text-slate-300"></i>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                            {clinics.map((clinic) => (
+                                <DirectoryCard 
+                                    key={clinic.id} 
+                                    item={clinic} 
+                                    type="clinic" 
+                                    onBook={(c) => console.log("Booking:", c)} 
+                                />
+                            ))}
+                            {clinics.length === 0 && (
+                                <div className="col-span-full py-20 text-center font-bold text-slate-400">
+                                    No clinics found in Gorakhpur.
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {/* Sidebar Stats & Filters */}
