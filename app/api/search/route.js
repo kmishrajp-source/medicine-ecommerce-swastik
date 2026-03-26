@@ -10,6 +10,44 @@ export async function GET(req) {
             return NextResponse.json({ success: true, results: [] });
         }
 
+        // AI Symptom Mapping
+        const symptomMap = {
+            "fever": ["paracetamol", "doloplus", "calpol", "antipyretic"],
+            "pain": ["analgesic", "ibuprofen", "combiflam", "painkiller"],
+            "cough": ["syrup", "antitussive", "expectorant", "benadryl", "alex"],
+            "cold": ["antihistamine", "decongestant", "cetirizine", "wikoryl"],
+            "headache": ["aspirin", "saridon", "disprin"],
+            "acidity": ["pantoprazole", "digene", "eno", "antacid"],
+            "diabetes": ["metformin", "insulin", "glimepiride"],
+            "thyroid": ["levothyroxine", "thyronorm"],
+            "heart": ["aspirin", "statin", "atorvastatin", "amlodipine"]
+        };
+
+        const symptomQuery = query.toLowerCase().trim();
+        let aiResults = [];
+        let aiReason = "";
+
+        if (symptomMap[symptomQuery]) {
+            aiReason = `Recommended for ${symptomQuery}`;
+            // Find medicines that match the symptom-mapped keywords
+            aiResults = await prisma.product.findMany({
+                where: {
+                    OR: symptomMap[symptomQuery].map(term => ({
+                        OR: [
+                            { name: { contains: term, mode: "insensitive" } },
+                            { salt: { contains: term, mode: "insensitive" } },
+                            { uses: { contains: term, mode: "insensitive" } }
+                        ]
+                    }))
+                },
+                take: 5,
+                select: {
+                    id: true, name: true, price: true, mrp: true, discount: true,
+                    brand: true, salt: true, image: true, requiresPrescription: true
+                }
+            });
+        }
+
         // Search for medicines that match the name OR salt composition
         // This makes it easy to find cheaper generic substitutes
         const searchResults = await prisma.product.findMany({
@@ -46,11 +84,27 @@ export async function GET(req) {
         });
 
         // Map Prisma fields to the format expected by the frontend
-        const formattedResults = searchResults.map(item => ({
+        let formattedResults = searchResults.map(item => ({
             ...item,
             imageUrl: item.image,
             isPrescriptionRequired: item.requiresPrescription
         }));
+
+        // Merge AI results if any
+        if (aiResults.length > 0) {
+            const aiFormatted = aiResults.map(item => ({
+                ...item,
+                imageUrl: item.image,
+                isPrescriptionRequired: item.requiresPrescription,
+                isAiSuggested: true,
+                aiReason: aiReason
+            }));
+            
+            // Add AI results at the top, avoiding duplicates
+            const existingIds = new Set(formattedResults.map(r => r.id));
+            const uniqueAiResults = aiFormatted.filter(r => !existingIds.has(r.id));
+            formattedResults = [...uniqueAiResults, ...formattedResults];
+        }
 
         return NextResponse.json({ success: true, results: formattedResults });
 

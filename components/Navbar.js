@@ -114,11 +114,18 @@ export default function Navbar({ cartCount, openCart }) {
                             <i className="fa-solid fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.9rem' }}></i>
                             <input 
                                 type="text" 
-                                placeholder="Search Doctors, Medicines, Labs..." 
+                                placeholder="Try 'fever', 'heart', or 'medicine name'..." 
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                style={{ width: '100%', padding: '10px 15px 10px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.85rem', outline: 'none', transition: 'box-shadow 0.2s' }}
+                                style={{ width: '100%', padding: '10px 40px 10px 40px', borderRadius: '12px', border: '1px solid #e2e8f0', background: 'white', fontSize: '0.85rem', outline: 'none', transition: 'box-shadow 0.2s' }}
                             />
+                            <button 
+                                onClick={() => { /* Voice Search Sim */ alert("AI Voice Search Listening..."); }}
+                                style={{ position: 'absolute', right: '15px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: '#6366f1' }}
+                                title="AI Voice Search"
+                            >
+                                <i className="fa-solid fa-microphone"></i>
+                            </button>
                             
                             {/* Autocomplete Dropdown */}
                             {searchQuery.length > 1 && (
@@ -139,11 +146,21 @@ export default function Navbar({ cartCount, openCart }) {
                                                             {item.imageUrl ? <img src={item.imageUrl} alt={item.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <i className="fa-solid fa-pills text-slate-400"></i>}
                                                         </div>
                                                         <div style={{ flex: 1 }}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>{item.name}</span>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '0.85rem' }}>
+                                                                    {item.name}
+                                                                    {item.isAiSuggested && (
+                                                                        <span style={{ marginLeft: '8px', background: '#eef2ff', color: '#4f46e5', padding: '2px 6px', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 800 }}>
+                                                                            <i className="fa-solid fa-sparkles mr-1"></i> AI SUGGESTED
+                                                                        </span>
+                                                                    )}
+                                                                </span>
                                                                 <span style={{ fontWeight: 800, color: '#059669', fontSize: '0.85rem' }}>₹{item.price}</span>
                                                             </div>
-                                                            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{item.brand || item.manufacturer}</div>
+                                                            <div style={{ fontSize: '0.7rem', color: '#64748b', display: 'flex', justifyContent: 'space-between' }}>
+                                                                <span>{item.brand || item.manufacturer}</span>
+                                                                {item.aiReason && <span style={{ color: '#6366f1', fontWeight: 700 }}>{item.aiReason}</span>}
+                                                            </div>
                                                         </div>
                                                     </button>
                                                 </li>
