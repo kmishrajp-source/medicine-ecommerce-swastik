@@ -60,10 +60,10 @@ export default function Home() {
   return (
     <>
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
-      <main style={{ marginTop: '135px' }}>
+      <main style={{ marginTop: '160px' }}>
 
         {/* HIGH-CONVERSION HERO (SWASTIK BRANDING) */}
-        <div className="relative bg-[#f8fafc] py-24 pb-40 overflow-hidden">
+        <div className="relative bg-[#f8fafc] py-32 pb-48 overflow-hidden">
              {/* Background Decoration */}
              <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/5 rounded-l-[200px] -z-10 translate-x-20"></div>
              
@@ -79,14 +79,14 @@ export default function Home() {
                         Top-rated doctors and 6000+ medicines at your doorstep. Connect via Call or WhatsApp. No login required.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto md:mx-0">
-                        <Link href="/doctors" className="flex-1 bg-slate-900 text-white px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center">
+                    <div className="flex flex-col sm:flex-row gap-6 mt-12 justify-center md:justify-start">
+                        <Link href="/doctors" className="bg-slate-900 text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center min-w-[180px]">
                             Find Doctor Now
                         </Link>
-                        <Link href="/shop" className="flex-1 bg-indigo-600 text-white px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center">
+                        <Link href="/shop" className="bg-indigo-600 text-white px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center min-w-[180px]">
                             Shop Medicines
                         </Link>
-                        <Link href="/upload-prescription" className="flex-1 bg-white text-slate-900 border-2 border-slate-100 px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:border-indigo-600 transition-all text-center">
+                        <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:border-indigo-600 transition-all text-center min-w-[180px]">
                             Upload Rx
                         </Link>
                     </div>
