@@ -69,8 +69,8 @@ export default function Navbar({ cartCount, openCart }) {
             <div className="bg-white border-b border-gray-50 w-full">
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', gap: '20px', width: '100%' }}>
                     {/* Brand Logo */}
-                    <Link href="/" className="logo" style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
-                        <i className="fa-solid fa-heart-pulse text-blue-600"></i> Swastik<span className="hidden sm:inline">Medicare</span>
+                    <Link href="/" className="logo" style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '6px', minWidth: 'fit-content' }}>
+                        <i className="fa-solid fa-heart-pulse text-blue-600"></i> Swastik Medicare
                     </Link>
 
                     {/* Compact Search Bar */}
@@ -116,20 +116,20 @@ export default function Navbar({ cartCount, openCart }) {
                     </div>
 
                     {/* Account & Cart Actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                        <Link href="/support" className="hidden lg:block text-[10px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">Support & Complaints</Link>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
+                        <Link href="/support" className="hidden xl:block text-[9px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">Support</Link>
                         <button onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative flex items-center gap-1">
                             <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
                         </button>
                         {session ? (
-                             <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[11px]">
+                             <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px]">
                                 <i className="fa-solid fa-user-circle"></i> {session.user.name.split(' ')[0]}
                              </Link>
                         ) : (
-                             <Link href="/login" className="hidden md:block text-xs font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">Login</Link>
+                             <Link href="/login" className="hidden md:block text-[10px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">Login</Link>
                         )}
-                        <Link href="/partner" className="px-4 py-2 bg-indigo-600 text-white rounded-full font-bold text-[10px] uppercase tracking-wider whitespace-nowrap hidden lg:block">Join as Partner</Link>
+                        <Link href="/partner" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">Join Partner</Link>
                         <LanguageSwitcher />
                     </div>
                 </div>
@@ -137,12 +137,12 @@ export default function Navbar({ cartCount, openCart }) {
 
             {/* SECONDARY ROW: Services & Utilities (Desktop Only) */}
             <nav className="hidden md:block bg-indigo-900 text-white/90 w-full">
-                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul style={{ display: 'flex', gap: '20px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center' }}>
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
+                    <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
                         <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
                         <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">Shop</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">Upload Rx</Link></li>
-                        <li><Link href="/refer" className="hover:text-white transition-colors">Refer & Earn</Link></li>
+                        <li><Link href="/refer" className="hover:text-white transition-colors">Refer</Link></li>
                         <li><Link href="/doctors" className="hover:text-white transition-colors">Doctor Consult</Link></li>
                         <li><Link href="/hospitals" className="hover:text-white transition-colors">Hospitals</Link></li>
                         <li><Link href="/retailers" className="hover:text-white transition-colors">Chemists</Link></li>
@@ -150,12 +150,12 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/labs" className="hover:text-white transition-colors">Lab Tests</Link></li>
                         <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">AI Assistant</Link></li>
                         <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[10px]"></i> Symptom Checker</Link></li>
-                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[10px]"></i> Rx Analyzer</Link></li>
-                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[10px]"></i> Interaction Checker</Link></li>
-                        <li className="opacity-40">|</li>
-                        <li><Link href="/support" className="hover:text-white transition-colors">Support & Complaints</Link></li>
-                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">Health Blogs</Link></li>
+                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> Symptom Checker</Link></li>
+                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> Rx Analyzer</Link></li>
+                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> Interaction Checker</Link></li>
+                        <li className="opacity-10 md:hidden">|</li>
+                        <li><Link href="/support" className="hover:text-white transition-colors md:hidden">Support</Link></li>
+                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">Blogs</Link></li>
                     </ul>
                 </div>
             </nav>
