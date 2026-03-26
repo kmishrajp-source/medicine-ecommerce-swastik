@@ -78,7 +78,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <i className="fa-solid fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
                         <input 
                             type="text" 
-                            placeholder="Search symptoms, medicines, doctors..." 
+                            placeholder="Try 'fever', 'heart', or 'medicine name'..." 
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={{ width: '100%', padding: '8px 40px 8px 35px', borderRadius: '20px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.8rem', outline: 'none' }}
@@ -116,10 +116,11 @@ export default function Navbar({ cartCount, openCart }) {
                     </div>
 
                     {/* Account & Cart Actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <button onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                        <Link href="/support" className="hidden lg:block text-[10px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">Support & Complaints</Link>
+                        <button onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative flex items-center gap-1">
+                            <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
-                            <span className="absolute top-0 right-0 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center font-bold">{cartCount}</span>
                         </button>
                         {session ? (
                              <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[11px]">
@@ -128,7 +129,7 @@ export default function Navbar({ cartCount, openCart }) {
                         ) : (
                              <Link href="/login" className="hidden md:block text-xs font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">Login</Link>
                         )}
-                        <Link href="/join" className="px-4 py-2 bg-indigo-600 text-white rounded-full font-bold text-[10px] uppercase tracking-wider whitespace-nowrap hidden lg:block">Join Partner</Link>
+                        <Link href="/partner" className="px-4 py-2 bg-indigo-600 text-white rounded-full font-bold text-[10px] uppercase tracking-wider whitespace-nowrap hidden lg:block">Join as Partner</Link>
                         <LanguageSwitcher />
                     </div>
                 </div>
@@ -137,17 +138,23 @@ export default function Navbar({ cartCount, openCart }) {
             {/* SECONDARY ROW: Services & Utilities (Desktop Only) */}
             <nav className="hidden md:block bg-indigo-900 text-white/90 w-full">
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul style={{ display: 'flex', gap: '30px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center' }}>
+                    <ul style={{ display: 'flex', gap: '20px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.7rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center' }}>
                         <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
-                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">Shop Medicines</Link></li>
+                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">Shop</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">Upload Rx</Link></li>
-                        <li><Link href="/doctors" className="hover:text-white transition-colors">Doctors</Link></li>
+                        <li><Link href="/refer" className="hover:text-white transition-colors">Refer & Earn</Link></li>
+                        <li><Link href="/doctors" className="hover:text-white transition-colors">Doctor Consult</Link></li>
                         <li><Link href="/hospitals" className="hover:text-white transition-colors">Hospitals</Link></li>
                         <li><Link href="/retailers" className="hover:text-white transition-colors">Chemists</Link></li>
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">Ambulance</Link></li>
-                        <li><Link href="/labs" className="hover:text-white transition-colors">Labs</Link></li>
-                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold"><i className="fa-solid fa-sparkles mr-1"></i>AI Guide</Link></li>
+                        <li><Link href="/labs" className="hover:text-white transition-colors">Lab Tests</Link></li>
+                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">AI Assistant</Link></li>
                         <li className="opacity-40">|</li>
+                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[10px]"></i> Symptom Checker</Link></li>
+                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[10px]"></i> Rx Analyzer</Link></li>
+                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[10px]"></i> Interaction Checker</Link></li>
+                        <li className="opacity-40">|</li>
+                        <li><Link href="/support" className="hover:text-white transition-colors">Support & Complaints</Link></li>
                         <li><Link href="/blog" className="hover:text-orange-300 transition-colors">Health Blogs</Link></li>
                     </ul>
                 </div>
