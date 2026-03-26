@@ -31,7 +31,7 @@ export default function BlogListingPage() {
         <div className="min-h-screen bg-slate-50 font-sans">
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
             
-            <main className="max-w-7xl mx-auto px-6 pt-32 pb-24">
+            <main className="max-w-7xl mx-auto px-6 pt-44 pb-24">
                 <div className="text-center mb-16">
                     <div className="inline-block bg-indigo-100 text-indigo-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-6 shadow-sm border border-indigo-50">
                         Swastik Medicare Health Hub

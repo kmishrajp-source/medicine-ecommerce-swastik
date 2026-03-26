@@ -60,7 +60,7 @@ export default function Home() {
   return (
     <>
       <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
-      <main style={{ marginTop: '80px' }}>
+      <main style={{ marginTop: '135px' }}>
 
         {/* HIGH-CONVERSION HERO (SWASTIK BRANDING) */}
         <div className="relative bg-[#f8fafc] py-24 pb-40 overflow-hidden">
