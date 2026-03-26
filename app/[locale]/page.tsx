@@ -73,18 +73,21 @@ export default function Home() {
                         <i className="fa-solid fa-bolt mr-2 text-indigo-500"></i> Your Local Healthcare Network
                     </span>
                     <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
-                        Find Doctors <br/> <span className="text-indigo-600">Instantly</span> <br/> In {location}
+                        Medical Care <br/> <span className="text-indigo-600">Delivered In</span> <br/> 10 to 60 Mins
                     </h1>
                     <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
-                        Connect with top-rated doctors and medical stores in seconds via call or WhatsApp. No login required.
+                        Top-rated doctors and 6000+ medicines at your doorstep. Connect via Call or WhatsApp. No login required.
                     </p>
 
                     <div className="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto md:mx-0">
                         <Link href="/doctors" className="flex-1 bg-slate-900 text-white px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center">
                             Find Doctor Now
                         </Link>
-                        <Link href="/join" className="flex-1 bg-white text-slate-900 border-2 border-slate-100 px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:border-indigo-600 transition-all text-center">
-                            Join as Partner
+                        <Link href="/shop" className="flex-1 bg-indigo-600 text-white px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center">
+                            Shop Medicines
+                        </Link>
+                        <Link href="/upload-prescription" className="flex-1 bg-white text-slate-900 border-2 border-slate-100 px-8 py-5 rounded-[2rem] font-black uppercase tracking-widest text-xs hover:border-indigo-600 transition-all text-center">
+                            Upload Rx
                         </Link>
                     </div>
 
@@ -95,8 +98,8 @@ export default function Home() {
                         </p>
                         <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                              <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> No login required</span>
-                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> Verified doctors</span>
-                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> Local expertise</span>
+                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-truck-fast text-indigo-500"></i> Free Delivery above ₹500</span>
+                             <span className="text-[10px] font-bold text-slate-400 flex items-center gap-1"><i className="fa-solid fa-circle-check text-emerald-500"></i> Verified medicines</span>
                         </div>
                     </div>
 

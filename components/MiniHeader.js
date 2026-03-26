@@ -17,9 +17,10 @@ export default function MiniHeader() {
                     </Link>
                 </div>
                 <div className="flex gap-6 items-center">
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-                        <i className="fa-solid fa-bullhorn text-indigo-300 mr-2"></i>
-                        PROMO: ₹0 Activation fee for new Doctors till April 
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter flex items-center gap-4">
+                        <span className="flex items-center gap-1"><i className="fa-solid fa-truck-fast text-indigo-500"></i> Free Delivery on orders above ₹500</span>
+                        <span className="text-slate-200">|</span>
+                        <span><i className="fa-solid fa-bullhorn text-indigo-300 mr-2"></i> PROMO: ₹0 Activation fee for new Doctors till April</span>
                     </div>
                     <Link href="/partner" className="text-[11px] font-black text-slate-900 hover:text-indigo-600 transition-all uppercase tracking-widest flex items-center gap-2">
                         For Providers <i className="fa-solid fa-caret-down text-[10px]"></i>

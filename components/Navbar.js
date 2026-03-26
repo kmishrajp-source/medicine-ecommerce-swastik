@@ -74,6 +74,8 @@ export default function Navbar({ cartCount, openCart }) {
                     <nav className="nav">
                         <ul style={{ display: 'flex', gap: '20px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.85rem', fontWeight: 700 }}>
                             <li><Link href="/" className="hover:text-blue-600 transition-colors">{t('home')}</Link></li>
+                            <li><Link href="/shop" className="hover:text-blue-600 transition-colors" style={{ color: '#10b981' }}>Shop</Link></li>
+                            <li><Link href="/upload-prescription" className="hover:text-blue-600 transition-colors" style={{ color: '#4f46e5' }}>Upload Rx</Link></li>
                             <li><Link href="/refer" className="hover:text-blue-600 transition-colors">{t('refer_earn')}</Link></li>
                             <li><Link href="/doctors" className="hover:text-blue-600 transition-colors">{t('doctor_consult')}</Link></li>
                             <li><Link href="/hospitals" className="hover:text-blue-600 transition-colors">Hospitals</Link></li>
