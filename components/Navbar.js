@@ -62,12 +62,12 @@ export default function Navbar({ cartCount, openCart }) {
     }, [searchQuery]);
 
     return (
-        <header className="glass-header" style={{ padding: 0, position: 'fixed', top: 0, width: '100%', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+        <header className="glass-header" style={{ display: 'flex', flexDirection: 'column', padding: 0, position: 'fixed', top: 0, width: '100%', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
             <MiniHeader />
             
             {/* MAIN NAVBAR ROW: Logo, Search, Primary Actions */}
-            <div className="bg-white border-b border-gray-50">
-                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', gap: '20px' }}>
+            <div className="bg-white border-b border-gray-50 w-full">
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px', gap: '20px', width: '100%' }}>
                     {/* Brand Logo */}
                     <Link href="/" className="logo" style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e3a8a', display: 'flex', alignItems: 'center', gap: '8px', minWidth: 'fit-content' }}>
                         <i className="fa-solid fa-heart-pulse text-blue-600"></i> Swastik<span className="hidden sm:inline">Medicare</span>
@@ -135,21 +135,19 @@ export default function Navbar({ cartCount, openCart }) {
             </div>
 
             {/* SECONDARY ROW: Services & Utilities (Desktop Only) */}
-            <nav className="hidden md:block bg-indigo-900 text-white/90">
-                <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 20px', overflowX: 'auto' }}>
-                    <ul style={{ display: 'flex', gap: '24px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap' }}>
-                        <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
+            <nav className="hidden md:block bg-indigo-900 text-white/90 w-full">
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 20px', overflowX: 'auto', width: '100%' }}>
+                    <ul style={{ display: 'flex', gap: '30px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center' }}>
+                        <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
                         <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">Shop Medicines</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">Upload Rx</Link></li>
-                        <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
+                        <li><Link href="/doctors" className="hover:text-white transition-colors">Doctors</Link></li>
                         <li><Link href="/hospitals" className="hover:text-white transition-colors">Hospitals</Link></li>
                         <li><Link href="/retailers" className="hover:text-white transition-colors">Chemists</Link></li>
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">Ambulance</Link></li>
-                        <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>
+                        <li><Link href="/labs" className="hover:text-white transition-colors">Labs</Link></li>
                         <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold"><i className="fa-solid fa-sparkles mr-1"></i>AI Guide</Link></li>
                         <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-checker" className="hover:text-white opacity-80 transition-opacity">Symptom Search</Link></li>
-                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity">Rx Analyzer</Link></li>
                         <li><Link href="/blog" className="hover:text-orange-300 transition-colors">Health Blogs</Link></li>
                     </ul>
                 </div>

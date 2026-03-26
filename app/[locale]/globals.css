@@ -110,8 +110,8 @@ button {
     top: 0;
     width: 100%;
     z-index: 1000;
-    display: flex;
-    flex-direction: column; /* ENSURE ROWS STACK VERTICALLY */
+    display: flex !important;
+    flex-direction: column !important; /* ENSURE ROWS STACK VERTICALLY */
     box-shadow: var(--shadow-sm);
 }
 
