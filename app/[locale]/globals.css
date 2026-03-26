@@ -149,7 +149,7 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 40px var(--container-width) 40px 20px;
+    padding: 80px 20px;
     /* simple centering hack or use container */
     max-width: var(--container-width);
     margin: 0 auto;
