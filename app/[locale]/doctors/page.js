@@ -1,5 +1,4 @@
 import DoctorsClient from "./DoctorsClient";
-import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;

@@ -1,5 +1,4 @@
 import ShopClient from "./ShopClient";
-import { getTranslations } from "next-intl/server";
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
