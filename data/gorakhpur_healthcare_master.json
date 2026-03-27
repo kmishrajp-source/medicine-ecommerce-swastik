@@ -1,0 +1,168 @@
+{
+  "data": [
+    {
+      "entity_type": "HOSPITAL",
+      "hospital_name": "AIIMS Gorakhpur",
+      "type": "government",
+      "address": "Gorakhpur-273008, Uttar Pradesh",
+      "phone": "0551-2207700",
+      "emergency_service": "yes",
+      "website": "https://aiimsgorakhpur.edu.in",
+      "rating": "4.5",
+      "lead_quality": "HOT",
+      "source_link": "https://gorakhpur.nic.in"
+    },
+    {
+      "entity_type": "HOSPITAL",
+      "hospital_name": "B.R.D. Medical College",
+      "type": "government",
+      "address": "Medical Road, Gorakhpur",
+      "phone": "+915512501736",
+      "emergency_service": "yes",
+      "rating": "4.2",
+      "lead_quality": "HOT",
+      "source_link": "https://gorakhpur.nic.in"
+    },
+    {
+      "entity_type": "HOSPITAL",
+      "hospital_name": "City Super Speciality Hospital",
+      "type": "private",
+      "address": "Moglaha, Medical College Road, Gorakhpur - 273013",
+      "phone": "+917234006501",
+      "emergency_service": "yes",
+      "website": "https://citysuperspecialityhospital.com",
+      "rating": "4.6",
+      "lead_quality": "HOT",
+      "source_link": "https://citysuperspecialityhospital.com"
+    },
+    {
+      "entity_type": "HOSPITAL",
+      "hospital_name": "Greenland Hospital & Research Centre",
+      "type": "multispecialty",
+      "address": "Moglaha, Medical College Road, Gorakhpur - 273013",
+      "phone": "+919452472267",
+      "emergency_service": "yes",
+      "website": "https://greenlandhospital.in",
+      "rating": "4.4",
+      "lead_quality": "HOT",
+      "source_link": "https://greenlandhospital.in"
+    },
+    {
+      "entity_type": "DOCTOR",
+      "name": "Dr. Smita Jaiswal",
+      "specialization": "Gynaecologist & Obstetrician",
+      "clinic_or_hospital": "Life Care Hospital",
+      "phone": "05512201234",
+      "address": "Civil Court Road, Betiahata, Gorakhpur",
+      "rating": "4.8",
+      "experience": "48 years",
+      "consultation_fee": "800",
+      "lead_quality": "HOT",
+      "source_link": "https://practo.com"
+    },
+    {
+      "entity_type": "DOCTOR",
+      "name": "Dr. Akriti Gupta",
+      "specialization": "Infertility Specialist",
+      "clinic_or_hospital": "Dr. Akriti Gupta Infertility Center",
+      "phone": "9918012345",
+      "address": "Asuran, Gorakhpur",
+      "rating": "4.9",
+      "experience": "12 years",
+      "consultation_fee": "1200",
+      "lead_quality": "HOT",
+      "source_link": "https://practo.com"
+    },
+    {
+      "entity_type": "DOCTOR",
+      "name": "Dr. Tariq Khan",
+      "specialization": "Sexology & Men's Health",
+      "clinic_or_hospital": "Dr Tariq Khan Clinic",
+      "phone": "9161364908",
+      "address": "B.R.D Medical College Road, Gorakhpur",
+      "rating": "4.7",
+      "experience": "15 years",
+      "consultation_fee": "500",
+      "lead_quality": "HOT",
+      "source_link": "https://practo.com"
+    },
+    {
+      "entity_type": "LAB",
+      "lab_name": "Dr. Lal PathLabs - Betiahata",
+      "address": "Ground Floor, Kasya Road, Betiahata Chauraha, Gorakhpur",
+      "phone": "+918071318012",
+      "tests_offered": "Full Body Checkup, Blood Tests, Pathology",
+      "home_collection": "yes",
+      "accreditation": "NABL",
+      "rating": "4.3",
+      "lead_quality": "HOT",
+      "source_link": "https://lalpathlabs.com"
+    },
+    {
+      "entity_type": "LAB",
+      "lab_name": "Pathkind Labs - Divya Nagar",
+      "address": "Plot No D/91, Khorabar, In front of Jyoti medical store, Gorakhpur",
+      "phone": "+91 89573 36638",
+      "tests_offered": "Pathology, Radiology",
+      "home_collection": "yes",
+      "accreditation": "NABL",
+      "rating": "4.2",
+      "lead_quality": "HOT",
+      "source_link": "https://pathkindlabs.com"
+    },
+    {
+      "entity_type": "RETAILER",
+      "store_name": "Lifecare Pharmacy 24x7",
+      "address": "Betiahata, Gorakhpur",
+      "phone": "05512201234",
+      "type": "both",
+      "delivery_available": "yes",
+      "open_hours": "24 Hours",
+      "rating": "4.7",
+      "lead_quality": "HOT",
+      "source_link": "https://justdial.com"
+    },
+    {
+      "entity_type": "RETAILER",
+      "store_name": "Sardar Medicos",
+      "address": "Golghar, Gorakhpur",
+      "phone": "05512330044",
+      "type": "branded",
+      "delivery_available": "yes",
+      "open_hours": "9 AM - 10 PM",
+      "rating": "4.7",
+      "lead_quality": "HOT",
+      "source_link": "https://justdial.com"
+    },
+    {
+      "entity_type": "RETAILER",
+      "store_name": "Singhal Medical Stores",
+      "address": "Bank Road, Gorakhpur",
+      "phone": "05512338877",
+      "type": "generic",
+      "delivery_available": "yes",
+      "rating": "4.2",
+      "lead_quality": "HOT",
+      "source_link": "https://justdial.com"
+    },
+    {
+      "entity_type": "DELIVERY_AGENT",
+      "service_name": "Dawa Ghar Tak",
+      "type": "medicine delivery",
+      "coverage_area": "Gorakhpur City",
+      "phone": "N/A",
+      "operating_hours": "10 AM - 8 PM",
+      "lead_quality": "WARM",
+      "source_link": "https://justdial.com"
+    },
+    {
+      "entity_type": "PATIENT_INSIGHT",
+      "search_trend": "diabetes test Gorakhpur",
+      "demand_category": "lab test",
+      "demand_level": "high",
+      "common_reviews_summary": "High demand for home collection and package deals.",
+      "lead_quality": "COLD",
+      "source_link": "https://practo.com"
+    }
+  ]
+}
