@@ -31,7 +31,22 @@
     "top_brands": "Top Verified Brands",
     "customer_reviews": "What Our Patients Say",
     "why_choose_us": "Why Choose Swastik Medicare?",
-    "free_delivery": "Free Delivery above ₹500"
+    "free_delivery": "Free Delivery above ₹500",
+    "no_login_required": "No login required",
+    "verified_medicines": "Verified medicines",
+    "connect_speed": "Connect with doctors in under 60 seconds",
+    "find_doctor": "Find Doctor Now",
+    "shop_medicines": "Shop Medicines",
+    "upload_rx": "Upload Rx",
+    "local_network": "Your Local Healthcare Network",
+    "medical_care": "Medical Care",
+    "delivered_in": "Delivered In",
+    "mins": "10 to 60 Mins",
+    "how_it_works": "How it works in 30 seconds",
+    "search_whatsapp_call": "Search • WhatsApp • Call",
+    "available_now": "Available Now",
+    "call": "Call",
+    "whatsapp": "WhatsApp"
   },
   "Cart": {
     "title": "Your Cart",

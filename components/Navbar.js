@@ -117,19 +117,24 @@ export default function Navbar({ cartCount, openCart }) {
 
                     {/* Account & Cart Actions */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
-                        <Link href="/support" className="hidden xl:block text-[9px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">Support</Link>
+                        <Link href="/support" className="hidden xl:block text-[9px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">{t('support')}</Link>
                         <button onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative flex items-center gap-1">
                             <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
                         </button>
                         {session ? (
-                             <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px]">
-                                <i className="fa-solid fa-user-circle"></i> {session.user.name.split(' ')[0]}
-                             </Link>
+                            <div className="flex items-center gap-2">
+                                <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px]">
+                                    <i className="fa-solid fa-user-circle"></i> {session.user.name.split(' ')[0]}
+                                </Link>
+                                <button onClick={() => signOut()} className="hidden md:block text-[9px] font-bold text-red-500 hover:text-red-700 uppercase tracking-tighter" title={t('logout')}>
+                                    <i className="fa-solid fa-power-off"></i>
+                                </button>
+                            </div>
                         ) : (
-                             <Link href="/login" className="hidden md:block text-[10px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">Login</Link>
+                             <Link href="/login" className="hidden md:block text-[10px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">{t('login')}</Link>
                         )}
-                        <Link href="/partner" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">Join Partner</Link>
+                        <Link href="/partner" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">{t('growth_partner')}</Link>
                         <LanguageSwitcher />
                     </div>
                 </div>
@@ -139,23 +144,23 @@ export default function Navbar({ cartCount, openCart }) {
             <nav className="hidden md:block bg-indigo-900 text-white/90 w-full">
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
                     <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
-                        <li><Link href="/" className="hover:text-white transition-colors">Home</Link></li>
-                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">Shop</Link></li>
-                        <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">Upload Rx</Link></li>
-                        <li><Link href="/refer" className="hover:text-white transition-colors">Refer</Link></li>
-                        <li><Link href="/doctors" className="hover:text-white transition-colors">Doctor Consult</Link></li>
-                        <li><Link href="/hospitals" className="hover:text-white transition-colors">Hospitals</Link></li>
-                        <li><Link href="/retailers" className="hover:text-white transition-colors">Chemists</Link></li>
-                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">Ambulance</Link></li>
-                        <li><Link href="/labs" className="hover:text-white transition-colors">Lab Tests</Link></li>
-                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">AI Assistant</Link></li>
+                        <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
+                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tProduct('general_category')}</Link></li>
+                        <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
+                        <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
+                        <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
+                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{tFooter('services')}</Link></li>
+                        <li><Link href="/retailers" className="hover:text-white transition-colors">{t('inventory')}</Link></li>
+                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">{t('ambulance')}</Link></li>
+                        <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>
+                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">{t('ai_assistant')}</Link></li>
                         <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> Symptom Checker</Link></li>
-                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> Rx Analyzer</Link></li>
-                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> Interaction Checker</Link></li>
+                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> {t('symptom_checker')}</Link></li>
+                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> {t('rx_analyzer')}</Link></li>
+                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> {t('interaction_checker')}</Link></li>
                         <li className="opacity-10 md:hidden">|</li>
-                        <li><Link href="/support" className="hover:text-white transition-colors md:hidden">Support</Link></li>
-                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">Blogs</Link></li>
+                        <li><Link href="/support" className="hover:text-white transition-colors md:hidden">{t('support')}</Link></li>
+                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">{tHome('top_brands')}</Link></li>
                     </ul>
                 </div>
             </nav>
