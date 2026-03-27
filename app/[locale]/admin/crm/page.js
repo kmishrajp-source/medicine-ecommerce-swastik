@@ -11,7 +11,7 @@ export default function AdminCRMDashboard() {
     const [batches, setBatches] = useState([]);
     const [revenueStats, setRevenueStats] = useState({ total: 0, listing: 0, leads: 0 });
     const [loading, setLoading] = useState(true);
-    const [filters, setFilters] = useState({ status: 'all', agentId: 'all', area: 'all' });
+    const [filters, setFilters] = useState({ status: 'all', agentId: 'all', area: 'all', serviceType: 'all' });
     const [selectedLeads, setSelectedLeads] = useState([]);
     const [assigningAgent, setAssigningAgent] = useState("");
     const [bulkJson, setBulkJson] = useState("");
@@ -83,17 +83,15 @@ export default function AdminCRMDashboard() {
         } catch (err) { console.error("History Fetch Error:", err); }
     };
 
-    const exportToCSV = () => {
-        const headers = ["Name", "Type", "Phone", "Area", "Source", "Status", "Last Contact", "Notes"];
+    const exportToClickUp = () => {
+        const headers = ["Task Name", "Status", "Description", "Priority", "Assignee", "Tags"];
         const rows = leads.map(l => [
             l.guestName || "N/A",
-            l.serviceType || "N/A",
-            l.guestPhone || "N/A",
-            l.area || "N/A",
-            l.source || "N/A",
-            l.status || "N/A",
-            l.lastContactDate ? new Date(l.lastContactDate).toLocaleDateString() : "Never",
-            l.notes || ""
+            l.status || "new",
+            `Type: ${l.serviceType}\nPhone: ${l.guestPhone}\nArea: ${l.area}\nNotes: ${l.notes || ""}`,
+            "Normal",
+            l.assignedAgent?.name || "",
+            l.serviceType || ""
         ]);
         
         const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
@@ -101,7 +99,7 @@ export default function AdminCRMDashboard() {
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
         link.setAttribute("href", url);
-        link.setAttribute("download", `swastik_leads_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `clickup_ready_leads_${new Date().toISOString().split('T')[0]}.csv`);
         link.style.visibility = 'hidden';
         document.body.appendChild(link);
         link.click();
@@ -246,14 +244,31 @@ export default function AdminCRMDashboard() {
                     </button>
                 </div>
                 {activeTab === 'leads' && (
-                    <button 
-                        onClick={exportToCSV}
-                        className="bg-emerald-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg"
-                    >
-                        <i className="fa-solid fa-file-export"></i> Export CSV
-                    </button>
+                    <div className="flex gap-2">
+                        <button 
+                            onClick={exportToClickUp}
+                            className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg text-xs"
+                        >
+                            <i className="fa-solid fa-file-arrow-up"></i> ClickUp Export
+                        </button>
+                    </div>
                 )}
             </div>
+
+            {/* Category Sections Selector */}
+            {activeTab === 'leads' && (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '20px' }}>
+                    {['all', 'doctor', 'hospital', 'retailer', 'lab', 'patient', 'agent'].map(cat => (
+                        <button 
+                            key={cat}
+                            onClick={() => setFilters({...filters, serviceType: cat})}
+                            className={`px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest transition-all ${filters.serviceType === cat ? 'bg-slate-900 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100 hover:bg-slate-50'}`}
+                        >
+                            {cat}s
+                        </button>
+                    ))}
+                </div>
+            )}
 
             {activeTab === 'leads' ? (
                 <>

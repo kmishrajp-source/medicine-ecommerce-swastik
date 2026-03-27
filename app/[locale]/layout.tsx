@@ -45,46 +45,62 @@ export const metadata: Metadata = {
 
 import Provider from "@/components/SessionProvider";
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages } from 'next-intl/server';
+import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
+  params
 }: {
   children: React.ReactNode;
+  params: Promise<{ locale: string }>;
 }) {
+  const { locale } = await params;
+  
+  // Ensure the locale is valid
+  if (!routing.locales.includes(locale as any)) {
+    notFound();
+  }
+
+  // Enable static rendering for this locale
+  setRequestLocale(locale);
+  
+  const messages = await getMessages();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#4338ca" />
       </head>
       <body className={outfit.className}>
-        <Provider>
-          <FCMProvider>
-            <CartProvider>
-              <PwaRegistrar />
-              {children}
-              <div className="fixed bottom-8 right-8 z-[2000] flex flex-col gap-4">
-                  <a 
-                      href="https://wa.me/919999999999?text=Hello, I need help with Swastik Medicare."
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all group relative"
-                      aria-label="Chat on WhatsApp"
-                  >
-                       <i className="fa-brands fa-whatsapp"></i>
-                  </a>
-              </div>
-              <CartDrawer />
-              <FloatingWhatsApp />
-              <CustomerSupportWidget />
-              <AIRecoveryAssistant />
-            </CartProvider>
-          </FCMProvider>
-        </Provider>
+        <NextIntlClientProvider messages={messages} locale={locale}>
+          <Provider>
+            <FCMProvider>
+              <CartProvider>
+                <PwaRegistrar />
+                {children}
+                <div className="fixed bottom-8 right-8 z-[2000] flex flex-col gap-4">
+                    <a 
+                        href="https://wa.me/919999999999?text=Hello, I need help with Swastik Medicare."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all group relative"
+                        aria-label="Chat on WhatsApp"
+                    >
+                         <i className="fa-brands fa-whatsapp"></i>
+                    </a>
+                </div>
+                <CartDrawer />
+                <FloatingWhatsApp />
+                <CustomerSupportWidget />
+                <AIRecoveryAssistant />
+              </CartProvider>
+            </FCMProvider>
+          </Provider>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

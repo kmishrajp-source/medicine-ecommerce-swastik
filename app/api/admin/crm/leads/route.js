@@ -13,9 +13,11 @@ export async function GET(req) {
     const status = searchParams.get('status');
     const agentId = searchParams.get('agentId');
     const area = searchParams.get('area');
+    const serviceType = searchParams.get('serviceType');
 
     const where = {};
     if (status && status !== 'all') where.status = status;
+    if (serviceType && serviceType !== 'all') where.serviceType = serviceType;
     if (agentId && agentId !== 'all') {
         where.assignedAgentId = agentId === 'none' ? null : agentId;
     }

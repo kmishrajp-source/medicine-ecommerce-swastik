@@ -1,0 +1,33 @@
+{
+    "google_maps_scraper": {
+        "scraper_type": "google-maps-scraper",
+        "search_queries": [
+            "Doctors in Gorakhpur",
+            "Hospitals in Gorakhpur",
+            "Pharmacies in Gorakhpur",
+            "Diagnostic Labs in Gorakhpur",
+            "Clinics in Medical Road Gorakhpur",
+            "Clinics in Golghar Gorakhpur"
+        ],
+        "max_results_per_query": 200,
+        "extract_phone": true,
+        "extract_website": true,
+        "extract_opening_hours": true,
+        "proxy_configuration": {
+            "use_apify_proxy": true,
+            "apify_proxy_groups": ["GOOGLE_SERP"]
+        }
+    },
+    "justdial_scraper": {
+        "scraper_type": "justdial-scraper",
+        "urls": [
+            "https://www.justdial.com/Gorakhpur/Doctors/nct-10170068",
+            "https://www.justdial.com/Gorakhpur/Hospitals/nct-10253670",
+            "https://www.justdial.com/Gorakhpur/Chemists/nct-10095815"
+        ],
+        "max_pages": 10,
+        "proxy_configuration": {
+            "use_apify_proxy": true
+        }
+    }
+}
