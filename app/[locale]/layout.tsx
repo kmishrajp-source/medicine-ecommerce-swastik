@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+// Forced deploy trigger: healthcare-crm-v1
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
