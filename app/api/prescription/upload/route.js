@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { sendSMS } from "@/lib/sms";
 import { logFailure } from "@/lib/logger";
 
@@ -71,3 +71,4 @@ export async function GET(req) {
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
+

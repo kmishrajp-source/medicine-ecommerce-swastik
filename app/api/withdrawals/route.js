@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 // GET /api/withdrawals - Get withdrawal history for logged-in user
@@ -85,3 +85,4 @@ export async function POST(req) {
         return NextResponse.json({ error: error.message || "Failed to process withdrawal" }, { status: 500 });
     }
 }
+

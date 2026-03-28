@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(req) {
     try {
@@ -30,3 +30,4 @@ export async function GET(req) {
         return NextResponse.json({ error: "Failed to fetch logs: " + error.message }, { status: 500 });
     }
 }
+

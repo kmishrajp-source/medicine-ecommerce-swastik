@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 // GET current settings
 export async function GET(req) {
@@ -64,3 +64,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
     }
 }
+

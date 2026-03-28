@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 
@@ -149,3 +149,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Payment verification failed", details: error.message }, { status: 500 });
     }
 }
+

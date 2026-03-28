@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import shortid from "shortid";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 
 export async function POST(req) {
     if (!process.env.RAZORPAY_KEY_ID || !process.env.RAZORPAY_KEY_SECRET) {
@@ -124,3 +124,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to create appointment order" }, { status: 500 });
     }
 }
+

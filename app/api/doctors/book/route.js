@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import Razorpay from "razorpay";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { cookies } from "next/headers";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 
@@ -111,3 +111,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to book appointment." }, { status: 500 });
     }
 }
+

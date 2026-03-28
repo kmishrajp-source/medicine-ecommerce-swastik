@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { sanitizeProfile } from "@/lib/security";
 import fs from "fs";
 import path from "path";
@@ -22,3 +22,4 @@ export async function GET() {
         return NextResponse.json({ success: false, error: 'Failed to fetch doctors' }, { status: 500 });
     }
 }
+
