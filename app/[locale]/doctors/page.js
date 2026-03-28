@@ -1,4 +1,5 @@
-import DoctorsClient from "./DoctorsClient";
+import DoctorsClient from "./DoctorsClient.js";
+import { setRequestLocale } from "next-intl/server";
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
@@ -12,6 +13,8 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
+export default async function Page({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <DoctorsClient />;
 }

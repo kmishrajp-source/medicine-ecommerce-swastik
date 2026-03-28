@@ -1,4 +1,5 @@
-import ShopClient from "./ShopClient";
+import ShopClient from "./ShopClient.js";
+import { setRequestLocale, getTranslations } from "next-intl/server";
 
 export async function generateMetadata({ params }) {
   const { locale } = await params;
@@ -13,6 +14,8 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function Page() {
+export default async function Page({ params }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return <ShopClient />;
 }
