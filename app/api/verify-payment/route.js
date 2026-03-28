@@ -10,6 +10,7 @@ import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { logFailure } from "@/lib/logger";
 import { settlePartnerPayment } from "@/lib/settlements";
+import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
 
 export async function POST(req) {
     try {
@@ -26,7 +27,10 @@ export async function POST(req) {
             lat,
             lng,
             orderType,
-            appointmentId
+            appointmentId,
+            targetId,
+            targetType,
+            leadId
         } = await req.json();
 
         // 1. Verify Signature
@@ -80,11 +84,111 @@ export async function POST(req) {
                 await WhatsAppTriggers.appointmentConfirmed(appointment.patient.phone, appointment.id, appointment.doctor.user.name, appointment.date.toLocaleString());
             }
 
+            // 1.6 Handle Publisher Commission
+            if (appointment.publisherId) {
+                const commission = parseFloat(amount) * 0.1; // 10% commission
+                const publisher = await prisma.publisher.findUnique({
+                    where: { id: appointment.publisherId },
+                    include: { user: true }
+                });
+
+                if (publisher && publisher.userId) {
+                    await prisma.user.update({
+                        where: { id: publisher.userId },
+                        data: { 
+                            walletBalance: { increment: commission },
+                            transactions: {
+                                create: {
+                                    amount: commission,
+                                    type: "CREDIT",
+                                    description: `Commission for Appointment: ${appointment.doctor.user.name}`
+                                }
+                            }
+                        }
+                    });
+
+                    await prisma.publisherLead.create({
+                        data: {
+                            publisherId: publisher.id,
+                            userId: appointment.patientId,
+                            leadId: appointment.id,
+                            commission: commission,
+                            status: "completed"
+                        }
+                    });
+                }
+            }
+
             return NextResponse.json({
                 success: true,
                 appointmentId: appointment.id,
                 message: "Appointment Confirmed & Payment Routed to Doctor"
             });
+        }
+
+        // 1.7 Handle Contact Unlocks
+        if (orderType === 'UNLOCK') {
+            const session = await getServerSession(authOptions);
+            if (session?.user) {
+                await processContactUnlock(session.user.id, targetId, targetType, razorpayPaymentId);
+                return NextResponse.json({ success: true, message: "Contact Unlocked Successfully" });
+            }
+        }
+
+        // 1.8 Handle Lead Commissions
+        if (orderType === 'LEAD') {
+            await distributeLeadCommission(leadId, amount);
+            return NextResponse.json({ success: true, message: "Lead Commission Distributed" });
+        }
+
+        // 1.9 Handle Plan Purchases (Partner Onboarding)
+        if (orderType === 'PLAN_PURCHASE') {
+            const session = await getServerSession(authOptions);
+            const planId = targetId; // from landing page
+            
+            if (session?.user) {
+                // Update User Role/Status
+                await prisma.user.update({
+                    where: { id: session.user.id },
+                    data: { 
+                        role: 'PARTNER', // General partner role or specific
+                        // Assuming metadata/status fields exist or use a generic flag
+                        isVerified: planId === 'featured'
+                    }
+                });
+
+                // Auto-convert any Lead matching this user's phone
+                const user = await prisma.user.findUnique({ where: { id: session.user.id } });
+                if (user?.phone) {
+                    const cleanPhone = user.phone.slice(-10);
+                    await prisma.lead.updateMany({
+                        where: {
+                            guestPhone: { contains: cleanPhone },
+                            status: { not: 'converted' }
+                        },
+                        data: { status: 'converted' }
+                    });
+                }
+
+                // Log Revenue
+                await prisma.partnerRevenue.create({
+                    data: {
+                        partnerId: session.user.id,
+                        partnerType: 'PARTNER',
+                        revenueType: 'LISTING_FEE',
+                        amount: parseFloat(amount),
+                        paymentStatus: 'paid'
+                    }
+                });
+
+                // Notify Partner (WhatsApp)
+                const partnerPhone = user?.phone || guestPhone;
+                if (partnerPhone) {
+                    await WhatsAppTriggers.planPurchaseConfirmed(partnerPhone, planId === 'featured' ? 'Featured Partner' : 'Basic Partner');
+                }
+
+                return NextResponse.json({ success: true, message: "Plan Activated & Partner Verified" });
+            }
         }
 
         // 2. Identify User

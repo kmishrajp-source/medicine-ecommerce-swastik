@@ -1,9 +1,13 @@
--- Remediation SQL for Swastik Medicare Marketplace
--- Adds missing columns and tables to ensure production DB matches current Prisma schema
+-- COMPREHENSIVE REMEDIATION SQL FOR SWASTIK MEDICARE
+-- 1. Schema Core Updates (Marketplace & Partner Features)
+-- 2. Security Hardening (RLS & Access Control)
 
 BEGIN;
 
--- 1. Updates to Existing Tables
+-- ==========================================
+-- PHASE 1: SCHEMA UPDATES
+-- ==========================================
+
 DO $$ 
 BEGIN 
     -- Add Product columns
@@ -35,8 +39,7 @@ BEGIN
     END IF;
 END $$;
 
--- 2. New Marketplace Tables
-
+-- Marketplace Tables
 CREATE TABLE IF NOT EXISTS "SubOrder" (
     "id" TEXT NOT NULL,
     "orderId" TEXT NOT NULL,
@@ -96,33 +99,35 @@ CREATE TABLE IF NOT EXISTS "DeliveryAssignment" (
     CONSTRAINT "DeliveryAssignment_pkey" PRIMARY KEY ("id")
 );
 
-CREATE TABLE IF NOT EXISTS "WebhookConfig" (
-    "id" TEXT NOT NULL,
-    "url" TEXT NOT NULL,
-    "secret" TEXT,
-    "events" TEXT[],
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "WebhookConfig_pkey" PRIMARY KEY ("id")
+-- ==========================================
+-- PHASE 2: SECURITY HARDENING (RLS)
+-- ==========================================
+
+-- Enable RLS
+ALTER TABLE IF EXISTS public."User" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Order" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Prescription" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Retailer" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."WalletTransaction" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE IF EXISTS public."Withdrawal" ENABLE ROW LEVEL SECURITY;
+
+-- Baseline Policies
+DROP POLICY IF EXISTS "Users can view their own profile" ON public."User";
+CREATE POLICY "Users can view their own profile" ON public."User" FOR SELECT USING (id = current_setting('request.jwt.claims', true)::jsonb->>'sub');
+
+DROP POLICY IF EXISTS "Users can view their own orders" ON public."Order";
+CREATE POLICY "Users can view their own orders" ON public."Order" FOR SELECT USING ("userId" = current_setting('request.jwt.claims', true)::jsonb->>'sub');
+
+DROP POLICY IF EXISTS "Admins can view all orders" ON public."Order";
+CREATE POLICY "Admins can view all orders" ON public."Order" FOR SELECT USING (
+  EXISTS (SELECT 1 FROM public."User" WHERE id = current_setting('request.jwt.claims', true)::jsonb->>'sub' AND role = 'ADMIN')
 );
 
-CREATE TABLE IF NOT EXISTS "AdminApprovalLog" (
-    "id" TEXT NOT NULL,
-    "adminId" TEXT NOT NULL,
-    "actionType" TEXT NOT NULL,
-    "targetId" TEXT NOT NULL,
-    "details" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT "AdminApprovalLog_pkey" PRIMARY KEY ("id")
-);
+DROP POLICY IF EXISTS "Public can view verified retailers" ON public."Retailer";
+CREATE POLICY "Public can view verified retailers" ON public."Retailer" FOR SELECT USING (verified = true);
 
--- Foreign Keys (Optional but recommended for strictness)
--- Note: Using Prisma client is generally safer for relations, but adding FKs here ensures DB integrity.
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_name='SubOrder_orderId_fkey') THEN
-        ALTER TABLE "SubOrder" ADD CONSTRAINT "SubOrder_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "Order"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-    END IF;
-END $$;
+-- Force RLS for sensitive tables
+ALTER TABLE public."WalletTransaction" FORCE ROW LEVEL SECURITY;
+ALTER TABLE public."Withdrawal" FORCE ROW LEVEL SECURITY;
 
 COMMIT;

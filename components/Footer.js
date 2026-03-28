@@ -52,8 +52,8 @@ export default function Footer() {
                 <div>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('legal')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
-                        <li style={{ marginBottom: '10px' }}><Link href="/policy#privacy" style={{ color: 'inherit', textDecoration: 'none' }}>{t('privacy')}</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/policy#terms" style={{ color: 'inherit', textDecoration: 'none' }}>{t('terms')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/terms-conditions" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>{t('refund')}</Link></li>
                     </ul>
                 </div>
@@ -88,6 +88,14 @@ export default function Footer() {
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Verified Pharmacy Partners</div>
                         </div>
                     </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <i className="fa-solid fa-handshake" style={{ fontSize: '1.5rem', color: '#6366f1' }}></i>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '1px' }}>Information Partners</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Doctor Duniya & Medindia</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ maxWidth: '800px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280', lineHeight: '1.6' }}>
@@ -95,7 +103,8 @@ export default function Footer() {
                 </div>
             </div>
 
-            <div style={{ textAlign: 'center', backgroundColor: '#030712', padding: '20px', color: '#6B7280', fontSize: '0.9rem' }}>
+            <div style={{ textAlign: 'center', backgroundColor: '#030712', padding: '20px', color: '#6B7280', fontSize: '0.9rem', borderTop: '1px solid #1f2937' }}>
+                <p style={{ marginBottom: '10px' }}>Owned by Pranshu Investment Ltd</p>
                 &copy; {new Date().getFullYear()} Swastik Medicare. All rights reserved. | <Link href="/developer" style={{ color: '#6B7280' }}>Developer Settings</Link>
             </div>
         </footer>

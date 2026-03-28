@@ -1,0 +1,166 @@
+"use client";
+import React, { useState, useEffect } from 'react';
+import Navbar from '@/components/Navbar';
+import { useCart } from '@/context/CartContext';
+import DirectoryCard from '@/components/DirectoryCard';
+
+export default function ClinicDirectory() {
+    const { cartCount, toggleCart } = useCart();
+    const [clinics, setClinics] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [stats, setStats] = useState({ min: 200, avg: 550, max: 1500 });
+
+    useEffect(() => {
+        fetchClinics();
+    }, []);
+
+    const fetchClinics = async () => {
+        try {
+            const res = await fetch('/api/clinics');
+            const data = await res.json();
+            if (data.success) {
+                setClinics(data.clinics);
+                // Update stats based on real data
+                const fees = data.clinics.map(c => c.fee).filter(f => f > 0);
+                if (fees.length > 0) {
+                    setStats({
+                        min: Math.min(...fees),
+                        avg: Math.round(fees.reduce((a, b) => a + b, 0) / fees.length),
+                        max: Math.max(...fees)
+                    });
+                }
+            }
+        } catch (error) {
+            console.error("Failed to fetch clinics", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#f0f0f5] font-sans text-[#414146]">
+            <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
+
+            {/* Breadcrumbs & Navigation Hub */}
+            <div className="bg-white pt-24 pb-6 px-6 border-b border-slate-200">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex justify-between items-center mb-6">
+                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                            Home / Healthcare Directory / Uttar Pradesh / <span className="text-slate-900">Gorakhpur</span>
+                        </div>
+                        <div className="bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg shadow-indigo-100">
+                            639 Verified Specialists in Gorakhpur
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-8">
+                        <div>
+                            <h1 className="text-4xl font-black text-slate-900 mb-2">Clinics in Gorakhpur</h1>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <i className="fa-solid fa-circle-check text-emerald-500"></i> Local & Verified Medical Facilities
+                            </p>
+                        </div>
+                        
+                        <div className="flex gap-4 w-full md:w-auto">
+                            <div className="relative flex-1 md:w-48">
+                                <i className="fa-solid fa-map-pin absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                <input 
+                                    type="text" 
+                                    placeholder="Enter Pin-code" 
+                                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-10 pr-4 text-xs font-black uppercase tracking-widest focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+                                />
+                            </div>
+                            <button className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-black transition-all">
+                                Filter Results
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Medindia-style Symptom Shortcuts */}
+                    <div className="flex items-center gap-3 overflow-x-auto pb-4 scrollbar-hide">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap mr-2">Quick Guides:</span>
+                        {['Fever', 'Skin Rash', 'Hair Loss', 'Diabetes', 'Joint Pain', 'Mental Health'].map(symptom => (
+                            <button key={symptom} className="bg-white border border-slate-100 px-4 py-2 rounded-xl text-[10px] font-bold text-slate-600 hover:border-indigo-500 hover:text-indigo-600 transition-all whitespace-nowrap shadow-sm">
+                                {symptom}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+                
+                {/* Main Results Container */}
+                <div className="lg:col-span-8">
+                    {loading ? (
+                        <div className="py-20 text-center">
+                            <i className="fa-solid fa-spinner fa-spin text-3xl text-slate-300"></i>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                            {clinics.map((clinic) => (
+                                <DirectoryCard 
+                                    key={clinic.id} 
+                                    item={clinic} 
+                                    type="clinic" 
+                                    onBook={(c) => console.log("Booking:", c)} 
+                                />
+                            ))}
+                            {clinics.length === 0 && (
+                                <div className="col-span-full py-20 text-center font-bold text-slate-400">
+                                    No clinics found in Gorakhpur.
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                {/* Sidebar Stats & Filters */}
+                <div className="lg:col-span-4 space-y-10">
+                    <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Clinic Overview</h3>
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-end border-b border-slate-50 pb-4">
+                                <span className="text-xs font-bold text-slate-500">Average Fee</span>
+                                <span className="text-lg font-black text-slate-900">₹{stats.avg}</span>
+                            </div>
+                            <div className="flex justify-between items-end border-b border-slate-50 pb-4">
+                                <span className="text-xs font-bold text-slate-500">Wait Time</span>
+                                <span className="text-lg font-black text-slate-900">30 - 60 min</span>
+                            </div>
+                            <div className="flex justify-between items-end border-b border-slate-50 pb-4">
+                                <span className="text-xs font-bold text-slate-500">Top Rating</span>
+                                <span className="text-lg font-black text-emerald-600">4.8 <i className="fa-solid fa-star"></i></span>
+                            </div>
+                        </div>
+                        <div className="mt-8 pt-8 border-t border-slate-50">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Pricing Spectrum</h4>
+                            <div className="flex justify-between text-[10px] font-black">
+                                <span>₹{stats.min} (Min)</span>
+                                <span className="text-indigo-600">₹{stats.avg} (Avg)</span>
+                                <span>₹{stats.max} (Max)</span>
+                            </div>
+                            <div className="w-full h-1.5 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                                <div className="h-full bg-indigo-600 rounded-full" style={{ width: '45%' }}></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Nearby Cities Sidebar */}
+                    <div className="bg-slate-900 rounded-3xl p-8 text-white">
+                        <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6">Clinics in Top Cities</h3>
+                        <div className="grid grid-cols-1 gap-4">
+                            {['Patna', 'Lucknow', 'Varanasi', 'Jaipur', 'Bhopal'].map(city => (
+                                <a key={city} href="#" className="flex justify-between items-center group">
+                                    <span className="text-sm font-bold text-slate-300 group-hover:text-white transition-all">Clinics in {city}</span>
+                                    <i className="fa-solid fa-chevron-right text-[10px] text-slate-600"></i>
+                                </a>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    );
+}

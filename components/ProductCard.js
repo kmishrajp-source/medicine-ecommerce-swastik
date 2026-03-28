@@ -7,12 +7,12 @@ export default function ProductCard({ product, onAdd }) {
     
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ position: 'relative', width: '100%', height: '200px', backgroundColor: '#f1f5f9' }}>
+            <div style={{ position: 'relative', width: '100%', height: '140px', backgroundColor: '#f1f5f9' }}>
                 <Image 
                     src={product.image || "/images/default-medicine.png"} 
                     alt={product.name} 
                     fill 
-                    style={{ objectFit: 'cover' }}
+                    style={{ objectFit: 'contain', padding: '10px' }}
                     sizes="(max-width: 768px) 100vw, 300px"
                     loading="lazy"
                 />
@@ -42,18 +42,16 @@ export default function ProductCard({ product, onAdd }) {
                         )}
                     </div>
                 </div>
-                <h3 style={{ marginBottom: '8px', fontSize: '1.2rem' }}>{product.name}</h3>
+                 <h3 style={{ marginBottom: '4px', fontSize: '1.1rem', fontWeight: 800, color: '#1e293b' }}>{product.name}</h3>
 
-                {(product.brand || product.manufacturer) && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
-                        <strong style={{ color: 'var(--text-dark)' }}>{t('brand')}:</strong> {product.brand || product.manufacturer}
+                <div className="space-y-1 mb-3">
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        <span style={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '10px' }}>Manufacturer:</span> {product.manufacturer || product.brand || 'Verified Pharma'}
                     </div>
-                )}
-                {(product.salt || product.composition) && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px' }}>
-                        <strong style={{ color: 'var(--text-dark)' }}>{t('salt')}:</strong> {product.salt || product.composition}
+                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                        <span style={{ fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '10px' }}>Salt:</span> {product.salt || product.composition || 'Clinical Grade'}
                     </div>
-                )}
+                </div>
 
                 {product.uses && (
                     <div style={{ fontSize: '0.8rem', color: 'var(--text-light)', marginBottom: '4px', lineHeight: '1.4', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
