@@ -3,7 +3,7 @@ import crypto from "crypto";
 import prisma from "@/lib/prisma";
 import { sendSMS } from "@/lib/sms";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { assignOrderToNearestRetailer } from "@/utils/routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
