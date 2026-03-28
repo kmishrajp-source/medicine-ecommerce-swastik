@@ -141,7 +141,6 @@ model Order {
   assignedAt    DateTime?
   total         Float
   status        String      @default("Received") // Received, Rx_Uploaded, Pharmacist_Approved, Ready_for_Packing, Out_for_Delivery, Delivered
-  packingChecklist String?  // JSON representation of packing validation
   paymentMethod String      @default("ONLINE") // "ONLINE" or "COD"
   deliveryCode  String?     // Secret code for COD verification
   isPaid        Boolean     @default(false)
@@ -517,8 +516,6 @@ model DeliveryAgent {
   lng            Float?
   isOnline       Boolean  @default(false)
   walletBalance  Float    @default(0.0)
-  licenseImageUrl String? // Driver's license image
-  aadhaarImageUrl String? // Aadhaar card image
   createdAt      DateTime @default(now())
   deliveries     Order[]  @relation("AssignedDeliveries")
   assignments    DeliveryAssignment[]
@@ -677,14 +674,6 @@ model WhatsAppBatch {
   createdAt     DateTime @default(now())
 }
 
-model ComplianceAuditLog {
-  id        String   @id @default(cuid())
-  orderId   String
-  action    String   // e.g., "Pharmacist Approval", "Packing Validation"
-  adminId   String
-  details   String?  // JSON string
-  createdAt DateTime @default(now())
-}
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
