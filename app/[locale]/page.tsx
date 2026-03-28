@@ -133,9 +133,12 @@ export default function Home() {
           <div style={{ display: 'inline-block', background: 'rgba(255,255,255,0.2)', padding: '10px 20px', borderRadius: '50px', marginTop: '20px', backdropFilter: 'blur(10px)' }}>
             <i className="fa-solid fa-truck-fast"></i> {t('free_delivery')}
           </div>
-          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px' }}>
+          <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
             <Link href="/shop" className="btn" style={{ background: 'white', color: '#4338ca', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
               {t('search_placeholder').split(' ')[0]} Now
+            </Link>
+            <Link href="https://sln.swastikmedicare.in/book-doctor-fast" className="btn" style={{ background: '#10b981', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold', border: 'none' }}>
+              Book Doctor
             </Link>
             <Link href="/upload-prescription" className="btn" style={{ background: 'transparent', border: '2px solid white', color: 'white', padding: '15px 40px', borderRadius: '50px', fontSize: '1.2rem', fontWeight: 'bold' }}>
               Upload Rx
@@ -160,7 +163,7 @@ export default function Home() {
               <h2 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '10px' }}>🚑 {tEmergency('title')}</h2>
               <p style={{ fontSize: '1.1rem', opacity: 0.9 }}>{tEmergency('subtitle')}</p>
             </div>
-            <Link href="/ambulance" className="btn" style={{ background: 'white', color: '#b91c1c', padding: '15px 30px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Link href="https://sln.swastikmedicare.in/emergency-ambulance" className="btn" style={{ background: 'white', color: '#b91c1c', padding: '15px 30px', borderRadius: '50px', fontWeight: 'bold', fontSize: '1.1rem', border: 'none', display: 'flex', alignItems: 'center', gap: '10px' }}>
               <i className="fa-solid fa-phone-volume"></i> {tEmergency('book_now')}
             </Link>
           </div>
