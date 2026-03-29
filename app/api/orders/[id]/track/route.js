@@ -52,13 +52,15 @@ export async function GET(req, { params }) {
                 address: order.address,
                 assignedRetailer: order.assignedRetailer,
                 deliveryAgent: order.deliveryAgent,
-                items: order.items
+                items: order.items,
+                isRetailerDelivering: order.isRetailerDelivering
             },
-            // Explicitly map out the agent location if they are assigned
-            agentLocation: order.deliveryAgent && order.deliveryAgent.lat ? {
-                lat: order.deliveryAgent.lat,
-                lng: order.deliveryAgent.lng
-            } : null
+            // Live Location Mapping
+            agentLocation: (order.isRetailerDelivering && order.assignedRetailer?.lat) 
+                ? { lat: order.assignedRetailer.lat, lng: order.assignedRetailer.lng }
+                : (order.deliveryAgent && order.deliveryAgent.lat) 
+                ? { lat: order.deliveryAgent.lat, lng: order.deliveryAgent.lng }
+                : null
         };
 
         return NextResponse.json(payload);

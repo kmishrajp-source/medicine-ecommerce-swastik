@@ -77,12 +77,32 @@ export async function assignOrderToNearestAgent(orderId) {
 
         const nearestDriver = validAgents[0];
 
+        // Fetch System Settings for delivery fees
+        const settings = await prisma.systemSettings.findFirst() || { deliveryAgentFee: 50 };
+        const deliveryFee = order.deliveryFee || settings.deliveryAgentFee;
+
         // Assign the Order to the Nearest Driver
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
                 deliveryAgentId: nearestDriver.id,
                 status: "Agent_Assigned"
+            }
+        });
+
+        // Credit Agent's User Wallet
+        await prisma.user.update({
+            where: { id: nearestDriver.userId },
+            data: { walletBalance: { increment: deliveryFee } }
+        });
+
+        // Log the Wallet Transaction
+        await prisma.walletTransaction.create({
+            data: {
+                userId: nearestDriver.userId,
+                amount: deliveryFee,
+                type: "CREDIT",
+                description: `Platform Delivery Payout for Order #${orderId.slice(-6).toUpperCase()}`
             }
         });
 

@@ -150,13 +150,13 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
                         <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{tFooter('services')}</Link></li>
+                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{t('hospitals')}</Link></li>
                         <li><Link href="/retailers" className="hover:text-white transition-colors">{t('inventory')}</Link></li>
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">{t('ambulance')}</Link></li>
                         <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>
                         <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">{t('ai_assistant')}</Link></li>
                         <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-helper" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> {t('symptom_checker')}</Link></li>
+                        <li><Link href="/symptom-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> {t('symptom_checker')}</Link></li>
                         <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> {t('rx_analyzer')}</Link></li>
                         <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> {t('interaction_checker')}</Link></li>
                         <li className="opacity-10 md:hidden">|</li>

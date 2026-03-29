@@ -116,7 +116,6 @@ export default function DoctorsClient() {
                                 key={doctor.id} 
                                 item={doctor} 
                                 type="doctor" 
-                                onBook={() => {}}
                             />
                         ))}
                         {filteredDoctors.length === 0 && (
@@ -151,6 +150,7 @@ export default function DoctorsClient() {
                         <strong className="text-slate-600">Legal Disclaimer:</strong> Swastik Medicare acts only as a directory service for information-only profiles. We are not responsible for the accuracy or clinical quality of services provided by practitioners listed. Users are advised to verify details independently.
                     </p>
                 </div>
+
             </main>
         </div>
     );

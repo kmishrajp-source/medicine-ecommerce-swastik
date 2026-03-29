@@ -190,6 +190,13 @@ export default function HomeClient() {
             </div>
         </div>
 
+
+        {/* BEST SELLING (Elevated) */}
+        <div className="container px-8">
+          <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
+          <ProductGrid products={bestSelling} addToCart={addToCart} />
+        </div>
+
         {/* BENEFITS SECTION */}
         <BenefitsSection />
 
@@ -201,37 +208,6 @@ export default function HomeClient() {
             ctaText="Find Doctors Now"
             ctaLink="/doctors"
           />
-        </div>
-
-
-        {/* PARTNER ECOSYSTEM VIDEOS */}
-        <div className="py-24 bg-slate-50">
-            <div className="max-w-7xl mx-auto px-8">
-                <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-                    <MotivationalVideo 
-                        title="For Hospitals" 
-                        description="Digitize your patient intake and fulfillment."
-                        videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
-                        ctaText="Register Hospital"
-                        ctaLink="/hospital/register"
-                    />
-                    <MotivationalVideo 
-                        title="For Insurance Providers" 
-                        description="Verify claims and manage benefits in real-time."
-                        videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
-                        ctaText="Become a Provider"
-                        ctaLink="/insurance/register"
-                    />
-                    <MotivationalVideo 
-                        title="For Manufacturers" 
-                        description="Supply medicines and manage your global catalog."
-                        videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
-                        ctaText="Join Supply Chain"
-                        ctaLink="/manufacturer/register"
-                    />
-                </div>
-            </div>
         </div>
 
         {/* SMART TOOLS (EXPANDED) */}
@@ -315,11 +291,41 @@ export default function HomeClient() {
             </div>
         </div>
 
-        {/* PRICING PLANS */}
-        <PricingSection />
-
         {/* FAQ SECTION */}
         <FAQSection />
+
+        {/* PARTNER ECOSYSTEM VIDEOS (Moved Down) */}
+        <div className="py-24 bg-slate-50">
+            <div className="max-w-7xl mx-auto px-8">
+                <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <MotivationalVideo 
+                        title="For Hospitals" 
+                        description="Digitize your patient intake and fulfillment."
+                        videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
+                        ctaText="Register Hospital"
+                        ctaLink="/hospital/register"
+                    />
+                    <MotivationalVideo 
+                        title="For Insurance Providers" 
+                        description="Verify claims and manage benefits in real-time."
+                        videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
+                        ctaText="Become a Provider"
+                        ctaLink="/insurance/register"
+                    />
+                    <MotivationalVideo 
+                        title="For Manufacturers" 
+                        description="Supply medicines and manage your global catalog."
+                        videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
+                        ctaText="Join Supply Chain"
+                        ctaLink="/manufacturer/register"
+                    />
+                </div>
+            </div>
+        </div>
+
+        {/* PRICING PLANS (Moved Down) */}
+        <PricingSection />
 
         {/* FINAL CTA REPEAT */}
         <div className="py-32 bg-indigo-600 text-center relative overflow-hidden">
@@ -339,10 +345,6 @@ export default function HomeClient() {
         <div className="container">
           <AdBanner position="Home-Banner" />
           
-          {/* BEST SELLING */}
-          <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
-          <ProductGrid products={bestSelling} addToCart={addToCart} />
-
           {/* REVIEWS */}
           <SectionTitle title={`💬 ${t('customer_reviews')}`} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>

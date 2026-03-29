@@ -59,7 +59,6 @@ export default function AreaDoctorsPage({ params }) {
                                 key={doctor.id} 
                                 item={doctor} 
                                 type="doctor" 
-                                onBook={() => {}}
                             />
                         ))}
                         {doctors.length === 0 && (
@@ -88,6 +87,7 @@ export default function AreaDoctorsPage({ params }) {
                         </p>
                     </div>
                 </section>
+
             </main>
         </div>
     );

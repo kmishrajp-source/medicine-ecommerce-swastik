@@ -105,7 +105,7 @@ export default function Footer() {
 
             <div style={{ textAlign: 'center', backgroundColor: '#030712', padding: '20px', color: '#6B7280', fontSize: '0.9rem', borderTop: '1px solid #1f2937' }}>
                 <p style={{ marginBottom: '10px' }}>Owned by Pranshu Investment Ltd</p>
-                &copy; {new Date().getFullYear()} Swastik Medicare. All rights reserved. | <Link href="/developer" style={{ color: '#6B7280' }}>Developer Settings</Link>
+                &copy; {new Date().getFullYear()} Swastik Medicare. All rights reserved.
             </div>
         </footer>
     );
