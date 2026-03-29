@@ -12,6 +12,7 @@ export default function Navbar({ cartCount, openCart }) {
     const t = useTranslations('Navigation');
     const tHome = useTranslations('Homepage');
     const tProduct = useTranslations('Product');
+    const tFooter = useTranslations('Footer');
     const router = useRouter();
 
     const [deferredPrompt, setDeferredPrompt] = useState(null);
