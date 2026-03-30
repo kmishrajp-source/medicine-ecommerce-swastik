@@ -45,3 +45,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to register device" }, { status: 500 });
     }
 }
+

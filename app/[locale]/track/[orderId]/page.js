@@ -87,7 +87,11 @@ export default function OrderTracking({ params }) {
                                 <div className="font-bold text-blue-900">Out for Delivery</div>
                             </div>
                             <div className="text-blue-700 text-sm">
-                                {order.deliveryAgent ? `Agent ${order.deliveryAgent.user?.name} is on the way!` : 'Assigning rider...'}
+                                {order.isRetailerDelivering 
+                                    ? `Pharmacy ${order.assignedRetailer?.shopName} is delivering your order.` 
+                                    : order.deliveryAgent 
+                                    ? `Agent ${order.deliveryAgent.user?.name} is on the way!` 
+                                    : 'Assigning rider...'}
                             </div>
                         </div>
                     </div>
@@ -191,7 +195,27 @@ export default function OrderTracking({ params }) {
                                 </div>
                             </div>
 
-                            {order.deliveryAgent && order.status !== 'Delivered' && (
+                            {order.isRetailerDelivering && order.status !== 'Delivered' && (
+                                <div className="bg-green-600 text-white rounded-3xl p-6 shadow-lg border border-green-500">
+                                    <h3 className="text-lg font-bold mb-4 opacity-90"><i className="fa-solid fa-store mr-2"></i> Self-Delivering Pharmacy</h3>
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-14 h-14 bg-white text-green-600 rounded-full flex items-center justify-center text-xl shadow-inner font-bold">
+                                            <i className="fa-solid fa-truck-ramp-box"></i>
+                                        </div>
+                                        <div className="flex-1">
+                                            <p className="font-bold text-lg leading-tight">{order.assignedRetailer?.shopName}</p>
+                                            <p className="text-green-100 text-xs mt-1">Direct from store for faster delivery</p>
+                                        </div>
+                                    </div>
+                                    {order.assignedRetailer?.phone && (
+                                        <a href={`tel:${order.assignedRetailer.phone}`} className="mt-6 w-full bg-white text-green-600 font-bold py-3 rounded-xl shadow transition-colors flex justify-center items-center gap-2 hover:bg-green-50">
+                                            <i className="fa-solid fa-phone"></i> Contact Store
+                                        </a>
+                                    )}
+                                </div>
+                            )}
+
+                            {!order.isRetailerDelivering && order.deliveryAgent && order.status !== 'Delivered' && (
                                 <div className="bg-blue-600 text-white rounded-3xl p-6 shadow-lg border border-blue-500">
                                     <h3 className="text-lg font-bold mb-4 opacity-90"><i className="fa-solid fa-helmet-safety mr-2"></i> Your Agent</h3>
                                     <div className="flex items-center gap-4">

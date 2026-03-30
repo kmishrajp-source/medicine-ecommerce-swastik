@@ -1,15 +1,8 @@
 import type { Metadata } from "next";
-// Forced deploy trigger: healthcare-crm-v1
+// Forced deploy trigger: healthcare-crm-v2
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import { CartProvider } from "@/context/CartContext";
-import PwaRegistrar from "@/components/PwaRegistrar";
-import FCMProvider from "@/components/FCMProvider";
-import CartDrawer from "@/components/CartDrawer";
-
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
-import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
-import CustomerSupportWidget from "@/components/CustomerSupportWidget";
+import ClientProviders from "@/components/ClientProviders";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
 
@@ -26,11 +19,6 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: true,
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5, // Improved for accessibility
-  },
   robots: {
     index: true,
     follow: true,
@@ -44,8 +32,6 @@ export const metadata: Metadata = {
   },
 };
 
-import Provider from "@/components/SessionProvider";
-import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
@@ -77,31 +63,23 @@ export default async function RootLayout({
         <meta name="theme-color" content="#4338ca" />
       </head>
       <body className={outfit.className}>
-        <NextIntlClientProvider messages={messages} locale={locale}>
-          <Provider>
-            <FCMProvider>
-              <CartProvider>
-                <PwaRegistrar />
-                {children}
-                <div className="fixed bottom-8 right-8 z-[2000] flex flex-col gap-4">
-                    <a 
-                        href="https://wa.me/919999999999?text=Hello, I need help with Swastik Medicare."
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all group relative"
-                        aria-label="Chat on WhatsApp"
-                    >
-                         <i className="fa-brands fa-whatsapp"></i>
-                    </a>
-                </div>
-                <CartDrawer />
-                <FloatingWhatsApp />
-                <CustomerSupportWidget />
-                <AIRecoveryAssistant />
-              </CartProvider>
-            </FCMProvider>
-          </Provider>
-        </NextIntlClientProvider>
+        <ClientProviders messages={messages} locale={locale}>
+          <div className="main-wrapper">
+            {children}
+            {/* Remote emergency hotfix WhatsApp button integration */}
+            <div className="fixed bottom-8 right-8 z-[2000] flex flex-col gap-4">
+                <a 
+                    href="https://wa.me/917992122974?text=Hello, I need help with Swastik Medicare."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-16 h-16 bg-emerald-500 text-white rounded-full flex items-center justify-center text-3xl shadow-2xl hover:bg-emerald-600 hover:scale-110 active:scale-95 transition-all group relative"
+                    aria-label="Chat on WhatsApp"
+                >
+                     <i className="fa-brands fa-whatsapp"></i>
+                </a>
+            </div>
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );

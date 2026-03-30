@@ -9,7 +9,7 @@ export async function POST(req) {
     // Ideally we'd verify session role here, assuming Retailers log in securely
 
     try {
-        const { orderId } = await req.json();
+        const { orderId, willDeliver } = await req.json();
 
         if (!orderId) {
             return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
@@ -23,18 +23,104 @@ export async function POST(req) {
             return NextResponse.json({ error: "Order is no longer available or already accepted." }, { status: 400 });
         }
 
-        // 1. Mark the order as Accepted (Preparing)
-        const updatedOrder = await prisma.order.update({
-            where: { id: orderId },
-            data: {
-                status: "Preparing" // Retailer is packing the medicines
-            }
-        });
+        // 1. Logic for Delivery Assignment
+        const settings = await prisma.systemSettings.findFirst() || { deliveryAgentFee: 50, selfDeliveryBonus: 15 };
+        const deliveryFee = order.deliveryFee || settings.deliveryAgentFee;
+        const selfBonus = settings.selfDeliveryBonus;
 
-        // 2. Automatically dispatch the nearest Delivery Agent (Non-blocking)
-        assignOrderToNearestAgent(orderId).catch(err => {
-            console.error("Failed to execute Rider Dispatch:", err);
-        });
+        if (willDeliver) {
+            // CASE A: Retailer accepts BOTH Fulfillment and Delivery
+            const updatedOrder = await prisma.order.update({
+                where: { id: orderId },
+                data: {
+                    status: "Preparing",
+                    isRetailerDelivering: true,
+                    assignedRetailerId: retailer.id // Confirm current retailer
+                }
+            });
+
+            // Credit Delivery Fee + Bonus to Retailer Wallet
+            const totalPay = deliveryFee + selfBonus;
+            await prisma.user.update({
+                where: { id: session.user.id },
+                data: { walletBalance: { increment: totalPay } }
+            });
+
+            await prisma.walletTransaction.create({
+                data: {
+                    userId: session.user.id,
+                    amount: totalPay,
+                    type: "CREDIT",
+                    description: `Self-Delivery Payout for Order #${orderId.slice(-6).toUpperCase()}`
+                }
+            });
+
+            return NextResponse.json({
+                success: true,
+                message: "Order Accepted! You are responsible for delivering this order.",
+                order: updatedOrder
+            });
+
+        } else {
+            // CASE B: Retailer Accepts Fulfillment but DECLINES Delivery
+            // We check if we should move to the next retailer or fallback
+            const nextIndex = order.currentRetailerIndex + 1;
+            
+            if (nextIndex < order.nearestRetailerIds.length) {
+                // Move to NEXT Retailer
+                const nextRetailerId = order.nearestRetailerIds[nextIndex];
+                
+                const updatedOrder = await prisma.order.update({
+                    where: { id: orderId },
+                    data: {
+                        currentRetailerIndex: nextIndex,
+                        assignedRetailerId: nextRetailerId,
+                        declinedRetailers: { push: retailer.id } // Retailer declined delivery priority
+                    }
+                });
+
+                // Send SMS to next retailer
+                const nextRetailerProfile = await prisma.retailer.findUnique({
+                    where: { id: nextRetailerId }
+                });
+                
+                if (nextRetailerProfile && nextRetailerProfile.phone) {
+                    await sendSMS(
+                        nextRetailerProfile.phone,
+                        `SWASTIK: New order #${orderId.slice(-6).toUpperCase()}! \n` +
+                        `Fulfill & Deliver yourself to earn ₹${deliveryFee + selfBonus}?`
+                    );
+                }
+
+                return NextResponse.json({
+                    success: true,
+                    message: "Order passed to next retailer for delivery priority.",
+                    nextRetailer: nextRetailerId
+                });
+
+            } else {
+                // FALLBACK: No retailer accepted delivery. Assign to first retailer for fulfillment, and platform agent for delivery.
+                const updatedOrder = await prisma.order.update({
+                    where: { id: orderId },
+                    data: {
+                        status: "Preparing", // Back to preparing
+                        assignedRetailerId: order.nearestRetailerIds[0], // Back to original fulfiller
+                        isRetailerDelivering: false
+                    }
+                });
+
+                // Dispatch Platform Rider
+                assignOrderToNearestAgent(orderId).catch(err => {
+                    console.error("Failed to execute Platform Rider Fallback:", err);
+                });
+
+                return NextResponse.json({
+                    success: true,
+                    message: "No retailers available for self-delivery. Platform agent assigned.",
+                    order: updatedOrder
+                });
+            }
+        }
 
         // 3. --- MULTI-ROLE REFERRAL PAYOUT ENGINE (RETAILER) ---
         if (session?.user?.id) {
@@ -126,3 +212,4 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to accept order" }, { status: 500 });
     }
 }
+

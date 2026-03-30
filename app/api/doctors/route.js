@@ -22,3 +22,4 @@ export async function GET() {
         return NextResponse.json({ success: false, error: 'Failed to fetch doctors' }, { status: 500 });
     }
 }
+

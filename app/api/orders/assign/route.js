@@ -14,58 +14,60 @@ export async function POST(req) {
             return new Response(JSON.stringify({ error: 'Missing req parameters' }), { status: 400 })
         }
 
-        // 1. Fetch nearest online retailers within 5km using PostGIS function
+        // 1. Fetch up to 3 nearest online retailers within 10km using PostGIS function
         const { data: nearbyRetailers, error: geoError } = await supabase
             .rpc('get_nearest_retailers', {
                 lat: customerLat,
                 lng: customerLng,
-                radius_km: 5.0
-            })
+                radius_km: 10.0 // Expanded radius for broader options
+            });
 
         if (geoError || !nearbyRetailers || nearbyRetailers.length === 0) {
             return new Response(JSON.stringify({
-                error: 'No online retailers found within 5km'
-            }), { status: 404 })
+                error: 'No online retailers found within 10km'
+            }), { status: 404 });
         }
 
-        // 2. Select the closest retailer (or highest priority one)
-        const closestRetailer = nearbyRetailers[0] // Since SQL already sorting ASC by distance
+        // Limit to 3 retailers for negotiation queue
+        const topRetailers = nearbyRetailers.slice(0, 3);
+        const retailerIds = topRetailers.map(r => r.retailer_id);
 
-        // 3. Fetch Global Settings for dynamic timeouts
-        let timeoutSeconds = 60
-        const { data: settings } = await supabase.from('global_settings').select('vendor_timeout_seconds').eq('id', 1).single()
-        if (settings && settings.vendor_timeout_seconds) {
-            timeoutSeconds = settings.vendor_timeout_seconds
-        }
+        // 2. Fetch System Settings for delivery fees
+        const settings = await prisma.systemSettings.findFirst() || { deliveryAgentFee: 50, selfDeliveryBonus: 15 };
+        const deliveryFee = settings.deliveryAgentFee;
+        const totalSelfDeliveryBonus = deliveryFee + (settings.selfDeliveryBonus || 0);
 
-        // 4. Create the Assignment Timer based on Admin Settings
-        const now = new Date()
-        const expiresAt = new Date(now.getTime() + (timeoutSeconds * 1000))
+        // 3. Update the Order with the negotiation queue
+        await prisma.order.update({
+            where: { id: orderId },
+            data: {
+                nearestRetailerIds: retailerIds,
+                currentRetailerIndex: 0,
+                deliveryFee: deliveryFee,
+                assignedRetailerId: retailerIds[0],
+                status: "Pending_Retailer_Acceptance"
+            }
+        });
 
-        const { error: assignError } = await supabase
-            .from('order_assignments')
-            .insert({
-                order_id: orderId,
-                retailer_id: closestRetailer.retailer_id,
-                distance_km: closestRetailer.distance_km,
-                status: 'pending',
-                expires_at: expiresAt.toISOString()
-            })
-
-        if (assignError) throw assignError
-
-        // 5. Send MSG91 or Twilio SMS to the retailer
-        const { data: retailerUser } = await supabase.from('users').select('phone').eq('id', closestRetailer.retailer_id).single()
+        // 4. Send SMS Alert to the FIRST retailer in the queue
+        const firstRetailer = topRetailers[0];
+        const { data: retailerUser } = await supabase.from('users').select('phone').eq('id', firstRetailer.retailer_id).single();
+        
         if (retailerUser && retailerUser.phone) {
-            await sendSMS(retailerUser.phone, `SWASTIK: New order received! Please accept within ${timeoutSeconds} seconds.`);
+            await sendSMS(
+                retailerUser.phone, 
+                `SWASTIK: New order #${orderId.slice(-6).toUpperCase()}! \n` +
+                `Fulfill & Deliver yourself to earn ₹${totalSelfDeliveryBonus}? \n` +
+                `Or Fulfill only for standard margin. Reply on App.`
+            );
         }
 
         return new Response(JSON.stringify({
-            message: 'Order pushed to nearest retailer',
-            assigned_to: closestRetailer.store_name,
-            distance: `${closestRetailer.distance_km} km`,
-            expires_at: expiresAt
-        }), { status: 200 })
+            message: 'Order offered to first of 3 nearest retailers',
+            assigned_to: firstRetailer.store_name,
+            distance: `${firstRetailer.distance_km} km`,
+            retailers_in_queue: topRetailers.length
+        }), { status: 200 });
 
     } catch (error) {
         console.error('API Error:', error)

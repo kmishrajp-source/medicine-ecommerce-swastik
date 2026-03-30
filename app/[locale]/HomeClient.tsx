@@ -190,6 +190,13 @@ export default function HomeClient() {
             </div>
         </div>
 
+
+        {/* BEST SELLING (Elevated) */}
+        <div className="container px-8">
+          <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
+          <ProductGrid products={bestSelling} addToCart={addToCart} />
+        </div>
+
         {/* BENEFITS SECTION */}
         <BenefitsSection />
 
@@ -203,82 +210,44 @@ export default function HomeClient() {
           />
         </div>
 
-
-        {/* MULTI-ENTRY SYSTEM */}
-        <div className="py-24 bg-white relative">
-            <div className="max-w-7xl mx-auto px-8 text-center mb-16">
-                 <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-4">India's Fastest Growing Healthcare Network</h2>
-                 <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Select your path to get started</p>
-            </div>
-            
-            <div className="max-w-7xl mx-auto px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-                 {/* For Patients */}
-                 <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 flex flex-col items-center text-center transition-all hover:bg-white hover:shadow-2xl hover:border-indigo-100 group">
-                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-3xl mb-8 group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner">
-                        <i className="fa-solid fa-magnifying-glass"></i>
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-2">For Patients</h3>
-                    <p className="text-slate-500 font-bold text-sm mb-2 leading-relaxed">Search top doctors near you and connect instantly via Call or WhatsApp.</p>
-                    <div className="text-indigo-600 font-black text-[10px] uppercase mb-8">⚡ Find doctor in seconds</div>
-                    <Link href="/doctors" className="w-full bg-slate-900 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all">Find Doctor Now</Link>
-                 </div>
-
-                 {/* For Doctors */}
-                 <div className="bg-indigo-600 p-10 rounded-[3rem] shadow-2xl text-white flex flex-col items-center text-center transition-all hover:scale-[1.05] relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-[100px]"></div>
-                    <div className="w-20 h-20 bg-white/10 rounded-3xl flex items-center justify-center text-3xl mb-8 shadow-inner">
-                        <i className="fa-solid fa-user-doctor"></i>
-                    </div>
-                    <h3 className="text-2xl font-black mb-2">For Doctors</h3>
-                    <p className="text-white/80 font-bold text-sm mb-2 leading-relaxed">Grow your practice and get more patient inquiries verified in {location}.</p>
-                    <div className="text-indigo-200 font-black text-[10px] uppercase mb-8">📈 Get daily patient leads</div>
-                    <Link href="/join" className="w-full bg-white text-indigo-600 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-slate-100 transition-all shadow-lg">Join as Doctor</Link>
-                 </div>
-
-                 {/* For Pharmacies */}
-                 <div className="bg-slate-50 p-10 rounded-[3rem] border border-slate-100 flex flex-col items-center text-center transition-all hover:bg-white hover:shadow-2xl hover:border-emerald-100 group">
-                    <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center text-3xl mb-8 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-inner">
-                        <i className="fa-solid fa-shop"></i>
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-2">For Pharmacies</h3>
-                    <p className="text-slate-500 font-bold text-sm mb-2 leading-relaxed">Receive more medicine orders and join the local digital healthcare network.</p>
-                    <div className="text-emerald-600 font-black text-[10px] uppercase mb-8">💰 Increase medicine orders</div>
-                    <Link href="/join" className="w-full bg-emerald-500 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all">Join as Pharmacy</Link>
-                 </div>
-            </div>
-        </div>
-
-        {/* SMART TOOLS (INTEGRATED) */}
-        <div className="container px-8">
+        {/* SMART TOOLS (EXPANDED) */}
+        <div className="container px-8 py-20">
           <SectionTitle title="⚡ Smart Healthcare Tools" />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', margin: '40px 0' }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mt-12">
             <FeatureCard 
-              href="/symptom-helper" 
-              icon="fa-wand-sparkles" 
-              title="Symptom Checker"
-              desc="Check symptoms instantly"
-              color="#4F46E5"
+              href="/ai-assistant" 
+              icon="fa-robot" 
+              title="AI Medicine Assistant"
+              desc="Dosages & Side Effects"
+              color="#3B82F6"
             />
             <FeatureCard 
-              href="/blog" 
-              icon="fa-newspaper" 
-              title="Health Blog"
-              desc="Disease guides & local tips"
-              color="#F59E0B"
+              href="/symptom-checker" 
+              icon="fa-stethoscope" 
+              title="Symptom Checker"
+              desc="Instant Wellness Guidance"
+              color="#4F46E5"
             />
             <FeatureCard 
               href="/prescription-analyzer" 
               icon="fa-file-medical" 
               title="Rx Analyzer"
-              desc="Analyze prescription safely"
-              color="#3B82F6"
+              desc="Analyze prescriptions safely"
+              color="#059669"
             />
             <FeatureCard 
               href="/drug-interaction-checker" 
-              icon="fa-capsules" 
+              icon="fa-pills" 
               title="Interaction Checker"
-              desc="Avoid harmful drug interactions"
-              color="#10B981"
+              desc="Check drug interactions"
+              color="#D97706"
+            />
+            <FeatureCard 
+              href="/advertise" 
+              icon="fa-ad" 
+              title="Advertise With Us"
+              desc="Grow your healthcare brand"
+              color="#7C3AED"
             />
           </div>
         </div>
@@ -322,11 +291,41 @@ export default function HomeClient() {
             </div>
         </div>
 
-        {/* PRICING PLANS */}
-        <PricingSection />
-
         {/* FAQ SECTION */}
         <FAQSection />
+
+        {/* PARTNER ECOSYSTEM VIDEOS (Moved Down) */}
+        <div className="py-24 bg-slate-50">
+            <div className="max-w-7xl mx-auto px-8">
+                <SectionTitle title="🤝 Join Our Growing Healthcare Network" />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+                    <MotivationalVideo 
+                        title="For Hospitals" 
+                        description="Digitize your patient intake and fulfillment."
+                        videoUrl="https://www.youtube.com/embed/JS08a73wnAM"
+                        ctaText="Register Hospital"
+                        ctaLink="/hospital/register"
+                    />
+                    <MotivationalVideo 
+                        title="For Insurance Providers" 
+                        description="Verify claims and manage benefits in real-time."
+                        videoUrl="https://www.youtube.com/embed/5yiySDLhLyk"
+                        ctaText="Become a Provider"
+                        ctaLink="/insurance/register"
+                    />
+                    <MotivationalVideo 
+                        title="For Manufacturers" 
+                        description="Supply medicines and manage your global catalog."
+                        videoUrl="https://www.youtube.com/embed/kD56e6tao0o"
+                        ctaText="Join Supply Chain"
+                        ctaLink="/manufacturer/register"
+                    />
+                </div>
+            </div>
+        </div>
+
+        {/* PRICING PLANS (Moved Down) */}
+        <PricingSection />
 
         {/* FINAL CTA REPEAT */}
         <div className="py-32 bg-indigo-600 text-center relative overflow-hidden">
@@ -346,10 +345,6 @@ export default function HomeClient() {
         <div className="container">
           <AdBanner position="Home-Banner" />
           
-          {/* BEST SELLING */}
-          <SectionTitle title={`🔥 ${tSections('best_selling')}`} />
-          <ProductGrid products={bestSelling} addToCart={addToCart} />
-
           {/* REVIEWS */}
           <SectionTitle title={`💬 ${t('customer_reviews')}`} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px', marginBottom: '60px' }}>

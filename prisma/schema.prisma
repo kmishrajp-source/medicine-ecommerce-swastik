@@ -70,6 +70,7 @@ model SystemSettings {
   welcomeBonusAmount  Float    @default(50.0)
   minimumWithdrawal   Float    @default(100.0)
   deliveryAgentFee    Float    @default(50.0)
+  selfDeliveryBonus   Float    @default(15.0) // Bonus for retailers who deliver themselves
   referralConfig      Json?    // Stores dynamic percentages for Doctors, Retailers, etc.
   updatedAt           DateTime @updatedAt
 }
@@ -136,6 +137,11 @@ model Order {
   assignedRetailerId String?
   assignedRetailer Retailer? @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
   declinedRetailers String[] @default([]) // Array of Retailer IDs who rejected/timed out
+  nearestRetailerIds String[] @default([]) // List of up to 3 retailers discovered at creation
+  currentRetailerIndex Int     @default(0) // Index in nearestRetailerIds currently being offered
+  isRetailerDelivering Boolean @default(false)
+  deliveryFee         Float    @default(50.0)
+  deliveryNegotiationLogs Json?   // [{retailerId, response, timestamp}]
   deliveryAgentId String?
   deliveryAgent DeliveryAgent? @relation("AssignedDeliveries", fields: [deliveryAgentId], references: [id])
   assignedAt    DateTime?

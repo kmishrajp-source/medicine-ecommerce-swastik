@@ -88,7 +88,7 @@ export default function DirectoryCard({ item, type, onBook }) {
                 <i className="fa-solid fa-shield-check text-indigo-400"></i> Verified Swastik Partner
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 mb-4">
                 <a 
                     href={`https://wa.me/91${item.phone}?text=Hello, I found your listing on Swastik Medicare and want to connect.`}
                     target="_blank"
@@ -117,6 +117,13 @@ export default function DirectoryCard({ item, type, onBook }) {
                     <i className="fa-solid fa-phone text-sm"></i> Call Now
                 </a>
             </div>
+            
+            <button 
+                onClick={onBook} 
+                className="w-full bg-indigo-50 text-indigo-600 text-center font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-600 hover:text-white transition-all active:scale-95 border border-indigo-100"
+            >
+                <i className="fa-solid fa-calendar-check text-sm"></i> Request Appointment / Callback
+            </button>
         </div>
     );
 }

@@ -18,6 +18,10 @@ export default function AdminCRMDashboard() {
     const [revenueData, setRevenueData] = useState([]);
     const [paymentHistory, setPaymentHistory] = useState([]);
     const [activeTab, setActiveTab] = useState("leads");
+    
+    // New States for Providers and Logistics
+    const [providers, setProviders] = useState([]);
+    const [deliveries, setDeliveries] = useState([]);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -35,10 +39,22 @@ export default function AdminCRMDashboard() {
             // I will integrate the new fetches into the existing authenticated block and add a separate useEffect for filters if needed.
             // For now, I'll keep the existing filter dependency for fetchLeads.
             fetchAgents(); // Assuming this is a new function to fetch agents separately if not part of fetchLeads
-            fetchRevenue(); // Assuming this is a new function
+            fetchAgents();
+            fetchRevenue(); 
             fetchPaymentHistory();
+            fetchProviders();
         }
-    }, [status, filters]); // Keep existing dependencies for now
+    }, [status, filters]);
+
+    const fetchProviders = async () => {
+        try {
+            const res = await fetch("/api/admin/crm/providers");
+            const data = await res.json();
+            if (data.success) {
+                setProviders(data.providers);
+            }
+        } catch (error) { console.error("Fetch Providers Error:", error); }
+    };
 
     // New useEffect for filter-based data fetching, if filters are meant to trigger all fetches
     // This part is speculative based on the instruction's useEffect, but not explicitly defined in the state.
@@ -131,12 +147,12 @@ export default function AdminCRMDashboard() {
         setLoading(false);
     };
 
-    const addRevenue = async (partnerId, type, amount) => {
+    const addRevenue = async (partnerId, partnerType, type, amount) => {
         try {
             await fetch("/api/admin/crm/revenue", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ partnerId, partnerType: 'DOCTOR', revenueType: type, amount })
+                body: JSON.stringify({ partnerId, partnerType: partnerType.toUpperCase(), revenueType: type, amount })
             });
             alert("Revenue recorded!");
             fetchLeads();
@@ -242,6 +258,18 @@ export default function AdminCRMDashboard() {
                     >
                         Payment History
                     </button>
+                    <button 
+                        onClick={() => setActiveTab("partners")}
+                        className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'partners' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400'}`}
+                    >
+                        Partners Profile
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab("logistics")}
+                        className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'logistics' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400'}`}
+                    >
+                        Logistics Log
+                    </button>
                 </div>
                 {activeTab === 'leads' && (
                     <div className="flex gap-2">
@@ -270,7 +298,7 @@ export default function AdminCRMDashboard() {
                 </div>
             )}
 
-            {activeTab === 'leads' ? (
+            {activeTab === 'leads' && (
                 <>
                     {/* Filters Bar */}
                     <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', background: '#f3f4f6', padding: '20px', borderRadius: '12px' }}>
@@ -387,7 +415,7 @@ export default function AdminCRMDashboard() {
                                         <td style={{ padding: '15px' }}>
                                             {lead.status === 'converted' && (
                                                 <button 
-                                                    onClick={() => addRevenue(lead.id, 'LISTING_FEE', 1000)}
+                                                    onClick={() => addRevenue(lead.id, lead.serviceType, 'LISTING_FEE', 1000)}
                                                     style={{ padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem', background: '#ecfdf5', color: '#047857', border: '1px solid #10b981', cursor: 'pointer' }}
                                                 >
                                                     + ₹1000 Fee
@@ -455,7 +483,9 @@ export default function AdminCRMDashboard() {
                         </div>
                     </div>
                 </>
-            ) : (
+            )}
+
+            {activeTab === 'payments' && (
                 <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
                     <div className="p-8 border-b border-slate-50">
                         <h2 className="text-xl font-black text-slate-900">Total Revenue Stream</h2>
@@ -491,6 +521,92 @@ export default function AdminCRMDashboard() {
                             </tbody>
                         </table>
                     </div>
+                </div>
+            )}
+
+            {activeTab === 'partners' && (
+                <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="p-8 border-b border-slate-50 flex justify-between items-center">
+                        <h2 className="text-xl font-black text-slate-900">Marketplace Providers</h2>
+                        <span className="text-xs font-bold text-slate-400">{providers.length} Partners Registered</span>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50">
+                                <tr>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Name</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Type</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Phone</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Status</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {providers.map((p, i) => (
+                                    <tr key={i} className="hover:bg-slate-50/50 transition-all">
+                                        <td className="px-8 py-5">
+                                            <div className="font-bold text-slate-900">{p.doctorName || p.name}</div>
+                                            <div className="text-xs font-bold text-slate-400">{p.locality || p.address}</div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <span className="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[9px] font-black uppercase">{p.type}</span>
+                                        </td>
+                                        <td className="px-8 py-5 text-sm font-black text-slate-600">{p.phone}</td>
+                                        <td className="px-8 py-5">
+                                            {p.verified ? 
+                                                <span className="text-emerald-500 font-bold text-xs"><i className="fa-solid fa-circle-check"></i> Verified</span> : 
+                                                <span className="text-amber-500 font-bold text-xs">Unverified</span>
+                                            }
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <button 
+                                                onClick={() => addRevenue(p.id, p.type, 'SUBSCRIPTION', p.type === 'doctor' ? 1000 : 1500)}
+                                                className="bg-indigo-50 text-indigo-600 text-[10px] font-black px-3 py-1.5 rounded-lg hover:bg-indigo-600 hover:text-white transition-all shadow-sm"
+                                            >
+                                                Log Sub
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {providers.length === 0 && (
+                                    <tr>
+                                        <td colSpan="5" className="py-20 text-center font-bold text-slate-300">No partner records found or loading...</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'logistics' && (
+                <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="p-8 border-b border-slate-50">
+                        <h2 className="text-xl font-black text-slate-900">Delivery Agent Fleet</h2>
+                        <p className="text-sm font-bold text-slate-400 mt-2">Manage Swastik Delivery Partners</p>
+                    </div>
+                    <div className="p-8">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {agents.map(agent => (
+                                <div key={agent.id} className="border border-slate-100 rounded-2xl p-6 hover:shadow-lg transition-all">
+                                    <div className="flex justify-between items-start mb-4">
+                                        <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-full flex items-center justify-center text-xl">
+                                            <i className="fa-solid fa-motorcycle"></i>
+                                        </div>
+                                        <span className="bg-emerald-50 text-emerald-600 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full">
+                                            Active
+                                        </span>
+                                    </div>
+                                    <h3 className="text-lg font-black text-slate-900 mb-1">{agent.name}</h3>
+                                    <p className="text-xs font-bold text-slate-400 mb-4"><i className="fa-solid fa-phone mr-1"></i> {agent.phone || "No phone"}</p>
+                                    <div className="bg-slate-50 p-3 rounded-xl flex justify-between items-center text-xs">
+                                        <span className="font-bold text-slate-500">Deliveries</span>
+                                        <span className="font-black text-indigo-600">{agent.stats?.completed || 0}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                   </div>
                 </div>
             )}
         </div>
