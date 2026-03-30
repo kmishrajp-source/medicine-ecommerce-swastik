@@ -18,6 +18,7 @@
     "support": "Support & Complaints",
     "my_rx": "My RX",
     "growth_partner": "Growth Partner",
+    "hospitals": "Hospitals",
     "logout": "Logout",
     "install_app": "Install App"
   },
@@ -69,6 +70,7 @@
   "Referral": {
     "title": "Refer & Earn 7% Commission",
     "subtitle": "Get a unique code. Earn 5% when your friends buy, and 2% when their friends buy! Direct to your wallet.",
+    "retailer_subtitle": "Pharmacy Partner! Grow your network by inviting other retailers or customers. Earn 7% commission on every order in your network.",
     "generate_code": "Generate My Code",
     "your_code": "Your Referral Code",
     "share_whatsapp": "Share on WhatsApp"

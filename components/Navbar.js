@@ -12,6 +12,7 @@ export default function Navbar({ cartCount, openCart }) {
     const t = useTranslations('Navigation');
     const tHome = useTranslations('Homepage');
     const tProduct = useTranslations('Product');
+    const tFooter = useTranslations('Footer');
     const router = useRouter();
 
     const [deferredPrompt, setDeferredPrompt] = useState(null);
@@ -149,7 +150,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
                         <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{tFooter('services')}</Link></li>
+                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{t('hospitals')}</Link></li>
                         <li><Link href="/retailers" className="hover:text-white transition-colors">{t('inventory')}</Link></li>
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">{t('ambulance')}</Link></li>
                         <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>

@@ -72,8 +72,14 @@ export default function ReferPage() {
                     <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: 'var(--primary-dark)', marginBottom: '15px' }}>
                         {t('title')}
                     </h1>
+                    {session?.user?.role === 'RETAILER' && (
+                        <div style={{ background: '#EEF2FF', padding: '10px 20px', borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', border: '1px solid #C7D2FE' }}>
+                            <i className="fa-solid fa-store text-indigo-600"></i>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '900', color: '#4338CA', textTransform: 'uppercase', letterSpacing: '1px' }}>Retailer Exclusive Mode</span>
+                        </div>
+                    )}
                     <p style={{ fontSize: '1.2rem', color: 'var(--text-light)', marginBottom: '40px', lineHeight: 1.6 }}>
-                        {t('subtitle')}
+                        {session?.user?.role === 'RETAILER' ? t('retailer_subtitle') : t('subtitle')}
                     </p>
 
                     <MotivationalVideo 
