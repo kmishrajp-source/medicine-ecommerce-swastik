@@ -208,5 +208,23 @@
     "featured_plan": "Featured Plan",
     "join_today": "Join Swastik Medicare Today",
     "faq_title": "Frequently Asked Questions"
+  },
+  "RetailerRegistration": {
+    "network_prompt": "Join the Digital Pharmacy Network! SCALE your business with premium local delivery and inventory tools. Use a referral code to unlock an onboarding bonus."
+  },
+  "Shop": {
+    "title": "Shop Medicines Online - Swastik Medicare",
+    "description": "Browse and order a wide range of medicines from verified pharmacies. Fast home delivery and best prices.",
+    "browse": "Browse Medicines",
+    "results_found": "{count} Results",
+    "search_placeholder": "Search by name or category...",
+    "all": "All",
+    "prescription_only": "Prescription Only",
+    "otc": "OTC",
+    "no_find_prompt_title": "Can't find what you need?",
+    "no_find_prompt_desc": "Value us! We can arrange any medicine within hours.",
+    "request_btn": "Request Medicine",
+    "upload_btn": "Upload Prescription",
+    "no_results": "No medicines found matching your criteria."
   }
 }

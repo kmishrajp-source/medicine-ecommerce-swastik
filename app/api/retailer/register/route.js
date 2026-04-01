@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
     try {
-        const { shopName, email, password, phone, address, licenseNumber } = await req.json();
+        const { shopName, email, password, phone, address, licenseNumber, referralCode: incomingReferralCode } = await req.json();
 
         // 1. Check if user already exists
         const existingUser = await prisma.user.findUnique({
@@ -18,15 +18,36 @@ export async function POST(req) {
         // 2. Hash Password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 3. Create User and Retailer in a transaction
+        // 3. Generate a unique referral code for the new retailer
+        const newReferralCode = `JOIN-${Math.random().toString(36).substring(3, 9).toUpperCase()}`;
+
+        // 4. Find referrer if code is provided
+        let referrer = null;
+        if (incomingReferralCode) {
+            referrer = await prisma.user.findUnique({
+                where: { referralCode: incomingReferralCode }
+            });
+        }
+
+        // 5. Fetch System Settings for bonuses
+        const settings = await prisma.systemSettings.findFirst({
+            where: { id: 'default' }
+        });
+
+        const welcomeBonus = settings?.welcomeBonusAmount || 0;
+
+        // 6. Create User and Retailer in a transaction
         const result = await prisma.$transaction(async (tx) => {
             // Create User
             const newUser = await tx.user.create({
                 data: {
-                    name: shopName, // Use Shop Name as User Name
+                    name: shopName,
                     email,
                     password: hashedPassword,
-                    role: 'RETAILER', // Explicitly set role
+                    role: 'RETAILER',
+                    referralCode: newReferralCode,
+                    referredBy: referrer?.id || null,
+                    walletBalance: welcomeBonus // Apply onboarding bonus immediately
                 }
             });
 
@@ -38,16 +59,41 @@ export async function POST(req) {
                     address,
                     licenseNumber,
                     phone,
-                    verified: false // Requires Admin/Stockist approval
+                    verified: false
                 }
             });
+
+            // Track the referral connection if applicable
+            if (referrer) {
+                await tx.referralConnection.create({
+                    data: {
+                        referrerId: referrer.id,
+                        refereeId: newUser.id,
+                        refereeRole: 'RETAILER',
+                        status: 'Pending_Activity'
+                    }
+                });
+
+                // Log the welcome bonus transaction
+                if (welcomeBonus > 0) {
+                    await tx.walletTransaction.create({
+                        data: {
+                            userId: newUser.id,
+                            amount: welcomeBonus,
+                            type: 'CREDIT',
+                            description: `Welcome Bonus (Referred by ${referrer.name || 'Partner'})`
+                        }
+                    });
+                }
+            }
 
             return { newUser, newRetailer };
         });
 
         return NextResponse.json({
             success: true,
-            message: "Retailer registered successfully. Wait for verification."
+            message: "Pharmacy Partner registered successfully. Your onboarding bonus has been credited.",
+            referralCode: newReferralCode
         });
 
     } catch (error) {

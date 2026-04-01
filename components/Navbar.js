@@ -146,7 +146,7 @@ export default function Navbar({ cartCount, openCart }) {
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
                     <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
                         <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
-                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tProduct('general_category')}</Link></li>
+                        <li><Link href="/shop" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tHome('shop_medicines')}</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
                         <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
