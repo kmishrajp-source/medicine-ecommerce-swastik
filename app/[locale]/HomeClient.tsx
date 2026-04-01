@@ -83,7 +83,7 @@ export default function HomeClient() {
                         <Link href="/doctors" className="bg-slate-900 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
                             {t('find_doctor')}
                         </Link>
-                        <Link href="/shop" className="bg-indigo-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                        <Link href="/shop-medicines" className="bg-indigo-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
                             {t('shop_medicines')}
                         </Link>
                         <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px' }}>

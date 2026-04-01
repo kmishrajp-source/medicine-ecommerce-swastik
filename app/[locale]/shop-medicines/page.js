@@ -9,7 +9,7 @@ export async function generateMetadata({ params }) {
     title: "Shop Medicines Online - Swastik Medicare",
     description: "Browse and order a wide range of medicines from verified pharmacies. Fast home delivery and best prices.",
     alternates: {
-      canonical: `https://medicine-ecommerce-swastik-main.vercel.app/${locale}/shop`,
+      canonical: `https://medicine-ecommerce-swastik-main.vercel.app/${locale}/shop-medicines`,
     },
   };
 }
