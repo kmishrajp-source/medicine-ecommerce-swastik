@@ -332,11 +332,15 @@ model Retailer {
   phone          String
   city           String   @default("Gorakhpur")
   verified       Boolean  @default(false)
+  isDirectory    Boolean  @default(false)
+  rating         Float    @default(4.5)
+  ratingCount    Int      @default(0)
   status         String   @default("unverified") // unverified, verified, claimed
   source         String   @default("field_agent") // google_maps, justdial, field_agent, self_registered
   lat            Float?
   lng            Float?
   photoUrl       String?
+  openingHours   String   @default("9:00 AM - 10:00 PM")
   isOnline       Boolean  @default(false)
   createdAt      DateTime @default(now())
   bulkOrders     BulkOrder[]
@@ -604,8 +608,8 @@ model InsuranceLead {
 
 model Hospital {
   id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id])
   name           String
   address        String
   city           String   @default("Gorakhpur")
@@ -615,6 +619,11 @@ model Hospital {
   website        String?
   specialties    String?  // JSON string or comma-separated
   verified       Boolean  @default(false)
+  isDirectory    Boolean  @default(false)
+  rating         Float    @default(4.5)
+  ratingCount    Int      @default(0)
+  photoUrl       String?
+  openingHours   String   @default("24/7 Hours")
   bankDetails    Json?    // UPI/Bank Details for settlement
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt

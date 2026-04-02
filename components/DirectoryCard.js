@@ -19,111 +19,114 @@ export default function DirectoryCard({ item, type, onBook }) {
     const subText = type === 'doctor' ? item.specialization : (type === 'hospital' ? item.specialties : item.address);
 
     return (
-        <div className="bg-white rounded-3xl p-6 shadow-md border border-gray-100 hover:shadow-xl transition-all group relative overflow-hidden">
-            {item.availableNow && (
-                <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg shadow-emerald-200 z-10 animate-pulse">
-                    <i className="fa-solid fa-circle-check mr-1 text-[8px]"></i> Available Now
+        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all group relative overflow-hidden flex flex-col h-full">
+            {/* Top Badge Overlay */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
+            {item.photoUrl && (
+                <div className="relative w-full h-40 mb-6 rounded-2xl overflow-hidden shadow-inner bg-slate-100">
+                    <img src={item.photoUrl} alt={displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute bottom-3 left-3 flex items-center gap-2">
+                        <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
+                            {type === 'hospital' ? 'Facility' : (type === 'doctor' ? 'Consultant' : 'Verified Store')}
+                        </div>
+                    </div>
                 </div>
             )}
-            
+
             <div className="flex justify-between items-start mb-4">
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500')}`}>
-                    <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
-                </div>
+                {!item.photoUrl && (
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500')}`}>
+                        <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
+                    </div>
+                )}
+                <div className="flex-1"></div>
                 {item.verified ? (
                     <VerifiedBadge timestamp={item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : undefined} />
                 ) : (
                     <div className="flex flex-col items-end gap-2">
                         <div className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-slate-200">
-                            <i className="fa-solid fa-circle-info mr-1"></i> Unverified
+                            <i className="fa-solid fa-circle-info mr-1"></i> Directory Entry
                         </div>
-                        <Link href={`/join?claim=${item.id}&name=${encodeURIComponent(displayName)}`} className="bg-indigo-50 text-indigo-600 text-[8px] font-black uppercase tracking-widest px-3 py-1.5 rounded-full hover:bg-indigo-600 hover:text-white transition-all shadow-sm border border-indigo-100">
-                            Claim this Profile
-                        </Link>
                     </div>
                 )}
             </div>
 
-            <h3 className="text-xl font-bold text-slate-900 mb-1 leading-tight">{displayName}</h3>
-            <div className="flex items-center gap-2 mb-4">
-                <p className="text-sm font-bold text-slate-400 line-clamp-1">{subText}</p>
-                {(item.qualityScore > 0 || item.rating > 0) && (
-                    <span className="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                        {item.qualityScore || (item.rating * 20)}% Trust
-                    </span>
-                )}
-            </div>
-
-            {/* Timings / Locality Info */}
-             <div className="flex items-center gap-3 mb-6 bg-slate-50 p-3 rounded-2xl">
-                  <div className="flex flex-col">
-                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Experience</span>
-                     <span className="text-[10px] font-black text-slate-800">{type === 'doctor' ? (item.experience ? `${item.experience} Years` : '10+ Years') : 'Gorakhpur'}</span>
-                  </div>
-                  <div className="h-6 w-px bg-slate-200"></div>
-                  <div className="flex flex-col">
-                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Rating</span>
-                     <span className="text-[10px] font-black text-amber-500"><i className="fa-solid fa-star mr-1"></i>{item.rating || '4.5'}</span>
-                  </div>
-                  <div className="h-6 w-px bg-slate-200"></div>
-                  <div className="flex flex-col">
-                     <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">OPD Fee</span>
-                     <span className="text-[10px] font-black text-indigo-600">₹{item.fee || item.consultationFee || '500'}</span>
-                  </div>
-             </div>
-
-            <div className="space-y-3 mb-6">
-                <div className="flex items-center gap-3 text-sm">
-                    <i className="fa-solid fa-phone text-slate-400 w-4"></i>
-                    <a href={`tel:${item.phone}`} className="font-black text-slate-800 hover:text-indigo-600 tracking-tight">{displayPhone}</a>
+            <div className="flex-1">
+                <h3 className="text-xl font-black text-slate-900 mb-1 leading-tight group-hover:text-indigo-600 transition-colors">{displayName}</h3>
+                <div className="flex items-center gap-2 mb-4">
+                    <p className="text-xs font-bold text-slate-400 line-clamp-1">{subText}</p>
+                    {item.rating > 0 && (
+                        <span className="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                            {Math.round(item.rating * 20)}% Trust
+                        </span>
+                    )}
                 </div>
-                <div className="flex items-center gap-3 text-sm">
-                    <i className="fa-solid fa-location-dot text-slate-400 w-4"></i>
-                    <span className="text-slate-600 line-clamp-1 font-bold">{type === 'doctor' ? (item.hospital || item.address) : item.address}</span>
+
+                {/* Data Grid */}
+                <div className="grid grid-cols-3 gap-2 mb-6 bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                    <div className="flex flex-col">
+                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
+                            {type === 'doctor' ? 'Experience' : (type === 'hospital' ? 'Type' : 'Delivery')}
+                        </span>
+                        <span className="text-[10px] font-black text-slate-800 line-clamp-1">
+                            {type === 'doctor' ? (item.experience ? `${item.experience} yrs` : '12+ yrs') : (type === 'hospital' ? 'Multi-Specialty' : 'Home Delivery')}
+                        </span>
+                    </div>
+                    <div className="flex flex-col border-l border-slate-200 pl-2">
+                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">Rating</span>
+                        <span className="text-[10px] font-black text-amber-500 flex items-center gap-0.5">
+                            <i className="fa-solid fa-star text-[8px]"></i>{item.rating || '4.5'}
+                        </span>
+                    </div>
+                    <div className="flex flex-col border-l border-slate-200 pl-2">
+                        <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
+                            {type === 'doctor' ? 'Fee' : (type === 'hospital' ? 'Status' : 'Hours')}
+                        </span>
+                        <span className="text-[10px] font-black text-indigo-600">
+                            {type === 'doctor' ? `₹${item.fee || 500}` : (item.openingHours?.split(' ')[0] || '24/7')}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="space-y-2.5 mb-6 text-sm">
+                    <div className="flex items-start gap-3">
+                        <i className="fa-solid fa-phone text-slate-400 w-3 mt-1"></i>
+                        <a href={`tel:${item.phone}`} className="font-bold text-slate-800 hover:text-indigo-600 transition-colors">{displayPhone}</a>
+                    </div>
+                    <div className="flex items-start gap-3">
+                        <i className="fa-solid fa-location-dot text-slate-400 w-3 mt-1"></i>
+                        <span className="text-slate-500 font-medium text-xs leading-relaxed line-clamp-2">{item.address}</span>
+                    </div>
                 </div>
             </div>
 
-            {/* Attribution Badge */}
-            <div className="flex items-center gap-1.5 mb-6 text-[9px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-2 py-1 rounded-md w-fit">
-                <i className="fa-solid fa-shield-check text-indigo-400"></i> Verified Swastik Partner
-            </div>
-
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-3 mt-auto">
                 <a 
-                    href={`https://wa.me/91${item.phone}?text=Hello, I found your listing on Swastik Medicare and want to connect.`}
+                    href={`https://wa.me/91${item.phone?.replace(/[^0-9]/g, '')}?text=Hello, I am interested in ${displayName}. Found you on Swastik Medicare.`}
                     target="_blank"
-                    onClick={() => {
-                        fetch('/api/analytics/track', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ type: 'whatsapp', targetId: item.id, targetType: type, area: item.locality })
-                        });
-                    }}
-                    className="bg-emerald-500 text-white text-center font-black py-5 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-emerald-100 hover:bg-emerald-600 transition-all active:scale-95"
+                    className="bg-emerald-50 text-emerald-600 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-emerald-100"
                 >
-                    <i className="fa-brands fa-whatsapp text-lg"></i> WhatsApp
+                    <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp
                 </a>
                 <a 
                     href={`tel:${item.phone}`}
-                    onClick={() => {
-                        fetch('/api/analytics/track', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ type: 'call', targetId: item.id, targetType: type, area: item.locality })
-                        });
-                    }}
-                    className="bg-slate-900 text-white text-center font-black py-5 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-lg shadow-slate-100 hover:bg-black transition-all active:scale-95"
+                    className="bg-slate-900 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 shadow-lg shadow-slate-200"
                 >
-                    <i className="fa-solid fa-phone text-sm"></i> Call Now
+                    <i className="fa-solid fa-phone text-[10px]"></i> Call Now
                 </a>
+                <button 
+                    onClick={() => onBook(item)} 
+                    className="col-span-2 bg-indigo-600 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
+                >
+                    <i className="fa-solid fa-calendar-check text-sm"></i> 
+                    {type === 'retailer' ? 'Order via Call/WhatsApp' : 'Request Callback'}
+                </button>
             </div>
-            
-            <button 
-                onClick={onBook} 
-                className="w-full bg-indigo-50 text-indigo-600 text-center font-black py-4 rounded-2xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-600 hover:text-white transition-all active:scale-95 border border-indigo-100"
-            >
-                <i className="fa-solid fa-calendar-check text-sm"></i> Request Appointment / Callback
-            </button>
+        </div>
+    );
+}
         </div>
     );
 }
