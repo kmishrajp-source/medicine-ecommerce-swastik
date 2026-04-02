@@ -127,6 +127,3 @@ export default function DirectoryCard({ item, type, onBook }) {
         </div>
     );
 }
-        </div>
-    );
-}
