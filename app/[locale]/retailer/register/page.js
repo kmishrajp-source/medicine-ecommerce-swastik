@@ -1,11 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Navbar from "@/components/Navbar";
 import MotivationalVideo from "@/components/MotivationalVideo";
 
 export default function RetailerRegister() {
     const t = useTranslations('RetailerRegistration');
+    const router = useRouter();
     const searchParams = useSearchParams();
     const [formData, setFormData] = useState({
         shopName: "",
