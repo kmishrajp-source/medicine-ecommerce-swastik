@@ -15,8 +15,8 @@ export default function DirectoryCard({ item, type, onBook }) {
 
     // ... (keep handleUnlock for legacy/other items if needed)
 
-    const displayName = type === 'doctor' ? (item.doctorName || item.name) : (type === 'hospital' ? item.name : item.shopName || item.name);
-    const subText = type === 'doctor' ? item.specialization : (type === 'hospital' ? item.specialties : item.address);
+    const displayName = type === 'doctor' ? (item.doctorName || item.name) : (type === 'hospital' || type === 'lab' ? item.name : (type === 'ambulance' ? (item.driverName || 'Ambulance Service') : (item.shopName || item.name)));
+    const subText = type === 'doctor' ? item.specialization : (type === 'hospital' ? item.specialties : (type === 'lab' ? item.address : (type === 'ambulance' ? `${item.vehicleType} Ambulance` : item.address)));
 
     return (
         <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-100 hover:shadow-2xl hover:-translate-y-1 transition-all group relative overflow-hidden flex flex-col h-full">
@@ -29,7 +29,7 @@ export default function DirectoryCard({ item, type, onBook }) {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="absolute bottom-3 left-3 flex items-center gap-2">
                         <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">
-                            {type === 'hospital' ? 'Facility' : (type === 'doctor' ? 'Consultant' : 'Verified Store')}
+                            {type === 'hospital' ? 'Facility' : (type === 'doctor' ? 'Consultant' : (type === 'lab' ? 'Diagnostic Center' : (type === 'ambulance' ? 'Emergency' : 'Verified Store')))}
                         </div>
                     </div>
                 </div>
@@ -37,8 +37,8 @@ export default function DirectoryCard({ item, type, onBook }) {
 
             <div className="flex justify-between items-start mb-4">
                 {!item.photoUrl && (
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-500')}`}>
-                        <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl ${type === 'doctor' ? 'bg-indigo-50 text-indigo-500' : (type === 'hospital' ? 'bg-red-50 text-red-500' : (type === 'lab' ? 'bg-blue-50 text-blue-500' : (type === 'ambulance' ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500')))}`}>
+                        <i className={`fa-solid ${type === 'doctor' ? 'fa-user-doctor' : (type === 'hospital' ? 'fa-hospital' : (type === 'lab' ? 'fa-flask-vial' : (type === 'ambulance' ? 'fa-truck-medical' : 'fa-shop')))}`}></i>
                     </div>
                 )}
                 <div className="flex-1"></div>
@@ -68,10 +68,10 @@ export default function DirectoryCard({ item, type, onBook }) {
                 <div className="grid grid-cols-3 gap-2 mb-6 bg-slate-50 p-3 rounded-2xl border border-slate-100">
                     <div className="flex flex-col">
                         <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
-                            {type === 'doctor' ? 'Experience' : (type === 'hospital' ? 'Type' : 'Delivery')}
+                            {type === 'doctor' ? 'Experience' : (type === 'hospital' ? 'Type' : (type === 'lab' ? 'Samples' : (type === 'ambulance' ? 'Vehicle' : 'Delivery')))}
                         </span>
                         <span className="text-[10px] font-black text-slate-800 line-clamp-1">
-                            {type === 'doctor' ? (item.experience ? `${item.experience} yrs` : '12+ yrs') : (type === 'hospital' ? 'Multi-Specialty' : 'Home Delivery')}
+                            {type === 'doctor' ? (item.experience ? `${item.experience} yrs` : '12+ yrs') : (type === 'hospital' ? 'Multi-Specialty' : (type === 'lab' ? 'Home Pickup' : (type === 'ambulance' ? item.vehicleType : 'Home Delivery')))}
                         </span>
                     </div>
                     <div className="flex flex-col border-l border-slate-200 pl-2">
@@ -82,10 +82,10 @@ export default function DirectoryCard({ item, type, onBook }) {
                     </div>
                     <div className="flex flex-col border-l border-slate-200 pl-2">
                         <span className="text-[7px] font-black text-slate-400 uppercase tracking-widest">
-                            {type === 'doctor' ? 'Fee' : (type === 'hospital' ? 'Status' : 'Hours')}
+                            {type === 'doctor' ? 'Fee' : (type === 'hospital' ? 'Status' : (type === 'ambulance' ? 'Rate' : 'Hours'))}
                         </span>
                         <span className="text-[10px] font-black text-indigo-600">
-                            {type === 'doctor' ? `₹${item.fee || 500}` : (item.openingHours?.split(' ')[0] || '24/7')}
+                            {type === 'doctor' ? `₹${item.consultationFee || 500}` : (type === 'ambulance' ? `₹${item.pricePerKm}/km` : (item.openingHours?.split(' ')[0] || '24/7'))}
                         </span>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ export default function DirectoryCard({ item, type, onBook }) {
                     className="col-span-2 bg-indigo-600 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
                 >
                     <i className="fa-solid fa-calendar-check text-sm"></i> 
-                    {type === 'retailer' ? 'Order via Call/WhatsApp' : 'Request Callback'}
+                    {type === 'retailer' ? 'Order via Call/WhatsApp' : (type === 'ambulance' ? 'Request Emergency Pick' : 'Request Callback')}
                 </button>
             </div>
         </div>

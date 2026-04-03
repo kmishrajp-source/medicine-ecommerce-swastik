@@ -105,12 +105,12 @@ export default function SLNBookingModal({ isOpen, onClose, targetItem, serviceTy
 
                 <form onSubmit={handleSubmit} className="p-8 space-y-6">
                     <div className="bg-blue-50 p-4 rounded-2xl flex items-center gap-4 border border-blue-100">
-                        <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center text-blue-600 shadow-sm">
-                            <i className={`fa-solid ${serviceType === 'doctor' ? 'fa-user-doctor' : (serviceType === 'hospital' ? 'fa-hospital' : 'fa-shop')}`}></i>
+                        <div className="bg-white w-10 h-10 rounded-xl flex items-center justify-center text-blue-600 shadow-sm text-lg">
+                            <i className={`fa-solid ${serviceType === 'doctor' ? 'fa-user-doctor' : (serviceType === 'hospital' ? 'fa-hospital' : (serviceType === 'lab' ? 'fa-flask-vial' : (serviceType === 'ambulance' ? 'fa-truck-medical' : 'fa-shop')))}`}></i>
                         </div>
                         <div>
                             <p className="text-[10px] font-black text-blue-400 uppercase tracking-tighter">Booking For</p>
-                            <p className="font-bold text-blue-900">{targetItem.name || targetItem.shopName}</p>
+                            <p className="font-bold text-blue-900 line-clamp-1">{targetItem.name || targetItem.shopName || targetItem.driverName}</p>
                         </div>
                     </div>
 

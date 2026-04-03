@@ -276,13 +276,21 @@ model Appointment {
 
 model Lab {
   id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
+  userId         String?  @unique
+  user           User?    @relation(fields: [userId], references: [id])
   name           String
   address        String
-  licenseNumber  String
+  licenseNumber  String?  // Optional for directory
   phone          String
+  city           String   @default("Gorakhpur")
   verified       Boolean  @default(false)
+  isDirectory    Boolean  @default(false)
+  rating         Float    @default(4.5)
+  ratingCount    Int      @default(0)
+  status         String   @default("unverified") // unverified, verified, claimed
+  source         String   @default("field_agent")
+  photoUrl       String?
+  openingHours   String   @default("9:00 AM - 9:00 PM")
   lat            Float?
   lng            Float?
   createdAt      DateTime @default(now())
@@ -378,14 +386,20 @@ model BulkOrder {
 
 model Ambulance {
   id             String   @id @default(cuid())
-  userId         String
-  user           User     @relation(fields: [userId], references: [id])
+  userId         String?
+  user           User?    @relation(fields: [userId], references: [id])
   driverName     String
-  vehicleNumber  String
+  vehicleNumber  String?  // Optional for directory
   vehicleType    String   // "Basic", "ICU", "Advance"
-  city           String
+  city           String   @default("Gorakhpur")
+  verified       Boolean  @default(false)
+  isDirectory    Boolean  @default(false)
   isAvailable    Boolean  @default(true)
   phone          String
+  rating         Float    @default(4.8)
+  ratingCount    Int      @default(0)
+  status         String   @default("unverified")
+  photoUrl       String?
   currentLat     Float?
   currentLng     Float?
   pricePerKm     Float    @default(20.0)

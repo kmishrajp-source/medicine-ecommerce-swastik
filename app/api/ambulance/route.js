@@ -6,19 +6,17 @@ export async function GET(req) {
         const { searchParams } = new URL(req.url);
         const city = searchParams.get('city') || 'Gorakhpur';
 
-        const labs = await prisma.lab.findMany({
+        const ambulances = await prisma.ambulance.findMany({
             where: { 
                 isDirectory: true,
                 city: { contains: city, mode: 'insensitive' }
             },
-            include: { tests: true },
-            orderBy: { name: 'asc' }
+            orderBy: { driverName: 'asc' }
         });
 
-        return NextResponse.json({ success: true, labs });
+        return NextResponse.json({ success: true, ambulances });
     } catch (error) {
-        console.error("Labs API Error:", error);
-        return NextResponse.json({ success: false, error: 'Failed to fetch labs' }, { status: 500 });
+        console.error("Ambulance API Error:", error);
+        return NextResponse.json({ success: false, error: 'Failed to fetch ambulance services' }, { status: 500 });
     }
 }
-
