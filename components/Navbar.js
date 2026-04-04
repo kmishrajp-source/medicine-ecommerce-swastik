@@ -19,6 +19,7 @@ export default function Navbar({ cartCount, openCart }) {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     useEffect(() => {
         const handler = (e) => {
@@ -136,7 +137,13 @@ export default function Navbar({ cartCount, openCart }) {
                              <Link href="/login" className="hidden md:block text-[10px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">{t('login')}</Link>
                         )}
                         <Link href="/partner" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">{t('growth_partner')}</Link>
-                        <LanguageSwitcher />
+                        <div className="hidden md:block">
+                            <LanguageSwitcher />
+                        </div>
+                        {/* Mobile Toggle */}
+                        <button className="md:hidden p-2 text-slate-800" onClick={() => setIsMobileMenuOpen(true)}>
+                            <i className="fa-solid fa-bars" style={{ fontSize: '1.2rem' }}></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -165,6 +172,53 @@ export default function Navbar({ cartCount, openCart }) {
                     </ul>
                 </div>
             </nav>
+
+            {/* MOBILE MENU TRAY */}
+            {isMobileMenuOpen && (
+                <div style={{ position: 'fixed', top: 0, right: 0, bottom: 0, width: '280px', background: '#1e3a8a', zIndex: 3000, boxShadow: '-5px 0 15px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', color: 'white', overflowY: 'auto', transition: 'transform 0.3s' }}>
+                    <div style={{ padding: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <span style={{ fontWeight: 'bold' }}>Menu</span>
+                        <button onClick={() => setIsMobileMenuOpen(false)} style={{ background: 'transparent', border: 'none', color: 'white', fontSize: '1.5rem', cursor: 'pointer' }}>&times;</button>
+                    </div>
+                    
+                    <div style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+                        <LanguageSwitcher />
+                    </div>
+
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('home')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/shop-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold' }}>{tHome('shop_medicines')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/upload-prescription" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#a5b4fc', textDecoration: 'none', fontWeight: 'bold' }}>{t('my_rx')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/doctors" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('doctor_consult')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/hospitals" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('hospitals')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ambulance" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fca5a5', textDecoration: 'none', fontWeight: 'bold' }}>{t('ambulance')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/labs" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('labs')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ai-assistant" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#93c5fd', textDecoration: 'none', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
+                         
+                         {/* Services */}
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 'bold' }}>Tools</span>
+                            <Link href="/symptom-checker" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Symptom Checker</Link>
+                            <Link href="/prescription-analyzer" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'rgba(255,255,255,0.8)', textDecoration: 'none' }}>Rx Analyzer</Link>
+                         </li>
+
+                         {!session && (
+                             <li style={{ padding: '20px' }}>
+                                 <Link href="/login" onClick={() => setIsMobileMenuOpen(false)} style={{ display: 'block', background: 'white', color: '#1e3a8a', textAlign: 'center', padding: '10px', borderRadius: '8px', fontWeight: 'bold', textDecoration: 'none' }}>Login / Register</Link>
+                             </li>
+                         )}
+                         {session && (
+                             <li style={{ padding: '20px' }}>
+                                 <button onClick={() => { signOut(); setIsMobileMenuOpen(false); }} style={{ display: 'block', width: '100%', background: '#ef4444', color: 'white', border: 'none', textAlign: 'center', padding: '10px', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>Logout</button>
+                             </li>
+                         )}
+                    </ul>
+                </div>
+            )}
+            
+            {isMobileMenuOpen && (
+                <div onClick={() => setIsMobileMenuOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2999 }}></div>
+            )}
         </header >
     );
 

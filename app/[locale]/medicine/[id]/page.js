@@ -2,6 +2,7 @@ import prisma from "@/lib/prisma";
 import Navbar from "@/components/Navbar";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import MedicalDisclaimer from "@/components/MedicalDisclaimer";
 
 // 1. Dynamic Metadata Generation for SEO
 export async function generateMetadata({ params }) {
@@ -72,10 +73,10 @@ export default async function MedicinePage({ params }) {
     <div style={{ background: "#f8fafc", minHeight: "100vh" }}>
       <Navbar cartCount={0} />
       
-      {/* Inject JSON-LD Schema */}
+      {/* Inject JSON-LD Schema - Sanitized to prevent XSS */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }}
       />
 
       <div className="container" style={{ marginTop: "100px", maxWidth: "1000px" }}>

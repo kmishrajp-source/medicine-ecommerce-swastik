@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
+import FileUpload from "@/components/FileUpload";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -346,7 +347,7 @@ export default function Checkout() {
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
-            <main className="container" style={{ marginTop: '100px', paddingBottom: '60px', maxWidth: '800px' }}>
+            <main className="container" style={{ marginTop: '100px', paddingBottom: '120px', maxWidth: '800px' }}>
                 <h2 style={{ marginBottom: '24px' }}>Checkout {session ? '' : '(Guest)'}</h2>
 
                 {eligibleForBonus && (
@@ -414,16 +415,16 @@ export default function Checkout() {
                         {hasRxItems && (
                             <div style={{ background: '#FFF3E0', padding: '20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #FFE0B2' }}>
                                 <h4 style={{ color: '#F57C00', marginBottom: '10px' }}><i className="fa-solid fa-file-medical"></i> Prescription Required</h4>
-                                <p style={{ fontSize: '0.9rem', marginBottom: '10px' }}>Some items in your cart require a doctor's prescription.</p>
-                                <input
-                                    type="text"
-                                    placeholder="Paste Prescription Image URL (e.g. from Cloudinary/Imgur)"
-                                    value={prescriptionUrl}
-                                    onChange={(e) => setPrescriptionUrl(e.target.value)}
-                                    required
-                                    style={{ background: 'white', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', width: '100%' }}
+                                <p style={{ fontSize: '0.9rem', marginBottom: '15px' }}>Some items in your cart require a doctor's prescription. Please upload a clear image or PDF.</p>
+                                <FileUpload 
+                                    onUploadComplete={(url) => setPrescriptionUrl(url)}
+                                    onError={(msg) => alert(msg)}
                                 />
-                                <p style={{ fontSize: '0.75rem', marginTop: '8px', color: '#666' }}>Note: Real file upload will be enabled once your storage provider is configured.</p>
+                                {!prescriptionUrl ? (
+                                    <p style={{ fontSize: '0.8rem', color: '#ef4444', marginTop: '10px', fontWeight: 'bold' }}>* Please upload a prescription to proceed.</p>
+                                ) : (
+                                    <p style={{ fontSize: '0.8rem', color: '#10b981', marginTop: '10px', fontWeight: 'bold' }}>✓ Prescription uploaded successfully!</p>
+                                )}
                             </div>
                         )}
 
