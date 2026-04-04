@@ -130,11 +130,11 @@ export default async function MedicinePage({ params }) {
             </div>
 
             <div style={{ display: "flex", alignItems: "baseline", gap: "15px", marginBottom: "25px" }}>
-                <span style={{ fontSize: "2.5rem", fontWeight: "900", color: "#0f172a" }}>₹{(product.price || 0).toFixed(2)}</span>
-                {product.discount > 0 && (
+                <span style={{ fontSize: "2.5rem", fontWeight: "900", color: "#0f172a" }}>₹{(Number(product.price) || 0).toFixed(2)}</span>
+                {Number(product.discount) > 0 && Number(product.discount) < 100 && (
                     <>
                         <span style={{ textDecoration: "line-through", color: "#94a3b8", fontSize: "1.2rem" }}>
-                            ₹{(product.price / (1 - product.discount/100)).toFixed(2)}
+                            ₹{((Number(product.price) || 0) / (1 - (Number(product.discount) || 0)/100)).toFixed(2)}
                         </span>
                         <span style={{ color: "#ef4444", fontWeight: "bold", fontSize: "1.1rem" }}>{product.discount}% OFF</span>
                     </>

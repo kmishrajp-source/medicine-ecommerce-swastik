@@ -191,70 +191,78 @@ export async function POST(req) {
             }
         }
 
-        // 2. Identify User
-        let userId = null;
-        const session = await getServerSession(authOptions);
+        // 2. Multi-Step Atomic Transaction
+        const { newOrder, userId } = await prisma.$transaction(async (tx) => {
+            // Identify User
+            let effectiveUserId = null;
+            const currentSession = await getServerSession(authOptions);
 
-        if (session?.user) {
-            userId = session.user.id;
-        } else {
-            // Guest Logic (Try to find existing guest user by email or fallback)
-            // Ideally we should create a Guest User here if not exists, similar to COD logic
-            // For brevity, we'll try to find a fallback or just store guest details on Order
-            const guestUser = await prisma.user.findFirst({ where: { email: guestEmail || 'guest@swastik.com' } });
-            if (guestUser) userId = guestUser.id;
-        }
-
-        // 3. Create Order
-        const medicineItems = items.filter(i => !i.isLab);
-        const labItems = items.filter(i => i.isLab);
-
-        // Prepare Items
-        const orderItems = medicineItems.map(item => ({
-            productId: String(item.id),
-            quantity: parseInt(item.quantity),
-            price: parseFloat(item.price)
-        }));
-
-        const newOrder = await prisma.order.create({
-            data: {
-                userId: userId, // Might be null if guest user setup fails, schema allows nullable? userId is String? in schema.
-                // Schema: userId String? @relation... so it is nullable.
-                // But generally good to attach to someone.
-                guestName: guestName || session?.user?.name,
-                guestEmail: guestEmail || session?.user?.email,
-                guestPhone: guestPhone,
-                address: address,
-                lat: lat ? parseFloat(lat) : null,
-                lng: lng ? parseFloat(lng) : null,
-                total: parseFloat(amount),
-                status: "Processing",
-                paymentMethod: "ONLINE",
-                isPaid: true,
-                isDelivered: false,
-                items: {
-                    create: orderItems
-                }
+            if (currentSession?.user) {
+                effectiveUserId = currentSession.user.id;
+            } else {
+                // Unique Guest Handling
+                const uniqueGuestEmail = guestPhone ? `guest-${guestPhone}@swastik.com` : `guest-${Date.now()}@swastik.com`;
+                const guestUser = await tx.user.upsert({
+                    where: { email: uniqueGuestEmail },
+                    update: { name: guestName || 'Guest User', phone: guestPhone },
+                    create: {
+                        email: uniqueGuestEmail,
+                        name: guestName || 'Guest User',
+                        password: '$2a$10$GuestPlaceholderHash',
+                        role: 'CUSTOMER',
+                        phone: guestPhone
+                    }
+                });
+                effectiveUserId = guestUser.id;
             }
-        });
 
-        // 3.2 Create Lab Bookings immediately after payment confirmation
-        if (labItems.length > 0 && userId) {
-            for (const labItem of labItems) {
-                try {
+            // Prepare Items
+            const medicineItems = items.filter(i => !i.isLab);
+            const labItems = items.filter(i => i.isLab);
+
+            const orderItems = medicineItems.map(item => ({
+                productId: String(item.id),
+                quantity: parseInt(item.quantity),
+                price: parseFloat(item.price)
+            }));
+
+            // Create Order
+            const createdOrder = await tx.order.create({
+                data: {
+                    userId: effectiveUserId,
+                    guestName: guestName || (effectiveUserId ? null : 'Guest'),
+                    guestEmail: guestEmail || (effectiveUserId ? null : 'guest@swastik.com'),
+                    guestPhone: guestPhone,
+                    address: address,
+                    lat: lat ? parseFloat(lat) : null,
+                    lng: lng ? parseFloat(lng) : null,
+                    total: parseFloat(amount),
+                    status: "Processing",
+                    paymentMethod: "ONLINE",
+                    isPaid: true,
+                    isDelivered: false,
+                    items: {
+                        create: orderItems
+                    }
+                }
+            });
+
+            // Create Lab Bookings
+            if (labItems.length > 0) {
+                for (const labItem of labItems) {
                     const testIdRaw = String(labItem.id).replace('lab-', '');
-                    await prisma.labBooking.create({
+                    await tx.labBooking.create({
                         data: {
-                            patientId: userId,
+                            patientId: effectiveUserId,
                             testId: testIdRaw,
                             status: "Paid"
                         }
                     });
-                } catch (err) {
-                    console.error("Failed to create Paid Lab Booking:", labItem.name, err);
                 }
             }
-        }
+
+            return { newOrder: createdOrder, userId: effectiveUserId };
+        });
 
         // 3.3 Handle Manufacturer Settlements (If items belong to a manufacturer)
         if (medicineItems.length > 0) {

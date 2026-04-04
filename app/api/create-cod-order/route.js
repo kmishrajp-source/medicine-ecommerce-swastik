@@ -108,129 +108,61 @@ export async function POST(req) {
 
         // If prescription exists, we will link it after userId is determined
 
-        // 3. Link User or Guest Details
-        if (session) {
-            orderData.userId = session.user.id;
-            // Address might come from profile later, but for now we trust the input if provided
-            if (address) orderData.address = address;
-        } else {
-            // Guest Checkout with Fallback User
-            // Use upsert to guarantee a guest user exists without race conditions
-            try {
-                const guestUser = await prisma.user.upsert({
-                    where: { email: 'guest@swastik.com' },
-                    update: {}, // No changes if exists
+        // 4. Create Order in Database (Atomic Transaction)
+        const order = await prisma.$transaction(async (tx) => {
+            // Find or create Guest User if not in session
+            let effectiveUserId = session?.user?.id;
+            
+            if (!effectiveUserId) {
+                const uniqueGuestEmail = guestPhone ? `guest-${guestPhone}@swastik.com` : `guest-${Date.now()}@swastik.com`;
+                const guestUser = await tx.user.upsert({
+                    where: { email: uniqueGuestEmail },
+                    update: { name: guestName || 'Guest User' },
                     create: {
-                        email: 'guest@swastik.com',
-                        name: 'Guest User',
-                        password: '$2a$10$GuestPlaceholderHash', // Placeholder
-                        role: 'CUSTOMER'
+                        email: uniqueGuestEmail,
+                        name: guestName || 'Guest User',
+                        password: '$2a$10$GuestPlaceholderHash',
+                        role: 'CUSTOMER',
+                        phone: guestPhone
                     }
                 });
-
-                if (guestUser) {
-                    orderData.userId = guestUser.id;
-                }
-            } catch (userError) {
-                console.error("Failed to upsert guest user:", userError);
+                effectiveUserId = guestUser.id;
             }
 
-            // LAST RESORT: If userId is still missing (Guest User creation failed),
-            // and the DB presumably requires userId, find ANY user to attach it to.
-            if (!orderData.userId) {
-                try {
-                    const anyUser = await prisma.user.findFirst();
-                    if (anyUser) {
-                        orderData.userId = anyUser.id;
-                        console.log("Attached order to random existing user as fallback:", anyUser.email);
+            orderData.userId = effectiveUserId;
+
+            // Link Prescription
+            if (prescriptionUrl) {
+                orderData.prescription = {
+                    create: {
+                        imageUrl: prescriptionUrl,
+                        patientId: effectiveUserId,
+                        status: 'Pending'
                     }
-                } catch (findError) {
-                    console.error("Failed to find any user:", findError);
-                }
+                };
             }
 
-            // Still save specific guest details
-            orderData.guestName = guestName;
-            orderData.guestEmail = guestEmail;
-            orderData.guestPhone = guestPhone;
-            orderData.address = address;
-        }
-
-        // 3.5 Link Prescription if provided
-        if (prescriptionUrl && orderData.userId) {
-            orderData.prescription = {
-                create: {
-                    imageUrl: prescriptionUrl,
-                    patientId: orderData.userId,
-                    status: 'Pending'
-                }
-            };
-        }
-
-        // 4. Create Order in Database
-        let order;
-        try {
-            order = await prisma.order.create({
+            // Create Primary Order
+            const createdOrder = await tx.order.create({
                 data: orderData
             });
-        } catch (dbError) {
-            console.error("Primary Order Create Failed. Trying MINIMAL Fallback...", dbError.message);
 
-            // MINIMAL FALLBACK: Strip all non-essential fields that might be causing schema issues
-            // We will dump everything into the 'address' field so we don't lose data.
-
-            const panicAddress = `[FALLBACK] Code:${deliveryCode}. Method:COD. Guest:${guestName}, ${guestPhone}, ${guestEmail}. Addr:${address}`;
-
-            const minimalOrderData = {
-                total: parseFloat(amount),
-                status: "Processing (Fallback)",
-                // paymentMethod: "COD", // Omitting to use default if causing issues
-                // deliveryCode: deliveryCode, // Omitting
-                // isPaid: false, // Omitting
-                // isDelivered: false, // Omitting
-                address: panicAddress,
-                items: {
-                    create: medicineItems.map(item => ({
-                        productId: String(item.id),
-                        quantity: parseInt(item.quantity),
-                        price: parseFloat(item.price)
-                    }))
-                }
-            };
-
-            // 3. Ensure userId is present if strictly required
-            if (!orderData.userId) { // Check original data for ID
-                const anyUser = await prisma.user.findFirst();
-                if (anyUser) minimalOrderData.userId = anyUser.id;
-            } else {
-                minimalOrderData.userId = orderData.userId;
-            }
-
-            // Retry create with minimal data
-            order = await prisma.order.create({
-                data: minimalOrderData
-            });
-        }
-
-        // 4.1 Create Lab Bookings for Lab Tests
-        if (labItems.length > 0 && order && order.userId) {
-            for (const labItem of labItems) {
-                try {
-                    // Extract true test ID (removing 'lab-' prefix set in frontend cart)
+            // Create Lab Bookings if applicable
+            if (labItems.length > 0) {
+                for (const labItem of labItems) {
                     const testIdRaw = String(labItem.id).replace('lab-', '');
-                    
-                    await prisma.labBooking.create({
+                    await tx.labBooking.create({
                         data: {
-                            patientId: order.userId,
+                            patientId: effectiveUserId,
                             testId: testIdRaw,
-                            status: "Pending" // Can be Paid/Processing for online payments
+                            status: "Pending"
                         }
                     });
-                } catch (labErr) {
-                    console.error("Failed to create Lab Booking for item:", labItem.name, labErr);
                 }
             }
-        }
+
+            return createdOrder;
+        });
 
         // 5. Customer Notification Data
         const phone = session?.user?.phone || guestPhone || "Unknown";
@@ -256,7 +188,6 @@ export async function POST(req) {
         return NextResponse.json({
             success: true,
             orderId: order.id,
-            deliveryCode: deliveryCode, // Returning for testing purposes (remove in prod)
             message: "Order placed successfully! Check your SMS for the delivery code."
         });
 

@@ -6,10 +6,9 @@ import { routing } from './i18n/routing';
 // In production, use Upstash Redis for distributed rate limiting.
 const rateLimitMap = new Map();
 
-function rateLimit(ip) {
+function rateLimit(ip, maxRequests = 50) {
     const now = Date.now();
     const windowMs = 60 * 1000; // 1 minute
-    const maxRequests = 50;
 
     const userEntry = rateLimitMap.get(ip) || { count: 0, startTime: now };
 
@@ -32,13 +31,19 @@ export default function middleware(request) {
 
     // 1. Rate Limiting for API routes
     if (pathname.startsWith('/api')) {
-        if (!rateLimit(ip)) {
-            return new NextResponse(JSON.stringify({ error: "Rate limit exceeded (50/min). Slow down!" }), {
+        // Stricter limit for orders, bookings, leads and partner growth (Anti-Spam)
+        const isHighValue = pathname.includes('order') || pathname.includes('booking') || pathname.includes('verify') || pathname.includes('lead') || pathname.includes('partner');
+        const limit = isHighValue ? 5 : 50;
+
+        if (!rateLimit(ip, limit)) {
+            return new NextResponse(JSON.stringify({ 
+                error: `Rate limit exceeded (${limit}/min). Please wait before trying again.` 
+            }), {
                 status: 429,
                 headers: { 'Content-Type': 'application/json' }
             });
         }
-        return NextResponse.next(); // Bypass intl for API
+        return NextResponse.next();
     }
 
     // 2. Bot Protection (Basic)

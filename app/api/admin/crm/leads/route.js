@@ -15,6 +15,10 @@ export async function GET(req) {
     const area = searchParams.get('area');
     const serviceType = searchParams.get('serviceType');
 
+    const page = parseInt(searchParams.get('page')) || 1;
+    const limit = parseInt(searchParams.get('limit')) || 50;
+    const skip = (page - 1) * limit;
+
     const where = {};
     if (status && status !== 'all') where.status = status;
     if (serviceType && serviceType !== 'all') where.serviceType = serviceType;
@@ -24,20 +28,32 @@ export async function GET(req) {
     if (area && area !== 'all') where.area = area;
 
     try {
-        const [leads, agents] = await Promise.all([
+        const [leads, agents, total] = await Promise.all([
             prisma.lead.findMany({
                 where,
                 include: { assignedAgent: { select: { name: true } } },
                 orderBy: { createdAt: 'desc' },
-                take: 100 // Pagination placeholder
+                skip,
+                take: limit
             }),
             prisma.user.findMany({
                 where: { role: 'AGENT' },
                 select: { id: true, name: true }
-            })
+            }),
+            prisma.lead.count({ where })
         ]);
 
-        return NextResponse.json({ success: true, leads, agents });
+        return NextResponse.json({ 
+            success: true, 
+            leads, 
+            agents,
+            pagination: {
+                total,
+                page,
+                limit,
+                pages: Math.ceil(total / limit)
+            }
+        });
     } catch (error) {
         console.error("Fetch CRM Leads Error:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });
