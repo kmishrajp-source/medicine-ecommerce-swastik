@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+// import { supabase } from '@/lib/supabase' - Removed for security hardening
 
 export default function AdminRetailers() {
     const [retailers, setRetailers] = useState([])
@@ -12,24 +12,30 @@ export default function AdminRetailers() {
     }, [])
 
     async function fetchRetailers() {
-        const { data, error } = await supabase
-            .from('retailers')
-            .select('id, store_name, address, is_online, priority_score, users(phone)')
-            .order('priority_score', { ascending: false })
-
-        if (data) setRetailers(data)
+        try {
+            const res = await fetch('/api/admin/retailers')
+            const data = await res.json()
+            if (Array.isArray(data)) setRetailers(data)
+        } catch (error) {
+            console.error("Failed to load retailers", error)
+        }
         setLoading(false)
     }
 
     const handlePriorityUpdate = async (id, newScore) => {
         const score = parseInt(newScore) || 0
-        const { error } = await supabase
-            .from('retailers')
-            .update({ priority_score: score })
-            .eq('id', id)
-
-        if (!error) {
-            setRetailers(prev => prev.map(r => r.id === id ? { ...r, priority_score: score } : r))
+        try {
+            const res = await fetch('/api/admin/retailers', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, priority_score: score })
+            })
+            const data = await res.json()
+            if (data.success) {
+                setRetailers(prev => prev.map(r => r.id === id ? { ...r, priority_score: score } : r))
+            }
+        } catch (err) {
+            console.error("Failed to update priority", err)
         }
     }
 

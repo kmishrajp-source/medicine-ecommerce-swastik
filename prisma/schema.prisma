@@ -350,6 +350,7 @@ model Retailer {
   photoUrl       String?
   openingHours   String   @default("9:00 AM - 10:00 PM")
   isOnline       Boolean  @default(false)
+  priority_score Int      @default(0)
   createdAt      DateTime @default(now())
   bulkOrders     BulkOrder[]
   inventory      RetailerInventory[]
