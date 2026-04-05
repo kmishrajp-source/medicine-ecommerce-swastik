@@ -12,6 +12,7 @@ import StatCounter from "@/components/StatCounter";
 import BenefitsSection from "@/components/BenefitsSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
+import LeadCapturePopup from "@/components/LeadCapturePopup";
 
 export default function HomeClient() {
   const { cartCount, toggleCart, addToCart } = useCart();
@@ -338,7 +339,8 @@ export default function HomeClient() {
              </div>
         </div>
 
-        {/* FINAL CTA REPEAT */}
+        {/* LEAD CAPTURE SYSTEM */}
+        <LeadCapturePopup />
 
         <div className="container">
           <AdBanner position="Home-Banner" />
