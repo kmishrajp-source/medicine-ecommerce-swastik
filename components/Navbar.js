@@ -89,11 +89,14 @@ export default function Navbar({ cartCount, openCart }) {
                             <i className="fa-solid fa-microphone"></i>
                         </button>
                         
-                        {/* Dropdown results stay as is */}
+                        {/* Search Results Dropdown */}
                         {searchQuery.length > 1 && (
                             <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 2000, marginTop: '8px', border: '1px solid #e2e8f0', maxHeight: '300px', overflowY: 'auto' }}>
-                                {isSearching ? <div className="p-4 text-center text-xs text-slate-400">Searching...</div> : 
-                                 searchResults.length > 0 ? (
+                                {isSearching ? (
+                                    <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                                        <i className="fa-solid fa-spinner fa-spin"></i> Searching...
+                                    </div>
+                                ) : searchResults.length > 0 ? (
                                     <ul className="list-none p-0 m-0">
                                         {searchResults.map(item => (
                                             <li key={item.id} className="border-b border-slate-50 last:border-0">
@@ -112,7 +115,9 @@ export default function Navbar({ cartCount, openCart }) {
                                             </li>
                                         ))}
                                     </ul>
-                                 ) : <div className="p-4 text-center text-xs text-slate-400">No results found</div>}
+                                ) : searchQuery.length >= 2 && (
+                                    <div className="p-4 text-center text-xs text-slate-400">No results found</div>
+                                )}
                             </div>
                         )}
                     </div>
@@ -148,8 +153,8 @@ export default function Navbar({ cartCount, openCart }) {
                 </div>
             </div>
 
-            {/* SECONDARY ROW: Services & Utilities (Desktop Only) */}
-            <nav className="hidden md:block bg-indigo-900 text-white/90 w-full">
+            {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
+            <nav className="hidden lg:block bg-indigo-900 text-white/90 w-full overflow-hidden">
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
                     <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
                         <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>

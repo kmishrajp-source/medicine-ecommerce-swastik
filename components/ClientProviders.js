@@ -4,9 +4,8 @@ import PwaRegistrar from "@/components/PwaRegistrar";
 import FCMProvider from "@/components/FCMProvider";
 import Provider from "@/components/SessionProvider";
 import { NextIntlClientProvider } from 'next-intl';
-import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
-import CustomerSupportWidget from "@/components/CustomerSupportWidget";
+import SupportHub from "@/components/SupportHub";
 import CartDrawer from "@/components/CartDrawer";
 import React from "react";
 
@@ -49,8 +48,7 @@ export default function ClientProviders({ children, messages, locale }) {
                             <PwaRegistrar />
                             {children}
                             <CartDrawer />
-                            <FloatingWhatsApp />
-                            <CustomerSupportWidget />
+                            <SupportHub />
                             <AIRecoveryAssistant />
                         </ErrorBoundary>
                     </CartProvider>

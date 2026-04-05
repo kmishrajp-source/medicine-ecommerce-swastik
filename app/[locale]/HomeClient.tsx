@@ -12,7 +12,6 @@ import StatCounter from "@/components/StatCounter";
 import BenefitsSection from "@/components/BenefitsSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
-import StickyContact from "@/components/StickyContact";
 
 export default function HomeClient() {
   const { cartCount, toggleCart, addToCart } = useCart();
@@ -339,8 +338,7 @@ export default function HomeClient() {
              </div>
         </div>
 
-        {/* STICKY CONTACT (MOBILE) */}
-        <StickyContact />
+        {/* FINAL CTA REPEAT */}
 
         <div className="container">
           <AdBanner position="Home-Banner" />

@@ -6,20 +6,53 @@ import { sanitizeProfile } from "@/lib/security";
 import fs from "fs";
 import path from "path";
 
-export async function GET() {
+export async function GET(req) {
     try {
-        const filePath = path.join(process.cwd(), 'data', 'gorakhpur-healthcare.json');
-        const fileData = fs.readFileSync(filePath, 'utf-8');
-        const data = JSON.parse(fileData);
+        const { searchParams } = new URL(req.url);
+        const specialization = searchParams.get('specialization');
+        const city = searchParams.get('city');
+        const query = searchParams.get('q'); // For general search
+
+        const where = {};
         
-        const doctors = data.filter(item => item.type === 'doctor');
+        // Dynamic Filtering
+        if (specialization && specialization !== 'all') {
+            where.specialization = { contains: specialization, mode: 'insensitive' };
+        }
         
-        // Also include clinics as doctor-type for the main listing if they have a doctorName
-        const clinicsWithDoctors = data.filter(item => item.type === 'clinic' && item.doctorName);
+        if (city && city !== 'all') {
+            where.city = { contains: city, mode: 'insensitive' };
+        }
+
+        if (query) {
+            where.OR = [
+                { name: { contains: query, mode: 'insensitive' } },
+                { specialization: { contains: query, mode: 'insensitive' } },
+                { hospital: { contains: query, mode: 'insensitive' } }
+            ];
+        }
+
+        const doctors = await prisma.doctor.findMany({
+            where,
+            include: {
+                hospitalLink: {
+                    select: { name: true, address: true }
+                }
+            },
+            orderBy: { rating: 'desc' }
+        });
         
-        return NextResponse.json({ success: true, doctors: [...doctors, ...clinicsWithDoctors] });
+        return NextResponse.json({ 
+            success: true, 
+            doctors: doctors.map(doc => ({
+                ...doc,
+                // Ensure legacy compatibility if needed
+                hospital: doc.hospitalLink?.name || doc.hospital
+            }))
+        });
     } catch (error) {
-        return NextResponse.json({ success: false, error: 'Failed to fetch doctors' }, { status: 500 });
+        console.error("Fetch Doctors API Error:", error);
+        return NextResponse.json({ success: false, error: 'Failed to fetch doctors: ' + error.message }, { status: 500 });
     }
 }
 

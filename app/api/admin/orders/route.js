@@ -14,10 +14,10 @@ export async function GET(req) {
             console.warn("Session retrieval failed:", e);
         }
 
-        // Security Check: Uncomment when confident
-        // if (!session || session.user.role !== 'ADMIN') {
-        //    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        // }
+        // Security Check: Enforce Admin access
+        if (!session || session.user.role !== 'ADMIN') {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         const orders = await prisma.order.findMany({
             orderBy: { createdAt: 'desc' },
@@ -37,7 +37,7 @@ export async function GET(req) {
             email: order.guestEmail || order.user?.email || "N/A",
             phone: order.guestPhone || "N/A",
             address: order.address,
-            deliveryCode: order.deliveryCode,
+            // deliveryCode removed for privacy hardening
             items: order.items.map(item => `${item.product?.name || 'Unknown Product'} x${item.quantity}`).join(", ")
         }));
 
