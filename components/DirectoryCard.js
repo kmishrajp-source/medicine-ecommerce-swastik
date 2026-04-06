@@ -3,6 +3,7 @@ import { Link } from "@/i18n/navigation";
 import { useState } from "react";
 import { maskPhone } from "@/lib/security";
 import VerifiedBadge from "./VerifiedBadge";
+import Image from "next/image";
 
 export default function DirectoryCard({ item, type, onBook }) {
     const { data: session } = useSession();
@@ -25,7 +26,7 @@ export default function DirectoryCard({ item, type, onBook }) {
 
             {item.photoUrl && (
                 <div className="relative w-full h-40 mb-6 rounded-2xl overflow-hidden shadow-inner bg-slate-100">
-                    <img src={item.photoUrl} alt={displayName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    <Image src={item.photoUrl} alt={displayName} fill sizes="(max-width: 768px) 100vw, 300px" className="object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                     <div className="absolute bottom-3 left-3 flex items-center gap-2">
                         <div className="bg-white/20 backdrop-blur-md border border-white/30 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md">

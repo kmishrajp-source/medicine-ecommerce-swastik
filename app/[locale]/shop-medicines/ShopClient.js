@@ -9,32 +9,45 @@ const CATEGORIES = [
     "Diabetes", "Heart", "Gastro", "Ayurvedic", "General"
 ];
 
-export default function ShopClient() {
+export default function ShopClient({ initialProducts = [] }) {
     const [activeCategory, setActiveCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [rxFilter, setRxFilter] = useState("All"); // All, Rx, OTC
     const { addToCart, cartCount, toggleCart } = useCart();
-    const [products, setProducts] = useState([]);
-    const [loading, setLoading] = useState(true);
+    
+    // Default to the SSR properties for instantaneous payload
+    const [products, setProducts] = useState(initialProducts);
+    const [loading, setLoading] = useState(false);
 
+    // Only fetch if a category or search changes (Client Side filtering fallback)
     useEffect(() => {
-        fetchProducts();
-    }, [activeCategory, searchQuery]); 
-
-    const fetchProducts = async () => {
-        setLoading(true);
-        try {
-            const res = await fetch('/api/products');
-            const data = await res.json();
-            if (data.success) {
-                setProducts(data.products);
-            }
-        } catch (error) {
-            console.error("Failed to load products");
-        } finally {
-            setLoading(false);
+        // Skip fetch if it's the initial render without filters
+        if (activeCategory === "All" && !searchQuery) {
+            setProducts(initialProducts);
+            return;
         }
-    };
+
+        const fetchFiltered = async () => {
+            setLoading(true);
+            try {
+                let url = '/api/products?';
+                if (activeCategory !== 'All') url += `category=${activeCategory}&`;
+                if (searchQuery) url += `search=${searchQuery}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.success) {
+                    setProducts(data.products);
+                }
+            } catch (error) {
+                console.error("Failed to load products");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFiltered();
+    }, [activeCategory, searchQuery, initialProducts]);
 
     const filteredProducts = products.filter(product => {
         const matchesCategory = activeCategory === "All" || product.category === activeCategory;

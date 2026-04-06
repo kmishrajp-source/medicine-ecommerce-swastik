@@ -5,14 +5,16 @@ import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
-import MotivationalVideo from "@/components/MotivationalVideo";
 import { useEffect, useState } from "react";
 import { useTranslations } from 'next-intl';
-import StatCounter from "@/components/StatCounter";
-import BenefitsSection from "@/components/BenefitsSection";
-import PricingSection from "@/components/PricingSection";
-import FAQSection from "@/components/FAQSection";
-import LeadCapturePopup from "@/components/LeadCapturePopup";
+import dynamic from 'next/dynamic';
+
+const MotivationalVideo = dynamic(() => import('@/components/MotivationalVideo'), { ssr: false });
+const StatCounter = dynamic(() => import('@/components/StatCounter'), { ssr: true });
+const BenefitsSection = dynamic(() => import('@/components/BenefitsSection'), { ssr: true });
+const PricingSection = dynamic(() => import('@/components/PricingSection'), { ssr: true });
+const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: true });
+const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), { ssr: false });
 
 export default function HomeClient() {
   const { cartCount, toggleCart, addToCart } = useCart();
