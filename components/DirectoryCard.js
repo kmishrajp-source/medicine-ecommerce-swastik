@@ -45,12 +45,12 @@ export default function DirectoryCard({ item, type, onBook }) {
                 )}
                 <div className="flex-1"></div>
                 {item.verified ? (
-                    <VerifiedBadge timestamp={item.updatedAt ? new Date(item.updatedAt).toLocaleDateString() : undefined} />
+                    <div className="flex items-center gap-1 bg-emerald-50 text-emerald-600 text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border border-emerald-100 shadow-sm">
+                        <i className="fa-solid fa-circle-check"></i> Verified
+                    </div>
                 ) : (
-                    <div className="flex flex-col items-end gap-2">
-                        <div className="bg-slate-100 text-slate-400 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-md border border-slate-200">
-                            <i className="fa-solid fa-circle-info mr-1"></i> Directory Entry
-                        </div>
+                    <div className="flex items-center gap-1 bg-amber-50 text-amber-600 text-[9px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest border border-amber-100 shadow-sm">
+                        <i className="fa-solid fa-triangle-exclamation"></i> Unverified
                     </div>
                 )}
             </div>
