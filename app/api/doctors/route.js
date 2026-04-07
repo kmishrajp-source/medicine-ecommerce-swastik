@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { sanitizeProfile } from "@/lib/security";
 import fs from "fs";
 import path from "path";
+import { getSpecialtiesFromQuery } from "@/lib/medical-intent";
 
 export async function GET(req) {
     try {
@@ -25,10 +26,15 @@ export async function GET(req) {
         }
 
         if (query) {
+            const mappedSpecialties = getSpecialtiesFromQuery(query);
+            
             where.OR = [
                 { name: { contains: query, mode: 'insensitive' } },
                 { specialization: { contains: query, mode: 'insensitive' } },
-                { hospital: { contains: query, mode: 'insensitive' } }
+                { hospital: { contains: query, mode: 'insensitive' } },
+                ...mappedSpecialties.map(s => ({
+                    specialization: { contains: s, mode: 'insensitive' }
+                }))
             ];
         }
 

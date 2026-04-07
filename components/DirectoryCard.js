@@ -4,6 +4,7 @@ import { useState } from "react";
 import { maskPhone } from "@/lib/security";
 import VerifiedBadge from "./VerifiedBadge";
 import Image from "next/image";
+import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
 export default function DirectoryCard({ item, type, onBook }) {
     const { data: session } = useSession();
@@ -58,9 +59,9 @@ export default function DirectoryCard({ item, type, onBook }) {
                 <h3 className="text-xl font-black text-slate-900 mb-1 leading-tight group-hover:text-indigo-600 transition-colors">{displayName}</h3>
                 <div className="flex items-center gap-2 mb-4">
                     <p className="text-xs font-bold text-slate-400 line-clamp-1">{subText}</p>
-                    {item.rating > 0 && (
-                        <span className="text-[10px] font-black bg-indigo-600 text-white px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                            {Math.round(item.rating * 20)}% Trust
+                    {item.verified && (
+                        <span className="text-[10px] font-black bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded uppercase tracking-widest flex items-center gap-1">
+                            <i className="fa-solid fa-bolt-lightning text-[8px]"></i> Fast Response
                         </span>
                     )}
                 </div>
@@ -107,22 +108,27 @@ export default function DirectoryCard({ item, type, onBook }) {
                 <a 
                     href={`https://wa.me/91${item.phone?.replace(/[^0-9]/g, '')}?text=Hello, I am interested in ${displayName}. Found you on Swastik Medicare.`}
                     target="_blank"
+                    onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "whatsapp", target: displayName, type: type })}
                     className="bg-emerald-50 text-emerald-600 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-emerald-100"
                 >
                     <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp
                 </a>
                 <a 
                     href={`tel:${item.phone}`}
-                    className="bg-slate-900 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-black transition-all active:scale-95 shadow-lg shadow-slate-200"
+                    onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "call", target: displayName, type: type })}
+                    className="bg-slate-50 text-slate-900 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200"
                 >
                     <i className="fa-solid fa-phone text-[10px]"></i> Call Now
                 </a>
                 <button 
-                    onClick={() => onBook(item)} 
-                    className="col-span-2 bg-indigo-600 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100"
+                    onClick={() => {
+                        trackEvent(ANALYTICS_EVENTS.LEAD, { target: displayName, type: type });
+                        onBook(item);
+                    }} 
+                    className="col-span-2 bg-indigo-600 text-white text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95 shadow-lg shadow-indigo-100 group"
                 >
-                    <i className="fa-solid fa-calendar-check text-sm"></i> 
-                    {type === 'retailer' ? 'Order via Call/WhatsApp' : (type === 'ambulance' ? 'Request Emergency Pick' : 'Request Callback')}
+                    <i className="fa-solid fa-calendar-check text-sm group-hover:rotate-12 transition-transform"></i> 
+                    {type === 'retailer' ? 'Order via Direct Message' : (type === 'ambulance' ? 'Request Emergency Pick' : 'Request Instant Callback')}
                 </button>
             </div>
         </div>

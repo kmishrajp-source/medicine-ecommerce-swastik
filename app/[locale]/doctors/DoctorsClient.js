@@ -4,8 +4,11 @@ import Link from "next/link";
 import Navbar from "../../../components/Navbar";
 import DirectoryCard from "../../../components/DirectoryCard";
 import { useCart } from "../../../context/CartContext";
+import { getSpecialtiesFromQuery } from "@/lib/medical-intent";
+import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
 const specialties = ["All", "General Physician", "Gynaecologist", "Paediatrician", "Orthopaedic", "Dermatologist", "Neurologist", "Cardiologist", "Urologist", "ENT Specialist"];
+const symptomChips = ["Lungs", "Fever", "Heart", "Skin", "Stomach", "Bones", "Kids", "Women"];
 const areas = ["All", "Betiahata", "Golghar", "Gorakhnath", "Medical College", "Asuran", "Shahpur", "Basharatpur", "Kunraghat"];
 
 export default function DoctorsClient() {
@@ -33,13 +36,33 @@ export default function DoctorsClient() {
         fetchDoctors();
     }, []);
 
+    useEffect(() => {
+        if (searchQuery.length > 2) {
+            const timer = setTimeout(() => {
+                trackEvent(ANALYTICS_EVENTS.SEARCH, {
+                    query: searchQuery,
+                    results_count: filteredDoctors.length,
+                    mapped_specialties: suggestions.join(", ")
+                });
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [searchQuery]);
+
     const filteredDoctors = doctors.filter(doc => {
-        const matchesSearch = (doc.name || doc.doctorName || "").toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            (doc.specialization || "").toLowerCase().includes(searchQuery.toLowerCase());
+        const query = searchQuery.toLowerCase();
+        const mappedSpecialties = getSpecialtiesFromQuery(query);
+        
+        const matchesSearch = (doc.name || doc.doctorName || "").toLowerCase().includes(query) || 
+                            (doc.specialization || "").toLowerCase().includes(query) ||
+                            mappedSpecialties.some(s => (doc.specialization || "").toLowerCase().includes(s.toLowerCase()));
+
         const matchesSpecialty = filterSpecialty === "All" || doc.specialization === filterSpecialty;
         const matchesArea = filterArea === "All" || doc.locality === filterArea;
         return matchesSearch && matchesSpecialty && matchesArea;
     });
+
+    const suggestions = getSpecialtiesFromQuery(searchQuery);
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
@@ -82,10 +105,34 @@ export default function DoctorsClient() {
                             {specialties.map(s => (
                                 <button 
                                     key={s}
-                                    onClick={() => setFilterSpecialty(s)}
+                                    onClick={() => {
+                                        setFilterSpecialty(s);
+                                        trackEvent("filter_specialty", { specialty: s });
+                                    }}
                                     className={`px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${filterSpecialty === s ? 'bg-blue-600 text-white shadow-lg shadow-blue-100' : 'bg-white text-slate-500 hover:bg-slate-100 border border-slate-100'}`}
                                 >
                                     {s}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-2 ml-2">
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Symptom Quick-Search</p>
+                            <span className="bg-amber-100 text-amber-600 text-[7px] font-black px-1.5 py-0.5 rounded uppercase animate-pulse">🔥 Popular</span>
+                        </div>
+                        <div className="flex flex-wrap gap-3">
+                            {symptomChips.map(s => (
+                                <button 
+                                    key={s}
+                                    onClick={() => {
+                                        setSearchQuery(s);
+                                        trackEvent(ANALYTICS_EVENTS.CHIP_CLICK, { symptom: s });
+                                    }}
+                                    className={`px-6 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all flex items-center gap-2 ${searchQuery.toLowerCase().includes(s.toLowerCase()) ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-100' : 'bg-white text-indigo-400 hover:bg-indigo-50 border border-indigo-100'}`}
+                                >
+                                    <i className="fa-solid fa-hand-holding-medical"></i> {s}
                                 </button>
                             ))}
                         </div>
@@ -119,10 +166,31 @@ export default function DoctorsClient() {
                             />
                         ))}
                         {filteredDoctors.length === 0 && (
-                            <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm">
+                            <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm px-6">
                                 <i className="fa-solid fa-user-slash text-4xl text-slate-200 mb-6"></i>
-                                <p className="text-xl font-black text-slate-400">No doctors match your search filters.</p>
-                                <button onClick={() => {setSearchQuery(""); setFilterSpecialty("All"); setFilterArea("All");}} className="mt-4 text-blue-600 font-bold hover:underline">Reset all filters</button>
+                                <p className="text-xl font-black text-slate-400 mb-4">No doctors match your search filters.</p>
+                                
+                                {suggestions.length > 0 && (
+                                    <div className="mb-8 p-8 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[2rem] border-2 border-blue-100 inline-block shadow-xl shadow-blue-50/50">
+                                        <p className="text-sm font-black text-blue-700 mb-3 flex items-center justify-center gap-2 uppercase tracking-widest">
+                                            <i className="fa-solid fa-lightbulb"></i> AI Assistant Tip
+                                        </p>
+                                        <p className="text-sm text-blue-600 font-bold mb-6">Your search for "{searchQuery}" relates to: <strong>{suggestions.join(", ")}</strong>.</p>
+                                        <button 
+                                            onClick={() => {
+                                                setSearchQuery(suggestions[0]);
+                                                trackEvent("suggestion_click", { suggestion: suggestions[0], original_query: searchQuery });
+                                            }}
+                                            className="w-full text-xs font-black uppercase tracking-widest text-white bg-blue-600 px-6 py-4 rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+                                        >
+                                            Find {suggestions[0]} Now
+                                        </button>
+                                    </div>
+                                )}
+
+                                <div>
+                                    <button onClick={() => {setSearchQuery(""); setFilterSpecialty("All"); setFilterArea("All");}} className="text-blue-600 font-bold hover:underline">Reset all filters</button>
+                                </div>
                             </div>
                         )}
                     </div>
