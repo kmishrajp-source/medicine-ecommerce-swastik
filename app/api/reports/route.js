@@ -1,19 +1,19 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function POST(request) {
+export async function POST(req) {
     try {
-        const body = await request.json();
-        const { doctorId, retailerId, reason, details } = body;
+        const body = await req.json();
+        const { targetId, targetType, reason, details } = body;
 
-        if (!reason) {
-            return NextResponse.json({ success: false, error: "Reason is required" }, { status: 400 });
+        if (!targetId || !reason) {
+            return NextResponse.json({ success: false, error: "Missing required fields" }, { status: 400 });
         }
 
         const report = await prisma.report.create({
             data: {
-                doctorId,
-                retailerId,
+                doctorId: targetType === 'doctor' ? targetId : null,
+                retailerId: targetType === 'retailer' ? targetId : null,
                 reason,
                 details,
                 status: "OPEN"
@@ -22,7 +22,7 @@ export async function POST(request) {
 
         return NextResponse.json({ success: true, report });
     } catch (error) {
-        console.error("Failed to submit report:", error);
-        return NextResponse.json({ success: false, error: "Failed to submit report" }, { status: 500 });
+        console.error("Report API Error:", error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }

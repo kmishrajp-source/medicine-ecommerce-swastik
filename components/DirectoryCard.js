@@ -102,6 +102,15 @@ export default function DirectoryCard({ item, type, onBook }) {
                         <span className="text-slate-500 font-medium text-xs leading-relaxed line-clamp-2">{item.address}</span>
                     </div>
                 </div>
+
+                {type === 'doctor' && (
+                    <Link 
+                        href={`/doctors/${item.id}`}
+                        className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 mb-6 hover:underline"
+                    >
+                        View Full Profile <i className="fa-solid fa-arrow-right-long"></i>
+                    </Link>
+                )}
             </div>
 
             <div className="grid grid-cols-2 gap-3 mt-auto">
@@ -130,6 +139,19 @@ export default function DirectoryCard({ item, type, onBook }) {
                     <i className="fa-solid fa-calendar-check text-sm group-hover:rotate-12 transition-transform"></i> 
                     {type === 'retailer' ? 'Order via Direct Message' : (type === 'ambulance' ? 'Request Emergency Pick' : 'Request Instant Callback')}
                 </button>
+            </div>
+
+            {/* Module 6: Trust & Verification Reporting */}
+            <div className="mt-4 pt-4 border-t border-slate-50 flex justify-between items-center">
+                 <a 
+                    href={`https://wa.me/917992122974?text=Report Incorrect Info: ${displayName} (${type}) ID: ${item.id}`}
+                    className="text-[8px] font-black text-slate-300 uppercase tracking-widest hover:text-rose-400 transition-colors flex items-center gap-1"
+                 >
+                    <i className="fa-solid fa-triangle-exclamation"></i> Report Incorrect Info
+                 </a>
+                 <div className="text-[8px] font-black text-slate-200 uppercase tracking-widest">
+                    ID: {item.id.slice(-6)}
+                 </div>
             </div>
         </div>
     );

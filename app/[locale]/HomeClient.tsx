@@ -19,6 +19,9 @@ const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), 
 export default function HomeClient() {
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
+  const [topDoctors, setTopDoctors] = useState<any[]>([]);
+  const [newDoctors, setNewDoctors] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [userPhone, setUserPhone] = useState("");
   
   const t = useTranslations('Homepage');
@@ -53,6 +56,15 @@ export default function HomeClient() {
     fetch('/api/products').then(res => res.json()).then(data => {
       if (data.success) setProducts(data.products);
     });
+
+    // Module 10: Growth Data Fetching
+    fetch('/api/doctors?limit=4').then(res => res.json()).then(data => {
+      if (data.success) setTopDoctors(data.doctors);
+    });
+
+    fetch('/api/doctors?limit=4&sort=newest').then(res => res.json()).then(data => {
+      if (data.success) setNewDoctors(data.doctors);
+    });
   }, []);
 
   const bestSelling = products.slice(0, 4);
@@ -80,6 +92,27 @@ export default function HomeClient() {
                     <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
                         {t('hero_subtitle')}
                     </p>
+
+                    {/* Module 10: Smart Intent Search Bar */}
+                    <div className="relative max-w-2xl mx-auto md:mx-0 mb-12 group">
+                        <div className="absolute inset-0 bg-indigo-600/20 blur-[100px] opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
+                        <form action={`/doctors`} className="relative flex items-center bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
+                            <div className="flex-1 flex items-center px-6">
+                                <i className="fa-solid fa-magnifying-glass text-slate-300 mr-4"></i>
+                                <input 
+                                    name="q"
+                                    type="text" 
+                                    placeholder="Search by specialty, symptom (e.g. lungs, skin)..." 
+                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-bold placeholder:text-slate-400 py-4"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <button type="submit" className="bg-slate-900 text-white px-10 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all flex items-center gap-2">
+                                {t('search')} <i className="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
 
                     <div className="flex flex-wrap gap-4 mt-12 justify-center" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '40px', width: '100%' }}>
                         <Link href="/doctors" className="bg-slate-900 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
@@ -201,6 +234,66 @@ export default function HomeClient() {
 
         {/* BENEFITS SECTION */}
         <BenefitsSection />
+
+        {/* Module 10: Growth Sections */}
+        <div className="container px-8 mb-24">
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div>
+                    <span className="text-blue-600 font-black text-[10px] uppercase tracking-[0.3em] mb-4 block">Platform Excellence</span>
+                    <h2 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter uppercase mb-0">Top-Rated <br/> <span className="text-blue-600">Specialists</span></h2>
+                </div>
+                <Link href="/doctors" className="text-[10px] font-black text-slate-400 uppercase tracking-widest border-b-2 border-slate-100 pb-2 hover:border-blue-600 hover:text-blue-600 transition-all">
+                    View All Doctors <i className="fa-solid fa-arrow-right-long ml-2"></i>
+                </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                {topDoctors.map(doctor => (
+                    <div key={doctor.id} className="relative group">
+                        <Link href={`/doctors/${doctor.id}`} className="absolute inset-0 z-10"></Link>
+                        <div className="bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm group-hover:shadow-2xl transition-all h-full flex flex-col">
+                            <div className="w-20 h-20 bg-slate-900 rounded-3xl mb-6 overflow-hidden border-4 border-slate-50 shadow-lg">
+                                <img src={doctor.photoUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(doctor.name)}&background=0f172a&color=fff`} className="w-full h-full object-cover" />
+                            </div>
+                            <h4 className="text-xl font-black text-slate-900 mb-1 leading-tight">{doctor.name}</h4>
+                            <p className="text-blue-600 font-black text-[10px] uppercase tracking-widest mb-6">{doctor.specialization}</p>
+                            <div className="mt-auto flex items-center justify-between pt-6 border-t border-slate-50">
+                                <div className="text-amber-500 font-black text-xs flex items-center gap-1"><i className="fa-solid fa-star"></i> {doctor.rating || '4.9'}</div>
+                                <div className="text-slate-400 font-black text-[10px] uppercase tracking-widest">{doctor.experience || '12+'} Yrs</div>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+
+        <div className="bg-slate-900 py-32 mb-20 overflow-hidden relative">
+            <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600"></div>
+            <div className="container px-8 relative z-10">
+                <div className="text-center mb-20">
+                    <h2 className="text-5xl md:text-7xl font-black text-white uppercase tracking-tighter mb-4 leading-[0.9]">Recently <span className="text-blue-500">Joined</span></h2>
+                    <p className="text-slate-500 font-black text-xs uppercase tracking-[0.5em]">New medical partners in Gorakhpur</p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {newDoctors.map(doctor => (
+                        <div key={doctor.id} className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] hover:bg-white/10 transition-all group">
+                             <div className="flex items-center gap-4 mb-6">
+                                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-900/20">
+                                    {doctor.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <h5 className="text-sm font-black text-white uppercase tracking-tight">{doctor.name}</h5>
+                                    <p className="text-[9px] font-black text-blue-500 uppercase tracking-widest">{doctor.specialization}</p>
+                                </div>
+                             </div>
+                             <Link href={`/doctors/${doctor.id}`} className="block w-full bg-white/10 text-white font-black py-3 rounded-xl text-[8px] uppercase tracking-[0.2em] text-center hover:bg-white hover:text-slate-900 transition-all">
+                                View Listing
+                             </Link>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
 
         <div className="container px-8 mb-20">
           <MotivationalVideo 
