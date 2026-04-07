@@ -17,24 +17,26 @@ export default function DoctorsClient() {
     const [filterArea, setFilterArea] = useState("All");
     const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showSOS, setShowSOS] = useState(false);
     const { cartCount, toggleCart } = useCart();
 
     useEffect(() => {
-        const fetchDoctors = async () => {
-            try {
-                const res = await fetch('/api/doctors');
-                const data = await res.json();
-                if (data.success) {
-                    setDoctors(data.doctors);
-                }
-            } catch (error) {
-                console.error("Failed to fetch doctors");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchDoctors();
+        // Track Funnel: Landing
+        trackEvent("funnel_doctor_search_step_landing", { path: "/doctors" });
     }, []);
+
+    // Emergency Keyword Interceptor
+    useEffect(() => {
+        const criticalKeywords = ['ambulance', 'sos', 'emergency', 'icu', 'oxygen', 'urgent'];
+        const query = searchQuery.toLowerCase();
+        if (criticalKeywords.some(k => query.includes(k))) {
+            setShowSOS(true);
+            trackEvent(ANALYTICS_EVENTS.SOS, { query });
+        } else {
+            setShowSOS(false);
+        }
+    }, [searchQuery]);
 
     useEffect(() => {
         if (searchQuery.length > 2) {
@@ -219,6 +221,35 @@ export default function DoctorsClient() {
                     </p>
                 </div>
 
+                {/* Emergency SOS Overlay */}
+                {showSOS && (
+                    <div className="fixed inset-0 z-[100] bg-rose-600/95 backdrop-blur-xl flex items-center justify-center p-6 animate-in fade-in zoom-in duration-300">
+                        <div className="max-w-md w-full bg-white rounded-[3rem] p-10 text-center shadow-2xl relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-2 bg-rose-500 animate-pulse"></div>
+                            <div className="w-24 h-24 bg-rose-100 text-rose-600 rounded-3xl flex items-center justify-center text-4xl mb-8 mx-auto animate-bounce">
+                                <i className="fa-solid fa-truck-medical"></i>
+                            </div>
+                            <h2 className="text-3xl font-black text-slate-900 mb-4 leading-tight">Emergency Detected</h2>
+                            <p className="text-slate-500 font-bold mb-10 leading-relaxed">We noticed you're searching for an emergency service. Please don't wait. Call our 24/7 Dispatch now.</p>
+                            
+                            <div className="space-y-4">
+                                <a 
+                                    href="tel:+917992122974" 
+                                    onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "emergency_call", query: searchQuery })}
+                                    className="block w-full bg-rose-600 text-white font-black py-6 rounded-2xl text-lg shadow-xl shadow-rose-200 hover:bg-rose-700 transition-all active:scale-95"
+                                >
+                                    <i className="fa-solid fa-phone-volume mr-3"></i> Call Emergency (7992122974)
+                                </a>
+                                <button 
+                                    onClick={() => setShowSOS(false)} 
+                                    className="block w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                                >
+                                    Continue searching results
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

@@ -1,122 +1,140 @@
 "use client";
 import React, { useState, useEffect } from 'react';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics';
 
-const AIRecoveryAssistant = ({ actionType = null, pageName = null }) => {
-    const [lastError, setLastError] = useState(null);
+/**
+ * Swastik AIRecoveryAssistant (Master Proactive Version)
+ * Monitors user hesitation, exit intent, and critical search intent to prevent drop-offs.
+ */
+const AIRecoveryAssistant = ({ currentQuery = "", pageType = "general" }) => {
     const [isVisible, setIsVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [suggestion, setSuggestion] = useState("");
+    const [lastError, setLastError] = useState(null);
 
-    // Poll for recent failures for this user/session (simplified)
+    // 1. BEHAVIORAL MONITORING: Exit Intent & Hesitation
     useEffect(() => {
-        const interval = setInterval(checkForFailures, 5000);
+        const handleExitIntent = (e) => {
+            if (e.clientY <= 0) { // Mouse moving towards browser tab/exit
+                setSuggestion("Don't leave without finding a doctor! Tap here for an instant referral.");
+                setIsVisible(true);
+                trackEvent(ANALYTICS_EVENTS.EXIT_INTENT, { page: pageType, query: currentQuery });
+            }
+        };
+
+        const hesitationTimer = setTimeout(() => {
+            if (!isVisible && currentQuery) {
+                setSuggestion(`Need help refined your search for "${currentQuery}"? Tap for expert selection.`);
+                setIsVisible(true);
+                trackEvent(ANALYTICS_EVENTS.HESITATION, { page: pageType, query: currentQuery });
+            }
+        }, 15000); // 15s inactivity
+
+        document.addEventListener('mouseleave', handleExitIntent);
+        return () => {
+            document.removeEventListener('mouseleave', handleExitIntent);
+            clearTimeout(hesitationTimer);
+        };
+    }, [currentQuery, pageType]);
+
+    // 2. INTENT MONITORING: Critical Keywords (Ambulance/Emergency)
+    useEffect(() => {
+        if (!currentQuery) return;
+        const q = currentQuery.toLowerCase();
+        
+        if (q.includes('ambulance') || q.includes('emergency') || q.includes('sos')) {
+            setSuggestion("🚨 EMERGENCY DETECTED: I've alerted dispatch. Call +917992122974 now for immediate assistance.");
+            setIsVisible(true);
+            return;
+        }
+
+        // Feature-specific proactive guidance (Medical Intent)
+        if (q.includes('lungs') || q.includes('breathing')) {
+            setSuggestion("Searching for lung-related health? I can recommend top-rated Pulmonologists.");
+            setIsVisible(true);
+        } else if (q.includes('heart') || q.includes('chest')) {
+            setSuggestion("Searching for heart care? You should consult a Cardiologist first.");
+            setIsVisible(true);
+        }
+    }, [currentQuery]);
+
+    // 3. LEGACY FAILURE POLLING (For Step 10: Real-time Alerts)
+    useEffect(() => {
+        const interval = setInterval(async () => {
+            try {
+                const res = await fetch('/api/user/recent-failure');
+                const data = await res.json();
+                if (data.failure && !data.failure.isResolved) {
+                    setLastError(data.failure);
+                    setSuggestion(`Detected ${data.failure.errorType} error. We've notified our technician.`);
+                    setIsVisible(true);
+                }
+            } catch (e) {}
+        }, 8000);
         return () => clearInterval(interval);
     }, []);
 
-    const checkForFailures = async () => {
-        try {
-            // In a real app, we might check a local state or a lightweight 'hasFailure' endpoint
-            // For this demo, we'll assume the parent component can pass an error state or we poll
-            const res = await fetch('/api/user/recent-failure');
-            const data = await res.json();
-            if (data.failure && !data.failure.isResolved) {
-                setLastError(data.failure);
-                setIsVisible(true);
-            }
-        } catch (e) { /* silent */ }
-    };
-
-    if (!isVisible || !lastError) return null;
-
-    const suggestions = {
-        'payment_gateway': [
-            "Network timeout while connecting to bank. Please wait 2 minutes before retrying.",
-            "Ensure your UPI app / Card has international/online transactions enabled.",
-            "Try using PhonePe or Google Pay if card payment fails."
-        ],
-        'validation': [
-            "Check that your phone number and delivery address are correctly formatted.",
-            "Ensure all required prescription fields are filled."
-        ],
-        'medical_search_tip': [
-            "Layman terms like 'lungs' or 'heart' are best found using medical terms.",
-            "Try searching for 'Pulmonologist' for lung issues.",
-            "Look for 'Cardiologist' for heart-related concerns."
-        ],
-        'server': [
-            "Our servers are under high load. We've notified our technicians.",
-            "Try refreshing the page or clearing your cache."
-        ],
-        'default': [
-            "We've encountered an unexpected error. Our team is investigating.",
-            "Feel free to Chat on WhatsApp (+91 79921 22974) for immediate support."
-        ]
-    };
-
-    const currentSuggestions = suggestions[lastError.errorType] || suggestions['default'];
+    if (!isVisible) return null;
 
     return (
         <div style={{
             position: 'fixed',
             bottom: '100px',
             right: '25px',
-            width: '320px',
+            width: '340px',
             background: 'white',
-            borderRadius: '16px',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-            border: '2px solid #4F46E5',
+            borderRadius: '24px',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)',
+            border: '2px solid #6366f1',
             zIndex: 9999,
-            padding: '20px',
-            animation: 'slideUp 0.3s ease-out'
+            padding: '24px',
+            animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
             <style>{`
                 @keyframes slideUp {
-                    from { transform: translateY(20px); opacity: 0; }
+                    from { transform: translateY(30px); opacity: 0; }
                     to { transform: translateY(0); opacity: 1; }
                 }
             `}</style>
             
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '15px' }}>
-                <div style={{ background: '#4F46E5', color: 'white', width: '30px', height: '30px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <div style={{ background: '#6366f1', color: 'white', width: '32px', height: '32px', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <i className="fa-solid fa-robot"></i>
                 </div>
-                <h4 style={{ margin: 0, fontSize: '1rem', color: '#111827' }}>AI Recovery Support</h4>
+                <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: 800, color: '#1f2937' }}>Swastik AI Assistant</h4>
                 <button 
                     onClick={() => setIsVisible(false)}
-                    style={{ marginLeft: 'auto', background: 'none', border: 'none', cursor: 'pointer', color: '#9CA3AF' }}
+                    style={{ marginLeft: 'auto', background: '#f3f4f6', border: 'none', cursor: 'pointer', color: '#9ca3af', width: '28px', height: '28px', borderRadius: '50%' }}
                 >
                     <i className="fa-solid fa-xmark"></i>
                 </button>
             </div>
 
-            <p style={{ fontSize: '0.875rem', color: '#4B5563', marginBottom: '15px' }}>
-                <strong>Issue Detected:</strong> {lastError.errorMessage}
-            </p>
-
-            <div style={{ background: '#F3F4F6', padding: '12px', borderRadius: '8px', marginBottom: '15px' }}>
-                <div style={{ fontSize: '0.75rem', fontWeight: 'bold', color: '#4F46E5', textTransform: 'uppercase', marginBottom: '8px' }}>Steps to Solve:</div>
-                <ul style={{ paddingLeft: '18px', margin: 0, fontSize: '0.85rem', color: '#374151' }}>
-                    {currentSuggestions.map((s, i) => <li key={i} style={{ marginBottom: '5px' }}>{s}</li>)}
-                </ul>
+            <div style={{ background: '#fef2f2', padding: '16px', borderRadius: '16px', borderLeft: '4px solid #ef4444', marginBottom: '20px' }}>
+                <p style={{ fontSize: '0.875rem', color: '#1f2937', fontWeight: 600, margin: 0, lineHeight: 1.5 }}>
+                    {suggestion}
+                </p>
             </div>
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                    onClick={() => window.location.reload()}
-                    style={{ flex: 1, background: '#4F46E5', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 'bold' }}
-                >
-                    Retry Action
-                </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
                 <a 
-                    href="https://wa.me/917992122974" 
-                    target="_blank" 
-                    style={{ flex: 1, background: '#25D366', color: 'white', textAlign: 'center', textDecoration: 'none', padding: '10px', borderRadius: '8px', fontSize: '0.875rem', fontWeight: 'bold' }}
+                    href="tel:+917992122974"
+                    onClick={() => trackEvent("ai_intervention_click", { method: "tap_call" })}
+                    style={{ flex: 1, background: '#111827', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900, textAlign: 'center', textDecoration: 'none' }}
                 >
-                    Chat Support
+                    TALK TO DISPATCH
+                </a>
+                <a 
+                    href={`https://wa.me/917992122974?text=AI Help: Case ${currentQuery}`}
+                    target="_blank" 
+                    onClick={() => trackEvent("ai_intervention_click", { method: "tap_whatsapp" })}
+                    style={{ flex: 1, background: '#25D366', color: 'white', textAlign: 'center', textDecoration: 'none', padding: '12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 900 }}
+                >
+                    WHATSAPP HELP
                 </a>
             </div>
             
-            <div style={{ marginTop: '15px', fontSize: '0.7rem', color: '#9CA3AF', textAlign: 'center' }}>
-                Logged ID: {lastError.id?.slice(-8)}
+            <div style={{ marginTop: '16px', fontSize: '0.65rem', color: '#9ca3af', textAlign: 'center', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                {lastError ? `Recovering ID: ${lastError.id?.slice(-8)}` : `Proactive Monitoring Active`}
             </div>
         </div>
     );
