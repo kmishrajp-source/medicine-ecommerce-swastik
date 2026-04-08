@@ -21,8 +21,14 @@ export default function RetailerDashboard() {
 
     // Incoming Orders State
     const [pendingOrders, setPendingOrders] = useState([]);
+    const [preparingOrders, setPreparingOrders] = useState([]);
     const [countdownTimer, setCountdownTimer] = useState(60);
     const [isResponding, setIsResponding] = useState(false);
+    
+    // Packing Modal State
+    const [packingOrder, setPackingOrder] = useState(null);
+    const [sealCode, setSealCode] = useState("");
+    const [isPacking, setIsPacking] = useState(false);
 
     // Training Video Popup State
     const [showVideoPopup, setShowVideoPopup] = useState(false);
@@ -47,9 +53,11 @@ export default function RetailerDashboard() {
         if (status === 'authenticated' && session?.user?.role === 'RETAILER') {
             fetchInventory();
             fetchPendingOrders();
+            fetchPreparingOrders();
             fetchPrescriptions();
             pollingInterval = setInterval(() => {
                 fetchPendingOrders();
+                fetchPreparingOrders();
                 fetchPrescriptions();
             }, 10000); 
         }
@@ -115,6 +123,36 @@ export default function RetailerDashboard() {
                 alert(data.error);
             }
         } finally { setIsResponding(false); }
+    };
+
+    const fetchPreparingOrders = async () => {
+        try {
+            const res = await fetch('/api/retailer/orders?status=Preparing');
+            const data = await res.json();
+            if (data.success) setPreparingOrders(data.preparingOrders);
+        } catch (e) { console.error("Preparing fetch error", e); }
+    };
+
+    const handlePackOrder = async (e) => {
+        e.preventDefault();
+        if (!packingOrder || !sealCode) return;
+        setIsPacking(true);
+        try {
+            const res = await fetch('/api/retailer/orders/pack', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId: packingOrder.id, tamperSealCode: sealCode })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Order status updated: Ready for Pickup");
+                setPreparingOrders(prev => prev.filter(o => o.id !== packingOrder.id));
+                setPackingOrder(null);
+                setSealCode("");
+            } else {
+                alert("Error: " + data.error);
+            }
+        } finally { setIsPacking(false); }
     };
 
     const fetchPrescriptions = async () => {
@@ -244,6 +282,71 @@ export default function RetailerDashboard() {
                                 <button onClick={() => handleAcceptOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 2, background: '#16A34A', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>ACCEPT</button>
                                 <button onClick={() => handleRejectOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 1, background: '#DC2626', color: 'white', padding: '12px', borderRadius: '8px', border: 'none' }}>Reject</button>
                             </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Orders in Preparation */}
+                {preparingOrders.length > 0 && (
+                    <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb', marginBottom: '40px' }}>
+                        <h3 className="flex items-center gap-2"><i className="fa-solid fa-box-open text-blue-500"></i> Active Preparations</h3>
+                        <p className="text-sm text-gray-500 mb-4">You have accepted these orders. Please pack them and apply a tamper-evident seal.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
+                            {preparingOrders.map(order => (
+                                <div key={order.id} style={{ border: '1px solid #f1f5f9', borderRadius: '12px', padding: '20px', background: '#f8fafc' }}>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <span className="font-bold text-gray-900">Order #{order.id.slice(-6).toUpperCase()}</span>
+                                        <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-bold">PREPARING</span>
+                                    </div>
+                                    <p className="text-sm text-gray-600 mb-4"><i className="fa-solid fa-calendar mr-2"></i> {new Date(order.createdAt).toLocaleDateString()}</p>
+                                    <button 
+                                        onClick={() => setPackingOrder(order)}
+                                        style={{ width: '100%', background: '#2563eb', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>
+                                        MARK AS PACKED & SEALED
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
+                {/* Packing Modal */}
+                {packingOrder && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                        <div style={{ background: 'white', padding: '30px', borderRadius: '16px', maxWidth: '500px', width: '90%' }}>
+                            <h3 className="mb-2">Seal Order #{packingOrder.id.slice(-6).toUpperCase()}</h3>
+                            <p className="text-sm text-gray-600 mb-6 font-medium">Please enter the unique code from the tamper-evident seal/joint applied to the package.</p>
+                            
+                            <form onSubmit={handlePackOrder}>
+                                <div className="mb-6">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Tamper-Evident Seal Code</label>
+                                    <input 
+                                        type="text" 
+                                        className="w-full p-4 border rounded-xl bg-gray-50" 
+                                        placeholder="Enter Unique Seal Identification"
+                                        value={sealCode}
+                                        onChange={e => setSealCode(e.target.value)}
+                                        required
+                                    />
+                                </div>
+
+                                <div className="p-4 bg-yellow-50 rounded-xl mb-6 border border-yellow-100 italic text-xs text-yellow-800">
+                                    "I confirm that this order is correctly packed as per the prescription and a unique tamper-evident joint/seal has been applied."
+                                </div>
+
+                                <button 
+                                    type="submit" 
+                                    disabled={isPacking}
+                                    style={{ width: '100%', padding: '15px', background: '#059669', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 'bold' }}>
+                                    {isPacking ? 'Processing...' : 'CONFIRM PACKED & SEALED'}
+                                </button>
+                                <button 
+                                    type="button"
+                                    onClick={() => { setPackingOrder(null); setSealCode(""); }} 
+                                    style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#eee', borderRadius: '12px', border: 'none' }}>
+                                    Cancel
+                                </button>
+                            </form>
                         </div>
                     </div>
                 )}

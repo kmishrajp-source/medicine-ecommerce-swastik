@@ -4,7 +4,11 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
     try {
-        const { shopName, email, password, phone, address, licenseNumber, referralCode: incomingReferralCode } = await req.json();
+        const { shopName, email, password, phone, address, licenseNumber, referralCode: incomingReferralCode, agreedToTerms } = await req.json();
+
+        if (!agreedToTerms) {
+            return NextResponse.json({ error: "Legal terms must be accepted" }, { status: 400 });
+        }
 
         // 1. Check if user already exists
         const existingUser = await prisma.user.findUnique({

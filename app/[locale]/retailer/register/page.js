@@ -16,7 +16,8 @@ export default function RetailerRegister() {
         phone: "",
         address: "",
         licenseNumber: "",
-        referralCode: ""
+        referralCode: "",
+        agreedToTerms: false
     });
     const [loading, setLoading] = useState(false);
 
@@ -31,6 +32,11 @@ export default function RetailerRegister() {
         e.preventDefault();
         setLoading(true);
         try {
+            if (!formData.agreedToTerms) {
+                alert("Please agree to the legal terms to register.");
+                setLoading(false);
+                return;
+            }
             const res = await fetch("/api/retailer/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -122,6 +128,18 @@ export default function RetailerRegister() {
                                 style={{ padding: "12px", borderRadius: "8px", border: "2px solid #10b981", width: '100%', fontSize: '1rem', background: '#f0fdf4' }} />
                                 {formData.referralCode && <i className="fa-solid fa-circle-check" style={{ position: 'absolute', right: '12px', top: '42px', color: '#059669' }}></i>}
                         </div>
+                    </div>
+
+                    <div style={{ padding: '15px', background: '#f0fdf4', border: '1px solid #bcf0da', borderRadius: '12px', fontSize: '13px', color: '#166534' }}>
+                        <label style={{ display: 'flex', gap: '10px', cursor: 'pointer' }}>
+                            <input type="checkbox" required checked={formData.agreedToTerms} 
+                                onChange={e => setFormData({ ...formData, agreedToTerms: e.target.checked })}
+                                style={{ marginTop: '4px' }}
+                            />
+                            <span>
+                                <strong>Legal Accountability:</strong> Retailer acknowledges legal responsibility for all items properly packaged and sealed. Tamper-evident codes must be applied for all deliveries. Any breach leading to damage before delivery will hold the delivery agent responsible. Retailers remain liable for item accuracy, substitutions, or malpractice.
+                            </span>
+                        </label>
                     </div>
 
                     <button type="submit" disabled={loading}

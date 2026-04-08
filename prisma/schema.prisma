@@ -154,6 +154,10 @@ model Order {
   items         OrderItem[]
   prescription  Prescription?
   deliveryProofUrl String?
+  tamperSealCode   String?     // Unique seal code provided by retailer
+  integrityStatus  String?     @default("PENDING") // PENDING, INTACT, TAMPERED, DAMAGED
+  integrityCheckAt DateTime?   // When customer verified it
+  integrityCheckNotes String?  // Customer feedback if tampered
   createdAt     DateTime    @default(now())
   complaints    Complaint[]
   experience    CustomerExperience?

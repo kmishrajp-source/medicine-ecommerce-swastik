@@ -10,6 +10,9 @@ export async function GET(req) {
     }
 
     try {
+        const { searchParams } = new URL(req.url);
+        const status = searchParams.get('status') || 'Pending_Retailer_Acceptance';
+
         const retailer = await prisma.retailer.findUnique({
             where: { userId: session.user.id }
         });
@@ -18,19 +21,30 @@ export async function GET(req) {
             return NextResponse.json({ error: "Retailer profile not found" }, { status: 404 });
         }
 
-        const pendingOrders = await prisma.order.findMany({
+        const orders = await prisma.order.findMany({
             where: {
                 assignedRetailerId: retailer.id,
-                status: "Pending_Retailer_Acceptance"
+                status: status
             },
             include: {
                 user: { select: { name: true, phone: true } },
-                items: { include: { product: true } }
+                items: { 
+                    include: { 
+                        product: {
+                            select: { name: true, image: true, category: true, mrp: true }
+                        } 
+                    } 
+                }
             },
             orderBy: { createdAt: 'desc' }
         });
 
-        return NextResponse.json({ success: true, pendingOrders });
+        const responseKey = status === 'Preparing' ? 'preparingOrders' : 'pendingOrders';
+
+        return NextResponse.json({ 
+            success: true, 
+            [responseKey]: orders 
+        });
     } catch (error) {
         console.error("Retailer Orders Fetch Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

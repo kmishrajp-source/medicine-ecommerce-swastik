@@ -42,6 +42,25 @@ export default function OrderTracking({ params }) {
         }
     };
 
+    const handleVerifyIntegrity = async (status, notes = "") => {
+        try {
+            const res = await fetch('/api/orders/verify-integrity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ orderId, status, notes })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Security check recorded. Thank you for verifying.");
+                fetchOrderDetails();
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch (e) {
+            console.error("Integrity check failed", e);
+        }
+    };
+
     if (loading) return <div className="text-center py-32"><i className="fa-solid fa-spinner fa-spin text-3xl text-blue-500"></i></div>;
     if (!order) return <div className="text-center py-32 text-red-500 font-bold">Order Not Found</div>;
 
@@ -165,6 +184,60 @@ export default function OrderTracking({ params }) {
 
                             {/* Tracking Milestones */}
                             {getStatusBlock()}
+
+                            {/* Package Security & Code Verification */}
+                            {(order.status === 'Ready_for_Pickup' || order.status === 'Agent_Assigned' || order.status === 'Out_For_Delivery' || order.status === 'Delivered') && (
+                                <div className="mt-8 bg-white rounded-3xl p-8 shadow-sm border border-gray-100 overflow-hidden relative">
+                                    <div className="absolute top-0 right-0 p-1 text-xs bg-blue-50 text-blue-400 font-bold uppercase tracking-widest rounded-bl-xl border-l border-b border-blue-100 px-4">Security Verification</div>
+                                    <div className="flex flex-col md:flex-row gap-8 items-start">
+                                        <div className="flex-1">
+                                            <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+                                                <i className="fa-solid fa-shield-halved text-blue-500"></i> Tamper-Evident Seal
+                                            </h3>
+                                            <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                                                Your package is secured with a unique tamper-evident joint. Verify that the code on your physical package matches the one below.
+                                            </p>
+
+                                            <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-slate-200 text-center">
+                                                <span className="text-gray-400 text-xs font-bold uppercase block mb-1">Official Seal Code</span>
+                                                <span className="text-3xl font-mono font-black text-slate-800 tracking-widest select-all">
+                                                    {order.tamperSealCode || "PENDING"}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex-1 w-full">
+                                            {order.integrityStatus === 'PENDING' ? (
+                                                <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                                                    <h4 className="font-bold text-blue-900 mb-4">How is the package?</h4>
+                                                    <div className="grid grid-cols-1 gap-3">
+                                                        <button 
+                                                            onClick={() => handleVerifyIntegrity("INTACT")}
+                                                            className="w-full bg-white text-blue-600 border-2 border-blue-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
+                                                            <i className="fa-solid fa-check-circle"></i> SEAL IS INTACT
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => {
+                                                                const notes = prompt("Describe the damage/tampering found:");
+                                                                if (notes) handleVerifyIntegrity("TAMPERED", notes);
+                                                            }}
+                                                            className="w-full bg-red-50 text-red-600 border-2 border-red-500 py-3 rounded-xl font-bold flex items-center justify-center gap-2 hover:bg-red-600 hover:text-white transition-all shadow-sm group">
+                                                            <i className="fa-solid fa-triangle-exclamation animate-pulse"></i> BROKEN / TAMPERED
+                                                        </button>
+                                                    </div>
+                                                    <p className="text-[10px] text-blue-400 mt-4 text-center italic">Package integrity affects liability and platform safety.</p>
+                                                </div>
+                                            ) : (
+                                                <div className={`p-6 rounded-2xl border-2 flex flex-col items-center justify-center text-center ${order.integrityStatus === 'INTACT' ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                                                    <i className={`fa-solid ${order.integrityStatus === 'INTACT' ? 'fa-circle-check' : 'fa-circle-exclamation'} text-4xl mb-3`}></i>
+                                                    <h4 className="font-bold text-lg">Integrated Verified: {order.integrityStatus}</h4>
+                                                    <p className="text-sm opacity-80 mt-1">Verified at: {new Date(order.integrityCheckAt).toLocaleString()}</p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         {/* Order Summary Sidebar */}

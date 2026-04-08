@@ -53,7 +53,11 @@ export async function GET(req, { params }) {
                 assignedRetailer: order.assignedRetailer,
                 deliveryAgent: order.deliveryAgent,
                 items: order.items,
-                isRetailerDelivering: order.isRetailerDelivering
+                isRetailerDelivering: order.isRetailerDelivering,
+                tamperSealCode: order.tamperSealCode,
+                integrityStatus: order.integrityStatus,
+                integrityCheckAt: order.integrityCheckAt,
+                integrityCheckNotes: order.integrityCheckNotes
             },
             // Live Location Mapping
             agentLocation: (order.isRetailerDelivering && order.assignedRetailer?.lat) 
