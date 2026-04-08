@@ -1,6 +1,7 @@
 import Navbar from "@/components/Navbar";
 import { Link } from "@/i18n/navigation";
 import { notFound } from "next/navigation";
+import DoctorContactButtons from "@/components/DoctorContactButtons";
 
 // Module 4: Standalone High-Conversion Doctor Profile
 async function getDoctor(id) {
@@ -78,22 +79,8 @@ export default async function DoctorProfilePage({ params }) {
                                 </div>
                             </div>
 
-                            {/* Module 3: Instant Contact Actions */}
-                            <div className="mt-12 flex flex-col md:flex-row gap-6">
-                                <a 
-                                    href={`tel:${doctor.phone || '9161364908'}`}
-                                    className="flex-1 bg-slate-900 text-white font-black py-6 rounded-[2rem] text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-black transition-all shadow-xl shadow-slate-200"
-                                >
-                                    <i className="fa-solid fa-phone-volume"></i> Call Doctor Now
-                                </a>
-                                <a 
-                                    href={`https://wa.me/${doctor.phone?.replace(/\+/g, '') || '917992122974'}?text=Hi, I found your profile on Swastik Medicare and would like to consult.`}
-                                    target="_blank"
-                                    className="flex-1 bg-emerald-500 text-white font-black py-6 rounded-[2rem] text-[10px] uppercase tracking-widest flex items-center justify-center gap-3 hover:bg-emerald-600 transition-all shadow-xl shadow-emerald-200"
-                                >
-                                    <i className="fa-brands fa-whatsapp"></i> Chat on WhatsApp
-                                </a>
-                            </div>
+                            {/* Module 3: Instant Contact Actions (Integrated Funnel) */}
+                            <DoctorContactButtons doctor={doctor} />
                         </div>
 
                         {/* Module 4: Claim Profile Notification */}

@@ -15,6 +15,7 @@ const BenefitsSection = dynamic(() => import('@/components/BenefitsSection'), { 
 const PricingSection = dynamic(() => import('@/components/PricingSection'), { ssr: true });
 const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: true });
 const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), { ssr: false });
+import WhatsAppLeadForm from "@/components/WhatsAppLeadForm";
 
 export default function HomeClient() {
   const { cartCount, toggleCart, addToCart } = useCart();
@@ -23,6 +24,7 @@ export default function HomeClient() {
   const [newDoctors, setNewDoctors] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [userPhone, setUserPhone] = useState("");
+  const [showWAForm, setShowWAForm] = useState(false);
   
   const t = useTranslations('Homepage');
   const tConv = useTranslations('Conversion');
@@ -178,10 +180,13 @@ export default function HomeClient() {
                                     <i className="fa-solid fa-phone text-slate-300 group-hover:text-white transition-colors"></i>
                                     <span className="text-[8px] font-black text-slate-400 group-hover:text-white uppercase tracking-widest">{t('call')}</span>
                                 </div>
-                                <div className="h-24 bg-emerald-50 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-emerald-500 transition-all">
+                                <button 
+                                    onClick={() => setShowWAForm(true)}
+                                    className="h-24 bg-emerald-50 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-emerald-500 transition-all"
+                                >
                                     <i className="fa-brands fa-whatsapp text-emerald-300 group-hover:text-white transition-colors"></i>
                                     <span className="text-[8px] font-black text-emerald-400 group-hover:text-white uppercase tracking-widest">{t('whatsapp')}</span>
-                                </div>
+                                </button>
                              </div>
                         </div>
                      </div>
@@ -436,6 +441,14 @@ export default function HomeClient() {
 
         {/* LEAD CAPTURE SYSTEM */}
         <LeadCapturePopup />
+        
+        <WhatsAppLeadForm 
+            isOpen={showWAForm} 
+            onClose={() => setShowWAForm(false)}
+            targetName="Swastik Specialist"
+            targetType="general"
+            targetPhone="7992122974"
+        />
 
         <div className="container">
           <AdBanner position="Home-Banner" />
