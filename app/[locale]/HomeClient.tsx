@@ -279,7 +279,7 @@ export default function HomeClient() {
                         <div key={doctor.id} className="bg-white/5 backdrop-blur-xl border border-white/10 p-6 rounded-[2rem] hover:bg-white/10 transition-all group">
                              <div className="flex items-center gap-4 mb-6">
                                 <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white font-black shadow-lg shadow-blue-900/20">
-                                    {doctor.name.charAt(0)}
+                                    {(doctor.name || "?")[0]}
                                 </div>
                                 <div>
                                     <h5 className="text-sm font-black text-white uppercase tracking-tight">{doctor.name}</h5>
@@ -452,7 +452,7 @@ export default function HomeClient() {
                 <div style={{ color: '#fbbf24', marginBottom: '10px' }}><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i><i className="fa-solid fa-star"></i></div>
                 <p style={{ fontStyle: 'italic', marginBottom: '15px', color: '#555' }}>"{review.text}"</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '40px', height: '40px', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>{review.name.charAt(0)}</div>
+                  <div style={{ width: '40px', height: '40px', background: '#e2e8f0', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', color: '#64748b' }}>{(review.name || "?")[0]}</div>
                   <div>
                     <div style={{ fontWeight: 'bold' }}>{review.name}</div>
                     <div style={{ fontSize: '0.85rem', color: '#999' }}>{review.loc}</div>
