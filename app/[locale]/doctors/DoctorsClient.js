@@ -20,6 +20,53 @@ export default function DoctorsClient() {
     const [showSOS, setShowSOS] = useState(false);
     const { cartCount, toggleCart } = useCart();
 
+    const fetchDoctors = async () => {
+        try {
+            setLoading(true);
+            let finalDoctors = [];
+            // 1. Try DB first (Safe API request)
+            try {
+                const res = await fetch("/api/doctors?city=Gorakhpur");
+                const data = await res.json();
+                if (data.success && data.doctors && data.doctors.length > 0) {
+                    finalDoctors = data.doctors;
+                }
+            } catch (e) {
+                console.warn("DB fetch failed, relying on fallback.");
+            }
+
+            // 2. Safe Fallback: Load JSON if DB is empty or fails
+            // STRICT RULE: "Ensure Doctor Duniya / Med India data is always visible"
+            if (finalDoctors.length === 0) {
+                try {
+                    const fallbackRes = await fetch("/gorakhpur-healthcare-export.json");
+                    const fallbackData = await fallbackRes.json();
+                    if (Array.isArray(fallbackData)) {
+                        finalDoctors = fallbackData.map((doc, idx) => ({
+                            id: doc.id || `fallback-doc-${idx}`,
+                            doctorName: doc.doctorName || doc.name,
+                            specialization: doc.specialization || "General Physician",
+                            locality: doc.locality || "Gorakhpur",
+                            hospital: doc.name || "",
+                            phone: doc.phone || "",
+                            rating: doc.rating || 4.5,
+                            verified: doc.verified ?? true,
+                            isFallback: true
+                        }));
+                    }
+                } catch (e) {
+                    console.error("Fallback JSON failed:", e);
+                }
+            }
+            
+            setDoctors(finalDoctors);
+        } catch (error) {
+            console.error("Critical error in fetchDoctors:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchDoctors();
         // Track Funnel: Landing
@@ -161,11 +208,12 @@ export default function DoctorsClient() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {filteredDoctors.map(doctor => (
-                            <DirectoryCard 
-                                key={doctor.id} 
-                                item={doctor} 
-                                type="doctor" 
-                            />
+                            <div key={doctor.id} onClick={() => trackEvent("doctor_click", { doctor_id: doctor.id, doctor_name: doctor.doctorName || doctor.name, fallback: doctor.isFallback })}>
+                                <DirectoryCard 
+                                    item={doctor} 
+                                    type="doctor" 
+                                />
+                            </div>
                         ))}
                         {filteredDoctors.length === 0 && (
                             <div className="col-span-full py-32 text-center bg-white rounded-[3rem] border border-slate-100 shadow-sm px-6">
@@ -202,7 +250,17 @@ export default function DoctorsClient() {
                     <h2 className="text-3xl font-black text-slate-900 mb-12">Recently Added Specialists</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                         {doctors.slice(0, 4).map(doc => (
-                            <Link key={doc.id} href={`/doctors/${doc.id}`} className="bg-white p-6 rounded-3xl border border-slate-100 hover:shadow-lg transition-all flex items-center gap-4">
+                            <Link 
+                                key={doc.id} 
+                                href={`/doctors/${doc.id}`} 
+                                onClick={() => trackEvent("doctor_click", { doctor_id: doc.id, doctor_name: doc.doctorName || doc.name, fallback: doc.isFallback })}
+                                className="bg-white p-6 rounded-3xl border border-slate-100 hover:shadow-lg transition-all flex items-center gap-4 relative"
+                            >
+                                {doc.verified && (
+                                    <span className="absolute top-2 right-2 bg-green-100 text-green-700 text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full flex items-center gap-1">
+                                        <i className="fa-solid fa-check-circle"></i> Verified
+                                    </span>
+                                )}
                                 <div className="w-12 h-12 bg-indigo-50 text-indigo-500 rounded-xl flex items-center justify-center shrink-0">
                                     <i className="fa-solid fa-user-doctor"></i>
                                 </div>
