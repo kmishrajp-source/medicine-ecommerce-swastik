@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
+    "@capacitor/app": "^8.1.0",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/splash-screen": "^8.0.1",
     "@prisma/client": "^5.10.0",
     "@supabase/supabase-js": "^2.97.0",
     "bcryptjs": "^3.0.3",
@@ -34,12 +36,17 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "@tailwindcss/postcss": "^4.2.2",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.9",
+    "next-pwa": "^5.6.0",
+    "postcss": "^8.5.10",
     "prisma": "5.10.0",
+    "tailwindcss": "^4.2.2",
     "typescript": "^5"
   }
 }

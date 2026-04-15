@@ -14,6 +14,17 @@ const config: CapacitorConfig = {
       "gpay:*",
       "phonepe:*"
     ]
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 3000,
+      launchAutoHide: true,
+      backgroundColor: "#ffffff",
+      androidSplashResourceName: "splash",
+      androidScaleType: "CENTER_CROP",
+      showSpinner: true,
+      spinnerColor: "#006D77"
+    }
   }
 };
 
