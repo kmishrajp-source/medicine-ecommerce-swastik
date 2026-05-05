@@ -126,7 +126,7 @@ export default function HomeClient() {
                     </div>
 
                     {/* Explainer Video Block */}
-                    <div className="mt-12 p-6 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-indigo-100/20 max-w-md mx-auto md:mx-0 group cursor-pointer hover:border-indigo-200 transition-all">
+                    <a href="https://www.youtube.com/watch?v=90ce3aCwpnw" target="_blank" className="block mt-12 p-6 bg-white rounded-3xl border border-slate-100 shadow-xl shadow-indigo-100/20 max-w-md mx-auto md:mx-0 group cursor-pointer hover:border-indigo-200 transition-all">
                          <div className="flex items-center gap-4 mb-4">
                               <div className="w-10 h-10 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                                    <i className="fa-solid fa-play ml-1"></i>
@@ -142,7 +142,7 @@ export default function HomeClient() {
                               </div>
                               <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded">0:30</span>
                          </div>
-                    </div>
+                    </a>
                 </div>
 
                 <div className="flex-1 relative hidden md:block">
