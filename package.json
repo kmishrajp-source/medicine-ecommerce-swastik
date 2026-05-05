@@ -6,13 +6,18 @@
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test:e2e": "playwright test",
+    "test:regression": "powershell ./scripts/run-regression.ps1"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
     "@capacitor/app": "^8.1.0",
+    "@capacitor/camera": "^8.2.0",
     "@capacitor/cli": "^8.1.0",
     "@capacitor/core": "^8.1.0",
+    "@capacitor/filesystem": "^8.1.2",
+    "@capacitor/geolocation": "^8.2.0",
     "@capacitor/splash-screen": "^8.0.1",
     "@prisma/client": "^5.10.0",
     "@supabase/supabase-js": "^2.97.0",

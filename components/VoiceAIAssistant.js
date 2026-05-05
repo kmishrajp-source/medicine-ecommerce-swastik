@@ -127,7 +127,7 @@ export default function VoiceAIAssistant() {
         return (
             <button 
                 onClick={startListening}
-                className="fixed bottom-6 left-6 z-[60] bg-indigo-600 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-xl hover:scale-110 hover:bg-indigo-700 transition-all group"
+                className="fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] bg-indigo-600 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-xl hover:scale-110 hover:bg-indigo-700 transition-all group"
                 aria-label="Voice AI Assistant"
             >
                 <i className="fa-solid fa-microphone text-2xl group-hover:animate-pulse"></i>
@@ -137,7 +137,7 @@ export default function VoiceAIAssistant() {
     }
 
     return (
-        <div className="fixed bottom-6 left-6 z-[60] w-80 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 animate-in slide-in-from-bottom-5 translate-y-0">
+        <div className="fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] w-80 bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 animate-in slide-in-from-bottom-5 translate-y-0">
             <div className="bg-indigo-600 p-5 flex justify-between items-center text-white relative overflow-hidden shadow-inner">
                 <div className="flex items-center gap-3">
                     <div className={`w-3 h-3 rounded-full bg-rose-400 border border-indigo-400 ${isListening ? 'animate-ping' : ''}`}></div>

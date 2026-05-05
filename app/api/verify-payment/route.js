@@ -226,6 +226,9 @@ export async function POST(req) {
                 price: parseFloat(item.price)
             }));
 
+            // Generate delivery code
+            const deliveryCode = Math.floor(1000 + Math.random() * 9000).toString();
+
             // Create Order
             const createdOrder = await tx.order.create({
                 data: {
@@ -239,6 +242,7 @@ export async function POST(req) {
                     total: parseFloat(amount),
                     status: "Processing",
                     paymentMethod: "ONLINE",
+                    deliveryCode: deliveryCode,
                     isPaid: true,
                     isDelivered: false,
                     items: {
@@ -318,7 +322,7 @@ export async function POST(req) {
         if (customerPhone) {
             await sendSMS(
                 customerPhone,
-                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${newOrder.deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
             );
         }
 

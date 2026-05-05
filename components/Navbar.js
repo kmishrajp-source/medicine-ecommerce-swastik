@@ -75,8 +75,8 @@ export default function Navbar({ cartCount, openCart }) {
                         <i className="fa-solid fa-heart-pulse text-blue-600"></i> Swastik Medicare
                     </Link>
 
-                    {/* Compact Search Bar */}
-                    <div className="search-bar" style={{ position: 'relative', flex: 1, maxWidth: '500px' }}>
+                    {/* Compact Search Bar (Desktop) */}
+                    <div className="search-bar hidden md:block" style={{ position: 'relative', flex: 1, maxWidth: '500px' }}>
                         <i className="fa-solid fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
                         <input 
                             type="text" 
@@ -149,6 +149,55 @@ export default function Navbar({ cartCount, openCart }) {
                         <button className="md:hidden p-2 text-slate-800" onClick={() => setIsMobileMenuOpen(true)}>
                             <i className="fa-solid fa-bars" style={{ fontSize: '1.2rem' }}></i>
                         </button>
+                    </div>
+                </div>
+
+                {/* Mobile Search Bar Row */}
+                <div className="md:hidden px-4 pb-3 w-full">
+                    <div className="search-bar" style={{ position: 'relative', width: '100%' }}>
+                        <i className="fa-solid fa-search" style={{ position: 'absolute', left: '15px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.8rem' }}></i>
+                        <input 
+                            type="text" 
+                            placeholder="Try 'fever', 'heart', or 'medicine name'..." 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            style={{ width: '100%', padding: '10px 40px 10px 35px', borderRadius: '20px', border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: '0.8.5rem', outline: 'none' }}
+                        />
+                        <button onClick={() => alert("Listening...")} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#6366f1' }}>
+                            <i className="fa-solid fa-microphone"></i>
+                        </button>
+                        
+                        {/* Search Results Dropdown Mobile */}
+                        {searchQuery.length > 1 && (
+                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 2000, marginTop: '8px', border: '1px solid #e2e8f0', maxHeight: '300px', overflowY: 'auto' }}>
+                                {isSearching ? (
+                                    <div className="p-4 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                                        <i className="fa-solid fa-spinner fa-spin"></i> Searching...
+                                    </div>
+                                ) : searchResults.length > 0 ? (
+                                    <ul className="list-none p-0 m-0">
+                                        {searchResults.map(item => (
+                                            <li key={item.id} className="border-b border-slate-50 last:border-0">
+                                                <button onClick={() => { router.push(`/medicine/${item.id}`); setSearchQuery(""); }} className="w-full text-left p-3 hover:bg-slate-50 transition-colors flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center overflow-hidden">
+                                                        {item.imageUrl ? <img src={item.imageUrl} className="w-full h-full object-cover" /> : <i className="fa-solid fa-pills text-slate-300"></i>}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex justify-between items-center text-xs font-bold text-slate-800">
+                                                            <span>{item.name} {item.isAiSuggested && <span className="text-[10px] text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded ml-1">AI</span>}</span>
+                                                            <span className="text-emerald-600">₹{item.price}</span>
+                                                        </div>
+                                                        <div className="text-[10px] text-slate-400">{item.brand || item.manufacturer}</div>
+                                                    </div>
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : searchQuery.length >= 2 && (
+                                    <div className="p-4 text-center text-xs text-slate-400">No results found</div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

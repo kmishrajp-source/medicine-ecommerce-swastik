@@ -79,7 +79,7 @@ export default function HomeClient() {
       <main style={{ marginTop: '160px' }}>
 
         {/* HIGH-CONVERSION HERO (SWASTIK BRANDING) */}
-        <div className="relative bg-[#f8fafc] py-32 pb-48 overflow-hidden">
+        <div className="relative bg-[#f8fafc] py-16 md:py-32 pb-24 md:pb-48 overflow-hidden">
              {/* Background Decoration */}
              <div className="absolute top-0 right-0 w-1/2 h-full bg-indigo-600/5 rounded-l-[200px] -z-10 translate-x-20"></div>
              
@@ -88,7 +88,7 @@ export default function HomeClient() {
                     <span className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 inline-block shadow-sm">
                         <i className="fa-solid fa-bolt mr-2 text-indigo-500"></i> {t('local_network')}
                     </span>
-                    <h1 className="text-6xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
+                    <h1 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
                         {t('medical_care')} <br/> <span className="text-indigo-600">{t('delivered_in')}</span> <br/> {t('mins')}
                     </h1>
                     <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
