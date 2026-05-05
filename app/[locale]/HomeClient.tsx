@@ -35,24 +35,9 @@ export default function HomeClient() {
   const tSections = useTranslations('Sections');
   const tReviews = useTranslations('Reviews');
 
-  const [location, setLocation] = useState("Gorakhpur");
+  const [location, setLocation] = useState("Delhi & Gorakhpur");
 
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          try {
-            const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${position.coords.latitude}&longitude=${position.coords.longitude}&localityLanguage=en`);
-            const data = await res.json();
-            if (data.city) setLocation(data.city);
-          } catch (e) {
-            console.log("Location detection failed, fallback to Gorakhpur");
-          }
-        },
-        () => console.log("Geolocation permission denied")
-      );
-    }
-  }, []);
+  // Geolocation removed to strictly enforce launch cities
 
   useEffect(() => {
     fetch('/api/products').then(res => res.json()).then(data => {
