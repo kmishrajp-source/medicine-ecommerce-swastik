@@ -18,6 +18,7 @@ export default function Checkout() {
     const [transactionId, setTransactionId] = useState('');
     const { data: session } = useSession();
     const [eligibleForBonus, setEligibleForBonus] = useState(false);
+    const [showUtrHelp, setShowUtrHelp] = useState(false);
 
     // Coupon Handler
     const applyCoupon = () => {
@@ -502,7 +503,19 @@ export default function Checkout() {
                                                     style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
                                                     required={paymentMethod === 'QR'}
                                                 />
-                                                <p style={{ fontSize: '0.7rem', color: '#888', marginTop: '4px' }}>Required for manual verification</p>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+                                                    <p style={{ fontSize: '0.7rem', color: '#888', margin: 0 }}>Required for manual verification</p>
+                                                    <button type="button" onClick={(e) => { e.preventDefault(); setShowUtrHelp(!showUtrHelp); }} style={{ fontSize: '0.7rem', color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>How to find UTR?</button>
+                                                </div>
+                                                {showUtrHelp && (
+                                                    <div style={{ marginTop: '10px', padding: '12px', background: '#F0F9FF', borderRadius: '8px', border: '1px solid #BAE6FD', fontSize: '0.8rem', color: '#0369A1' }}>
+                                                        <strong style={{ display: 'block', marginBottom: '5px' }}>Where is my UTR?</strong>
+                                                        1. Open your UPI app (PhonePe, GPay, Paytm) and go to <b>Transaction History</b>.<br/>
+                                                        2. Tap on the successful payment for this order.<br/>
+                                                        3. Look for a 12-digit number labeled <b>"UTR"</b> (PhonePe), <b>"UPI Transaction ID"</b> (GPay), or <b>"UPI Ref No"</b> (Paytm).<br/>
+                                                        4. Copy and paste that 12-digit number here.
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     )}
