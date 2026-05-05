@@ -65,6 +65,19 @@ export default function Navbar({ cartCount, openCart }) {
 
     return (
         <header className="glass-header" style={{ display: 'flex', flexDirection: 'column', padding: 0, position: 'fixed', top: 0, width: '100%', zIndex: 1000, boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+            <style jsx global>{`
+                @keyframes premiumShine {
+                    0% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
+                    50% { filter: brightness(1.4) drop-shadow(0 0 6px rgba(255,255,255,0.6)); transform: scale(1.02); }
+                    100% { filter: brightness(1) drop-shadow(0 0 0px transparent); }
+                }
+                .nav-shining-link li {
+                    animation: premiumShine 3s infinite ease-in-out;
+                }
+                .nav-shining-link li:nth-child(odd) {
+                    animation-delay: 1.5s;
+                }
+            `}</style>
             <MiniHeader />
             
             {/* MAIN NAVBAR ROW: Logo, Search, Primary Actions */}
@@ -205,7 +218,7 @@ export default function Navbar({ cartCount, openCart }) {
             {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
             <nav className="hidden lg:block bg-indigo-900 text-white/90 w-full overflow-hidden">
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
+                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
                         <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
                         <li><Link href="/shop-medicines" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tHome('shop_medicines')}</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
