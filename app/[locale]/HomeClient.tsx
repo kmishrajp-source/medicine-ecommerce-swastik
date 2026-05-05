@@ -151,11 +151,11 @@ export default function HomeClient() {
                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('search_whatsapp_call')}</div>
                               </div>
                          </div>
-                         <div className="aspect-video bg-slate-100 rounded-2xl overflow-hidden relative border border-slate-50">
-                              <img src="https://images.unsplash.com/photo-1576091160550-2173dad99978?auto=format&fit=crop&w=400" alt="Healthcare medical facility" className="w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
-                              <div className="absolute inset-0 flex items-center justify-center text-indigo-600/50 text-4xl group-hover:text-indigo-600 transition-colors">
-                                   <i className="fa-solid fa-video"></i>
+                         <div className="aspect-video bg-indigo-900 rounded-2xl overflow-hidden relative border border-indigo-800 flex items-center justify-center">
+                              <div className="absolute inset-0 flex items-center justify-center text-white text-4xl group-hover:scale-110 transition-transform">
+                                   <i className="fa-brands fa-youtube" style={{ fontSize: '3rem', color: '#ff0000' }}></i>
                               </div>
+                              <span className="absolute bottom-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-1 rounded">0:30</span>
                          </div>
                     </div>
                 </div>
