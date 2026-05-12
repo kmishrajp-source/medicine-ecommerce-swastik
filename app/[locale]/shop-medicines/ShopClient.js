@@ -142,9 +142,63 @@ export default function ShopClient({ initialProducts = [] }) {
                                 <ProductCard key={product.id} product={product} onAdd={addToCart} />
                             ))
                         ) : (
-                            <div style={{ textAlign: 'center', padding: '60px', gridColumn: '1/-1', color: 'var(--text-light)' }}>
-                                <i className="fa-solid fa-pills" style={{ fontSize: '3rem', marginBottom: '20px', opacity: 0.5 }}></i>
-                                <p>No medicines found matching your criteria.</p>
+                            <div style={{ 
+                                textAlign: 'center', 
+                                padding: '80px 20px', 
+                                gridColumn: '1/-1', 
+                                background: 'rgba(255,255,255,0.5)',
+                                borderRadius: '32px',
+                                border: '2px dashed var(--glass-border)'
+                            }}>
+                                <div style={{ fontSize: '4rem', marginBottom: '24px' }}>💊</div>
+                                <h3 style={{ fontSize: '1.5rem', marginBottom: '12px', color: 'var(--text-dark)' }}>No Medicines Found</h3>
+                                <p style={{ color: 'var(--text-light)', maxWidth: '400px', margin: '0 auto 32px' }}>
+                                    The medicine directory is currently empty or your filters returned no results.
+                                </p>
+                                
+                                <div style={{ display: 'flex', gap: '15px', justifyContent: 'center' }}>
+                                    <button 
+                                        onClick={() => { setSearchQuery(""); setActiveCategory("All"); }}
+                                        className="btn btn-primary" 
+                                        style={{ borderRadius: '50px', padding: '12px 30px' }}
+                                    >
+                                        Clear All Filters
+                                    </button>
+                                    
+                                    {/* Admin Restoration Trigger */}
+                                    <button 
+                                        onClick={async () => {
+                                            const secret = prompt("Enter Restoration Secret:");
+                                            if (secret) {
+                                                setLoading(true);
+                                                try {
+                                                    const res = await fetch(`/api/restore-data?secret=${secret}&step=medicines`);
+                                                    const data = await res.json();
+                                                    if (data.success) {
+                                                        alert("🎉 Success! Medicines are being restored. Refresh in 1 minute.");
+                                                        window.location.reload();
+                                                    } else {
+                                                        alert("Error: " + data.error);
+                                                    }
+                                                } catch (e) {
+                                                    alert("Restoration failed. Please check network.");
+                                                } finally {
+                                                    setLoading(false);
+                                                }
+                                            }
+                                        }}
+                                        style={{ 
+                                            background: 'transparent', 
+                                            color: 'var(--text-light)', 
+                                            border: '1px solid var(--glass-border)',
+                                            borderRadius: '50px',
+                                            padding: '12px 30px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        Admin Restore
+                                    </button>
+                                </div>
                             </div>
                         )
                     )}
