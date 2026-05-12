@@ -89,6 +89,24 @@ const images = [
 
 function generateMedicines(count = 6000) {
     const rxCategories = ["Antibiotics","Diabetes","Cardiology","Neuro","Hormonal"];
+    
+    const sideEffectsMap = {
+        "General": "Minimal side effects. Occasional mild nausea or skin rash.",
+        "Pain Relief": "May cause stomach acidity, heartburn, or mild dizziness.",
+        "Antibiotics": "Possible diarrhea, nausea, or stomach upset. Complete the full course.",
+        "Supplements": "Very rare. May cause an unusual taste in mouth or mild constipation.",
+        "Diabetes": "Potential hypoglycemia (low blood sugar), nausea, or metallic taste.",
+        "Cardiology": "Dizziness upon standing, mild cough, or headache.",
+        "Dermatology": "Local skin redness, irritation, or dryness at application site.",
+        "Respiratory": "Dry mouth, mild throat irritation, or slight tremors.",
+        "Neuro": "Drowsiness, fatigue, or dry mouth. Avoid driving after use.",
+        "Antiallergic": "Mild sleepiness, dry eyes, or fatigue.",
+        "Vitamins": "Generally safe. Take with food to avoid mild stomach upset.",
+        "Hormonal": "Weight changes, mood swings, or mild headache.",
+        "Antifungal": "Mild itching or burning sensation during initial application.",
+        "Ayurvedic": "Pure herbal formulation. No known major side effects."
+    };
+
     const medicines = [];
     const usedNames = new Set();
     let attempts = 0;
@@ -100,24 +118,27 @@ function generateMedicines(count = 6000) {
         const dose = dosages[Math.floor(Math.random() * dosages.length)];
         const manufacturer = manufacturers[Math.floor(Math.random() * manufacturers.length)];
         const category = categories[Math.floor(Math.random() * categories.length)];
-        const price = Math.floor(Math.random() * 800) + 20;
-        const discount = Math.floor(Math.random() * 25);
+        
+        // Price logic: Generate MRP (Market Price) first
+        const mrp = Math.floor(Math.random() * 950) + 45;
+        const discount = Math.floor(Math.random() * 20) + 5; // 5% to 25% discount
+        const price = Math.floor(mrp * (1 - discount / 100));
+        
         const finalName = `${brand} ${dose}`;
         if (usedNames.has(finalName)) continue;
         usedNames.add(finalName);
+        
         const isRx = rxCategories.includes(category);
         medicines.push({
-            name: finalName, salt, manufacturer, brand, category, price,
-            mrp: Math.floor(price * (1 + discount / 100 + 0.1)),
-            discount,
-            description: `${finalName} contains ${salt}. By ${manufacturer}. Used for ${category} conditions.`,
+            name: finalName, salt, manufacturer, brand, category, price, mrp, discount,
+            description: `${finalName} (${salt}) is a premium ${category} medication manufactured by ${manufacturer}.`,
             image: images[Math.floor(Math.random() * images.length)],
             requiresPrescription: isRx,
             isOTC: !isRx,
             isScheduleH1: category === 'Antibiotics' && Math.random() > 0.5,
-            stock: Math.floor(Math.random() * 500) + 10,
-            uses: `Treatment of ${category} related conditions using ${salt}.`,
-            sideEffects: "May cause mild stomach upset or dizziness. Consult doctor if symptoms persist."
+            stock: Math.floor(Math.random() * 400) + 20,
+            uses: `Effective treatment for conditions requiring ${category} management.`,
+            sideEffects: sideEffectsMap[category] || "May cause minor stomach upset or dizziness. Consult doctor if symptoms persist."
         });
     }
     return medicines;
