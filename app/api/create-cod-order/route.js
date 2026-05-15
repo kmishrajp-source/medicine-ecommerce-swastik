@@ -164,26 +164,28 @@ export async function POST(req) {
             return createdOrder;
         });
 
-        // 5. Customer Notification Data
-        const phone = session?.user?.phone || guestPhone || "Unknown";
+        // 5. Customer Notification Data (Non-Blocking / Safe)
+        try {
+            const phone = session?.user?.phone || guestPhone || "Unknown";
 
-        // 4.5 Execute HyperLocal Routing (Non-Blocking)
-        // console.log(`[SMS MOCK] Sending to ${phone}: Your Secure Delivery Code for Order #${order.id} is: ${deliveryCode}`);
+            // Customer SMS
+            if (phone && phone !== "Unknown") {
+                const shortId = order.id.slice(-6).toUpperCase();
+                await sendSMS(
+                    phone,
+                    `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                );
+            }
 
-        // Customer SMS
-        if (phone && phone !== "Unknown") {
-            const shortId = order.id.slice(-6).toUpperCase();
+            // Admin SMS
             await sendSMS(
-                phone,
-                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                "9161364908",
+                `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
             );
+        } catch (smsError) {
+            console.error("Delayed Notification Warning:", smsError.message);
+            // We don't throw here, because the order is already created successfully.
         }
-
-        // Admin SMS
-        await sendSMS(
-            "9161364908",
-            `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
-        );
 
         return NextResponse.json({
             success: true,

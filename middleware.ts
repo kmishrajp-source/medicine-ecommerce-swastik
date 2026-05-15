@@ -33,7 +33,7 @@ export default function middleware(request) {
     if (pathname.startsWith('/api')) {
         // Stricter limit for orders, bookings, leads and partner growth (Anti-Spam)
         const isHighValue = pathname.includes('order') || pathname.includes('booking') || pathname.includes('verify') || pathname.includes('lead') || pathname.includes('partner');
-        const limit = isHighValue ? 5 : 50;
+        const limit = isHighValue ? 15 : 50;
 
         if (!rateLimit(ip, limit)) {
             return new NextResponse(JSON.stringify({ 
