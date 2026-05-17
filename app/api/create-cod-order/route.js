@@ -10,11 +10,14 @@ import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
+    let session = null;
+    let amount, items;
     try {
-        const session = await getServerSession(authOptions);
+        session = await getServerSession(authOptions);
 
         const body = await req.json();
-        const { amount, couponCode, items, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl } = body;
+        ({ amount, items } = body);
+        const { couponCode, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl } = body;
 
         // Validate Coupon if present
         if (couponCode === 'FIRST100') {
