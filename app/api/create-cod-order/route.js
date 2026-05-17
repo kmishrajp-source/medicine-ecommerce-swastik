@@ -125,14 +125,18 @@ export async function POST(req) {
                         email: uniqueGuestEmail,
                         name: guestName || 'Guest User',
                         password: '$2a$10$GuestPlaceholderHash',
-                        role: 'CUSTOMER',
-                        phone: guestPhone
+                        role: 'CUSTOMER'
                     }
                 });
                 effectiveUserId = guestUser.id;
             }
 
             orderData.userId = effectiveUserId;
+            // Store guest contact info directly on the order
+            orderData.guestName = guestName || null;
+            orderData.guestEmail = guestEmail || null;
+            orderData.guestPhone = guestPhone || null;
+            orderData.address = address || null;
 
             // Link Prescription
             if (prescriptionUrl) {
