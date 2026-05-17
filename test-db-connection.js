@@ -3,7 +3,7 @@ const { Client } = require('pg');
 
 async function test() {
   const client = new Client({
-    connectionString: process.env.PRISMA_DATABASE_URL.replace(/"/g, ''),
+    connectionString: process.env.DIRECT_URL.replace(/"/g, ''),
     ssl: { rejectUnauthorized: false }
   });
   
