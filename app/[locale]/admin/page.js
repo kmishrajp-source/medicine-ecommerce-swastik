@@ -2,22 +2,19 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { useCart } from "@/context/CartContext";
-
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-
 import { generateTallyXML } from "@/utils/tallyXmlGenerator";
 
 export default function AdminDashboard() {
     const { cartCount, toggleCart } = useCart();
-    const { data: session, status } = useSession(); // Access session properly
+    const { data: session, status } = useSession();
     const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Temporarily allow all logged-in users to see dashboard for testing
         if (status === 'unauthenticated') {
             router.push('/login');
         } else {
@@ -44,14 +41,6 @@ export default function AdminDashboard() {
         }
     };
 
-    const updateStatus = async (id, newStatus) => {
-        // TODO: Implement API for status update
-        // For now just update UI locally to show interaction
-        const updatedOrders = orders.map(o => o.id === id ? { ...o, status: newStatus } : o);
-        setOrders(updatedOrders);
-        alert(`Order ${id} marked as ${newStatus} (Local update only for now)`);
-    };
-
     const handleTallyExport = () => {
         if (!orders || orders.length === 0) {
             alert("No orders to export.");
@@ -75,104 +64,280 @@ export default function AdminDashboard() {
         }
     };
 
-    if (status === 'loading' || loading) return <div style={{ padding: '100px', textAlign: 'center' }}>Loading Admin Panel...</div>;
+    if (status === 'loading' || loading) {
+        return (
+            <div style={{
+                height: '100vh',
+                background: '#090d16',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#10B981',
+                fontSize: '1.2rem',
+                fontFamily: "'Inter', sans-serif",
+                fontWeight: 'bold',
+                letterSpacing: '1px'
+            }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{
+                        width: '50px',
+                        height: '50px',
+                        border: '3px solid rgba(16, 185, 129, 0.1)',
+                        borderTop: '3px solid #10B981',
+                        borderRadius: '50%',
+                        margin: '0 auto 20px',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                    LOADING MANAGEMENT MATRIX...
+                    <style jsx>{`
+                        @keyframes spin {
+                            to { transform: rotate(360deg); }
+                        }
+                    `}</style>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
 
-            <main className="container" style={{ marginTop: '100px', paddingBottom: '60px', maxWidth: '1200px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                    <h2 style={{ fontSize: '2rem' }}>Delivery Management Dashboard</h2>
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                        <Link href="/admin/inventory" className="btn btn-primary">Manage Inventory</Link>
-                        <Link href="/admin/approvals" className="btn btn-primary" style={{ background: '#DC2626' }}>Approvals</Link>
-                        <Link href="/admin/requests" className="btn btn-primary" style={{ background: '#2563EB' }}>Requests</Link>
-                        <Link href="/admin/subscriptions" className="btn btn-primary" style={{ background: '#059669' }}>Subs</Link>
-                        <Link href="/admin/prescriptions" className="btn btn-primary" style={{ background: '#7C3AED' }}>Scripts</Link>
-                        <Link href="/admin/finance" className="btn btn-primary" style={{ background: '#10B981' }}>Finance</Link>
-                        <Link href="/admin/analytics" className="btn btn-primary" style={{ background: '#7C3AED' }}>Analytics</Link>
-                        <Link href="/admin/insurance" className="btn btn-primary" style={{ background: '#6366f1' }}>Insurance</Link>
-                        <Link href="/admin/sms" className="btn btn-primary" style={{ background: '#F59E0B', color: 'black' }}>SMS History</Link>
-                        <Link href="/admin/system-health" className="btn btn-primary" style={{ background: '#DC2626', color: 'white' }}>Sys Health</Link>
-                        <Link href="/admin/withdrawals" className="btn btn-primary" style={{ background: '#1E3A8A', color: 'white' }}>Payouts</Link>
-                        <Link href="/admin/partners" className="btn btn-primary" style={{ background: '#8B5CF6', color: 'white' }}>All Partners</Link>
-                        <button
-                            onClick={handleTallyExport}
-                            className="btn btn-primary"
-                            style={{ background: '#F97316' }} // Orange color for Tally
-                        >
-                            Export to Tally
-                        </button>
-                        <button
-                            onClick={fetchOrders}
-                            className="btn btn-secondary"
-                            disabled={loading}
-                        >
-                            {loading ? 'Refreshing...' : 'Refresh'}
-                        </button>
-                    </div>
-                </div>
+            <div style={{
+                minHeight: '100vh',
+                background: 'radial-gradient(circle at top left, #052e16, #090d16, #05070f)',
+                padding: '120px 20px 60px',
+                fontFamily: "'Inter', sans-serif",
+                color: '#f8fafc'
+            }}>
+                <main className="container" style={{ maxWidth: '1300px', margin: '0 auto' }}>
+                    {/* Glowing Header Area */}
+                    <div style={{
+                        background: 'rgba(15, 23, 42, 0.45)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(16, 185, 129, 0.25)',
+                        borderRadius: '24px',
+                        padding: '30px',
+                        marginBottom: '40px',
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.3), 0 0 30px rgba(16, 185, 129, 0.05)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '20px'
+                    }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px' }}>
+                            <div>
+                                <h1 style={{
+                                    fontSize: '2rem',
+                                    fontWeight: '800',
+                                    background: 'linear-gradient(to right, #ffffff, #34d399)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    margin: 0,
+                                    letterSpacing: '-0.5px'
+                                }}>
+                                    ADMIN DASHBOARD
+                                </h1>
+                                <p style={{ color: '#94a3b8', fontSize: '0.9rem', margin: '5px 0 0 0' }}>
+                                    System Command & Delivery Management Control Matrix
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={handleTallyExport}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '12px 20px',
+                                        borderRadius: '12px',
+                                        fontWeight: '700',
+                                        cursor: 'pointer',
+                                        boxShadow: '0 4px 15px rgba(249, 115, 22, 0.2)',
+                                        transition: 'all 0.3s'
+                                    }}>
+                                    Export to Tally
+                                </button>
+                                <button
+                                    onClick={fetchOrders}
+                                    style={{
+                                        background: 'rgba(255, 255, 255, 0.05)',
+                                        color: 'white',
+                                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                                        padding: '12px 20px',
+                                        borderRadius: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        transition: 'all 0.3s'
+                                    }}>
+                                    Refresh Matrix
+                                </button>
+                            </div>
+                        </div>
 
-                {/* Orders Table */}
-                <div style={{ background: 'white', borderRadius: '16px', boxShadow: 'var(--shadow-sm)', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
-                        <thead style={{ background: 'var(--bg-light)', textAlign: 'left' }}>
-                            <tr>
-                                <th style={{ padding: '16px' }}>Order ID</th>
-                                <th style={{ padding: '16px' }}>Customer</th>
-                                <th style={{ padding: '16px' }}>Items & Total</th>
-                                <th style={{ padding: '16px' }}>Delivery Address</th>
-                                <th style={{ padding: '16px', color: 'red' }}>Secret Code</th>
-                                <th style={{ padding: '16px' }}>Status</th>
-                                <th style={{ padding: '16px' }}>Invoice</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.length === 0 ? (
-                                <tr><td colSpan="6" style={{ padding: '20px', textAlign: 'center' }}>No orders found in Database.</td></tr>
-                            ) : (
-                                orders.map(order => (
-                                    <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '16px', fontSize: '0.85rem', color: '#666' }}>{order.id.slice(-6)}...</td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ fontWeight: 'bold' }}>{order.customer}</div>
-                                            <div style={{ fontSize: '0.85rem', color: '#666' }}>{order.phone}</div>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <div style={{ fontWeight: 'bold' }}>{order.items}</div>
-                                            <div style={{ color: 'var(--primary)' }}>₹{order.total}</div>
-                                        </td>
-                                        <td style={{ padding: '16px', maxWidth: '250px', fontSize: '0.9rem' }}>
-                                            {order.address}
-                                        </td>
-                                        <td style={{ padding: '16px', fontWeight: 'bold', fontSize: '1.2rem', color: '#D32F2F' }}>
-                                            {order.deliveryCode || "N/A"}
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <span style={{
-                                                padding: '4px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 600,
-                                                background: order.status === 'Processing' ? '#FEF3C7' : order.status === 'Delivered' ? '#D1FAE5' : '#E0F2F1',
-                                                color: order.status === 'Processing' ? '#D97706' : order.status === 'Delivered' ? '#059669' : '#0D8ABC'
-                                            }}>
-                                                {order.status}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '16px' }}>
-                                            <button
-                                                onClick={() => window.open(`/order/${order.id}/invoice`, '_blank')}
-                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#333', color: 'white', border: 'none', borderRadius: '4px' }}
-                                            >
-                                                View
-                                            </button>
-                                        </td>
+                        {/* Navigation Grid */}
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+                            gap: '10px'
+                        }}>
+                            {[
+                                { name: "Inventory", path: "/admin/inventory", color: "#10B981" },
+                                { name: "Approvals", path: "/admin/approvals", color: "#EF4444" },
+                                { name: "Requests", path: "/admin/requests", color: "#3B82F6" },
+                                { name: "Subs", path: "/admin/subscriptions", color: "#059669" },
+                                { name: "Scripts", path: "/admin/prescriptions", color: "#8B5CF6" },
+                                { name: "Finance", path: "/admin/finance", color: "#10B981" },
+                                { name: "Analytics", path: "/admin/analytics", color: "#8B5CF6" },
+                                { name: "Insurance", path: "/admin/insurance", color: "#6366F1" },
+                                { name: "SMS History", path: "/admin/sms", color: "#F59E0B" },
+                                { name: "Sys Health", path: "/admin/system-health", color: "#EF4444" },
+                                { name: "Payouts", path: "/admin/withdrawals", color: "#1E3A8A" },
+                                { name: "All Partners", path: "/admin/partners", color: "#8B5CF6" }
+                            ].map((btn) => (
+                                <Link href={btn.path} key={btn.name} style={{
+                                    background: 'rgba(255, 255, 255, 0.03)',
+                                    border: `1px solid rgba(255,255,255,0.06)`,
+                                    borderRadius: '10px',
+                                    padding: '10px',
+                                    textAlign: 'center',
+                                    color: 'white',
+                                    textDecoration: 'none',
+                                    fontSize: '0.85rem',
+                                    fontWeight: '600',
+                                    transition: 'all 0.3s'
+                                }}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.background = btn.color + '22';
+                                    e.currentTarget.style.borderColor = btn.color;
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.03)';
+                                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                                }}>
+                                    {btn.name}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Table Container */}
+                    <div style={{
+                        background: 'rgba(15, 23, 42, 0.4)',
+                        backdropFilter: 'blur(20px)',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        borderRadius: '24px',
+                        boxShadow: '0 20px 45px rgba(0,0,0,0.4)',
+                        overflow: 'hidden'
+                    }}>
+                        <div style={{ overflowX: 'auto' }}>
+                            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                                <thead>
+                                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Order ID</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Customer</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Items & Value</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Shipping Address</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Secret Code</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status Matrix</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Invoice</th>
                                     </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-            </main>
+                                </thead>
+                                <tbody>
+                                    {orders.length === 0 ? (
+                                        <tr>
+                                            <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                                                No active orders detected in the network.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        orders.map((order, idx) => (
+                                            <tr key={order.id} style={{
+                                                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                                                background: idx % 2 === 0 ? 'rgba(255,255,255,0.01)' : 'transparent',
+                                                transition: 'background 0.2s'
+                                            }}>
+                                                <td style={{ padding: '20px', fontSize: '0.85rem', color: '#38bdf8', fontFamily: 'monospace' }}>
+                                                    {order.id.slice(-8)}...
+                                                </td>
+                                                <td style={{ padding: '20px' }}>
+                                                    <div style={{ fontWeight: '700', color: 'white' }}>{order.customer}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '3px' }}>{order.phone}</div>
+                                                </td>
+                                                <td style={{ padding: '20px' }}>
+                                                    <div style={{ fontWeight: '600', color: '#e2e8f0', fontSize: '0.9rem' }}>{order.items}</div>
+                                                    <div style={{ color: '#10b981', fontWeight: '700', marginTop: '4px', fontSize: '0.95rem' }}>₹{order.total}</div>
+                                                </td>
+                                                <td style={{ padding: '20px', maxWidth: '250px', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: '1.4' }}>
+                                                    {order.address}
+                                                </td>
+                                                <td style={{ padding: '20px' }}>
+                                                    {order.deliveryCode ? (
+                                                        <span style={{
+                                                            background: 'rgba(16, 185, 129, 0.12)',
+                                                            border: '1px solid rgba(16, 185, 129, 0.3)',
+                                                            color: '#34d399',
+                                                            padding: '6px 12px',
+                                                            borderRadius: '8px',
+                                                            fontFamily: 'monospace',
+                                                            fontWeight: 'bold',
+                                                            fontSize: '1rem',
+                                                            letterSpacing: '1px'
+                                                        }}>
+                                                            {order.deliveryCode}
+                                                        </span>
+                                                    ) : (
+                                                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>Verified ✓</span>
+                                                    )}
+                                                </td>
+                                                <td style={{ padding: '20px' }}>
+                                                    <span style={{
+                                                        padding: '6px 12px',
+                                                        borderRadius: '30px',
+                                                        fontSize: '0.75rem',
+                                                        fontWeight: '700',
+                                                        textTransform: 'uppercase',
+                                                        letterSpacing: '0.5px',
+                                                        background: order.status === 'Processing' ? 'rgba(245, 158, 11, 0.12)' : order.status === 'Delivered' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(59, 130, 246, 0.12)',
+                                                        border: order.status === 'Processing' ? '1px solid rgba(245, 158, 11, 0.3)' : order.status === 'Delivered' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
+                                                        color: order.status === 'Processing' ? '#fbbf24' : order.status === 'Delivered' ? '#34d399' : '#60a5fa'
+                                                    }}>
+                                                        {order.status}
+                                                    </span>
+                                                </td>
+                                                <td style={{ padding: '20px' }}>
+                                                    <button
+                                                        onClick={() => window.open(`/order/${order.id}/invoice`, '_blank')}
+                                                        style={{
+                                                            padding: '8px 14px',
+                                                            fontSize: '0.8rem',
+                                                            cursor: 'pointer',
+                                                            background: 'rgba(255,255,255,0.06)',
+                                                            color: 'white',
+                                                            border: '1px solid rgba(255,255,255,0.1)',
+                                                            borderRadius: '8px',
+                                                            fontWeight: '600',
+                                                            transition: 'all 0.3s'
+                                                        }}
+                                                        onMouseOver={(e) => {
+                                                            e.currentTarget.style.background = 'white';
+                                                            e.currentTarget.style.color = 'black';
+                                                        }}
+                                                        onMouseOut={(e) => {
+                                                            e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+                                                            e.currentTarget.style.color = 'white';
+                                                        }}>
+                                                        View
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </main>
+            </div>
         </>
     );
 }
