@@ -108,8 +108,29 @@ export default function HomeClient() {
                         <Link href="/shop-medicines" className="bg-indigo-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
                             {t('shop_medicines')}
                         </Link>
-                        <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px' }}>
+                        <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
                             {t('upload_rx')}
+                        </Link>
+                        <Link href="/admin" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '180px',
+                            background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3), 0 0 15px rgba(16, 185, 129, 0.15)',
+                            marginRight: '15px'
+                        }}>
+                            <i className="fa-solid fa-user-shield" style={{ marginRight: '8px', fontSize: '12px' }}></i> Admin Control
+                        </Link>
+                        <Link href="/delivery" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '180px',
+                            background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+                            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.3), 0 0 15px rgba(139, 92, 246, 0.15)'
+                        }}>
+                            <i className="fa-solid fa-motorcycle" style={{ marginRight: '8px', fontSize: '12px' }}></i> Rider Portal
                         </Link>
                     </div>
 
