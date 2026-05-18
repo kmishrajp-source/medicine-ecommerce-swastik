@@ -101,7 +101,6 @@ export async function POST(req) {
             deliveryCode: deliveryCode,
             isPaid: false,
             isDelivered: false,
-            transactionId: transactionId || null,
             lat: lat ? parseFloat(lat) : null,
             lng: lng ? parseFloat(lng) : null,
             items: {
