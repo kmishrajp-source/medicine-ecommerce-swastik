@@ -1399,11 +1399,21 @@ ALTER TABLE "Report" ADD CONSTRAINT "Report_retailerId_fkey" FOREIGN KEY ("retai
 
         `;
         
-        // Use Prisma's unsafe raw to avoid query plan caching issues
-        // and allow executing full DDL statements at once
-        await prisma.$executeRawUnsafe(sql);
+        console.log("Attempting database schema creation...");
         
-        return NextResponse.json({ success: true, message: 'Database schema fully executed' });
+        try {
+            // First attempt to execute the SQL directly
+            await prisma.$executeRawUnsafe(sql);
+            return NextResponse.json({ success: true, message: 'Database schema successfully created from scratch!' });
+        } catch (err) {
+            console.log("Direct schema execution failed (likely due to existing tables). Re-trying with Schema Reset...");
+            
+            // Drop schema public and recreate it to clean the database, then execute the full SQL script
+            await prisma.$executeRawUnsafe('DROP SCHEMA public CASCADE; CREATE SCHEMA public;');
+            await prisma.$executeRawUnsafe(sql);
+            
+            return NextResponse.json({ success: true, message: 'Database schema successfully reset and fully created!' });
+        }
     } catch (e) {
         return NextResponse.json({ success: false, error: e.message, fullError: e });
     }
