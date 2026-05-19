@@ -106,12 +106,21 @@ export async function GET() {
     try {
         const results = [];
         for (const med of medicinesToSeed) {
-            const product = await prisma.product.upsert({
-                where: { name: med.name },
-                update: med,
-                create: med
+            const existing = await prisma.product.findFirst({
+                where: { name: med.name }
             });
-            results.push(product);
+            if (existing) {
+                const updated = await prisma.product.update({
+                    where: { id: existing.id },
+                    data: med
+                });
+                results.push(updated);
+            } else {
+                const created = await prisma.product.create({
+                    data: med
+                });
+                results.push(created);
+            }
         }
         return NextResponse.json({ success: true, count: results.length, products: results });
     } catch (error) {
