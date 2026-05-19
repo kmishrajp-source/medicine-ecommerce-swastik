@@ -7,6 +7,8 @@ export async function GET(req) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const fullRestore = searchParams.get('restore') === 'true';
+    const limit = parseInt(searchParams.get('limit') || '60', 10);
+    const offset = parseInt(searchParams.get('offset') || '0', 10);
 
     try {
         // --- EMERGENCY FULL SYSTEM RESTORE ---
@@ -59,17 +61,20 @@ export async function GET(req) {
         if (search) {
             where.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
-                { salt: { contains: search, mode: 'insensitive' } }
+                { salt: { contains: search, mode: 'insensitive' } },
+                { brand: { contains: search, mode: 'insensitive' } },
+                { description: { contains: search, mode: 'insensitive' } }
             ];
         }
 
         const products = await prisma.product.findMany({
             where,
             orderBy: { createdAt: 'desc' },
-            take: 20
+            take: Math.min(limit, 200),
+            skip: offset
         });
 
-        return NextResponse.json({ success: true, products });
+        return NextResponse.json({ success: true, products, total: products.length });
     } catch (error) {
         console.error("Fetch/Restore Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
