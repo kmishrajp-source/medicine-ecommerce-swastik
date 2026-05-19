@@ -6,7 +6,7 @@ import { routing } from './i18n/routing';
 // In production, use Upstash Redis for distributed rate limiting.
 const rateLimitMap = new Map();
 
-function rateLimit(ip, maxRequests = 50) {
+function rateLimit(ip, maxRequests = 200) {
     const now = Date.now();
     const windowMs = 60 * 1000; // 1 minute
 
@@ -31,9 +31,10 @@ export default function middleware(request) {
 
     // 1. Rate Limiting for API routes
     if (pathname.startsWith('/api')) {
-        // Stricter limit for orders, bookings, leads and partner growth (Anti-Spam)
+        // Higher limits to allow normal checkout flows without false blocks
+        // A single checkout session can easily make 20-30 API calls
         const isHighValue = pathname.includes('order') || pathname.includes('booking') || pathname.includes('verify') || pathname.includes('lead') || pathname.includes('partner');
-        const limit = isHighValue ? 15 : 50;
+        const limit = isHighValue ? 100 : 200;
 
         if (!rateLimit(ip, limit)) {
             return new NextResponse(JSON.stringify({ 
