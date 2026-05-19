@@ -26,11 +26,19 @@ export async function GET(req) {
             ];
 
             for (const med of medicines) {
-                await prisma.product.upsert({
-                    where: { name: med.name },
-                    update: med,
-                    create: med
+                const existing = await prisma.product.findFirst({
+                    where: { name: med.name }
                 });
+                if (existing) {
+                    await prisma.product.update({
+                        where: { id: existing.id },
+                        data: med
+                    });
+                } else {
+                    await prisma.product.create({
+                        data: med
+                    });
+                }
             }
 
             // 3. Restore Top Doc/Hospitals (Basic Seeding)
