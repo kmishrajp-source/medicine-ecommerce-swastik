@@ -20,27 +20,52 @@ export async function GET(req) {
             "acidity": ["pantoprazole", "digene", "eno", "antacid"],
             "diabetes": ["metformin", "insulin", "glimepiride"],
             "thyroid": ["levothyroxine", "thyronorm"],
-            "heart": ["aspirin", "statin", "atorvastatin", "amlodipine"]
+            "heart": ["aspirin", "statin", "atorvastatin", "amlodipine", "rosuvastatin", "clopidogrel", "bisoprolol", "cardiology"],
+            "multivitamin": ["vitamin", "vitamins", "supplement", "becosules", "calcerol", "cipcal", "a-z gold", "zincovit"]
         };
 
         const symptomQuery = query.toLowerCase().trim();
+        let matchedKey = null;
+        if (symptomQuery.includes("heart") || symptomQuery.includes("cardio")) {
+            matchedKey = "heart";
+        } else if (symptomQuery.includes("multivitamin") || symptomQuery.includes("vitamin") || symptomQuery.includes("supplement")) {
+            matchedKey = "multivitamin";
+        } else if (symptomQuery.includes("fever") || symptomQuery.includes("temp")) {
+            matchedKey = "fever";
+        } else if (symptomQuery.includes("pain") || symptomQuery.includes("ache")) {
+            matchedKey = "pain";
+        } else if (symptomQuery.includes("cough")) {
+            matchedKey = "cough";
+        } else if (symptomQuery.includes("cold") || symptomQuery.includes("flu")) {
+            matchedKey = "cold";
+        } else if (symptomQuery.includes("headache")) {
+            matchedKey = "headache";
+        } else if (symptomQuery.includes("acidity") || symptomQuery.includes("gas")) {
+            matchedKey = "acidity";
+        } else if (symptomQuery.includes("diabetes") || symptomQuery.includes("sugar")) {
+            matchedKey = "diabetes";
+        } else if (symptomQuery.includes("thyroid")) {
+            matchedKey = "thyroid";
+        }
+
         let aiResults = [];
         let aiReason = "";
 
-        if (symptomMap[symptomQuery]) {
-            aiReason = `Recommended for ${symptomQuery}`;
+        if (matchedKey) {
+            aiReason = `Recommended for ${matchedKey === 'heart' ? 'heart care' : matchedKey === 'multivitamin' ? 'vitamins & daily health' : matchedKey}`;
             // Find medicines that match the symptom-mapped keywords
             aiResults = await prisma.product.findMany({
                 where: {
-                    OR: symptomMap[symptomQuery].map(term => ({
+                    OR: symptomMap[matchedKey].map(term => ({
                         OR: [
                             { name: { contains: term, mode: "insensitive" } },
                             { salt: { contains: term, mode: "insensitive" } },
+                            { category: { contains: term, mode: "insensitive" } },
                             { uses: { contains: term, mode: "insensitive" } }
                         ]
                     }))
                 },
-                take: 5,
+                take: 6,
                 select: {
                     id: true, name: true, price: true, mrp: true, discount: true,
                     brand: true, salt: true, image: true, requiresPrescription: true
@@ -48,16 +73,26 @@ export async function GET(req) {
             });
         }
 
+        // Search conditions
+        const searchConditions = [
+            { name: { contains: query, mode: "insensitive" } },
+            { brand: { contains: query, mode: "insensitive" } },
+            { salt: { contains: query, mode: "insensitive" } },
+            { category: { contains: query, mode: "insensitive" } },
+        ];
+
+        if (matchedKey === "heart") {
+            searchConditions.push({ category: { contains: "Cardiology", mode: "insensitive" } });
+        } else if (matchedKey === "multivitamin") {
+            searchConditions.push({ category: { contains: "Vitamins", mode: "insensitive" } });
+            searchConditions.push({ category: { contains: "Supplements", mode: "insensitive" } });
+        }
+
         // Search for medicines that match the name OR salt composition
         // This makes it easy to find cheaper generic substitutes
         const searchResults = await prisma.product.findMany({
             where: {
-                OR: [
-                    { name: { contains: query, mode: "insensitive" } },
-                    { brand: { contains: query, mode: "insensitive" } },
-                    { salt: { contains: query, mode: "insensitive" } },
-                    { category: { contains: query, mode: "insensitive" } },
-                ]
+                OR: searchConditions
             },
             take: 8, // Limit autocomplete to top 8
             select: {
