@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 
 export async function GET(request) {
@@ -9,20 +9,6 @@ export async function GET(request) {
     if (key !== 'setupadmin123') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-
-    let dbUrl = "postgresql://postgres:Shivangi%40%23%242004@db.kklkpnzwxaxekxraqswh.supabase.co:5432/postgres";
-    
-    if (!dbUrl) {
-        return NextResponse.json({ 
-            success: false, 
-            error: 'No database URL found in environment variables',
-            available_env: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('PRISMA') || k.includes('SUPABASE'))
-        }, { status: 500 });
-    }
-
-    const prisma = new PrismaClient({
-        datasources: { db: { url: dbUrl } }
-    });
 
     try {
         const email = "swastikmedicare.help@gmail.com";
@@ -51,8 +37,6 @@ export async function GET(request) {
         });
     } catch (error) {
         console.error("Setup error:", error);
-        return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: 500 });
-    } finally {
-        await prisma.$disconnect();
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
