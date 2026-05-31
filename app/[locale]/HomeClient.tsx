@@ -111,7 +111,7 @@ export default function HomeClient() {
                         <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
                             {t('upload_rx')}
                         </Link>
-                        <Link href="/admin" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
+                        <Link href="/admin/login" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
                             justifyContent: 'center',
