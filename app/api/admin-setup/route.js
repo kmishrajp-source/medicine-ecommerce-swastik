@@ -10,8 +10,7 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    let dbUrl = process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
-    dbUrl = dbUrl ? dbUrl.trim().replace('\\n', '').replace('\n', '') : null;
+    let dbUrl = "postgresql://postgres:Shivangi%40%23%242004@db.kklkpnzwxaxekxraqswh.supabase.co:5432/postgres";
     
     if (!dbUrl) {
         return NextResponse.json({ 
