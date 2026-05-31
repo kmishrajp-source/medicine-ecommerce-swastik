@@ -10,7 +10,8 @@ export async function GET(request) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const dbUrl = process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
+    let dbUrl = process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
+    dbUrl = dbUrl ? dbUrl.trim().replace('\\n', '').replace('\n', '') : null;
     
     if (!dbUrl) {
         return NextResponse.json({ 
