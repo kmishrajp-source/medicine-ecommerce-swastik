@@ -1,15 +1,28 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 
 export async function GET(request) {
-    // Basic security to avoid random hits
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('key');
     
     if (key !== 'setupadmin123') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const dbUrl = process.env.DATABASE_URL || process.env.PRISMA_DATABASE_URL;
+    
+    if (!dbUrl) {
+        return NextResponse.json({ 
+            success: false, 
+            error: 'No database URL found in environment variables',
+            available_env: Object.keys(process.env).filter(k => k.includes('DATABASE') || k.includes('PRISMA') || k.includes('SUPABASE'))
+        }, { status: 500 });
+    }
+
+    const prisma = new PrismaClient({
+        datasources: { db: { url: dbUrl } }
+    });
 
     try {
         const email = "swastikmedicare.help@gmail.com";
@@ -38,6 +51,8 @@ export async function GET(request) {
         });
     } catch (error) {
         console.error("Setup error:", error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        return NextResponse.json({ success: false, error: error.message, code: error.code }, { status: 500 });
+    } finally {
+        await prisma.$disconnect();
     }
 }
