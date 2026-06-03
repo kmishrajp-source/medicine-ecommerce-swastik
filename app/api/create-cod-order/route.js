@@ -188,6 +188,9 @@ export async function POST(req) {
                 "9161364908",
                 `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
             );
+
+            // Admin WhatsApp
+            await WhatsAppTriggers.adminOrderAlert("+917992122974", order.id.slice(-6).toUpperCase(), amount, "COD Order");
         } catch (smsError) {
             console.error("Delayed Notification Warning:", smsError.message);
             // We don't throw here, because the order is already created successfully.

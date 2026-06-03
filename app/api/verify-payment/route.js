@@ -332,6 +332,9 @@ export async function POST(req) {
             `New Order Received! ID: #${orderId}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Check Admin Dashboard.`
         );
 
+        // Admin WhatsApp
+        await WhatsAppTriggers.adminOrderAlert("+917992122974", orderId, amount, "Online Payment Order");
+
         return NextResponse.json({
             success: true,
             orderId: newOrder.id,

@@ -55,6 +55,9 @@ export async function POST(req) {
                     await WhatsAppTriggers.leadCreatedProvider(providerPhone, guestName, guestPhone, serviceType);
                 }
             }
+
+            // 2.3 Admin Notification
+            await WhatsAppTriggers.adminOrderAlert("+917992122974", lead.id, 0, `SLN Booking: ${serviceType}`);
         } catch (err) {
             console.error("WhatsApp Notification failed:", err);
         }

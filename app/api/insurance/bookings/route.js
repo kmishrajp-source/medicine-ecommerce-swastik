@@ -53,6 +53,7 @@ export async function POST(req) {
         // 2. Trigger WhatsApp Notifications
         try {
             await WhatsAppTriggers.leadCreatedCustomer(guestPhone, guestName || "Customer", `Insurance: ${plan.name}`);
+            await WhatsAppTriggers.adminOrderAlert("+917992122974", lead.id, plan.premium, `Insurance: ${plan.name}`);
         } catch (err) {
             console.error("WhatsApp Notification failed:", err);
         }
