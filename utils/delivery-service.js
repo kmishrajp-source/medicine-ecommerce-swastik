@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { getDistanceFromLatLonInKm } from "./routing";
+import { sendSMS } from "@/lib/sms";
 
 /**
  * Smart Delivery Assignment Service
@@ -59,9 +60,13 @@ export async function autoAssignDelivery(orderId) {
             data: { deliveryAgentId: bestAgent.id }
         });
 
-        // 5. Notify the Delivery Agent via WhatsApp
+        // 5. Notify the Delivery Agent via WhatsApp and SMS
         if (bestAgent.phone) {
             await WhatsAppTriggers.deliveryOut(bestAgent.phone, order.id, bestAgent.licenseNumber, bestAgent.phone);
+            await sendSMS(
+                bestAgent.phone,
+                `Swastik Medicare: New Delivery Assignment! Order #${order.id.slice(-6).toUpperCase()}. Please check your Rider Dashboard to start delivery.`
+            );
         }
 
         console.log(`[DELIVERY SUCCESS] Order ${orderId} assigned to Agent ${bestAgent.id} (${bestAgent.distance.toFixed(2)} km)`);

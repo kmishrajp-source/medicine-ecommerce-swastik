@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { getDistanceFromLatLonInKm } from "./routing";
+import { sendSMS } from "@/lib/sms";
 
 /**
  * Calculates distance between two points
@@ -108,10 +109,14 @@ export async function splitOrderIntoSubOrders(orderId) {
             });
             subOrders.push(subOrder);
 
-            // Trigger Notification to Retailer via WhatsApp
+            // Trigger Notification to Retailer via WhatsApp and SMS
             const retailer = retailers.find(r => r.id === retailerId);
             if (retailer && retailer.phone) {
                 WhatsAppTriggers.newSubOrder(retailer.phone, subOrder.id, items.length);
+                await sendSMS(
+                    retailer.phone,
+                    `Swastik Medicare: New Medicine Order #${subOrder.id.slice(-6).toUpperCase()} assigned! Check your Retailer Dashboard to accept.`
+                );
             }
             console.log(`[MARKETPLACE] Created SubOrder ${subOrder.id} for Retailer ${retailerId}`);
         }
@@ -198,13 +203,19 @@ export async function performAutomaticSubstitution(subOrderId, outOfStockItemNam
                 }
             });
 
-            // 4. Notify Customer and Admin via WhatsApp
-            const adminPhone = "9161364908"; 
+            // 4. Notify Customer and Admin via WhatsApp and SMS
+            const adminPhone = process.env.ADMIN_PHONE || "917992122974"; 
             if (subOrder.order.guestPhone || subOrder.user?.phone) {
                 const customerPhone = subOrder.order.guestPhone || subOrder.user.phone;
                 await WhatsAppTriggers.customerSubstitutionAlert(customerPhone, subOrder.orderId, foundSubstitute.medicineName);
             }
             await WhatsAppTriggers.substitutionAlert(adminPhone, subOrder.orderId, foundSubstitute.medicineName);
+            
+            // Optionally send SMS to admin for substitutions
+            await sendSMS(
+                adminPhone,
+                `Substitution Alert: Order #${subOrder.orderId.slice(-6).toUpperCase()} substituted ${outOfStockItemName} with ${foundSubstitute.medicineName}.`
+            );
 
             console.log(`[SUBSTITUTION SUCCESS] Substituted ${outOfStockItemName} with ${foundSubstitute.medicineName} from ${bestRetailer.shopName}`);
             return newSubOrder;

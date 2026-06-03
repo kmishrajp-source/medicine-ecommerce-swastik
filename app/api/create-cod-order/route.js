@@ -184,8 +184,9 @@ export async function POST(req) {
             }
 
             // Admin SMS
+            const adminPhone = process.env.ADMIN_PHONE || "917992122974";
             await sendSMS(
-                "9161364908",
+                adminPhone,
                 `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
             );
 

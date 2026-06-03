@@ -315,7 +315,7 @@ export async function POST(req) {
 
         // 4. Send SMS
         const customerPhone = guestPhone || session?.user?.phone || "";
-        const adminPhone = "9161364908"; // Hardcoded as requested
+        const adminPhone = process.env.ADMIN_PHONE || "917992122974";
         const orderId = newOrder.id.slice(-6).toUpperCase();
 
         // Customer SMS
