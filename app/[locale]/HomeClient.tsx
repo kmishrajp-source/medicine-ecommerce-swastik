@@ -103,14 +103,20 @@ export default function HomeClient() {
 
                     <div className="flex flex-wrap gap-4 mt-12 justify-center" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '40px', width: '100%' }}>
                         <Link href="/doctors" className="bg-slate-900 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            {t('find_doctor')}
+                            <i className="fa-solid fa-user-doctor" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('find_doctor')}
                         </Link>
                         <Link href="/shop-medicines" className="bg-indigo-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            {t('shop_medicines')}
+                            <i className="fa-solid fa-pills" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('shop_medicines')}
                         </Link>
                         <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            {t('upload_rx')}
+                            <i className="fa-solid fa-file-medical" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('upload_rx')}
                         </Link>
+                        
+                        {/* Retailers Directory Button */}
+                        <Link href="/healthcare-directory/store/gorakhpur" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                            <i className="fa-solid fa-shop" style={{ marginRight: '8px', fontSize: '12px' }}></i> Retailers in Gorakhpur
+                        </Link>
+
                         <Link href="/admin/login" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
