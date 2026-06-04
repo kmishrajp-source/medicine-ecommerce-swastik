@@ -44,7 +44,7 @@ export async function GET(req) {
         MSG91_AUTH_KEY: msg91Key ? "✅ Set" : "❌ Missing",
         MSG91_SENDER_ID: process.env.MSG91_SENDER_ID || "❌ Missing (default: SWASTIK)",
         WHATSAPP_API_TOKEN: watiToken ? "✅ Set" : "❌ Missing",
-        WHATSAPP_API_URL: process.env.WHATSAPP_API_URL || "❌ Missing (WATI URL needed)"
+        WHATSAPP_INSTANCE_ID: process.env.WHATSAPP_INSTANCE_ID ? "✅ Set" : "❌ Missing (Ultramsg Instance ID needed)"
     };
 
     return NextResponse.json({
