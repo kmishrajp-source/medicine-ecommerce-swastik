@@ -1,38 +1,55 @@
 import { NextResponse } from "next/server";
 import { sendSMS } from "@/lib/sms";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
-// GET /api/test-sms - Tests the SMS system by sending a real message to the admin
+// GET /api/test-sms - Tests both SMS and WhatsApp systems
 export async function GET(req) {
+    const adminPhone = process.env.ADMIN_PHONE || "917992122974";
+    const msg91Key = process.env.MSG91_AUTH_KEY;
+    const watiToken = process.env.WHATSAPP_API_TOKEN;
+    const results = {};
+
+    // --- Test 1: SMS via MSG91 ---
     try {
-        const adminPhone = process.env.ADMIN_PHONE || "917992122974";
-        const msg91Key = process.env.MSG91_AUTH_KEY;
-
-        if (!msg91Key) {
-            return NextResponse.json({
-                success: false,
-                message: "MSG91_AUTH_KEY is NOT set in Vercel environment variables. SMS will not work.",
-                tip: "Go to Vercel Dashboard -> Settings -> Environment Variables and add MSG91_AUTH_KEY"
-            }, { status: 400 });
-        }
-
-        const result = await sendSMS(
+        const smsResult = await sendSMS(
             adminPhone,
-            `Swastik Medicare Test SMS: System is LIVE and operational! Admin notifications are now active. Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST`
+            `Swastik Medicare TEST: SMS system is LIVE! Time: ${new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' })} IST`
         );
-
-        return NextResponse.json({
-            success: true,
-            message: "✅ Test SMS sent successfully! Check your phone.",
-            adminPhone: `+${adminPhone}`,
-            msg91Status: result,
-            hint: msg91Key ? "MSG91 Key is SET - SMS will actually be delivered!" : "MSG91 Key missing"
-        });
-
-    } catch (error) {
-        return NextResponse.json({
-            success: false,
-            error: error.message,
-            tip: "Check your MSG91_AUTH_KEY and MSG91_SENDER_ID in Vercel environment variables"
-        }, { status: 500 });
+        results.sms = {
+            status: msg91Key ? (smsResult.success ? "✅ SENT" : "❌ FAILED") : "⚠️ Mock (No MSG91_AUTH_KEY)",
+            detail: smsResult
+        };
+    } catch (e) {
+        results.sms = { status: "❌ Error", detail: e.message };
     }
+
+    // --- Test 2: WhatsApp via WATI ---
+    try {
+        const waResult = await sendWhatsAppMessage(
+            adminPhone,
+            "admin_order_alert",
+            ["TEST-ORDER", "100", "Test Notification"]
+        );
+        results.whatsapp = {
+            status: watiToken ? (waResult.success ? "✅ SENT" : "❌ FAILED") : "⚠️ Mock (No WHATSAPP_API_TOKEN)",
+            detail: waResult
+        };
+    } catch (e) {
+        results.whatsapp = { status: "❌ Error", detail: e.message };
+    }
+
+    // --- Environment Check ---
+    results.environment = {
+        adminPhone: `+${adminPhone}`,
+        MSG91_AUTH_KEY: msg91Key ? "✅ Set" : "❌ Missing",
+        MSG91_SENDER_ID: process.env.MSG91_SENDER_ID || "❌ Missing (default: SWASTIK)",
+        WHATSAPP_API_TOKEN: watiToken ? "✅ Set" : "❌ Missing",
+        WHATSAPP_API_URL: process.env.WHATSAPP_API_URL || "❌ Missing (WATI URL needed)"
+    };
+
+    return NextResponse.json({
+        success: true,
+        message: "Notification system diagnostic complete",
+        results
+    });
 }
