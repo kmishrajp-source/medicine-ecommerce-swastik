@@ -13,13 +13,20 @@ import { settlePartnerPayment } from "@/lib/settlements";
 import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
 
 export async function POST(req) {
+    // Fetch session at top level so it is available in the catch block
+    let session = null;
+    let orderCreationId, razorpayPaymentId, amount, items;
     try {
-        const {
+        session = await getServerSession(authOptions);
+        const body = await req.json();
+        ({
             orderCreationId,
             razorpayPaymentId,
-            razorpaySignature,
             amount,
-            items,
+            items
+        } = body);
+        const {
+            razorpaySignature,
             address,
             guestName,
             guestEmail,
@@ -31,7 +38,7 @@ export async function POST(req) {
             targetId,
             targetType,
             leadId
-        } = await req.json();
+        } = body;
 
         // 1. Verify Signature
         const signature = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
@@ -191,15 +198,16 @@ export async function POST(req) {
             }
         }
 
-        // 2. Multi-Step Atomic Transaction
-        const { newOrder, userId } = await prisma.$transaction(async (tx) => {
-            // Identify User
-            let effectiveUserId = null;
-            const currentSession = await getServerSession(authOptions);
+        // 2. Prepare items (needed outside transaction for manufacturer settlement)
+        const medicineItems = items ? items.filter(i => !i.isLab) : [];
+        const labItems = items ? items.filter(i => i.isLab) : [];
 
-            if (currentSession?.user) {
-                effectiveUserId = currentSession.user.id;
-            } else {
+        // 3. Multi-Step Atomic Transaction
+        const { newOrder, userId } = await prisma.$transaction(async (tx) => {
+            // Identify User — reuse top-level session
+            let effectiveUserId = session?.user?.id || null;
+
+            if (!effectiveUserId) {
                 // Unique Guest Handling
                 const uniqueGuestEmail = guestPhone ? `guest-${guestPhone}@swastik.com` : `guest-${Date.now()}@swastik.com`;
                 const guestUser = await tx.user.upsert({
@@ -215,10 +223,6 @@ export async function POST(req) {
                 });
                 effectiveUserId = guestUser.id;
             }
-
-            // Prepare Items
-            const medicineItems = items.filter(i => !i.isLab);
-            const labItems = items.filter(i => i.isLab);
 
             const orderItems = medicineItems.map(item => ({
                 productId: String(item.id),
@@ -269,7 +273,7 @@ export async function POST(req) {
         });
 
         // 3.3 Handle Manufacturer Settlements (If items belong to a manufacturer)
-        if (medicineItems.length > 0) {
+        if (medicineItems && medicineItems.length > 0) {
             try {
                 // Fetch products to check manufacturers
                 const productIds = medicineItems.map(i => String(i.id));
@@ -310,10 +314,10 @@ export async function POST(req) {
             triggerWebhook("payment_success", newOrder.id, { amount });
             // WhatsApp Customer Trigger
             const phone = guestPhone || session?.user?.phone;
-            if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "N/A");
+            if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "Online").catch(e => console.log("WA Error:", e));
         }
 
-        // 4. Send SMS
+        // 4. Send SMS (non-blocking)
         const customerPhone = guestPhone || session?.user?.phone || "";
         const adminPhone = process.env.ADMIN_PHONE || "917992122974";
         const orderId = newOrder.id.slice(-6).toUpperCase();

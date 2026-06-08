@@ -65,12 +65,15 @@ export async function assignOrderToNearestRetailer(orderId) {
         // Ensure the order has a declinedRetailers array initialized in DB 
         // (Assuming the Prisma schema has a field `declinedRetailers: String[]`)
         // Assign the order to the nearest retailer
+        const nearestIds = validRetailers.slice(0, 3).map(r => r.id);
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
                 assignedRetailerId: nearest.id,
                 assignedAt: new Date(),
-                status: "Pending_Retailer_Acceptance"
+                status: "Pending_Retailer_Acceptance",
+                nearestRetailerIds: nearestIds,
+                currentRetailerIndex: 0
             }
         });
 

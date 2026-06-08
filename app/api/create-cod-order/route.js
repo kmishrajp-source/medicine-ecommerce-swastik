@@ -170,6 +170,14 @@ export async function POST(req) {
             return createdOrder;
         });
 
+        // 4.5 Execute HyperLocal Routing (Non-Blocking)
+        if (order && order.lat && order.lng) {
+            assignOrderToNearestRetailer(order.id).catch(e => console.error("Routing Exception:", e));
+            splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
+            const p = guestPhone || session?.user?.phone;
+            if (p) WhatsAppTriggers.orderConfirmed(p, order.id, amount, "COD").catch(e => console.log(e));
+        }
+
         // 5. Customer Notification Data (Non-Blocking / Safe)
         try {
             const phone = session?.user?.phone || guestPhone || "Unknown";

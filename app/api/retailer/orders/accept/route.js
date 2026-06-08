@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { assignOrderToNearestAgent } from "@/utils/deliveryRouting";
+import { sendSMS } from "@/lib/sms";
 
 export async function POST(req) {
     const session = await getServerSession(authOptions);
@@ -13,6 +14,18 @@ export async function POST(req) {
 
         if (!orderId) {
             return NextResponse.json({ error: "Order ID is required" }, { status: 400 });
+        }
+        
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+        
+        const retailer = await prisma.retailer.findUnique({
+            where: { userId: session.user.id }
+        });
+        
+        if (!retailer) {
+            return NextResponse.json({ error: "Retailer profile not found" }, { status: 404 });
         }
 
         const order = await prisma.order.findUnique({
@@ -55,6 +68,61 @@ export async function POST(req) {
                 }
             });
 
+            // 3. --- REFERRAL PAYOUT ENGINE (triggered on retailer order acceptance) ---
+            try {
+                const connection = await prisma.referralConnection.findUnique({
+                    where: { refereeId: session.user.id }
+                });
+
+                if (connection && connection.status !== "Expired") {
+                    const sysSettings = await prisma.systemSettings.findFirst() || {};
+                    const config = sysSettings.referralConfig ? JSON.parse(sysSettings.referralConfig) : {
+                        retailer: { onboardBonus: 1000, threshold: 20, orderFiat: 15 }
+                    };
+                    const rConfig = config.retailer;
+                    const currentCount = connection.activityCount + 1;
+
+                    let payoutAmount = 0;
+                    let payoutDesc = "";
+                    let newStatus = connection.status;
+                    let activationDate = connection.activationDate;
+
+                    if (currentCount === rConfig.threshold && connection.status === "Pending_Activity") {
+                        payoutAmount = rConfig.onboardBonus;
+                        payoutDesc = `Onboarding Bonus for Retailer Activation (${rConfig.threshold} Orders)`;
+                        newStatus = "Active";
+                        activationDate = new Date();
+                    } else if (currentCount > rConfig.threshold && connection.status === "Active") {
+                        payoutAmount = rConfig.orderFiat;
+                        payoutDesc = `Recurring Commission: Retailer Order Accepted`;
+                    }
+
+                    if (payoutAmount > 0) {
+                        await prisma.$transaction([
+                            prisma.referralConnection.update({
+                                where: { id: connection.id },
+                                data: { activityCount: currentCount, status: newStatus, activationDate, totalEarned: { increment: payoutAmount } }
+                            }),
+                            prisma.user.update({
+                                where: { id: connection.referrerId },
+                                data: { walletBalance: { increment: payoutAmount } }
+                            }),
+                            prisma.walletTransaction.create({
+                                data: { userId: connection.referrerId, amount: payoutAmount, type: "CREDIT", description: payoutDesc }
+                            })
+                        ]);
+                        console.log(`[REFERRAL ALGO] Retailer ${session.user.id} triggered ₹${payoutAmount} to ${connection.referrerId}`);
+                    } else {
+                        await prisma.referralConnection.update({
+                            where: { id: connection.id },
+                            data: { activityCount: currentCount }
+                        });
+                    }
+                }
+            } catch (refError) {
+                console.error("[REFERRAL ALGO ERROR]:", refError);
+            }
+
             return NextResponse.json({
                 success: true,
                 message: "Order Accepted! You are responsible for delivering this order.",
@@ -66,7 +134,7 @@ export async function POST(req) {
             // We check if we should move to the next retailer or fallback
             const nextIndex = order.currentRetailerIndex + 1;
             
-            if (nextIndex < order.nearestRetailerIds.length) {
+            if (order.nearestRetailerIds && nextIndex < order.nearestRetailerIds.length) {
                 // Move to NEXT Retailer
                 const nextRetailerId = order.nearestRetailerIds[nextIndex];
                 
@@ -100,12 +168,14 @@ export async function POST(req) {
 
             } else {
                 // FALLBACK: No retailer accepted delivery. Assign to first retailer for fulfillment, and platform agent for delivery.
+                const firstRetailerId = order.nearestRetailerIds && order.nearestRetailerIds.length > 0 ? order.nearestRetailerIds[0] : retailer.id;
                 const updatedOrder = await prisma.order.update({
                     where: { id: orderId },
                     data: {
                         status: "Preparing", // Back to preparing
-                        assignedRetailerId: order.nearestRetailerIds[0], // Back to original fulfiller
-                        isRetailerDelivering: false
+                        assignedRetailerId: firstRetailerId, // Back to original fulfiller
+                        isRetailerDelivering: false,
+                        declinedRetailers: { push: retailer.id }
                     }
                 });
 
@@ -122,90 +192,6 @@ export async function POST(req) {
             }
         }
 
-        // 3. --- MULTI-ROLE REFERRAL PAYOUT ENGINE (RETAILER) ---
-        if (session?.user?.id) {
-            try {
-                // Fetch the retailer's referral connection
-                const connection = await prisma.referralConnection.findUnique({
-                    where: { refereeId: session.user.id }
-                });
-
-                if (connection && connection.status !== "Expired") {
-                    // Fetch dynamic config
-                    const settings = await prisma.systemSettings.findFirst() || {};
-                    const config = settings.referralConfig ? JSON.parse(settings.referralConfig) : {
-                        retailer: { onboardBonus: 1000, threshold: 20, orderFiat: 15 } // Fallback
-                    };
-                    const rConfig = config.retailer;
-
-                    // Increment activity count
-                    const currentCount = connection.activityCount + 1;
-
-                    let payoutAmount = 0;
-                    let payoutDesc = "";
-                    let newStatus = connection.status;
-                    let activationDate = connection.activationDate;
-
-                    if (currentCount === rConfig.threshold && connection.status === "Pending_Activity") {
-                        // Milestone Hit! Trigger massive onboarding bonus
-                        payoutAmount = rConfig.onboardBonus;
-                        payoutDesc = `Onboarding Bonus for Retailer Activation (${rConfig.threshold} Orders)`;
-                        newStatus = "Active";
-                        activationDate = new Date();
-                    } else if (currentCount > rConfig.threshold && connection.status === "Active") {
-                        // Steady State: Pay per order
-                        payoutAmount = rConfig.orderFiat;
-                        payoutDesc = `Recurring Commission: Retailer Order Accepted`;
-                    }
-
-                    // Execute Transaction if payout exists
-                    if (payoutAmount > 0) {
-                        await prisma.$transaction([
-                            // Update Connection Metrics
-                            prisma.referralConnection.update({
-                                where: { id: connection.id },
-                                data: {
-                                    activityCount: currentCount,
-                                    status: newStatus,
-                                    activationDate: activationDate,
-                                    totalEarned: { increment: payoutAmount }
-                                }
-                            }),
-                            // Credit Referrer Wallet
-                            prisma.user.update({
-                                where: { id: connection.referrerId },
-                                data: { walletBalance: { increment: payoutAmount } }
-                            }),
-                            // Log Audit Trail
-                            prisma.walletTransaction.create({
-                                data: {
-                                    userId: connection.referrerId,
-                                    amount: payoutAmount,
-                                    type: "CREDIT",
-                                    description: payoutDesc
-                                }
-                            })
-                        ]);
-                        console.log(`[REFERRAL ALGO] Retailer ${session.user.id} triggered ₹${payoutAmount} payout to Partner ${connection.referrerId}`);
-                    } else {
-                        // Just increment activity count silently
-                        await prisma.referralConnection.update({
-                            where: { id: connection.id },
-                            data: { activityCount: currentCount }
-                        });
-                    }
-                }
-            } catch (refError) {
-                console.error("[REFERRAL ALGO ERROR] Retailer Order Acceptance hooks failed:", refError);
-                // We DO NOT block the order acceptance if the referral engine faults.
-            }
-        }
-
-        return NextResponse.json({
-            success: true,
-            message: "Order Accepted! A Delivery Partner is being routed to your pharmacy.",
-            order: updatedOrder
-        });
 
     } catch (error) {
         console.error("Retailer Order Accept Error:", error);

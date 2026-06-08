@@ -36,6 +36,16 @@ export async function GET(req) {
             }
         });
 
+        // Guard: user must exist before we access any properties
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        // Ensure session role overrides DB role if set by next-auth
+        if (session.user.role && session.user.role !== user.role) {
+            user.role = session.user.role;
+        }
+
         // Only fetch referred network if user has a referral code
         let referredNetwork = [];
         if (user.referralCode) {
@@ -60,15 +70,6 @@ export async function GET(req) {
         user.referredNetwork = referredNetwork.map(u => ({ name: u.name, email: u.email, createdAt: u.createdAt, isActive: u.orders && u.orders.length > 0 }));
         user.totalInvited = totalInvited;
         user.activeBuyers = activeBuyers;
-        
-        // Ensure session role overrides DB role if set by next-auth (e.g. for specific admin users)
-        if (session.user.role && session.user.role !== user.role) {
-            user.role = session.user.role;
-        }
-
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
 
         return NextResponse.json({ success: true, user });
     } catch (error) {
