@@ -117,6 +117,16 @@ export default function HomeClient() {
                             <i className="fa-solid fa-shop" style={{ marginRight: '8px', fontSize: '12px' }}></i> Retailers in Gorakhpur
                         </Link>
 
+                        {/* Medicine Directory Button */}
+                        <Link href="/shop-medicines" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
+                            <i className="fa-solid fa-book-medical" style={{ marginRight: '8px', fontSize: '12px' }}></i> Medicine Directory
+                        </Link>
+
+                        {/* Doctor Directory Button */}
+                        <Link href="/healthcare-directory/gorakhpur" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
+                            <i className="fa-solid fa-stethoscope" style={{ marginRight: '8px', fontSize: '12px' }}></i> Doctor Directory
+                        </Link>
+
                         <Link href="/admin/login" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
                             display: 'inline-flex',
                             alignItems: 'center',
