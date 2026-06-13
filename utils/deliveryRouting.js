@@ -90,6 +90,22 @@ export async function assignOrderToNearestAgent(orderId) {
             }
         });
 
+        // Credit Agent's User Wallet
+        await prisma.user.update({
+            where: { id: nearestDriver.userId },
+            data: { walletBalance: { increment: deliveryFee } }
+        });
+
+        // Log the Wallet Transaction
+        await prisma.walletTransaction.create({
+            data: {
+                userId: nearestDriver.userId,
+                amount: deliveryFee,
+                type: "CREDIT",
+                description: `Platform Delivery Payout for Order #${orderId.slice(-6).toUpperCase()}`
+            }
+        });
+
         console.log(`[DRIVER ROUTING] Order ${orderId} assigned to Driver ${nearestDriver.phone} (${nearestDriver.distance.toFixed(2)} km away from pickup).`);
 
         // Send SMS Alert to the Driver
