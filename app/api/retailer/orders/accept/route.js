@@ -52,21 +52,7 @@ export async function POST(req) {
                 }
             });
 
-            // Credit Delivery Fee + Bonus to Retailer Wallet
-            const totalPay = deliveryFee + selfBonus;
-            await prisma.user.update({
-                where: { id: session.user.id },
-                data: { walletBalance: { increment: totalPay } }
-            });
-
-            await prisma.walletTransaction.create({
-                data: {
-                    userId: session.user.id,
-                    amount: totalPay,
-                    type: "CREDIT",
-                    description: `Self-Delivery Payout for Order #${orderId.slice(-6).toUpperCase()}`
-                }
-            });
+            // Retailer will be credited Delivery Fee + Bonus upon successful delivery verification in verify-delivery route
 
             // 3. --- REFERRAL PAYOUT ENGINE (triggered on retailer order acceptance) ---
             try {
