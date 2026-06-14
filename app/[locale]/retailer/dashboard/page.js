@@ -1,9 +1,10 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import ProviderWallet from "@/components/wallet/ProviderWallet";
+import Papa from "papaparse";
 
 export default function RetailerDashboard() {
     const { data: session, status } = useSession();
@@ -12,6 +13,10 @@ export default function RetailerDashboard() {
     const [inventory, setInventory] = useState([]);
     const [newItem, setNewItem] = useState({ medicineName: "", stock: "", price: "", deliveryArea: "" });
     const [showInvForm, setShowInvForm] = useState(false);
+    
+    // CSV Import State
+    const [isImporting, setIsImporting] = useState(false);
+    const fileInputRef = useRef(null);
     
     // Prescription Quoting State
     const [prescriptions, setPrescriptions] = useState([]);
@@ -221,6 +226,77 @@ export default function RetailerDashboard() {
         }
     };
 
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsImporting(true);
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async function(results) {
+                try {
+                    // Map Marg export columns to our format
+                    // Common Marg headers: "Item Name", "Stock", "Sale Rate", "MRP"
+                    const mappedItems = results.data.map(row => {
+                        // Attempt to find the right keys (case insensitive, space trimmed)
+                        const getVal = (possibleKeys) => {
+                            for (let key of Object.keys(row)) {
+                                if (possibleKeys.includes(key.toLowerCase().trim())) {
+                                    return row[key];
+                                }
+                            }
+                            return null;
+                        };
+
+                        const name = getVal(['item name', 'itemname', 'product name', 'product', 'name', 'medicinename']) || row[Object.keys(row)[0]];
+                        const stockStr = getVal(['stock', 'closing stock', 'qty', 'quantity']);
+                        const priceStr = getVal(['sale rate', 'rate', 'price', 'mrp']);
+
+                        return {
+                            medicineName: name,
+                            stock: parseInt(stockStr, 10) || 0,
+                            price: parseFloat(priceStr) || 0
+                        };
+                    }).filter(i => i.medicineName && i.price > 0);
+
+                    if (mappedItems.length === 0) {
+                        alert("No valid items found in CSV. Please ensure you have Name, Stock, and Price columns.");
+                        setIsImporting(false);
+                        return;
+                    }
+
+                    const res = await fetch('/api/retailer/inventory/import', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items: mappedItems })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message);
+                        fetchInventory();
+                    } else {
+                        alert("Import failed: " + data.error);
+                    }
+                } catch (err) {
+                    console.error("Import logic error:", err);
+                    alert("Failed to parse or upload the file.");
+                } finally {
+                    setIsImporting(false);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                }
+            },
+            error: function(error) {
+                console.error("CSV Parse Error", error);
+                alert("Failed to parse CSV file.");
+                setIsImporting(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            }
+        });
+    };
+
     if (status === 'loading') return <div>Loading...</div>;
 
     return (
@@ -404,9 +480,25 @@ export default function RetailerDashboard() {
 
                 {/* Inventory Area */}
                 <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                         <h3>📦 My Inventory</h3>
-                        <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary">{showInvForm ? 'Close' : '+ Add Item'}</button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input 
+                                type="file" 
+                                accept=".csv" 
+                                ref={fileInputRef} 
+                                style={{ display: 'none' }} 
+                                onChange={handleFileUpload} 
+                            />
+                            <button 
+                                onClick={() => fileInputRef.current.click()} 
+                                disabled={isImporting}
+                                style={{ background: '#10b981', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>
+                                <i className="fa-solid fa-file-csv mr-2"></i>
+                                {isImporting ? 'Importing...' : 'Sync Marg ERP (CSV)'}
+                            </button>
+                            <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary">{showInvForm ? 'Close' : '+ Add Item'}</button>
+                        </div>
                     </div>
                     {showInvForm && (
                         <form onSubmit={handleAddItem} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', marginBottom: '20px' }}>
