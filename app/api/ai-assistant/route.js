@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 // ─── Intent Detection Helpers ────────────────────────────────────────────────
 
@@ -28,6 +29,18 @@ function detectIntent(msg) {
     // Medicine keywords
     const drugMatch = msg.toLowerCase().match(/\b(paracetamol|ibuprofen|aspirin|crocin|metformin|amlodipine|atorvastatin|amoxicillin|azithromycin|pantoprazole|omeprazole|cetirizine|dolo|combiflam|montair|telmisartan)\b/);
     if (drugMatch) return { type: "medicine", drug: drugMatch[0] };
+
+    // Symptom matching for doctors
+    const symptoms = msg.toLowerCase();
+    if (/headache|fever|cold|cough|flu|pain/i.test(symptoms)) return { type: "symptom", specialty: "General Physician" };
+    if (/heart|chest pain|blood pressure/i.test(symptoms)) return { type: "symptom", specialty: "Cardiologist" };
+    if (/skin|rash|acne|hair/i.test(symptoms)) return { type: "symptom", specialty: "Dermatologist" };
+    if (/tooth|teeth|gum/i.test(symptoms)) return { type: "symptom", specialty: "Dentist" };
+    if (/stomach|digestion|acidity/i.test(symptoms)) return { type: "symptom", specialty: "Gastroenterologist" };
+    if (/bone|joint|fracture|back pain/i.test(symptoms)) return { type: "symptom", specialty: "Orthopedic" };
+    if (/eye|vision|sight/i.test(symptoms)) return { type: "symptom", specialty: "Ophthalmologist" };
+    if (/child|baby|pediatric/i.test(symptoms)) return { type: "symptom", specialty: "Pediatrician" };
+    if (/doctor|sick|ill/i.test(symptoms) && !/register/i.test(symptoms)) return { type: "symptom", specialty: "General Physician" };
 
     return "general";
 }
@@ -269,6 +282,43 @@ export async function POST(req) {
                 response: responseText,
                 disclaimer: "Informational guidance only. Not a medical diagnosis. Consult a doctor before taking any medication.",
                 sources
+            });
+        }
+
+        // Handle symptom queries with Doctor Matchmaking
+        if (intent && typeof intent === "object" && intent.type === "symptom") {
+            const specialty = intent.specialty;
+            
+            // Search database for an online booking-enabled doctor
+            const doctor = await prisma.doctor.findFirst({
+                where: { 
+                    specialization: { contains: specialty, mode: 'insensitive' },
+                    isDirectory: false
+                },
+                include: { user: true }
+            });
+
+            let responseText = "";
+            if (doctor) {
+                const docName = doctor.user?.name || doctor.name || "Doctor";
+                responseText = `👨‍⚕️ **Doctor Recommendation**\n\n`;
+                responseText += `Based on your symptoms, I recommend consulting a **${specialty}**.\n\n`;
+                responseText += `I have found **Dr. ${docName}** available for consultation on our platform.\n`;
+                responseText += `*   **Specialization:** ${doctor.specialization}\n`;
+                responseText += `*   **Consultation Fee:** ₹${doctor.consultationFee}\n\n`;
+                responseText += `🔗 **Book Appointment Now:** https://swastikmed.online/en/doctors/${doctor.id}`;
+            } else {
+                responseText = `👨‍⚕️ **Doctor Recommendation**\n\n`;
+                responseText += `Based on your symptoms, I recommend seeing a **${specialty}**. `;
+                responseText += `Currently, I couldn't find an available doctor in that exact specialty online.\n\n`;
+                responseText += `👉 Please browse our full directory to find a doctor near you: https://swastikmed.online/en/doctors`;
+            }
+
+            return NextResponse.json({
+                success: true,
+                response: responseText,
+                disclaimer: "Informational guidance only. Not a medical diagnosis. Consult a doctor for professional medical advice.",
+                sources: ["Swastik Health Network"]
             });
         }
 
