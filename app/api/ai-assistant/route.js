@@ -26,9 +26,15 @@ function detectIntent(msg) {
     // Pricing / charges
     if (/price|cost|charge|fee|free.{0,10}delivery|minimum.{0,10}order/i.test(msg)) return "pricing_info";
 
-    // Medicine keywords
-    const drugMatch = msg.toLowerCase().match(/\b(paracetamol|ibuprofen|aspirin|crocin|metformin|amlodipine|atorvastatin|amoxicillin|azithromycin|pantoprazole|omeprazole|cetirizine|dolo|combiflam|montair|telmisartan)\b/);
-    if (drugMatch) return { type: "medicine", drug: drugMatch[0] };
+    // Enhanced Medicine detection
+    const explicitMedicine = msg.toLowerCase().match(/(?:do you have|i need|looking for|buy|order|price of|cost of).{1,5}\b([a-z0-9-]{3,20})\b/i);
+    const commonDrugMatch = msg.toLowerCase().match(/\b(paracetamol|ibuprofen|aspirin|crocin|metformin|amlodipine|atorvastatin|amoxicillin|azithromycin|pantoprazole|omeprazole|cetirizine|dolo|combiflam|montair|telmisartan)\b/);
+    
+    if (explicitMedicine && explicitMedicine[1]) {
+        return { type: "medicine", drug: explicitMedicine[1] };
+    } else if (commonDrugMatch) {
+        return { type: "medicine", drug: commonDrugMatch[0] };
+    }
 
     // Symptom matching for doctors
     const symptoms = msg.toLowerCase();
@@ -41,6 +47,12 @@ function detectIntent(msg) {
     if (/eye|vision|sight/i.test(symptoms)) return { type: "symptom", specialty: "Ophthalmologist" };
     if (/child|baby|pediatric/i.test(symptoms)) return { type: "symptom", specialty: "Pediatrician" };
     if (/doctor|sick|ill/i.test(symptoms) && !/register/i.test(symptoms)) return { type: "symptom", specialty: "General Physician" };
+
+    // Lab Test matching
+    const labMatch = msg.toLowerCase().match(/\b(blood|sugar|lipid|cbc|thyroid|urine|liver|kidney|hba1c|cholesterol|vitamin).{0,10}(test|profile|panel)\b/i);
+    if (labMatch) return { type: "lab_test", testName: `${labMatch[1]} ${labMatch[2]}` };
+    
+    if (/book.{0,10}lab|lab.{0,10}test/i.test(msg.toLowerCase())) return { type: "lab_test", testName: "General" };
 
     return "general";
 }
@@ -244,37 +256,54 @@ export async function POST(req) {
 
         const intent = detectIntent(message);
 
-        // Handle medicine-specific queries with OpenFDA lookup
+        // Handle medicine-specific queries with Database Stock Check + OpenFDA fallback
         if (intent && typeof intent === "object" && intent.type === "medicine") {
             const drugName = intent.drug;
             let responseText = "";
             let sources = [];
 
             try {
+                // First check our internal database for stock and price
+                const dbProduct = await prisma.product.findFirst({
+                    where: { 
+                        name: { contains: drugName, mode: 'insensitive' }
+                    }
+                });
+
+                if (dbProduct) {
+                    responseText = `✅ **We have ${dbProduct.name} in stock!**\n\n`;
+                    responseText += `*   **Price:** ₹${dbProduct.price}\n`;
+                    if (dbProduct.discount > 0) responseText += `*   **Discount:** ${dbProduct.discount}%\n`;
+                    responseText += `*   **Stock Status:** ${dbProduct.stock > 0 ? "Available" : "Out of Stock"}\n\n`;
+                    responseText += `🛒 **Buy Now:** https://swastikmed.online/en/shop-medicines\n\n`;
+                    sources.push("Swastik Inventory");
+                }
+
+                // Still fetch OpenFDA for educational info
                 const fdaRes = await fetch(`https://api.fda.gov/drug/label.json?search=active_ingredient:"${drugName}"&limit=1`);
                 const fdaData = await fdaRes.json();
 
                 if (fdaData.results && fdaData.results.length > 0) {
                     const info = fdaData.results[0];
                     const dosage = info.dosage_and_administration
-                        ? info.dosage_and_administration[0].substring(0, 300) + "..."
+                        ? info.dosage_and_administration[0].substring(0, 200) + "..."
                         : "Consult label for dosage.";
-                    const indications = info.indications_and_usage
-                        ? info.indications_and_usage[0].substring(0, 200) + "..."
-                        : "Commonly used for pain/fever.";
-
-                    responseText = `💊 **${drugName.charAt(0).toUpperCase() + drugName.slice(1)} Information:**\n\n`;
-                    responseText += `*   **Common Use:** ${indications}\n`;
-                    responseText += `*   **Typical Guidance:** ${dosage}\n\n`;
-                    responseText += `⚠️ **Safety Note:** Always follow the dosage on your prescription. Consult a doctor if symptoms persist beyond 48 hours.\n\n`;
-                    responseText += `🛒 Order ${drugName} on Swastik Medicare: https://swastikmed.online/en/shop-medicines`;
+                    
+                    if (!dbProduct) responseText = `💊 **${drugName.charAt(0).toUpperCase() + drugName.slice(1)} Information:**\n\n`;
+                    responseText += `**Medical Info (OpenFDA):**\n`;
+                    responseText += `*   **Usage Guidance:** ${dosage}\n\n`;
+                    responseText += `⚠️ **Safety Note:** Always follow the dosage on your prescription. Consult a doctor if symptoms persist.\n\n`;
+                    if (!dbProduct) responseText += `🛒 Search on Swastik Medicare: https://swastikmed.online/en/shop-medicines`;
                     sources.push("OpenFDA");
-                } else {
-                    responseText = `I found a reference to **${drugName}**, but detailed FDA labels are not available right now. Generally it is used for symptom relief. Please consult a doctor for specific dosage.\n\n🛒 Search for it: https://swastikmed.online/en/shop-medicines`;
+                } else if (!dbProduct) {
+                    responseText = `I couldn't find detailed medical information or stock for **${drugName}** right now.\n\n🛒 Search our full catalog: https://swastikmed.online/en/shop-medicines`;
                 }
+
             } catch (err) {
-                console.error("OpenFDA fetch failed", err);
-                responseText = `I recognise **${drugName}** but I'm having trouble fetching official data right now. Please consult your pharmacist or doctor for dosage guidance.`;
+                console.error("Medicine lookup failed", err);
+                if (!responseText) {
+                    responseText = `I recognise **${drugName}** but I'm having trouble fetching official data or stock right now. Please browse our shop directly: https://swastikmed.online/en/shop-medicines`;
+                }
             }
 
             return NextResponse.json({
@@ -318,6 +347,41 @@ export async function POST(req) {
                 success: true,
                 response: responseText,
                 disclaimer: "Informational guidance only. Not a medical diagnosis. Consult a doctor for professional medical advice.",
+                sources: ["Swastik Health Network"]
+            });
+        }
+
+        // Handle Lab Test matching
+        if (intent && typeof intent === "object" && intent.type === "lab_test") {
+            const testName = intent.testName;
+            
+            let responseText = "";
+            
+            if (testName === "General") {
+                responseText = `🔬 **Diagnostic Lab Tests**\n\nWe offer home collection for a wide variety of lab tests including Blood Tests, Sugar Profiles, and more.\n\n👉 **Browse & Book Lab Tests:** https://swastikmed.online/en/labs`;
+            } else {
+                const labTest = await prisma.labTest.findFirst({
+                    where: { name: { contains: testName, mode: 'insensitive' } },
+                    include: { lab: true }
+                });
+
+                if (labTest && labTest.lab) {
+                    responseText = `🔬 **Lab Test Available**\n\n`;
+                    responseText += `I found the **${labTest.name}** available at **${labTest.lab.name}**.\n\n`;
+                    responseText += `*   **Price:** ₹${labTest.price}\n`;
+                    if (labTest.turnaroundTime) responseText += `*   **Results In:** ${labTest.turnaroundTime}\n`;
+                    responseText += `\n🔗 **Book Home Collection Now:** https://swastikmed.online/en/labs/${labTest.lab.id}`;
+                } else {
+                    responseText = `🔬 **Lab Test Search**\n\n`;
+                    responseText += `I couldn't find a direct match for a **${testName}** right now, but our partners offer hundreds of tests.\n\n`;
+                    responseText += `👉 **Browse our Lab Directory:** https://swastikmed.online/en/labs`;
+                }
+            }
+
+            return NextResponse.json({
+                success: true,
+                response: responseText,
+                disclaimer: "Lab results should be interpreted by a qualified medical professional.",
                 sources: ["Swastik Health Network"]
             });
         }
