@@ -162,12 +162,12 @@
   },
   "AIAssistant": {
     "title": "Sofiya - Your Swastik AI Assistant",
-    "placeholder": "Ask Sofiya about Paracetamol, fever advice...",
-    "initial_greeting": "Hello! I'm Sofiya, your Swastik AI Assistant. You can ask me about medicines, dosages, or general health concerns. How can I help you today?",
+    "placeholder": "Ask about registration, medicines, orders, delivery...",
+    "initial_greeting": "👋 Hello! I'm Sofiya, your Swastik AI Assistant.\n\nI can help you with:\n🏥 Register as a Customer, Retailer, or Delivery Agent\n💊 Medicine information & dosage\n📦 Track your orders\n🚚 Delivery areas & timings\n🔐 Login & account help\n\nJust type your question — I'm here 24/7! 😊",
     "thinking": "Sofiya is thinking...",
-    "error_processing": "I'm sorry, I'm having trouble processing that right now. Please try again or consult a doctor.",
+    "error_processing": "I'm sorry, I'm having trouble processing that right now. Please try again or contact us at swastikmedicare.help@gmail.com",
     "error_connection": "An error occurred. Please check your connection.",
-    "powered_by": "Powered by Swastik Health Engine, Doctor Duniya, Medindia & OpenFDA API"
+    "powered_by": "Powered by Swastik Health Engine & OpenFDA API"
   },
   "SymptomChecker": {
     "title": "AI Health Guidance",
