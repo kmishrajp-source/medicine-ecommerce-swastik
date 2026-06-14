@@ -11,6 +11,7 @@ import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { logFailure } from "@/lib/logger";
 import { settlePartnerPayment } from "@/lib/settlements";
 import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
+import { processMLMCommissions } from "@/lib/referrals";
 
 export async function POST(req) {
     // Fetch session at top level so it is available in the catch block
@@ -312,6 +313,12 @@ export async function POST(req) {
             splitOrderIntoSubOrders(newOrder.id).catch(e => console.error("Marketplace Split Exception:", e));
             // Webhook Event
             triggerWebhook("payment_success", newOrder.id, { amount });
+            
+            // Trigger 2-Tier MLM Commissions
+            if (userId) {
+                processMLMCommissions(userId, newOrder.id, parseFloat(amount)).catch(e => console.error("MLM Commission Exception:", e));
+            }
+
             // WhatsApp Customer Trigger
             const phone = guestPhone || session?.user?.phone;
             if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "Online").catch(e => console.log("WA Error:", e));

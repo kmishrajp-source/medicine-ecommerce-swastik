@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { processReferralSignup } from "@/lib/referrals";
 import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
@@ -54,11 +53,8 @@ export async function POST(req) {
             },
         });
 
-        // 5. Trigger the Referral Bonus Engine (Non-blocking)
-        if (validReferredBy) {
-            processReferralSignup(user.id, validReferredBy).catch(e => console.error("Referral Bonus Error", e));
-        }
-
+        // Note: The MLM Referral Bonus Engine is now triggered post-sale in verify-payment
+        
         return NextResponse.json({ message: "User created successfully", user: { id: user.id, email: user.email } }, { status: 201 });
     } catch (error) {
         console.error("Registration Error:", error);
