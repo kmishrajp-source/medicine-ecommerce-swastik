@@ -22,6 +22,10 @@ export default function AdminCRMDashboard() {
     // New States for Providers and Logistics
     const [providers, setProviders] = useState([]);
     const [deliveries, setDeliveries] = useState([]);
+    
+    // Pagination state
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -30,16 +34,6 @@ export default function AdminCRMDashboard() {
             router.push("/");
         } else if (status === "authenticated") {
             fetchLeads();
-            // Assuming fetchAgents, fetchRevenue, fetchPaymentHistory are also needed on initial load
-            // and potentially on filter changes.
-            // For now, I'll add them here, but the user's provided useEffect structure was ambiguous.
-            // The instruction's useEffect was:
-            // useEffect(() => { fetchLeads(); fetchAgents(); fetchRevenue(); fetchPaymentHistory(); }, [filterStatus, filterAgent, filterArea]);
-            // This implies a different filter state management or a separate useEffect.
-            // I will integrate the new fetches into the existing authenticated block and add a separate useEffect for filters if needed.
-            // For now, I'll keep the existing filter dependency for fetchLeads.
-            fetchAgents(); // Assuming this is a new function to fetch agents separately if not part of fetchLeads
-            fetchAgents();
             fetchRevenue(); 
             fetchPaymentHistory();
             fetchProviders();
@@ -62,26 +56,18 @@ export default function AdminCRMDashboard() {
     // For now, I'll assume the existing 'filters' state is the source of truth for filtering.
     useEffect(() => {
         if (status === "authenticated") {
+            setPage(1); // Reset page on filter change
             fetchLeads();
-            // If agents, revenue, and payment history also depend on filters, they should be fetched here.
-            // For simplicity, I'll assume they are mostly static or fetched once, or have their own triggers.
-            // The instruction's `useEffect` was ambiguous about `filterStatus, filterAgent, filterArea`
-            // as dependencies for *all* fetches. I'll stick to `filters` for `fetchLeads` as it was.
         }
-    }, [filters.status, filters.agentId, filters.area, status]); // Re-trigger leads on filter change
+    }, [filters.status, filters.agentId, filters.area, filters.serviceType, status]);
+    
+    useEffect(() => {
+        if (status === "authenticated") {
+            fetchLeads();
+        }
+    }, [page]);
 
-    const fetchAgents = async () => {
-        // This function might already be implicitly called by fetchLeads,
-        // but if it's a separate concern, it needs its own API call.
-        // For now, assuming agents are fetched within fetchLeads or this is a placeholder.
-        // If agents are fetched separately, add an API call here.
-        // Example:
-        // try {
-        //     const res = await fetch("/api/admin/crm/agents");
-        //     const data = await res.json();
-        //     if (data.success) setAgents(data.agents);
-        // } catch (error) { console.error("Fetch Agents Error:", error); }
-    };
+
 
     const fetchRevenue = async () => {
         try {
@@ -125,12 +111,14 @@ export default function AdminCRMDashboard() {
     const fetchLeads = async () => {
         setLoading(true);
         try {
-            const query = new URLSearchParams(filters).toString();
+            const queryParams = new URLSearchParams({ ...filters, page, limit: 50 });
+            const query = queryParams.toString();
             const res = await fetch(`/api/admin/crm/leads?${query}`);
             const data = await res.json();
             if (data.success) {
                 setLeads(data.leads);
                 setAgents(data.agents);
+                if (data.pagination) setTotalPages(data.pagination.pages);
                 
                 // Fetch batches for tracking
                 const bRes = await fetch("/api/admin/whatsapp-bulk/batches");
@@ -429,6 +417,26 @@ export default function AdminCRMDashboard() {
                                 ))}
                             </tbody>
                         </table>
+                        {/* Pagination Controls */}
+                        <div style={{ padding: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', borderTop: '1px solid #f3f4f6' }}>
+                            <button 
+                                onClick={() => setPage(prev => Math.max(prev - 1, 1))}
+                                disabled={page === 1}
+                                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: page === 1 ? '#f9fafb' : 'white', cursor: page === 1 ? 'not-allowed' : 'pointer', color: page === 1 ? '#9ca3af' : '#111827' }}
+                            >
+                                Previous
+                            </button>
+                            <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#4b5563' }}>
+                                Page {page} of {totalPages || 1}
+                            </span>
+                            <button 
+                                onClick={() => setPage(prev => Math.min(prev + 1, totalPages))}
+                                disabled={page >= totalPages}
+                                style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #e5e7eb', background: page >= totalPages ? '#f9fafb' : 'white', cursor: page >= totalPages ? 'not-allowed' : 'pointer', color: page >= totalPages ? '#9ca3af' : '#111827' }}
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
 
                     {/* WhatsApp Batches Tracking */}
