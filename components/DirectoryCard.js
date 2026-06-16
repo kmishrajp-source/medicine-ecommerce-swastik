@@ -7,7 +7,7 @@ import VerifiedBadge from "./VerifiedBadge";
 import Image from "next/image";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
-export default function DirectoryCard({ item, type, onBook }) {
+export default function DirectoryCard({ item, type, onBook = () => {} }) {
     const { data: session } = useSession();
     
     const [isUnlocked, setIsUnlocked] = useState(item?.isUnlocked || false);
@@ -151,7 +151,7 @@ export default function DirectoryCard({ item, type, onBook }) {
                     <i className="fa-solid fa-triangle-exclamation"></i> Report Incorrect Info
                  </a>
                  <div className="text-[8px] font-black text-slate-200 uppercase tracking-widest">
-                    ID: {item.id.slice(-6)}
+                    ID: {item.id?.slice(-6) ?? 'N/A'}
                  </div>
             </div>
         </div>
