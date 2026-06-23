@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { processChatMessage } from "@/lib/ai-brain";
+import { sendWhatsAppText } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -58,17 +60,26 @@ export async function POST(req) {
                 };
 
                 // Specific "YES" logic
-                if (text.includes("YES")) {
+                if (text.includes("YES") && text.length < 10) {
                     updateData.status = "interested";
                     updateData.qualityScore = 90;
                     if (!lead.tags.includes("HIGH_INTENT")) {
                         updateData.tags = { push: "HIGH_INTENT" };
                     }
                     updateData.notes = (lead.notes || "") + `\n[System] Marked HIGH_INTENT via "YES" reply. (${new Date().toLocaleString()})`;
+                    
+                    // Reply to the YES
+                    await sendWhatsAppText(from, "Great! A Swastik Medicare representative will contact you shortly.");
                 } else {
                     // General replied status boost
                     updateData.qualityScore = Math.min((lead.qualityScore || 0) + 10, 80);
                     updateData.notes = (lead.notes || "") + `\n[System] Replied to WhatsApp. (${new Date().toLocaleString()})`;
+
+                    // Pass to AI Brain
+                    const aiResult = await processChatMessage(text);
+                    if (aiResult && aiResult.responseText) {
+                        await sendWhatsAppText(from, aiResult.responseText);
+                    }
                 }
 
                 await prisma.lead.update({
@@ -76,6 +87,12 @@ export async function POST(req) {
                     data: updateData
                 });
                 console.log(`[WHATSAPP WEBHOOK] Updated Lead ${lead.id} on reply.`);
+            } else {
+                // If not a known lead, just act as a general AI chatbot
+                const aiResult = await processChatMessage(text);
+                if (aiResult && aiResult.responseText) {
+                    await sendWhatsAppText(from, aiResult.responseText);
+                }
             }
         }
 

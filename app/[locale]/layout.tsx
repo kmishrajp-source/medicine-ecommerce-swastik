@@ -4,6 +4,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
 import VoiceAIAssistant from "@/components/VoiceAIAssistant";
+import SwastikChatWidget from "@/components/SwastikChatWidget";
 import Script from "next/script";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -114,6 +115,7 @@ export default async function RootLayout({
         </ClientProviders>
         
         <VoiceAIAssistant />
+        <SwastikChatWidget />
 
         {/* Global Tracking Scripts */}
         <Script
