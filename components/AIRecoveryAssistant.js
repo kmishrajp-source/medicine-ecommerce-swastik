@@ -116,13 +116,19 @@ const AIRecoveryAssistant = ({ currentQuery = "", pageType = "general" }) => {
             </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-                <a 
-                    href="tel:+917992122974"
-                    onClick={() => trackEvent("ai_intervention_click", { method: "tap_call" })}
+                <button 
+                    onClick={() => {
+                        trackEvent("ai_intervention_click", { method: "tap_chat" });
+                        // Open the SwastikChatWidget by dispatching a custom event
+                        window.dispatchEvent(new CustomEvent('swastik:open-chat', { 
+                            detail: { message: "I need to talk to a representative / dispatch team. Please help." }
+                        }));
+                        setIsVisible(false);
+                    }}
                     style={{ flex: 1, background: '#111827', color: 'white', border: 'none', padding: '12px', borderRadius: '12px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 900, textAlign: 'center', textDecoration: 'none' }}
                 >
                     TALK TO DISPATCH
-                </a>
+                </button>
                 <a 
                     href={`https://wa.me/917992122974?text=AI Help: Case ${currentQuery}`}
                     target="_blank" 

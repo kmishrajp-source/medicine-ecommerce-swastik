@@ -12,6 +12,35 @@ export default function SwastikChatWidget() {
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef(null);
 
+    // Listen for external trigger (e.g. from AIRecoveryAssistant "Talk to Dispatch" button)
+    useEffect(() => {
+        const handleExternalOpen = async (e) => {
+            setIsOpen(true);
+            if (e.detail?.message) {
+                const autoMsg = e.detail.message;
+                setMessages(prev => [...prev, { role: "user", text: autoMsg }]);
+                setIsLoading(true);
+                try {
+                    const res = await fetch("/api/ai-assistant", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ message: autoMsg })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        setMessages(prev => [...prev, { role: "assistant", text: data.response }]);
+                    }
+                } catch (err) {
+                    setMessages(prev => [...prev, { role: "assistant", text: "Our team has been alerted. Please also try WhatsApp at +91-7992122974 for instant support." }]);
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        };
+        window.addEventListener('swastik:open-chat', handleExternalOpen);
+        return () => window.removeEventListener('swastik:open-chat', handleExternalOpen);
+    }, []);
+
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
