@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import AdminSidebar from "@/components/AdminSidebar";
 
 const STATUS_CONFIG = {
     "Pending":      { color: "bg-amber-50 text-amber-700 border-amber-200",       icon: "fa-clock",         label: "Pending" },
@@ -80,12 +79,13 @@ export default function AdminReturnsPage() {
 
     return (
         <div className="flex min-h-screen bg-slate-50">
-            <AdminSidebar activeItem="returns" />
-
-            <main className="flex-1 p-8 ml-64">
+            <main className="flex-1 p-8">
                 <div className="max-w-5xl mx-auto">
                     {/* Header */}
                     <div className="mb-8">
+                        <Link href="/admin" className="text-slate-500 hover:text-indigo-600 font-bold text-sm mb-4 inline-block">
+                            <i className="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+                        </Link>
                         <div className="flex items-center justify-between">
                             <div>
                                 <h1 className="text-3xl font-black text-slate-900 mb-1">Returns & Refunds</h1>
