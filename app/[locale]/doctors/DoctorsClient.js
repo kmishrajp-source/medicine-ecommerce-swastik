@@ -212,6 +212,11 @@ export default function DoctorsClient() {
                                 <DirectoryCard 
                                     item={doctor} 
                                     type="doctor" 
+                                    onBook={(item) => {
+                                        window.dispatchEvent(new CustomEvent('swastik:open-chat', { 
+                                            detail: { message: `I want to book an appointment with ${item.doctorName || item.name} (${item.specialization}). Please call me back at my number.` }
+                                        }));
+                                    }}
                                 />
                             </div>
                         ))}

@@ -115,21 +115,40 @@ export default function DirectoryCard({ item, type, onBook = () => {} }) {
             </div>
 
             <div className="grid grid-cols-2 gap-3 mt-auto">
-                <a 
-                    href={`https://wa.me/91${item.phone?.replace(/[^0-9]/g, '')}?text=Hello, I am interested in ${displayName}. Found you on Swastik Medicare.`}
-                    target="_blank"
-                    onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "whatsapp", target: displayName, type: type })}
-                    className="bg-emerald-50 text-emerald-600 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-emerald-100"
-                >
-                    <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp
-                </a>
-                <a 
-                    href={`tel:${item.phone}`}
-                    onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "call", target: displayName, type: type })}
-                    className="bg-slate-50 text-slate-900 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200"
-                >
-                    <i className="fa-solid fa-phone text-[10px]"></i> Call Now
-                </a>
+                {item.phone ? (
+                    <a 
+                        href={`https://wa.me/91${item.phone.replace(/[^0-9]/g, '')}?text=Hello, I am interested in ${displayName}. Found you on Swastik Medicare.`}
+                        target="_blank"
+                        onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "whatsapp", target: displayName, type: type })}
+                        className="bg-emerald-50 text-emerald-600 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-emerald-100"
+                    >
+                        <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                    </a>
+                ) : (
+                    <button 
+                        onClick={() => onBook(item)}
+                        className="bg-emerald-50 text-emerald-600 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-600 hover:text-white transition-all active:scale-95 border border-emerald-100"
+                    >
+                        <i className="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                    </button>
+                )}
+                
+                {item.phone ? (
+                    <a 
+                        href={`tel:${item.phone}`}
+                        onClick={() => trackEvent(ANALYTICS_EVENTS.CONTACT, { method: "call", target: displayName, type: type })}
+                        className="bg-slate-50 text-slate-900 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200"
+                    >
+                        <i className="fa-solid fa-phone text-[10px]"></i> Call Now
+                    </a>
+                ) : (
+                    <button 
+                        onClick={() => onBook(item)}
+                        className="bg-slate-50 text-slate-900 text-center font-black py-4 rounded-xl text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200"
+                    >
+                        <i className="fa-solid fa-phone text-[10px]"></i> Call Now
+                    </button>
+                )}
                 <button 
                     onClick={() => {
                         trackEvent(ANALYTICS_EVENTS.LEAD, { target: displayName, type: type });
