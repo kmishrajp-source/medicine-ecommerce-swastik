@@ -5,6 +5,7 @@ import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
 import VoiceAIAssistant from "@/components/VoiceAIAssistant";
 import SwastikChatWidget from "@/components/SwastikChatWidget";
+import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
 import Script from "next/script";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -116,6 +117,7 @@ export default async function RootLayout({
         
         <VoiceAIAssistant />
         <SwastikChatWidget />
+        <AIRecoveryAssistant />
 
         {/* Global Tracking Scripts */}
         <Script

@@ -83,21 +83,50 @@ export default function HomeClient() {
                     {/* Module 10: Smart Intent Search Bar */}
                     <div className="relative max-w-2xl mx-auto md:mx-0 mb-12 group">
                         <div className="absolute inset-0 bg-indigo-600/20 blur-[100px] opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                        <form action={`/doctors`} className="relative flex items-center bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
-                            <div className="flex-1 flex items-center px-6">
-                                <i className="fa-solid fa-magnifying-glass text-slate-300 mr-4"></i>
-                                <input 
-                                    name="q"
-                                    type="text" 
-                                    placeholder="Search by specialty, symptom (e.g. lungs, skin)..." 
-                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-bold placeholder:text-slate-400 py-4"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            if (userPhone) {
+                                fetch('/api/leads', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        guestPhone: userPhone,
+                                        source: 'homepage_search',
+                                        notes: `Searched for: ${searchQuery}`
+                                    })
+                                }).catch(() => {});
+                            }
+                            window.location.href = `/doctors?q=${encodeURIComponent(searchQuery)}`;
+                        }} className="relative flex flex-col bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
+                            <div className="flex items-center w-full">
+                                <div className="flex-1 flex items-center px-6">
+                                    <i className="fa-solid fa-magnifying-glass text-slate-300 mr-4"></i>
+                                    <input 
+                                        name="q"
+                                        type="text" 
+                                        placeholder="Search by specialty, symptom (e.g. lungs, skin)..." 
+                                        className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-bold placeholder:text-slate-400 py-4"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="bg-slate-900 text-white px-10 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all flex items-center gap-2 shrink-0">
+                                    {t('search')} <i className="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div className="px-6 py-3 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-4 bg-slate-50/50 mt-2 rounded-b-[2rem]">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <i className="fa-solid fa-hand-holding-medical text-indigo-500 mr-1"></i> Need help?
+                                </p>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Phone Number (Optional)"
+                                    value={userPhone}
+                                    onChange={(e) => setUserPhone(e.target.value)}
+                                    className="flex-1 bg-white border border-slate-200 rounded-full py-2 px-4 text-xs font-bold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none w-full"
                                 />
                             </div>
-                            <button type="submit" className="bg-slate-900 text-white px-10 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all flex items-center gap-2">
-                                {t('search')} <i className="fa-solid fa-arrow-right"></i>
-                            </button>
                         </form>
                     </div>
 
