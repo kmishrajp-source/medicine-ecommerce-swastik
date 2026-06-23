@@ -90,7 +90,21 @@ export default function VoiceAIAssistant() {
         const specialties = getSpecialtiesFromQuery(query);
 
         // Advanced local intent system mimicking an LLM 
-        if (specialties.length > 0) {
+        if (query.includes("register") || query.includes("sign up") || query.includes("join") || query.includes("become a")) {
+            if (query.includes("retailer") || query.includes("pharmacy") || query.includes("medical store")) {
+                reply = "Sure, I am taking you to the Retailer Registration page now.";
+                redirectUrl = "/en/retailer/register";
+            } else if (query.includes("doctor") || query.includes("physician")) {
+                reply = "Great! I am taking you to the Doctor Registration page.";
+                redirectUrl = "/en/doctor/register";
+            } else if (query.includes("agent") || query.includes("delivery") || query.includes("driver")) {
+                reply = "Awesome! Taking you to the Delivery Agent Registration page.";
+                redirectUrl = "/en/agent/register";
+            } else {
+                reply = "Taking you to the Registration page.";
+                redirectUrl = "/en/signup";
+            }
+        } else if (specialties.length > 0) {
             const targetSpecialty = specialties[0];
             reply = `I understand. You might need a ${targetSpecialty}. Let me find the top verified specialists for you now.`;
             redirectUrl = `/en/doctors?q=${encodeURIComponent(text)}`;
@@ -102,7 +116,7 @@ export default function VoiceAIAssistant() {
             redirectUrl = "/en/labs";
         } else if (query.includes("medicine") || query.includes("pill") || query.includes("pharmacy")) {
             reply = "I will connect you to our Swastik pharmacy platform to order your medicine right away.";
-            redirectUrl = "/en/medicine";
+            redirectUrl = "/en/shop-medicines"; // Updated to /shop-medicines since /medicine is likely a dynamic route
         } else if (query.includes("home") || query.includes("dashboard")) {
             reply = "Taking you back to the main dashboard.";
             redirectUrl = "/en";
