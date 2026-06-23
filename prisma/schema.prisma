@@ -1057,7 +1057,7 @@ model ReturnRequest {
   description    String
   photoUrl       String?  // Customer can upload photo evidence
   status         String   @default("Pending") // Pending, Under_Review, Approved, Rejected, Refunded
-  // Approval chain (per SOP: Customer Service → Pharmacist → Ops Manager)
+  // Approval chain (per SOP: Customer Service - Pharmacist - Ops Manager)
   csApproval     String?  // null, "approved", "rejected"
   csNotes        String?
   pharmacistApproval String? // null, "approved", "rejected"
