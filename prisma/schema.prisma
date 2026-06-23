@@ -164,6 +164,7 @@ model Order {
   experience    CustomerExperience?
   subOrders     SubOrder[]
   deliveryAssignments DeliveryAssignment[]
+  returnRequests ReturnRequest[]
 
   @@index([status])
   @@index([userId])
@@ -1044,3 +1045,28 @@ model SymptomMap {
   suggestedSpecialization String
 }
 
+// SOP Chapter 14: Returns & Refunds
+model ReturnRequest {
+  id             String   @id @default(cuid())
+  orderId        String
+  order          Order    @relation(fields: [orderId], references: [id])
+  userId         String?
+  guestName      String?
+  guestPhone     String?
+  reason         String   // "wrong_product", "damaged_product", "delivery_error"
+  description    String
+  photoUrl       String?  // Customer can upload photo evidence
+  status         String   @default("Pending") // Pending, Under_Review, Approved, Rejected, Refunded
+  // Approval chain (per SOP: Customer Service → Pharmacist → Ops Manager)
+  csApproval     String?  // null, "approved", "rejected"
+  csNotes        String?
+  pharmacistApproval String? // null, "approved", "rejected"
+  pharmacistNotes   String?
+  opsApproval    String?  // null, "approved", "rejected"
+  opsNotes       String?
+  refundAmount   Float?
+  refundMethod   String?  // "wallet", "bank_transfer", "upi"
+  refundStatus   String?  // "pending", "processed"
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}

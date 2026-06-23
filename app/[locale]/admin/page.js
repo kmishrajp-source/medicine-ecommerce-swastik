@@ -7,12 +7,24 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { generateTallyXML } from "@/utils/tallyXmlGenerator";
 
+
 export default function AdminDashboard() {
     const { cartCount, toggleCart } = useCart();
     const { data: session, status } = useSession();
     const router = useRouter();
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [inventoryAlerts, setInventoryAlerts] = useState(null);
+    const [pendingReturns, setPendingReturns] = useState(0);
+
+    useEffect(() => {
+        fetch("/api/admin/inventory-alerts?threshold=10")
+            .then(r => r.json())
+            .then(d => { if (d.success) setInventoryAlerts(d.summary); });
+        fetch("/api/admin/returns?status=Pending")
+            .then(r => r.json())
+            .then(d => { if (d.success) setPendingReturns(d.returns.length); });
+    }, []);
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -192,7 +204,10 @@ export default function AdminDashboard() {
                                 { name: "SMS History", path: "/admin/sms", color: "#F59E0B" },
                                 { name: "Sys Health", path: "/admin/system-health", color: "#EF4444" },
                                 { name: "Payouts", path: "/admin/withdrawals", color: "#1E3A8A" },
-                                { name: "All Partners", path: "/admin/partners", color: "#8B5CF6" }
+                                { name: "All Partners", path: "/admin/partners", color: "#8B5CF6" },
+                                { name: `Returns ${pendingReturns > 0 ? `(${pendingReturns})` : ""}`, path: "/admin/returns", color: "#F43F5E" },
+                                { name: "CRM", path: "/admin/crm", color: "#06B6D4" },
+                                { name: "B2B Leads", path: "/admin/b2b-leads", color: "#7C3AED" },
                             ].map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',
@@ -218,6 +233,27 @@ export default function AdminDashboard() {
                                 </Link>
                             ))}
                         </div>
+
+                        {/* SOP Compliance Alert Widgets */}
+                        {inventoryAlerts && (inventoryAlerts.critical > 0 || inventoryAlerts.low > 0) && (
+                            <div style={{ marginTop: '20px', background: 'rgba(239, 68, 68, 0.08)', border: '1px solid rgba(239, 68, 68, 0.25)', borderRadius: '16px', padding: '16px 20px', display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                    <div style={{ width: '32px', height: '32px', background: 'rgba(239, 68, 68, 0.15)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#EF4444', fontSize: '14px' }}>⚠️</div>
+                                    <span style={{ color: '#fca5a5', fontWeight: '700', fontSize: '0.85rem' }}>INVENTORY REORDER ALERTS</span>
+                                </div>
+                                {inventoryAlerts.critical > 0 && (
+                                    <span style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', borderRadius: '8px', padding: '4px 12px', fontSize: '0.8rem', fontWeight: '700' }}>
+                                        🔴 {inventoryAlerts.critical} OUT OF STOCK
+                                    </span>
+                                )}
+                                {inventoryAlerts.low > 0 && (
+                                    <span style={{ background: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245,158,11,0.3)', color: '#f59e0b', borderRadius: '8px', padding: '4px 12px', fontSize: '0.8rem', fontWeight: '700' }}>
+                                        🟡 {inventoryAlerts.low} LOW STOCK (≤5)
+                                    </span>
+                                )}
+                                <Link href="/admin/inventory" style={{ marginLeft: 'auto', color: '#38bdf8', fontWeight: '700', fontSize: '0.8rem', textDecoration: 'none' }}>View All →</Link>
+                            </div>
+                        )}
                     </div>
 
                     {/* Table Container */}
