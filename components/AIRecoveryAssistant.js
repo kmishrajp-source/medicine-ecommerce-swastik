@@ -132,8 +132,9 @@ const AIRecoveryAssistant = ({ currentQuery = "", pageType = "general" }) => {
                 <a 
                     href={`https://wa.me/917992122974?text=AI Help: Case ${currentQuery}`}
                     target="_blank" 
+                    rel="noopener noreferrer"
                     onClick={() => trackEvent("ai_intervention_click", { method: "tap_whatsapp" })}
-                    style={{ flex: 1, background: '#25D366', color: 'white', textAlign: 'center', textDecoration: 'none', padding: '12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 900 }}
+                    style={{ flex: 1, background: '#25D366', color: 'white', border: 'none', cursor: 'pointer', textAlign: 'center', textDecoration: 'none', padding: '12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 900 }}
                 >
                     WHATSAPP HELP
                 </a>

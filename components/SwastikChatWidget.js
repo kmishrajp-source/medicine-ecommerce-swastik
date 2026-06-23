@@ -80,7 +80,7 @@ export default function SwastikChatWidget() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+        <div className="fixed bottom-6 right-6 z-[10000] flex flex-col items-end">
             {/* Chat Window */}
             {isOpen && (
                 <div className="w-80 sm:w-96 h-[500px] max-h-[80vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden mb-4 border border-slate-200 animate-in slide-in-from-bottom-5">
