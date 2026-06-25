@@ -18,6 +18,7 @@ const SOP_FORMS = [
 ];
 
 const QUICK_LINKS = [
+    { name: "📦 Inv. Management", path: "/admin/sop/inventory-management", desc: "Chapter 9 SOP" },
     { name: "📊 Reports Hub", path: "/admin/sop/reports", desc: "Daily / Weekly / Monthly" },
     { name: "🛡️ BCP Board", path: "/admin/sop/bcp", desc: "Business Continuity" },
     { name: "📋 Purchase Requisition", path: "/admin/sop/purchase-requisition", desc: "Form 03" },
