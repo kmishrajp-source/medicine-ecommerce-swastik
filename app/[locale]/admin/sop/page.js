@@ -8,17 +8,18 @@ const SOP_FORMS = [
     { id: "01", name: "Customer Registration", desc: "New customer onboarding form", icon: "👤", path: "/register", status: "LIVE", color: "#10B981" },
     { id: "02", name: "Vendor Registration", desc: "Partner & supplier registration", icon: "🏪", path: "/partner", status: "LIVE", color: "#10B981" },
     { id: "03", name: "Purchase Requisition", desc: "Request procurement of medicines/supplies", icon: "📋", path: "/admin/sop/purchase-requisition", status: "LIVE", color: "#10B981" },
-    { id: "04", name: "Purchase Order", desc: "View and manage all orders", icon: "📦", path: "/admin", status: "LIVE", color: "#10B981" },
-    { id: "05", name: "Goods Receipt Note", desc: "Log incoming stock deliveries", icon: "🚚", path: "/admin/inventory", status: "LIVE", color: "#10B981" },
+    { id: "04", name: "Purchase Order (Ch.8)", desc: "RFQs, POs & Goods Receipt Notes", icon: "🛒", path: "/admin/sop/procurement", status: "LIVE", color: "#10B981" },
+    { id: "05", name: "Goods Receipt Note", desc: "Log incoming stock deliveries", icon: "🚚", path: "/admin/sop/procurement", status: "LIVE", color: "#10B981" },
     { id: "06", name: "Stock Adjustment", desc: "Manual stock correction (damage/loss/return)", icon: "⚖️", path: "/admin/sop/stock-adjustment", status: "LIVE", color: "#10B981" },
-    { id: "07", name: "Customer Complaint", desc: "Log and track customer issues", icon: "📣", path: "/admin/crm", status: "LIVE", color: "#10B981" },
+    { id: "07", name: "Customer Service (Ch.7)", desc: "Complaints, response time & CRM KPIs", icon: "📣", path: "/admin/crm", status: "LIVE", color: "#10B981" },
     { id: "08", name: "Return Request", desc: "Process customer return/refund requests", icon: "↩️", path: "/admin/returns", status: "LIVE", color: "#10B981" },
-    { id: "09", name: "Daily Sales Report", desc: "Auto-generated daily sales summary", icon: "📊", path: "/admin/sop/reports", status: "LIVE", color: "#10B981" },
-    { id: "10", name: "Monthly KPI Dashboard", desc: "Monthly performance indicators", icon: "📈", path: "/admin/sop/reports?type=monthly", status: "LIVE", color: "#10B981" },
+    { id: "09", name: "Inventory Mgmt (Ch.9)", desc: "FEFO/FIFO, ABC class, cycle counts", icon: "📦", path: "/admin/sop/inventory-management", status: "LIVE", color: "#10B981" },
+    { id: "10", name: "Prescription Mgmt (Ch.10)", desc: "Rx upload, pharmacist verification & 5-yr records", icon: "💊", path: "/admin/prescriptions", status: "LIVE", color: "#10B981" },
 ];
 
 const QUICK_LINKS = [
     { name: "📦 Inv. Management", path: "/admin/sop/inventory-management", desc: "Chapter 9 SOP" },
+    { name: "🛒 Procurement", path: "/admin/sop/procurement", desc: "Chapter 8 SOP" },
     { name: "📊 Reports Hub", path: "/admin/sop/reports", desc: "Daily / Weekly / Monthly" },
     { name: "🛡️ BCP Board", path: "/admin/sop/bcp", desc: "Business Continuity" },
     { name: "📋 Purchase Requisition", path: "/admin/sop/purchase-requisition", desc: "Form 03" },
