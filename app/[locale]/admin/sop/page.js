@@ -15,16 +15,29 @@ const SOP_FORMS = [
     { id: "08", name: "Return Request", desc: "Process customer return/refund requests", icon: "↩️", path: "/admin/returns", status: "LIVE", color: "#10B981" },
     { id: "09", name: "Inventory Mgmt (Ch.9)", desc: "FEFO/FIFO, ABC class, cycle counts", icon: "📦", path: "/admin/sop/inventory-management", status: "LIVE", color: "#10B981" },
     { id: "10", name: "Prescription Mgmt (Ch.10)", desc: "Rx upload, pharmacist verification & 5-yr records", icon: "💊", path: "/admin/prescriptions", status: "LIVE", color: "#10B981" },
+    { id: "11", name: "Warehouse SOP (Ch.11)", desc: "Receiving, storage zones, picking & dispatch", icon: "🏭", path: "/admin/sop/warehouse", status: "LIVE", color: "#F59E0B" },
+    { id: "12", name: "Packaging SOP (Ch.12)", desc: "Pre-dispatch checklist — zero error standard", icon: "📦", path: "/admin/sop/packaging", status: "LIVE", color: "#0ea5e9" },
+    { id: "13", name: "Delivery SOP (Ch.13)", desc: "Route planning, tracking & confirmation", icon: "🚚", path: "/admin/sop/delivery", status: "LIVE", color: "#10B981" },
+    { id: "14", name: "Returns & Refunds (Ch.14)", desc: "Eligibility rules & 3-level approval workflow", icon: "↩️", path: "/admin/sop/returns-refunds", status: "LIVE", color: "#ef4444" },
+    { id: "15", name: "Finance & Accounts (Ch.15)", desc: "Daily reconciliation, GST filing, KPIs", icon: "💹", path: "/admin/sop/finance", status: "LIVE", color: "#22c55e" },
+    { id: "16", name: "Quality Management (Ch.16)", desc: "Genuine products, CAPA process, monthly audits", icon: "🏅", path: "/admin/sop/quality", status: "LIVE", color: "#818cf8" },
+    { id: "17", name: "IT & Website (Ch.17)", desc: "Backups, security scans, uptime monitoring", icon: "💻", path: "/admin/sop/it", status: "LIVE", color: "#3b82f6" },
+    { id: "18", name: "Risk Management (Ch.18)", desc: "Risk register, rating matrix & mitigation", icon: "⚠️", path: "/admin/sop/risk", status: "LIVE", color: "#a855f7" },
 ];
 
 const QUICK_LINKS = [
+    { name: "🏭 Warehouse", path: "/admin/sop/warehouse", desc: "Chapter 11 SOP" },
+    { name: "📦 Packaging", path: "/admin/sop/packaging", desc: "Chapter 12 SOP" },
+    { name: "🚚 Delivery", path: "/admin/sop/delivery", desc: "Chapter 13 SOP" },
+    { name: "↩️ Returns & Refunds", path: "/admin/sop/returns-refunds", desc: "Chapter 14 SOP" },
+    { name: "💹 Finance", path: "/admin/sop/finance", desc: "Chapter 15 SOP" },
+    { name: "🏅 Quality Mgmt", path: "/admin/sop/quality", desc: "Chapter 16 SOP" },
+    { name: "💻 IT & Website", path: "/admin/sop/it", desc: "Chapter 17 SOP" },
+    { name: "⚠️ Risk Mgmt", path: "/admin/sop/risk", desc: "Chapter 18 SOP" },
     { name: "📦 Inv. Management", path: "/admin/sop/inventory-management", desc: "Chapter 9 SOP" },
     { name: "🛒 Procurement", path: "/admin/sop/procurement", desc: "Chapter 8 SOP" },
     { name: "📊 Reports Hub", path: "/admin/sop/reports", desc: "Daily / Weekly / Monthly" },
     { name: "🛡️ BCP Board", path: "/admin/sop/bcp", desc: "Business Continuity" },
-    { name: "📋 Purchase Requisition", path: "/admin/sop/purchase-requisition", desc: "Form 03" },
-    { name: "⚖️ Stock Adjustment", path: "/admin/sop/stock-adjustment", desc: "Form 06" },
-    { name: "↩️ Returns", path: "/admin/returns", desc: "Form 08" },
     { name: "📦 All Orders", path: "/admin", desc: "Admin Dashboard" },
 ];
 
