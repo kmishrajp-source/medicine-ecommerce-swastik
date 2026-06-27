@@ -34,6 +34,7 @@ const QUICK_LINKS = [
     { name: "🏅 Quality Mgmt", path: "/admin/sop/quality", desc: "Chapter 16 SOP" },
     { name: "💻 IT & Website", path: "/admin/sop/it", desc: "Chapter 17 SOP" },
     { name: "⚠️ Risk Mgmt", path: "/admin/sop/risk", desc: "Chapter 18 SOP" },
+    { name: "🗂️ Version Control", path: "/admin/sop/version-control", desc: "Manage SOP Versions" },
     { name: "📦 Inv. Management", path: "/admin/sop/inventory-management", desc: "Chapter 9 SOP" },
     { name: "🛒 Procurement", path: "/admin/sop/procurement", desc: "Chapter 8 SOP" },
     { name: "📊 Reports Hub", path: "/admin/sop/reports", desc: "Daily / Weekly / Monthly" },

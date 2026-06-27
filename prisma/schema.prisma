@@ -1070,3 +1070,54 @@ model ReturnRequest {
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
+
+// --- RBAC & Security Models ---
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  userId      String?
+  action      String
+  entityType  String
+  entityId    String?
+  oldValue    String?  // JSON stringified or text
+  newValue    String?  // JSON stringified or text
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  // Relations (optional, user might be deleted but log should stay)
+  // We keep userId as string to avoid strict FK constraint if we want to retain logs for deleted users
+}
+
+model ApprovalRequest {
+  id            String   @id @default(cuid())
+  requestedById String
+  actionType    String
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  details       String   // JSON string of the requested change
+  approvedById  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model SopDocument {
+  id        String   @id @default(cuid())
+  chapter   String
+  version   String
+  title     String
+  content   String   // Markdown or HTML
+  authorId  String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model UserSession {
+  id         String   @id @default(cuid())
+  userId     String
+  loginTime  DateTime @default(now())
+  logoutTime DateTime?
+  ipAddress  String?
+  userAgent  String?
+  isValid    Boolean  @default(true)
+}
+
