@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { generateTallyXML } from "@/utils/tallyXmlGenerator";
-
+import { hasPermission, ACTIONS } from "@/lib/rbac";
 
 export default function AdminDashboard() {
     const { cartCount, toggleCart } = useCart();
@@ -29,10 +29,15 @@ export default function AdminDashboard() {
     useEffect(() => {
         if (status === 'unauthenticated') {
             router.push('/login');
-        } else {
+        } else if (status === 'authenticated') {
+            // Customers cannot access the admin panel
+            if (session?.user?.role === 'CUSTOMER') {
+                router.push('/');
+                return;
+            }
             fetchOrders();
         }
-    }, [status, router]);
+    }, [status, router, session]);
 
     const fetchOrders = async () => {
         setLoading(true);
@@ -193,25 +198,27 @@ export default function AdminDashboard() {
                             gap: '10px'
                         }}>
                             {[
-                                { name: "Inventory", path: "/admin/inventory", color: "#10B981" },
-                                { name: "Approvals", path: "/admin/approvals", color: "#EF4444" },
-                                { name: "Requests", path: "/admin/requests", color: "#3B82F6" },
-                                { name: "Subs", path: "/admin/subscriptions", color: "#059669" },
-                                { name: "Scripts", path: "/admin/prescriptions", color: "#8B5CF6" },
-                                { name: "Finance", path: "/admin/finance", color: "#10B981" },
-                                { name: "Analytics", path: "/admin/analytics", color: "#8B5CF6" },
-                                { name: "Insurance", path: "/admin/insurance", color: "#6366F1" },
-                                { name: "SMS History", path: "/admin/sms", color: "#F59E0B" },
-                                { name: "Sys Health", path: "/admin/system-health", color: "#EF4444" },
-                                { name: "Payouts", path: "/admin/withdrawals", color: "#1E3A8A" },
-                                { name: "All Partners", path: "/admin/partners", color: "#8B5CF6" },
-                                { name: `Returns ${pendingReturns > 0 ? `(${pendingReturns})` : ""}`, path: "/admin/returns", color: "#F43F5E" },
-                                { name: "CRM", path: "/admin/crm", color: "#06B6D4" },
-                                { name: "B2B Leads", path: "/admin/b2b-leads", color: "#7C3AED" },
-                                { name: "📋 SOP Hub", path: "/admin/sop", color: "#10B981" },
-                                { name: "🛡️ BCP Board", path: "/admin/sop/bcp", color: "#8B5CF6" },
-                                { name: "📊 Reports", path: "/admin/sop/reports", color: "#6366f1" },
-                            ].map((btn) => (
+                                { name: "Inventory", path: "/admin/inventory", color: "#10B981", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "Approvals (Users)", path: "/admin/approvals", color: "#EF4444", requiredAction: ACTIONS.MANAGE_USERS },
+                                { name: "👥 Staff Approvals", path: "/admin/staff-approvals", color: "#818cf8", requiredAction: ACTIONS.MANAGE_USERS },
+                                { name: "Action Approvals", path: "/admin/action-approvals", color: "#EF4444", requiredAction: ACTIONS.MANAGE_PERMISSIONS },
+                                { name: "Requests", path: "/admin/requests", color: "#3B82F6", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "Subs", path: "/admin/subscriptions", color: "#059669", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "Scripts", path: "/admin/prescriptions", color: "#8B5CF6", requiredAction: ACTIONS.VERIFY_PRESCRIPTIONS },
+                                { name: "Finance", path: "/admin/finance", color: "#10B981", requiredAction: ACTIONS.MANAGE_FINANCES },
+                                { name: "Analytics", path: "/admin/analytics", color: "#8B5CF6", requiredAction: ACTIONS.VIEW_ANALYTICS },
+                                { name: "Insurance", path: "/admin/insurance", color: "#6366F1", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "SMS History", path: "/admin/sms", color: "#F59E0B", requiredAction: ACTIONS.MANAGE_SETTINGS },
+                                { name: "Sys Health", path: "/admin/system-health", color: "#EF4444", requiredAction: ACTIONS.MANAGE_SETTINGS },
+                                { name: "Payouts", path: "/admin/withdrawals", color: "#1E3A8A", requiredAction: ACTIONS.MANAGE_FINANCES },
+                                { name: "All Partners", path: "/admin/partners", color: "#8B5CF6", requiredAction: ACTIONS.MANAGE_USERS },
+                                { name: `Returns ${pendingReturns > 0 ? `(${pendingReturns})` : ""}`, path: "/admin/returns", color: "#F43F5E", requiredAction: ACTIONS.PROCESS_APPROVED_RETURNS },
+                                { name: "CRM", path: "/admin/crm", color: "#06B6D4", requiredAction: ACTIONS.VIEW_CUSTOMER_ORDERS },
+                                { name: "B2B Leads", path: "/admin/b2b-leads", color: "#7C3AED", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "📋 SOP Hub", path: "/admin/sop", color: "#10B981", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
+                                { name: "🛡️ BCP Board", path: "/admin/sop/bcp", color: "#8B5CF6", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
+                                { name: "📊 Reports", path: "/admin/sop/reports", color: "#6366f1", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
+                            ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',
                                     border: `1px solid rgba(255,255,255,0.06)`,

@@ -15,6 +15,7 @@ model User {
   password  String
   name      String?
   role      String   @default("CUSTOMER") // ADMIN, CUSTOMER
+  isApproved Boolean @default(false)
   createdAt DateTime @default(now())
   orders    Order[]
   subOrders SubOrder[]
