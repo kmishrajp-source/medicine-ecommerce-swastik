@@ -38,6 +38,12 @@ test.describe('PHASE 2: Limited Dry Run (Registration & Login)', () => {
     });
 
     test('2.1 User Registration Flow (Mocked)', async ({ page }) => {
+        page.on('console', msg => {
+          if (!msg.text().includes('tailwind') && !msg.text().includes('React DevTools') && !msg.text().includes('Glyph bbox')) {
+            console.log('PAGE LOG:', msg.text());
+          }
+        });
+
         await page.goto('/en/signup');
 
         // Locating by order since labels aren't associated with IDs
@@ -46,9 +52,13 @@ test.describe('PHASE 2: Limited Dry Run (Registration & Login)', () => {
         await form.locator('input[type="email"]').fill('automation_dryrun@tests.swastik.com');
         await form.locator('input[type="password"]').fill('DryRunPass123!');
         
-        await page.getByRole('button', { name: /sign up/i }).click();
+        // Click submit and wait for navigation (handles both /login and /en/login with locale prefix)
+        await Promise.all([
+          page.waitForURL(/.*login.*/, { timeout: 8000 }),
+          page.getByRole('button', { name: /sign up/i }).click(),
+        ]);
 
-        // Should normally redirect to login if success without OTP
+        // Should be on login page after successful mocked registration
         await expect(page).toHaveURL(/.*login/);
     });
 
