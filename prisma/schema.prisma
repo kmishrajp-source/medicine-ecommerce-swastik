@@ -1441,3 +1441,11 @@ model BasSopAcknowledgement {
   acknowledgedAt DateTime       @default(now())
   @@unique([sopDocumentId, employeeId])
 }
+
+model BasIntegrationConfig {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  name      String
+  value     Json
+  updatedAt DateTime @updatedAt
+}
