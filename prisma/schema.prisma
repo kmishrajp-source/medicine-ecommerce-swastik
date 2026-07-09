@@ -1481,16 +1481,16 @@ model BasTask {
   id           String      @id @default(cuid())
   title        String
   description  String?
-  type         String // Call, Meeting, Review, FollowUp
-  priority     String      @default("Medium") // Low, Medium, High, Urgent
-  status       String      @default("Pending") // Pending, InProgress, Completed, Overdue
+  type         String // Call, Meeting, Prescription Review, Follow-up
+  assignedTo   String // User ID of staff
   dueDate      DateTime
-  assignedToId String // User ID of employee
+  priority     String   @default("Medium") // Low, Medium, High
+  status       String   @default("Pending") // Pending, In Progress, Completed
+  escalation   String? // Escalation rule triggered
   leadId       String?
   lead         BasCrmLead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
-  customerId   String? // Link to User ID
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
 
 model BasDocument {
@@ -1498,36 +1498,160 @@ model BasDocument {
   title        String
   fileUrl      String
   type         String // Prescription, Invoice, Identity, Agreement
-  customerId   String? // Linked to User
-  leadId       String?
+  customerId   String? // Linked user ID
+  leadId       String? // Linked Lead ID
   uploadedById String
   accessLevel  String   @default("Private") // Private, Internal, Public
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 }
 
 model BasCommunication {
-  id          String    @id @default(cuid())
-  type        String // Email, SMS, WhatsApp, Push
+  id          String   @id @default(cuid())
+  type        String // Email, WhatsApp, SMS
   direction   String // Inbound, Outbound
-  recipientId String? // Linked to User or Lead
-  senderId    String? // Internal Employee or System
+  recipientId String?
+  senderId    String
   subject     String?
-  content     String    @db.Text
-  status      String    @default("Sent") // Scheduled, Sent, Failed, Delivered, Read
-  openedAt    DateTime?
-  clickedAt   DateTime?
-  createdAt   DateTime  @default(now())
+  content     String
+  status      String   @default("Sent") // Sent, Delivered, Read, Failed
+  createdAt   DateTime @default(now())
 }
 
 model BasLoyaltyAccount {
   id            String   @id @default(cuid())
-  customerId    String   @unique // Linked to User
+  customerId    String   @unique
   tier          String   @default("Bronze") // Bronze, Silver, Gold, Platinum
   pointsBalance Int      @default(0)
-  cashbackValue Float    @default(0)
   totalEarned   Int      @default(0)
   totalRedeemed Int      @default(0)
+  cashbackValue Float    @default(0)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// --- ERP EXTENSION MODULES --- //
+
+model ErpSupplier {
+  id            String   @id @default(cuid())
+  name          String
+  contactPerson String?
+  phone         String
+  email         String?
+  address       String?
+  gstin         String?
+  paymentTerms  String?  @default("NET_30")
+  status        String   @default("ACTIVE") // ACTIVE, INACTIVE, BLACKLISTED
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  purchaseOrders ErpPurchaseOrder[]
+  goodsReceipts  ErpGoodsReceipt[]
+}
+
+model ErpBatch {
+  id            String   @id @default(cuid())
+  productId     String   // Linked to legacy Product
+  batchNumber   String
+  stock         Int      @default(0)
+  mfgDate       DateTime?
+  expiryDate    DateTime
+  purchasePrice Float    @default(0)
+  sellingPrice  Float    @default(0)
+  mrp           Float    @default(0)
+  isActive      Boolean  @default(true)
+  grnId         String?  // The GRN that created this batch
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([productId, batchNumber])
+  @@index([expiryDate])
+}
+
+model ErpPurchaseOrder {
+  id            String   @id @default(cuid())
+  supplierId    String
+  supplier      ErpSupplier @relation(fields: [supplierId], references: [id])
+  poNumber      String   @unique
+  status        String   @default("DRAFT") // DRAFT, ISSUED, PARTIAL, COMPLETED, CANCELLED
+  expectedDate  DateTime?
+  totalAmount   Float    @default(0)
+  gstAmount     Float    @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  items         ErpPoItem[]
+  goodsReceipts ErpGoodsReceipt[]
+}
+
+model ErpPoItem {
+  id            String   @id @default(cuid())
+  poId          String
+  purchaseOrder ErpPurchaseOrder @relation(fields: [poId], references: [id], onDelete: Cascade)
+  productId     String
+  quantity      Int
+  unitPrice     Float
+  gstPercent    Float    @default(0)
+}
+
+model ErpGoodsReceipt {
+  id            String   @id @default(cuid())
+  poId          String?
+  purchaseOrder ErpPurchaseOrder? @relation(fields: [poId], references: [id])
+  supplierId    String
+  supplier      ErpSupplier @relation(fields: [supplierId], references: [id])
+  grnNumber     String   @unique
+  invoiceNumber String?
+  invoiceDate   DateTime?
+  receivedDate  DateTime @default(now())
+  status        String   @default("PENDING_INSPECTION") // PENDING_INSPECTION, APPROVED, REJECTED
+  totalAmount   Float    @default(0)
+  totalGst      Float    @default(0)
+  receivedById  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  items         ErpGrnItem[]
+}
+
+model ErpGrnItem {
+  id            String   @id @default(cuid())
+  grnId         String
+  goodsReceipt  ErpGoodsReceipt @relation(fields: [grnId], references: [id], onDelete: Cascade)
+  productId     String
+  batchNumber   String
+  mfgDate       DateTime?
+  expiryDate    DateTime
+  quantity      Int
+  acceptedQty   Int      @default(0)
+  rejectedQty   Int      @default(0)
+  purchasePrice Float
+  mrp           Float
+  gstPercent    Float    @default(0)
+}
+
+model ErpTaxLedger {
+  id            String   @id @default(cuid())
+  transactionId String   // Invoice ID, GRN ID, or Order ID
+  type          String   // OUTPUT_TAX (Sales), INPUT_TAX (Purchases)
+  date          DateTime @default(now())
+  totalAmount   Float    @default(0) // Taxable value
+  cgstAmount    Float    @default(0)
+  sgstAmount    Float    @default(0)
+  igstAmount    Float    @default(0)
+  gstin         String?  // Supplier or Customer GSTIN
+  hsnSac        String?
+  createdAt     DateTime @default(now())
+}
+
+model ErpH1Register {
+  id               String   @id @default(cuid())
+  orderId          String
+  patientName      String
+  patientAddress   String?
+  doctorName       String
+  doctorAddress    String?
+  medicineName     String
+  batchNumber      String?
+  quantityDispensed Int
+  dispensedDate    DateTime @default(now())
+  dispensedById    String?
+  createdAt        DateTime @default(now())
 }
