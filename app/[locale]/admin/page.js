@@ -218,6 +218,12 @@ export default function AdminDashboard() {
                                 { name: "📋 SOP Hub", path: "/admin/sop", color: "#10B981", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
                                 { name: "🛡️ BCP Board", path: "/admin/sop/bcp", color: "#8B5CF6", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
                                 { name: "📊 Reports", path: "/admin/sop/reports", color: "#6366f1", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
+                                { name: "ERP Hub", path: "/admin/erp/procurement", color: "#F59E0B", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "📈 Marketing", path: "/admin/bas/marketing/dashboard", color: "#EC4899", requiredAction: ACTIONS.VIEW_ANALYTICS },
+                                { name: "🏷️ Coupons", path: "/admin/coupons", color: "#14B8A6", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "📋 Audit Logs", path: "/admin/audit-logs", color: "#3B82F6", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
+                                { name: "👥 Staff Mgmt", path: "/admin/staff-management", color: "#6366F1", requiredAction: ACTIONS.MANAGE_USERS },
+                                { name: "🛡️ Roles & Perms", path: "/admin/action-approvals", color: "#EF4444", requiredAction: ACTIONS.MANAGE_PERMISSIONS },
                             ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',
