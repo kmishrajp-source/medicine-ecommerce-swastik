@@ -15,7 +15,7 @@ export class AIService {
       const config = await prisma.basIntegrationConfig.findUnique({
         where: { key: 'AI_SERVICE' }
       });
-      return config ? (config.value as any)?.enabled === true : false;
+      return config ? config.value?.enabled === true : false;
     } catch {
       return false;
     }

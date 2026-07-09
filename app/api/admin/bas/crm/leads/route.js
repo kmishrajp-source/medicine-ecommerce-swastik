@@ -49,7 +49,7 @@ export async function POST(request) {
         actionType: 'CREATE_LEAD',
         module: 'CRM',
         targetId: newLead.id,
-        newValue: newLead as any
+        newValue: newLead
       }
     }).catch(err => console.error("Failed to write audit log", err));
 

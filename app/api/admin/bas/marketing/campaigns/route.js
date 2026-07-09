@@ -41,7 +41,7 @@ export async function POST(request) {
         actionType: 'CREATE_CAMPAIGN',
         module: 'MARKETING',
         targetId: newCampaign.id,
-        newValue: newCampaign as any
+        newValue: newCampaign
       }
     }).catch(err => console.error("Audit fail", err));
 
