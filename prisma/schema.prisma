@@ -1529,6 +1529,33 @@ model BasLoyaltyAccount {
   updatedAt     DateTime @updatedAt
 }
 
+model BasMarketingCampaign {
+  id               String   @id @default(cuid())
+  name             String
+  type             String   @default("AD") // AD, AUTOMATION, DRIP, REFERRAL
+  status           String   @default("ACTIVE") // ACTIVE, PAUSED, COMPLETED
+  budget           Float    @default(0)
+  spend            Float    @default(0)
+  revenueGenerated Float    @default(0)
+  startDate        DateTime @default(now())
+  endDate          DateTime?
+  metrics          Json?    // Stores snapshot data like visitors, clicks
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model BasMarketingAutomation {
+  id            String   @id @default(cuid())
+  name          String
+  triggerEvent  String // NEW_USER, CART_ABANDONED, BIRTHDAY, INACTIVE_30_DAYS
+  actionType    String // SEND_EMAIL, SEND_WHATSAPP, ADD_LOYALTY_POINTS
+  templateId    String? // Link to a message template
+  isActive      Boolean  @default(true)
+  runCount      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 // --- ERP EXTENSION MODULES --- //
 
 model ErpSupplier {
