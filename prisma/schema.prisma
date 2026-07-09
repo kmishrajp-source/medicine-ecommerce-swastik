@@ -10,60 +10,61 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name      String?
-  role      String   @default("CUSTOMER") // ADMIN, CUSTOMER
-  isApproved Boolean @default(false)
-  createdAt DateTime @default(now())
-  orders    Order[]
-  subOrders SubOrder[]
-  doctor    Doctor?
-  prescriptions Prescription[]
-  lab       Lab?
-  labBookings LabBooking[]
-  retailer  Retailer?
-  stockist  Stockist?
-  deliveryAgent DeliveryAgent?
-  appointments Appointment[]
-  ambulance    Ambulance[]
-  ambulanceBookings AmbulanceBooking[]
-  medicalRep   MedicalRep?
-  pharmaCompany PharmaCompany?
-  insuranceCompany InsuranceCompany? @relation("CompanyUser", fields: [insuranceCompanyId], references: [id])
-  insuranceCompanyId String? @unique
-  hospital      Hospital?
-  insurance     InsuranceProvider?
-  manufacturer  Manufacturer?
-  claims        InsuranceClaim[]
-  medicineRequests MedicineRequest[]
-  subscriptions Subscription[]
-  referralCode   String? @unique
-  referredBy     String?
-  walletBalance  Float @default(0.0)
-  transactions   WalletTransaction[]
-  withdrawals    Withdrawal[]
-  fcmTokens      String[] @default([]) // Used for Push Notifications
-  lastIpAddress  String?
-  deviceId       String?
-  phoneVerified  Boolean  @default(false)
-  complaints     Complaint[]
-  suggestions    Suggestion[]
-  experiences    CustomerExperience[]
-  referralsMade  ReferralConnection[] @relation("ReferrerLinks")
-  referralsReceived ReferralConnection[] @relation("RefereeLink")
-  systemFailureLogs SystemFailureLog[]
-  customerLeads  InsuranceLead[] @relation("CustomerLeads")
-  publisherLeads InsuranceLead[] @relation("PublisherLeads")
-  userLeads      Lead[] @relation("UserLeads")
-  publisherSlnLeads Lead[] @relation("PublisherSlnLeads")
-  contactUnlocks ContactUnlock[] @relation("UserUnlocks")
-  systemLogs     SystemLog[]
-  publisher      Publisher?
-  publisherLeadsTable PublisherLead[] @relation("UserPublisherLeads")
-  assignedLeads  Lead[] @relation("AgentLeads")
-  blogs          BlogPost[]
+  id                  String               @id @default(cuid())
+  email               String               @unique
+  password            String
+  name                String?
+  role                String               @default("CUSTOMER") // ADMIN, CUSTOMER
+  isApproved          Boolean              @default(false)
+  createdAt           DateTime             @default(now())
+  orders              Order[]
+  subOrders           SubOrder[]
+  doctor              Doctor?
+  prescriptions       Prescription[]
+  lab                 Lab?
+  labBookings         LabBooking[]
+  retailer            Retailer?
+  stockist            Stockist?
+  deliveryAgent       DeliveryAgent?
+  appointments        Appointment[]
+  ambulance           Ambulance[]
+  ambulanceBookings   AmbulanceBooking[]
+  medicalRep          MedicalRep?
+  pharmaCompany       PharmaCompany?
+  insuranceCompany    InsuranceCompany?    @relation("CompanyUser", fields: [insuranceCompanyId], references: [id])
+  insuranceCompanyId  String?              @unique
+  hospital            Hospital?
+  insurance           InsuranceProvider?
+  manufacturer        Manufacturer?
+  claims              InsuranceClaim[]
+  medicineRequests    MedicineRequest[]
+  subscriptions       Subscription[]
+  referralCode        String?              @unique
+  referredBy          String?
+  walletBalance       Float                @default(0.0)
+  transactions        WalletTransaction[]
+  withdrawals         Withdrawal[]
+  fcmTokens           String[]             @default([]) // Used for Push Notifications
+  lastIpAddress       String?
+  deviceId            String?
+  phoneVerified       Boolean              @default(false)
+  complaints          Complaint[]
+  suggestions         Suggestion[]
+  experiences         CustomerExperience[]
+  referralsMade       ReferralConnection[] @relation("ReferrerLinks")
+  referralsReceived   ReferralConnection[] @relation("RefereeLink")
+  systemFailureLogs   SystemFailureLog[]
+  customerLeads       InsuranceLead[]      @relation("CustomerLeads")
+  publisherLeads      InsuranceLead[]      @relation("PublisherLeads")
+  userLeads           Lead[]               @relation("UserLeads")
+  publisherSlnLeads   Lead[]               @relation("PublisherSlnLeads")
+  contactUnlocks      ContactUnlock[]      @relation("UserUnlocks")
+  systemLogs          SystemLog[]
+  publisher           Publisher?
+  publisherLeadsTable PublisherLead[]      @relation("UserPublisherLeads")
+  assignedLeads       Lead[]               @relation("AgentLeads")
+  blogs               BlogPost[]
+  BasCustomerProfile  BasCustomerProfile?
 }
 
 model SystemSettings {
@@ -73,7 +74,7 @@ model SystemSettings {
   minimumWithdrawal   Float    @default(100.0)
   deliveryAgentFee    Float    @default(50.0)
   selfDeliveryBonus   Float    @default(15.0) // Bonus for retailers who deliver themselves
-  referralConfig      Json?    // Stores dynamic percentages for Doctors, Retailers, etc.
+  referralConfig      Json? // Stores dynamic percentages for Doctors, Retailers, etc.
   updatedAt           DateTime @updatedAt
 }
 
@@ -87,39 +88,39 @@ model OTP {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  price       Float // Legacy compatibility - Represents the selling price
-  image       String
-  category    String
+  id                   String  @id @default(cuid())
+  name                 String
+  description          String
+  price                Float // Legacy compatibility - Represents the selling price
+  image                String
+  category             String
   requiresPrescription Boolean @default(false)
-  uses        String?
-  sideEffects String?
-  stock       Int      @default(100) // Legacy compatibility
+  uses                 String?
+  sideEffects          String?
+  stock                Int     @default(100) // Legacy compatibility
 
   // --- New Master Fields ---
-  composition  String?
-  manufacturer String?
-  brand        String?
-  salt         String?
-  mrp          Float    @default(0.0)
-  discount     Float    @default(0.0)
+  composition   String?
+  manufacturer  String?
+  brand         String?
+  salt          String?
+  mrp           Float   @default(0.0)
+  discount      Float   @default(0.0)
   isRecommended Boolean @default(false)
-  packSize     String?
+  packSize      String?
 
-  expiryDate  DateTime?
-  batchNumber String?
-  isOTC       Boolean  @default(false)
-  isScheduleH1 Boolean @default(false)
-  isColdChain Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  
-  orderItems  OrderItem[]
-  stockLogs   StockLog[]
-  inventory   PharmacyInventory? // 1-to-1 operational link
-  manufacturerId String?
-  manufacturerAccount Manufacturer? @relation(fields: [manufacturerId], references: [id])
+  expiryDate   DateTime?
+  batchNumber  String?
+  isOTC        Boolean   @default(false)
+  isScheduleH1 Boolean   @default(false)
+  isColdChain  Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+
+  orderItems          OrderItem[]
+  stockLogs           StockLog[]
+  inventory           PharmacyInventory? // 1-to-1 operational link
+  manufacturerId      String?
+  manufacturerAccount Manufacturer?      @relation(fields: [manufacturerId], references: [id])
 
   @@index([name])
   @@index([category])
@@ -127,45 +128,45 @@ model Product {
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  userId        String?
-  user          User?       @relation(fields: [userId], references: [id])
-  guestName     String?
-  guestEmail    String?
-  guestPhone    String?
-  address       String?
-  lat           Float?
-  lng           Float?
-  assignedRetailerId String?
-  assignedRetailer Retailer? @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
-  declinedRetailers String[] @default([]) // Array of Retailer IDs who rejected/timed out
-  nearestRetailerIds String[] @default([]) // List of up to 3 retailers discovered at creation
-  currentRetailerIndex Int     @default(0) // Index in nearestRetailerIds currently being offered
-  isRetailerDelivering Boolean @default(false)
-  deliveryFee         Float    @default(50.0)
-  deliveryNegotiationLogs Json?   // [{retailerId, response, timestamp}]
-  deliveryAgentId String?
-  deliveryAgent DeliveryAgent? @relation("AssignedDeliveries", fields: [deliveryAgentId], references: [id])
-  assignedAt    DateTime?
-  total         Float
-  status        String      @default("Received") // Received, Rx_Uploaded, Pharmacist_Approved, Ready_for_Packing, Out_for_Delivery, Delivered
-  paymentMethod String      @default("ONLINE") // "ONLINE" or "COD"
-  deliveryCode  String?     // Secret code for COD verification
-  isPaid        Boolean     @default(false)
-  isDelivered   Boolean     @default(false)
-  items         OrderItem[]
-  prescription  Prescription?
-  deliveryProofUrl String?
-  tamperSealCode   String?     // Unique seal code provided by retailer
-  integrityStatus  String?     @default("PENDING") // PENDING, INTACT, TAMPERED, DAMAGED
-  integrityCheckAt DateTime?   // When customer verified it
-  integrityCheckNotes String?  // Customer feedback if tampered
-  createdAt     DateTime    @default(now())
-  complaints    Complaint[]
-  experience    CustomerExperience?
-  subOrders     SubOrder[]
-  deliveryAssignments DeliveryAssignment[]
-  returnRequests ReturnRequest[]
+  id                      String               @id @default(cuid())
+  userId                  String?
+  user                    User?                @relation(fields: [userId], references: [id])
+  guestName               String?
+  guestEmail              String?
+  guestPhone              String?
+  address                 String?
+  lat                     Float?
+  lng                     Float?
+  assignedRetailerId      String?
+  assignedRetailer        Retailer?            @relation("AssignedOrders", fields: [assignedRetailerId], references: [id])
+  declinedRetailers       String[]             @default([]) // Array of Retailer IDs who rejected/timed out
+  nearestRetailerIds      String[]             @default([]) // List of up to 3 retailers discovered at creation
+  currentRetailerIndex    Int                  @default(0) // Index in nearestRetailerIds currently being offered
+  isRetailerDelivering    Boolean              @default(false)
+  deliveryFee             Float                @default(50.0)
+  deliveryNegotiationLogs Json? // [{retailerId, response, timestamp}]
+  deliveryAgentId         String?
+  deliveryAgent           DeliveryAgent?       @relation("AssignedDeliveries", fields: [deliveryAgentId], references: [id])
+  assignedAt              DateTime?
+  total                   Float
+  status                  String               @default("Received") // Received, Rx_Uploaded, Pharmacist_Approved, Ready_for_Packing, Out_for_Delivery, Delivered
+  paymentMethod           String               @default("ONLINE") // "ONLINE" or "COD"
+  deliveryCode            String? // Secret code for COD verification
+  isPaid                  Boolean              @default(false)
+  isDelivered             Boolean              @default(false)
+  items                   OrderItem[]
+  prescription            Prescription?
+  deliveryProofUrl        String?
+  tamperSealCode          String? // Unique seal code provided by retailer
+  integrityStatus         String?              @default("PENDING") // PENDING, INTACT, TAMPERED, DAMAGED
+  integrityCheckAt        DateTime? // When customer verified it
+  integrityCheckNotes     String? // Customer feedback if tampered
+  createdAt               DateTime             @default(now())
+  complaints              Complaint[]
+  experience              CustomerExperience?
+  subOrders               SubOrder[]
+  deliveryAssignments     DeliveryAssignment[]
+  returnRequests          ReturnRequest[]
 
   @@index([status])
   @@index([userId])
@@ -195,320 +196,320 @@ model SMSLog {
   id        String   @id @default(cuid())
   phone     String
   message   String
-  status    String   // "Sent", "Failed", "Mock"
-  response  String?  // JSON string of API response
+  status    String // "Sent", "Failed", "Mock"
+  response  String? // JSON string of API response
   createdAt DateTime @default(now())
 }
 
 model Doctor {
-  id             String   @id @default(cuid())
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id])
-  name           String?  // For unverified/scraped entries
-  specialization String
-  hospital       String?  // Text name for non-linked hospitals
-  hospitalId     String?
-  hospitalLink   Hospital? @relation("HospitalDoctors", fields: [hospitalId], references: [id])
-  city           String   @default("Gorakhpur")
-  experience     Int?
-  verified       Boolean  @default(false)
-  status         String   @default("unverified") // unverified, verified, claimed
-  source         String   @default("field_agent") // google_maps, justdial, field_agent, self_registered
-  lat            Float?
-  lng            Float?
-  phone          String?
-  photoUrl       String?
-  consultationFee Float   @default(500.0)
+  id                String    @id @default(cuid())
+  userId            String?   @unique
+  user              User?     @relation(fields: [userId], references: [id])
+  name              String? // For unverified/scraped entries
+  specialization    String
+  hospital          String? // Text name for non-linked hospitals
+  hospitalId        String?
+  hospitalLink      Hospital? @relation("HospitalDoctors", fields: [hospitalId], references: [id])
+  city              String    @default("Gorakhpur")
+  experience        Int?
+  verified          Boolean   @default(false)
+  status            String    @default("unverified") // unverified, verified, claimed
+  source            String    @default("field_agent") // google_maps, justdial, field_agent, self_registered
+  lat               Float?
+  lng               Float?
+  phone             String?
+  photoUrl          String?
+  consultationFee   Float     @default(500.0)
   razorpayAccountId String?
-  isDirectory    Boolean  @default(false)
-  location       String?
-  isClaimed      Boolean  @default(false)
-  
+  isDirectory       Boolean   @default(false)
+  location          String?
+  isClaimed         Boolean   @default(false)
+
   // Professional Metadata (Screenshot Sync)
-  rating         Float    @default(4.0)
-  ratingCount    Int      @default(0)
-  recommendationRate Int  @default(80) // %
-  patientStoriesCount Int @default(0)
-  openingHours   String   @default("9:00 AM - 5:00 PM")
-  
-  createdAt      DateTime @default(now())
-  prescriptions  Prescription[]
-  appointments   Appointment[]
-  visits         Visit[]
-  reports        Report[]
+  rating              Float  @default(4.0)
+  ratingCount         Int    @default(0)
+  recommendationRate  Int    @default(80) // %
+  patientStoriesCount Int    @default(0)
+  openingHours        String @default("9:00 AM - 5:00 PM")
+
+  createdAt     DateTime       @default(now())
+  prescriptions Prescription[]
+  appointments  Appointment[]
+  visits        Visit[]
+  reports       Report[]
 }
 
 model Prescription {
-  id        String   @id @default(cuid())
+  id        String              @id @default(cuid())
   imageUrl  String
   patientId String
-  patient   User     @relation(fields: [patientId], references: [id])
+  patient   User                @relation(fields: [patientId], references: [id])
   doctorId  String?
-  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
-  medicines String?  // JSON string or text details
-  status    String   @default("Pending") // Pending, Processed, Rejected
-  orderId   String?  @unique
-  order     Order?   @relation(fields: [orderId], references: [id])
-  createdAt DateTime @default(now())
+  doctor    Doctor?             @relation(fields: [doctorId], references: [id])
+  medicines String? // JSON string or text details
+  status    String              @default("Pending") // Pending, Processed, Rejected
+  orderId   String?             @unique
+  order     Order?              @relation(fields: [orderId], references: [id])
+  createdAt DateTime            @default(now())
   quotes    PrescriptionQuote[]
 }
 
 model PrescriptionQuote {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   prescriptionId String
   prescription   Prescription @relation(fields: [prescriptionId], references: [id])
   retailerId     String
-  retailer       Retailer @relation(fields: [retailerId], references: [id])
+  retailer       Retailer     @relation(fields: [retailerId], references: [id])
   quotedAmount   Float
-  items          Json?    // Array of {name, price, stockStatus}
-  status         String   @default("PENDING") // PENDING, SELECTED, REJECTED
-  createdAt      DateTime @default(now())
+  items          Json? // Array of {name, price, stockStatus}
+  status         String       @default("PENDING") // PENDING, SELECTED, REJECTED
+  createdAt      DateTime     @default(now())
 }
 
 model Appointment {
-  id          String    @id @default(cuid())
+  id          String     @id @default(cuid())
   patientId   String
-  patient     User      @relation(fields: [patientId], references: [id])
+  patient     User       @relation(fields: [patientId], references: [id])
   doctorId    String
-  doctor      Doctor    @relation(fields: [doctorId], references: [id])
-  publisherId String?   @map("publisher_id")
+  doctor      Doctor     @relation(fields: [doctorId], references: [id])
+  publisherId String?    @map("publisher_id")
   publisher   Publisher? @relation(fields: [publisherId], references: [id])
-  date      DateTime
-  reason    String?
-  status    String   @default("Pending") // Pending, Confirmed, Cancelled
-  createdAt DateTime @default(now())
-  hospitalId String?
-  hospital   Hospital? @relation(fields: [hospitalId], references: [id])
+  date        DateTime
+  reason      String?
+  status      String     @default("Pending") // Pending, Confirmed, Cancelled
+  createdAt   DateTime   @default(now())
+  hospitalId  String?
+  hospital    Hospital?  @relation(fields: [hospitalId], references: [id])
 }
 
 model Lab {
-  id             String   @id @default(cuid())
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id])
-  name           String
-  address        String
-  licenseNumber  String?  // Optional for directory
-  phone          String
-  city           String   @default("Gorakhpur")
-  verified       Boolean  @default(false)
-  isDirectory    Boolean  @default(false)
-  rating         Float    @default(4.5)
-  ratingCount    Int      @default(0)
-  status         String   @default("unverified") // unverified, verified, claimed
-  source         String   @default("field_agent")
-  photoUrl       String?
-  openingHours   String   @default("9:00 AM - 9:00 PM")
-  lat            Float?
-  lng            Float?
-  createdAt      DateTime @default(now())
-  tests          LabTest[]
+  id            String    @id @default(cuid())
+  userId        String?   @unique
+  user          User?     @relation(fields: [userId], references: [id])
+  name          String
+  address       String
+  licenseNumber String? // Optional for directory
+  phone         String
+  city          String    @default("Gorakhpur")
+  verified      Boolean   @default(false)
+  isDirectory   Boolean   @default(false)
+  rating        Float     @default(4.5)
+  ratingCount   Int       @default(0)
+  status        String    @default("unverified") // unverified, verified, claimed
+  source        String    @default("field_agent")
+  photoUrl      String?
+  openingHours  String    @default("9:00 AM - 9:00 PM")
+  lat           Float?
+  lng           Float?
+  createdAt     DateTime  @default(now())
+  tests         LabTest[]
 }
 
 model LabTest {
-  id             String   @id @default(cuid())
+  id             String       @id @default(cuid())
   labId          String
-  lab            Lab      @relation(fields: [labId], references: [id])
+  lab            Lab          @relation(fields: [labId], references: [id])
   name           String
   description    String?
   price          Float
-  turnaroundTime String?  // e.g. "24 hours"
-  createdAt      DateTime @default(now())
+  turnaroundTime String? // e.g. "24 hours"
+  createdAt      DateTime     @default(now())
   bookings       LabBooking[]
 }
 
 model LabBooking {
-  id             String   @id @default(cuid())
-  patientId      String
-  patient        User     @relation(fields: [patientId], references: [id])
-  testId         String
-  test           LabTest  @relation(fields: [testId], references: [id])
-  status         String   @default("Pending") // Pending, Confirmed, Completed, Cancelled
-  bookingDate    DateTime @default(now())
-  report         LabReport?
-  hospitalId     String?
-  hospital       Hospital? @relation(fields: [hospitalId], references: [id])
+  id          String     @id @default(cuid())
+  patientId   String
+  patient     User       @relation(fields: [patientId], references: [id])
+  testId      String
+  test        LabTest    @relation(fields: [testId], references: [id])
+  status      String     @default("Pending") // Pending, Confirmed, Completed, Cancelled
+  bookingDate DateTime   @default(now())
+  report      LabReport?
+  hospitalId  String?
+  hospital    Hospital?  @relation(fields: [hospitalId], references: [id])
 }
 
 model LabReport {
-  id             String   @id @default(cuid())
-  bookingId      String   @unique
-  booking        LabBooking @relation(fields: [bookingId], references: [id])
-  reportUrl      String
-  uploadedAt     DateTime @default(now())
+  id         String     @id @default(cuid())
+  bookingId  String     @unique
+  booking    LabBooking @relation(fields: [bookingId], references: [id])
+  reportUrl  String
+  uploadedAt DateTime   @default(now())
 }
 
 model Retailer {
-  id             String   @id @default(cuid())
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id])
-  shopName       String
-  address        String
-  licenseNumber  String
-  phone          String
-  city           String   @default("Gorakhpur")
-  verified       Boolean  @default(false)
-  isDirectory    Boolean  @default(false)
-  rating         Float    @default(4.5)
-  ratingCount    Int      @default(0)
-  status         String   @default("unverified") // unverified, verified, claimed
-  source         String   @default("field_agent") // google_maps, justdial, field_agent, self_registered
-  lat            Float?
-  lng            Float?
-  photoUrl       String?
-  openingHours   String   @default("9:00 AM - 10:00 PM")
-  isOnline       Boolean  @default(false)
-  priority_score Int      @default(0)
-  createdAt      DateTime @default(now())
-  bulkOrders     BulkOrder[]
-  inventory      RetailerInventory[]
-  assignedOrders Order[]  @relation("AssignedOrders")
-  subOrders      SubOrder[]
+  id                 String              @id @default(cuid())
+  userId             String?             @unique
+  user               User?               @relation(fields: [userId], references: [id])
+  shopName           String
+  address            String
+  licenseNumber      String
+  phone              String
+  city               String              @default("Gorakhpur")
+  verified           Boolean             @default(false)
+  isDirectory        Boolean             @default(false)
+  rating             Float               @default(4.5)
+  ratingCount        Int                 @default(0)
+  status             String              @default("unverified") // unverified, verified, claimed
+  source             String              @default("field_agent") // google_maps, justdial, field_agent, self_registered
+  lat                Float?
+  lng                Float?
+  photoUrl           String?
+  openingHours       String              @default("9:00 AM - 10:00 PM")
+  isOnline           Boolean             @default(false)
+  priority_score     Int                 @default(0)
+  createdAt          DateTime            @default(now())
+  bulkOrders         BulkOrder[]
+  inventory          RetailerInventory[]
+  assignedOrders     Order[]             @relation("AssignedOrders")
+  subOrders          SubOrder[]
   prescriptionQuotes PrescriptionQuote[]
   reports            Report[]
 }
 
 model Stockist {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  agencyName     String
+  id               String      @id @default(cuid())
+  userId           String      @unique
+  user             User        @relation(fields: [userId], references: [id])
+  agencyName       String
   warehouseAddress String
-  gstNumber      String
-  phone          String
-  verified       Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  receivedOrders BulkOrder[]
+  gstNumber        String
+  phone            String
+  verified         Boolean     @default(false)
+  createdAt        DateTime    @default(now())
+  receivedOrders   BulkOrder[]
 }
 
 model BulkOrder {
-  id             String   @id @default(cuid())
-  retailerId     String
-  retailer       Retailer @relation(fields: [retailerId], references: [id])
-  stockistId     String?
-  stockist       Stockist? @relation(fields: [stockistId], references: [id])
-  items          String   // JSON string of items
-  status         String   @default("Pending") // Pending, Accepted, Shipped, Delivered
-  totalAmount    Float
-  createdAt      DateTime @default(now())
+  id          String    @id @default(cuid())
+  retailerId  String
+  retailer    Retailer  @relation(fields: [retailerId], references: [id])
+  stockistId  String?
+  stockist    Stockist? @relation(fields: [stockistId], references: [id])
+  items       String // JSON string of items
+  status      String    @default("Pending") // Pending, Accepted, Shipped, Delivered
+  totalAmount Float
+  createdAt   DateTime  @default(now())
 }
 
 model Ambulance {
-  id             String   @id @default(cuid())
-  userId         String?
-  user           User?    @relation(fields: [userId], references: [id])
-  driverName     String
-  vehicleNumber  String?  // Optional for directory
-  vehicleType    String   // "Basic", "ICU", "Advance"
-  city           String   @default("Gorakhpur")
-  verified       Boolean  @default(false)
-  isDirectory    Boolean  @default(false)
-  isAvailable    Boolean  @default(true)
-  phone          String
-  rating         Float    @default(4.8)
-  ratingCount    Int      @default(0)
-  status         String   @default("unverified")
-  photoUrl       String?
-  currentLat     Float?
-  currentLng     Float?
-  pricePerKm     Float    @default(20.0)
-  createdAt      DateTime @default(now())
-  bookings       AmbulanceBooking[]
+  id            String             @id @default(cuid())
+  userId        String?
+  user          User?              @relation(fields: [userId], references: [id])
+  driverName    String
+  vehicleNumber String? // Optional for directory
+  vehicleType   String // "Basic", "ICU", "Advance"
+  city          String             @default("Gorakhpur")
+  verified      Boolean            @default(false)
+  isDirectory   Boolean            @default(false)
+  isAvailable   Boolean            @default(true)
+  phone         String
+  rating        Float              @default(4.8)
+  ratingCount   Int                @default(0)
+  status        String             @default("unverified")
+  photoUrl      String?
+  currentLat    Float?
+  currentLng    Float?
+  pricePerKm    Float              @default(20.0)
+  createdAt     DateTime           @default(now())
+  bookings      AmbulanceBooking[]
 }
 
 model AmbulanceBooking {
-  id             String   @id @default(cuid())
-  ambulanceId    String
-  ambulance      Ambulance @relation(fields: [ambulanceId], references: [id])
-  userId         String?
-  user           User?     @relation(fields: [userId], references: [id])
-  guestName      String?
-  guestPhone     String?
-  pickupAddress  String
-  dropAddress    String
-  distanceKm     Float?
-  totalPrice     Float?
-  status         String    @default("Pending") // Pending, Accepted, Completed, Cancelled
-  createdAt      DateTime  @default(now())
+  id            String    @id @default(cuid())
+  ambulanceId   String
+  ambulance     Ambulance @relation(fields: [ambulanceId], references: [id])
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  guestName     String?
+  guestPhone    String?
+  pickupAddress String
+  dropAddress   String
+  distanceKm    Float?
+  totalPrice    Float?
+  status        String    @default("Pending") // Pending, Accepted, Completed, Cancelled
+  createdAt     DateTime  @default(now())
 }
 
 model MedicalRep {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  name           String
-  company        String
-  region         String
-  phone          String
-  status         String   @default("Pending") // Pending, Active
-  verified       Boolean  @default(false)
-  idImageUrl     String?  // Identity document URL
-  createdAt      DateTime @default(now())
-  visits         Visit[]
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  company    String
+  region     String
+  phone      String
+  status     String   @default("Pending") // Pending, Active
+  verified   Boolean  @default(false)
+  idImageUrl String? // Identity document URL
+  createdAt  DateTime @default(now())
+  visits     Visit[]
 }
 
 model PharmaCompany {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  companyName    String
-  licenseNumber  String
-  address        String
-  phone          String
-  createdAt      DateTime @default(now())
-  verified       Boolean  @default(false)
-  ads            AdCampaign[]
+  id            String       @id @default(cuid())
+  userId        String       @unique
+  user          User         @relation(fields: [userId], references: [id])
+  companyName   String
+  licenseNumber String
+  address       String
+  phone         String
+  createdAt     DateTime     @default(now())
+  verified      Boolean      @default(false)
+  ads           AdCampaign[]
 }
 
 model Visit {
-  id          String   @id @default(cuid())
-  mrId        String
-  mr          MedicalRep @relation(fields: [mrId], references: [id])
-  doctorId    String
-  doctor      Doctor     @relation(fields: [doctorId], references: [id])
-  date        DateTime
-  notes       String?
-  status      String   @default("Scheduled") // Scheduled, Completed
-  createdAt   DateTime @default(now())
+  id        String     @id @default(cuid())
+  mrId      String
+  mr        MedicalRep @relation(fields: [mrId], references: [id])
+  doctorId  String
+  doctor    Doctor     @relation(fields: [doctorId], references: [id])
+  date      DateTime
+  notes     String?
+  status    String     @default("Scheduled") // Scheduled, Completed
+  createdAt DateTime   @default(now())
 }
 
 model AdCampaign {
-  id             String   @id @default(cuid())
-  companyId      String?
-  pharmaCompany  PharmaCompany? @relation(fields: [companyId], references: [id])
-  title          String
-  imageUrl       String
-  targetUrl      String?
-  position       String   // "Home-Banner", "Sidebar"
-  startDate      DateTime
-  endDate        DateTime
-  status         String   @default("Pending") // Pending, Active, Expired, Rejected
-  price          Float
-  createdAt      DateTime @default(now())
+  id            String         @id @default(cuid())
+  companyId     String?
+  pharmaCompany PharmaCompany? @relation(fields: [companyId], references: [id])
+  title         String
+  imageUrl      String
+  targetUrl     String?
+  position      String // "Home-Banner", "Sidebar"
+  startDate     DateTime
+  endDate       DateTime
+  status        String         @default("Pending") // Pending, Active, Expired, Rejected
+  price         Float
+  createdAt     DateTime       @default(now())
 }
 
 model MedicineRequest {
-  id        String   @id @default(cuid())
-  userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
-  guestName String?
-  guestPhone String?
-  medicineName String
-  quantity  String
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  guestName       String?
+  guestPhone      String?
+  medicineName    String
+  quantity        String
   prescriptionUrl String?
-  status    String   @default("Pending") // Pending, Fulfilled, Cancelled
-  createdAt DateTime @default(now())
+  status          String   @default("Pending") // Pending, Fulfilled, Cancelled
+  createdAt       DateTime @default(now())
 }
 
 model Subscription {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
   medicineName String
-  quantity  Int
-  frequency String   @default("Monthly") // Monthly, Weekly
-  nextDate  DateTime
-  status    String   @default("Active") // Active, Paused, Cancelled
-  createdAt DateTime @default(now())
+  quantity     Int
+  frequency    String   @default("Monthly") // Monthly, Weekly
+  nextDate     DateTime
+  status       String   @default("Active") // Active, Paused, Cancelled
+  createdAt    DateTime @default(now())
 }
 
 model RetailerInventory {
@@ -518,39 +519,39 @@ model RetailerInventory {
   medicineName String
   stock        Int
   price        Float
-  deliveryArea String   // e.g., "Sector 62, Noida"
+  deliveryArea String // e.g., "Sector 62, Noida"
   updatedAt    DateTime @updatedAt
   createdAt    DateTime @default(now())
 }
 
 model PharmacyInventory {
-  id             String   @id @default(cuid())
-  productId      String   @unique
-  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  purchasePrice  Float    @default(0.0)
-  sellingPrice   Float    @default(0.0)
-  stock          Int      @default(0)
-  expiryDate     DateTime?
-  marginPercent  Float    @default(0.0) // Margin percentage 
-  updatedAt      DateTime @updatedAt
-  createdAt      DateTime @default(now())
+  id            String    @id @default(cuid())
+  productId     String    @unique
+  product       Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  purchasePrice Float     @default(0.0)
+  sellingPrice  Float     @default(0.0)
+  stock         Int       @default(0)
+  expiryDate    DateTime?
+  marginPercent Float     @default(0.0) // Margin percentage 
+  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime  @default(now())
 }
 
 model DeliveryAgent {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  licenseNumber  String
-  vehicleNumber  String
-  phone          String
-  verified       Boolean  @default(false)
-  lat            Float?
-  lng            Float?
-  isOnline       Boolean  @default(false)
-  walletBalance  Float    @default(0.0)
-  createdAt      DateTime @default(now())
-  deliveries     Order[]  @relation("AssignedDeliveries")
-  assignments    DeliveryAssignment[]
+  id            String               @id @default(cuid())
+  userId        String               @unique
+  user          User                 @relation(fields: [userId], references: [id])
+  licenseNumber String
+  vehicleNumber String
+  phone         String
+  verified      Boolean              @default(false)
+  lat           Float?
+  lng           Float?
+  isOnline      Boolean              @default(false)
+  walletBalance Float                @default(0.0)
+  createdAt     DateTime             @default(now())
+  deliveries    Order[]              @relation("AssignedDeliveries")
+  assignments   DeliveryAssignment[]
 }
 
 model WalletTransaction {
@@ -558,131 +559,131 @@ model WalletTransaction {
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   amount      Float
-  type        String   // "CREDIT" or "DEBIT"
-  description String   // e.g., "Level 1 Referral Bonus", "Delivery Payout", "Withdrawal"
+  type        String // "CREDIT" or "DEBIT"
+  description String // e.g., "Level 1 Referral Bonus", "Delivery Payout", "Withdrawal"
   createdAt   DateTime @default(now())
 }
 
 model Withdrawal {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  amount        Float
-  status        String   @default("Pending") // Pending, Completed, Rejected
-  paymentMethod String   // e.g., "UPI", "Bank Transfer"
-  paymentDetails String  // JSON or string of account info
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id])
+  amount         Float
+  status         String   @default("Pending") // Pending, Completed, Rejected
+  paymentMethod  String // e.g., "UPI", "Bank Transfer"
+  paymentDetails String // JSON or string of account info
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 }
 
 model InsuranceCompany {
-  id            String   @id @default(cuid())
-  name          String
-  logoUrl       String?
-  description   String?
-  phone         String?
-  email         String?
-  website       String?
-  plans         InsurancePlan[]
-  leads         InsuranceLead[]
-  user          User?    @relation("CompanyUser")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id          String          @id @default(cuid())
+  name        String
+  logoUrl     String?
+  description String?
+  phone       String?
+  email       String?
+  website     String?
+  plans       InsurancePlan[]
+  leads       InsuranceLead[]
+  user        User?           @relation("CompanyUser")
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }
 
 model InsurancePlan {
-  id              String   @id @default(cuid())
-  companyId       String
-  company         InsuranceCompany @relation(fields: [companyId], references: [id])
-  name            String
-  description     String?
-  coverageType    String   // Individual, Family, Hospitalization
-  premium         Float
-  commissionRate  Float    // Percentage or Fixed amount
-  features        String[] // Array of features
-  leads           InsuranceLead[]
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id             String           @id @default(cuid())
+  companyId      String
+  company        InsuranceCompany @relation(fields: [companyId], references: [id])
+  name           String
+  description    String?
+  coverageType   String // Individual, Family, Hospitalization
+  premium        Float
+  commissionRate Float // Percentage or Fixed amount
+  features       String[] // Array of features
+  leads          InsuranceLead[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 }
 
 model InsuranceLead {
-  id                String   @id @default(cuid())
-  planId            String
-  plan              InsurancePlan @relation(fields: [planId], references: [id])
-  companyId         String
-  company           InsuranceCompany @relation(fields: [companyId], references: [id])
-  userId            String?  // Customer
-  user              User?    @relation("CustomerLeads", fields: [userId], references: [id])
-  publisherId       String?  // Referrer
-  publisher         User?    @relation("PublisherLeads", fields: [publisherId], references: [id])
-  guestName         String?
-  guestPhone        String?
-  guestEmail        String?
-  healthDetails     String?
-  paymentStatus     String   @default("Pending") // Pending, Paid, Failed
-  leadStatus        String   @default("New")     // New, Contacted, Converted, Rejected
-  commissionEarned  Float    @default(0.0)
-  totalPremium      Float
-  paymentId         String?  // Razorpay/PhonePe ID
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String           @id @default(cuid())
+  planId           String
+  plan             InsurancePlan    @relation(fields: [planId], references: [id])
+  companyId        String
+  company          InsuranceCompany @relation(fields: [companyId], references: [id])
+  userId           String? // Customer
+  user             User?            @relation("CustomerLeads", fields: [userId], references: [id])
+  publisherId      String? // Referrer
+  publisher        User?            @relation("PublisherLeads", fields: [publisherId], references: [id])
+  guestName        String?
+  guestPhone       String?
+  guestEmail       String?
+  healthDetails    String?
+  paymentStatus    String           @default("Pending") // Pending, Paid, Failed
+  leadStatus       String           @default("New") // New, Contacted, Converted, Rejected
+  commissionEarned Float            @default(0.0)
+  totalPremium     Float
+  paymentId        String? // Razorpay/PhonePe ID
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model Hospital {
-  id             String   @id @default(cuid())
-  userId         String?  @unique
-  user           User?    @relation(fields: [userId], references: [id])
-  name           String
-  address        String
-  city           String   @default("Gorakhpur")
-  licenseNumber  String?  // From headspace
-  phone          String
-  email          String?
-  website        String?
-  specialties    String?  // JSON string or comma-separated
-  verified       Boolean  @default(false)
-  isDirectory    Boolean  @default(false)
-  rating         Float    @default(4.5)
-  ratingCount    Int      @default(0)
-  photoUrl       String?
-  openingHours   String   @default("24/7 Hours")
-  bankDetails    Json?    // UPI/Bank Details for settlement
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  doctors        Doctor[] @relation("HospitalDoctors")
-  appointments   Appointment[]
-  labBookings    LabBooking[]
+  id            String        @id @default(cuid())
+  userId        String?       @unique
+  user          User?         @relation(fields: [userId], references: [id])
+  name          String
+  address       String
+  city          String        @default("Gorakhpur")
+  licenseNumber String? // From headspace
+  phone         String
+  email         String?
+  website       String?
+  specialties   String? // JSON string or comma-separated
+  verified      Boolean       @default(false)
+  isDirectory   Boolean       @default(false)
+  rating        Float         @default(4.5)
+  ratingCount   Int           @default(0)
+  photoUrl      String?
+  openingHours  String        @default("24/7 Hours")
+  bankDetails   Json? // UPI/Bank Details for settlement
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  doctors       Doctor[]      @relation("HospitalDoctors")
+  appointments  Appointment[]
+  labBookings   LabBooking[]
 }
 
 model Lead {
-  id            String   @id @default(cuid())
-  userId        String?
-  user          User?    @relation("UserLeads", fields: [userId], references: [id])
-  publisherId   String?
-  publisher     User?    @relation("PublisherSlnLeads", fields: [publisherId], references: [id])
-  serviceType   String   // doctor, lab, ambulance, insurance, retailer
-  providerId    String?  // ID of the target (Doctor, Retailer, Hospital, etc.)
-  guestName     String?
-  guestPhone    String?
-  guestEmail    String?
-  area          String?  // Gorakhpur Area
-  source        String   @default("direct") // manual, bulk_upload, facebook, direct
+  id              String    @id @default(cuid())
+  userId          String?
+  user            User?     @relation("UserLeads", fields: [userId], references: [id])
+  publisherId     String?
+  publisher       User?     @relation("PublisherSlnLeads", fields: [publisherId], references: [id])
+  serviceType     String // doctor, lab, ambulance, insurance, retailer
+  providerId      String? // ID of the target (Doctor, Retailer, Hospital, etc.)
+  guestName       String?
+  guestPhone      String?
+  guestEmail      String?
+  area            String? // Gorakhpur Area
+  source          String    @default("direct") // manual, bulk_upload, facebook, direct
   assignedAgentId String?
-  assignedAgent   User?    @relation("AgentLeads", fields: [assignedAgentId], references: [id])
+  assignedAgent   User?     @relation("AgentLeads", fields: [assignedAgentId], references: [id])
   lastContactDate DateTime?
-  notes         String?  // Replaces details if needed or used alongside
-  details       String?  // Special requirements
-  status        String   @default("new") // new, contacted, interested, follow_up, converted, rejected
-  planType      String?  // basic, featured
-  amount        Float?
-  paymentStatus String?  @default("pending") // pending, paid, failed, refunded
-  renewalDate   DateTime?
-  qualityScore  Int      @default(0) // 0-100 score based on activity
-  isVerified    Boolean  @default(false)
-  lastAction    String?  // Description of the most recent lead event
-  tags          String[] @default([]) // Array of tags for intelligent filtering
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  notes           String? // Replaces details if needed or used alongside
+  details         String? // Special requirements
+  status          String    @default("new") // new, contacted, interested, follow_up, converted, rejected
+  planType        String? // basic, featured
+  amount          Float?
+  paymentStatus   String?   @default("pending") // pending, paid, failed, refunded
+  renewalDate     DateTime?
+  qualityScore    Int       @default(0) // 0-100 score based on activity
+  isVerified      Boolean   @default(false)
+  lastAction      String? // Description of the most recent lead event
+  tags            String[]  @default([]) // Array of tags for intelligent filtering
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([status])
   @@index([area])
@@ -691,26 +692,25 @@ model Lead {
 
 model PartnerRevenue {
   id            String   @id @default(cuid())
-  partnerId     String   // Doctor or Retailer ID
-  partnerType   String   // DOCTOR, RETAILER
-  revenueType   String   // LISTING_FEE, LEAD_FEE, COMMISSION
+  partnerId     String // Doctor or Retailer ID
+  partnerType   String // DOCTOR, RETAILER
+  revenueType   String // LISTING_FEE, LEAD_FEE, COMMISSION
   amount        Float
   paymentStatus String   @default("pending") // pending, paid
   createdAt     DateTime @default(now())
 }
 
 model WhatsAppBatch {
-  id            String   @id @default(cuid())
-  name          String
-  templateName  String
-  totalLeads    Int
-  sentCount     Int      @default(0)
-  deliveredCount Int     @default(0)
-  readCount      Int     @default(0)
-  status        String   @default("pending") // pending, in_progress, completed
-  createdAt     DateTime @default(now())
+  id             String   @id @default(cuid())
+  name           String
+  templateName   String
+  totalLeads     Int
+  sentCount      Int      @default(0)
+  deliveredCount Int      @default(0)
+  readCount      Int      @default(0)
+  status         String   @default("pending") // pending, in_progress, completed
+  createdAt      DateTime @default(now())
 }
-
 
 model PasswordResetToken {
   id        String   @id @default(cuid())
@@ -724,13 +724,13 @@ model Complaint {
   id          String   @id @default(cuid())
   userId      String
   user        User     @relation(fields: [userId], references: [id])
-  orderId     String?  // Optional, if related to a specific order
+  orderId     String? // Optional, if related to a specific order
   order       Order?   @relation(fields: [orderId], references: [id])
   subject     String
   description String
   status      String   @default("Open") // Open, In Progress, Resolved, Closed
   priority    String   @default("Medium") // Low, Medium, High, Critical
-  resolution  String?  // Admin remarks/fix applied
+  resolution  String? // Admin remarks/fix applied
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -754,133 +754,134 @@ model CustomerExperience {
   user      User?    @relation(fields: [userId], references: [id])
   orderId   String?  @unique
   order     Order?   @relation(fields: [orderId], references: [id])
-  rating    Int      // 1-5 Stars
+  rating    Int // 1-5 Stars
   feedback  String?
   category  String   @default("General") // App UX, Delivery Speed, Product Quality
   createdAt DateTime @default(now())
 }
 
 model ReferralConnection {
-  id              String   @id @default(cuid())
-  referrerId      String
-  referrer        User     @relation("ReferrerLinks", fields: [referrerId], references: [id])
-  refereeId       String   @unique // A user can only be referred once
-  referee         User     @relation("RefereeLink", fields: [refereeId], references: [id])
-  refereeRole     String   // "DOCTOR", "RETAILER", "STOCKIST", "LAB", "PATIENT"
+  id          String @id @default(cuid())
+  referrerId  String
+  referrer    User   @relation("ReferrerLinks", fields: [referrerId], references: [id])
+  refereeId   String @unique // A user can only be referred once
+  referee     User   @relation("RefereeLink", fields: [refereeId], references: [id])
+  refereeRole String // "DOCTOR", "RETAILER", "STOCKIST", "LAB", "PATIENT"
 
   // Status & Security
-  status          String   @default("Pending_Activity") // Pending_Activity, Active, Expired, Flagged
-  kycVerified     Boolean  @default(false)
-  
+  status      String  @default("Pending_Activity") // Pending_Activity, Active, Expired, Flagged
+  kycVerified Boolean @default(false)
+
   // Triggers & Thresholds
-  activityCount   Int      @default(0) // Doctors: Consults, Retailers: Orders, etc.
-  activationDate  DateTime? // When threshold hit & onboarding bonus paid
-  expiryDate      DateTime? // When recurring commissions stop (e.g. +6 months)
-  
+  activityCount  Int       @default(0) // Doctors: Consults, Retailers: Orders, etc.
+  activationDate DateTime? // When threshold hit & onboarding bonus paid
+  expiryDate     DateTime? // When recurring commissions stop (e.g. +6 months)
+
   // Earnings tracking
-  totalEarned     Float    @default(0.0) 
-  
+  totalEarned Float @default(0.0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model SubOrder {
+  id            String         @id @default(cuid())
+  orderId       String
+  order         Order          @relation(fields: [orderId], references: [id])
+  retailerId    String
+  retailer      Retailer       @relation(fields: [retailerId], references: [id])
+  userId        String?
+  user          User?          @relation(fields: [userId], references: [id])
+  items         Json // List of items from this specific retailer
+  total         Float
+  status        String         @default("Pending") // Pending, Invoice_Pending, Approved, Rejected, Shipped, Delivered
+  draftInvoices DraftInvoice[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model DraftInvoice {
+  id              String   @id @default(cuid())
+  subOrderId      String
+  subOrder        SubOrder @relation(fields: [subOrderId], references: [id])
+  amount          Float
+  status          String   @default("Pending") // Pending, Approved, Rejected
+  isAutoGenerated Boolean  @default(false)
+  adminRemarks    String?
+  rejectionReason String?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
 
-model SubOrder {
+model MedicinePriceMemory {
   id             String   @id @default(cuid())
-  orderId        String
-  order          Order    @relation(fields: [orderId], references: [id])
-  retailerId     String
-  retailer       Retailer @relation(fields: [retailerId], references: [id])
-  userId         String?
-  user           User?    @relation(fields: [userId], references: [id])
-  items          Json     // List of items from this specific retailer
-  total          Float
-  status         String   @default("Pending") // Pending, Invoice_Pending, Approved, Rejected, Shipped, Delivered
-  draftInvoices  DraftInvoice[]
-  createdAt      DateTime @default(now())
+  medicineName   String   @unique
+  genericName    String?
+  price          Float
+  lastRetailerId String?
   updatedAt      DateTime @updatedAt
 }
 
-model DraftInvoice {
-  id               String   @id @default(cuid())
-  subOrderId       String
-  subOrder         SubOrder @relation(fields: [subOrderId], references: [id])
-  amount           Float
-  status           String   @default("Pending") // Pending, Approved, Rejected
-  isAutoGenerated  Boolean  @default(false)
-  adminRemarks     String?
-  rejectionReason  String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-}
-
-model MedicinePriceMemory {
-  id               String   @id @default(cuid())
-  medicineName     String   @unique
-  genericName      String?
-  price            Float
-  lastRetailerId   String?
-  updatedAt        DateTime @updatedAt
-}
-
 model Interaction {
-  id          String   @id @default(cuid())
-  type        String   // 'call', 'whatsapp', 'view'
-  targetId    String   // Doctor, Store, or Product ID
-  targetType  String   // 'doctor', 'retailer', 'product'
-  area        String   @default("Unknown")
-  timestamp   DateTime @default(now())
+  id         String   @id @default(cuid())
+  type       String // 'call', 'whatsapp', 'view'
+  targetId   String // Doctor, Store, or Product ID
+  targetType String // 'doctor', 'retailer', 'product'
+  area       String   @default("Unknown")
+  timestamp  DateTime @default(now())
 
   @@index([targetId])
   @@index([type])
 }
+
 model SubstitutionRule {
-  sourceMedicine   String   @unique
+  sourceMedicine    String   @unique
   substituteGeneric String
-  isActive         Boolean  @default(true)
-  createdAt        DateTime @default(now())
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
 }
 
 model DeliveryAssignment {
-  id             String   @id @default(cuid())
-  orderId        String
-  order          Order    @relation(fields: [orderId], references: [id])
-  agentId        String
-  agent          DeliveryAgent @relation(fields: [agentId], references: [id])
-  status         String   @default("Assigned") // Assigned, Accepted, Declined, Completed
-  distance       Float?
-  estimatedTime  String?
-  assignedAt     DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id            String        @id @default(cuid())
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id])
+  agentId       String
+  agent         DeliveryAgent @relation(fields: [agentId], references: [id])
+  status        String        @default("Assigned") // Assigned, Accepted, Declined, Completed
+  distance      Float?
+  estimatedTime String?
+  assignedAt    DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model WebhookConfig {
-  id             String   @id @default(cuid())
-  url            String
-  secret         String?
-  events         String[] // e.g. ["order_created", "payment_success"]
-  isActive       Boolean  @default(true)
-  createdAt      DateTime @default(now())
+  id        String   @id @default(cuid())
+  url       String
+  secret    String?
+  events    String[] // e.g. ["order_created", "payment_success"]
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
 
 model AdminApprovalLog {
-  id             String   @id @default(cuid())
-  adminId        String
-  actionType     String   // e.g. "INVOICE_APPROVAL", "SUBSTITUTION_CONFIRM"
-  targetId       String   // ID of the approved/rejected item
-  details        String?
-  createdAt      DateTime @default(now())
+  id         String   @id @default(cuid())
+  adminId    String
+  actionType String // e.g. "INVOICE_APPROVAL", "SUBSTITUTION_CONFIRM"
+  targetId   String // ID of the approved/rejected item
+  details    String?
+  createdAt  DateTime @default(now())
 }
 
 model SystemHealthLog {
-  id             String   @id @default(cuid())
-  component      String   // e.g., "PAYMENT", "ORDER_ROUTING", "API_SEARCH", "UI"
-  issueType      String   // e.g., "FAILED_PAYMENT", "PHARMACY_REJECTED", "DOCTOR_UNRESPONSIVE"
-  severity       String   @default("WARNING") // INFO, WARNING, CRITICAL
+  id             String    @id @default(cuid())
+  component      String // e.g., "PAYMENT", "ORDER_ROUTING", "API_SEARCH", "UI"
+  issueType      String // e.g., "FAILED_PAYMENT", "PHARMACY_REJECTED", "DOCTOR_UNRESPONSIVE"
+  severity       String    @default("WARNING") // INFO, WARNING, CRITICAL
   message        String
-  details        Json?    // Detailed error trace or payload
-  isAutoFixed    Boolean  @default(false)
-  autoFixDetails String?  // e.g., "Auto-assigned to next nearest pharmacy"
-  createdAt      DateTime @default(now())
+  details        Json? // Detailed error trace or payload
+  isAutoFixed    Boolean   @default(false)
+  autoFixDetails String? // e.g., "Auto-assigned to next nearest pharmacy"
+  createdAt      DateTime  @default(now())
   resolvedAt     DateTime?
 }
 
@@ -892,75 +893,75 @@ model DailyAnalytics {
   platformComm   Float    @default(0.0)
   failedOrders   Int      @default(0)
   activeUsers    Int      @default(0)
-  metricsPayload Json?    // Additional daily metrics (e.g. top pharmacy ID, top doctor)
+  metricsPayload Json? // Additional daily metrics (e.g. top pharmacy ID, top doctor)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
 model SystemFailureLog {
-  id             String   @id @default(cuid())
-  userId         String?
-  user           User?    @relation(fields: [userId], references: [id])
-  userRole       String?  // customer, retailer, delivery_partner, admin
-  actionType     String   // checkout, payment, upload, registration, login, referral, withdrawal
-  errorType      String   // network, validation, server, payment_gateway
-  errorMessage   String
-  pageUrl        String?
-  details        Json?    // Contextual data (e.g., cart items, trace)
-  isResolved     Boolean  @default(false)
-  aiSuggestion   String?  // AI logic generated fix/explanation
-  createdAt      DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  userRole     String? // customer, retailer, delivery_partner, admin
+  actionType   String // checkout, payment, upload, registration, login, referral, withdrawal
+  errorType    String // network, validation, server, payment_gateway
+  errorMessage String
+  pageUrl      String?
+  details      Json? // Contextual data (e.g., cart items, trace)
+  isResolved   Boolean  @default(false)
+  aiSuggestion String? // AI logic generated fix/explanation
+  createdAt    DateTime @default(now())
 }
 
 model InsuranceProvider {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  companyName    String
-  licenseNumber  String
-  phone          String
-  verified       Boolean  @default(false)
-  bankDetails    Json?
-  handlingFee    Float    @default(50.0)
-  createdAt      DateTime @default(now())
-  claims         InsuranceClaim[]
+  id            String           @id @default(cuid())
+  userId        String           @unique
+  user          User             @relation(fields: [userId], references: [id])
+  companyName   String
+  licenseNumber String
+  phone         String
+  verified      Boolean          @default(false)
+  bankDetails   Json?
+  handlingFee   Float            @default(50.0)
+  createdAt     DateTime         @default(now())
+  claims        InsuranceClaim[]
 }
 
 model InsuranceClaim {
-  id               String   @id @default(cuid())
-  insuranceId      String
-  insurance        InsuranceProvider @relation(fields: [insuranceId], references: [id])
-  userId           String
-  user             User     @relation(fields: [userId], references: [id])
-  patientName      String?
-  policyNumber     String?
-  amount           Float
-  status           String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  createdAt        DateTime @default(now())
+  id           String            @id @default(cuid())
+  insuranceId  String
+  insurance    InsuranceProvider @relation(fields: [insuranceId], references: [id])
+  userId       String
+  user         User              @relation(fields: [userId], references: [id])
+  patientName  String?
+  policyNumber String?
+  amount       Float
+  status       String            @default("PENDING") // PENDING, APPROVED, REJECTED
+  createdAt    DateTime          @default(now())
 }
 
 model Manufacturer {
-  id             String   @id @default(cuid())
-  userId         String   @unique
-  user           User     @relation(fields: [userId], references: [id])
-  companyName    String
-  contactPerson  String?
-  phone          String
-  verified       Boolean  @default(false)
-  bankDetails    Json?
-  createdAt      DateTime @default(now())
-  products       Product[]
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id])
+  companyName   String
+  contactPerson String?
+  phone         String
+  verified      Boolean   @default(false)
+  bankDetails   Json?
+  createdAt     DateTime  @default(now())
+  products      Product[]
 }
 
 model ContactUnlock {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation("UserUnlocks", fields: [userId], references: [id])
-  targetId    String   // ID of Doctor, Hospital, or Retailer
-  targetType  String   // "doctor", "hospital", "retailer"
-  amount      Float
-  paymentId   String?  // Razorpay Payment ID
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation("UserUnlocks", fields: [userId], references: [id])
+  targetId   String // ID of Doctor, Hospital, or Retailer
+  targetType String // "doctor", "hospital", "retailer"
+  amount     Float
+  paymentId  String? // Razorpay Payment ID
+  createdAt  DateTime @default(now())
 
   @@unique([userId, targetId, targetType])
 }
@@ -977,17 +978,17 @@ model SystemLog {
 }
 
 model Publisher {
-  id           String   @id @default(cuid())
-  userId       String?  @unique
-  user         User?    @relation(fields: [userId], references: [id])
+  id           String                @id @default(cuid())
+  userId       String?               @unique
+  user         User?                 @relation(fields: [userId], references: [id])
   name         String
   phone        String
-  referralCode String   @unique @map("referral_code")
+  referralCode String                @unique @map("referral_code")
   leads        PublisherLead[]
   withdrawals  PublisherWithdrawal[]
   appointments Appointment[]
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
 }
 
 model PublisherLead {
@@ -1029,61 +1030,61 @@ model BlogPost {
 }
 
 model Report {
-  id          String   @id @default(cuid())
-  doctorId    String?
-  doctor      Doctor?  @relation(fields: [doctorId], references: [id])
-  retailerId  String?
-  retailer    Retailer? @relation(fields: [retailerId], references: [id])
-  reason      String
-  details     String?  @db.Text
-  status      String   @default("OPEN") // OPEN, REVIEWED, RESOLVED
-  createdAt   DateTime @default(now())
+  id         String    @id @default(cuid())
+  doctorId   String?
+  doctor     Doctor?   @relation(fields: [doctorId], references: [id])
+  retailerId String?
+  retailer   Retailer? @relation(fields: [retailerId], references: [id])
+  reason     String
+  details    String?   @db.Text
+  status     String    @default("OPEN") // OPEN, REVIEWED, RESOLVED
+  createdAt  DateTime  @default(now())
 }
 
 model SymptomMap {
-  id                      String   @id @default(cuid())
-  symptom                 String   @unique
+  id                      String @id @default(cuid())
+  symptom                 String @unique
   suggestedSpecialization String
 }
 
 // SOP Chapter 14: Returns & Refunds
 model ReturnRequest {
-  id             String   @id @default(cuid())
-  orderId        String
-  order          Order    @relation(fields: [orderId], references: [id])
-  userId         String?
-  guestName      String?
-  guestPhone     String?
-  reason         String   // "wrong_product", "damaged_product", "delivery_error"
-  description    String
-  photoUrl       String?  // Customer can upload photo evidence
-  status         String   @default("Pending") // Pending, Under_Review, Approved, Rejected, Refunded
+  id                 String   @id @default(cuid())
+  orderId            String
+  order              Order    @relation(fields: [orderId], references: [id])
+  userId             String?
+  guestName          String?
+  guestPhone         String?
+  reason             String // "wrong_product", "damaged_product", "delivery_error"
+  description        String
+  photoUrl           String? // Customer can upload photo evidence
+  status             String   @default("Pending") // Pending, Under_Review, Approved, Rejected, Refunded
   // Approval chain (per SOP: Customer Service - Pharmacist - Ops Manager)
-  csApproval     String?  // null, "approved", "rejected"
-  csNotes        String?
+  csApproval         String? // null, "approved", "rejected"
+  csNotes            String?
   pharmacistApproval String? // null, "approved", "rejected"
-  pharmacistNotes   String?
-  opsApproval    String?  // null, "approved", "rejected"
-  opsNotes       String?
-  refundAmount   Float?
-  refundMethod   String?  // "wallet", "bank_transfer", "upi"
-  refundStatus   String?  // "pending", "processed"
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  pharmacistNotes    String?
+  opsApproval        String? // null, "approved", "rejected"
+  opsNotes           String?
+  refundAmount       Float?
+  refundMethod       String? // "wallet", "bank_transfer", "upi"
+  refundStatus       String? // "pending", "processed"
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 // --- RBAC & Security Models ---
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  action      String
-  entityType  String
-  entityId    String?
-  oldValue    String?  // JSON stringified or text
-  newValue    String?  // JSON stringified or text
-  ipAddress   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String?
+  action     String
+  entityType String
+  entityId   String?
+  oldValue   String? // JSON stringified or text
+  newValue   String? // JSON stringified or text
+  ipAddress  String?
+  createdAt  DateTime @default(now())
 
   // Relations (optional, user might be deleted but log should stay)
   // We keep userId as string to avoid strict FK constraint if we want to retain logs for deleted users
@@ -1094,7 +1095,7 @@ model ApprovalRequest {
   requestedById String
   actionType    String
   status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
-  details       String   // JSON string of the requested change
+  details       String // JSON string of the requested change
   approvedById  String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -1105,7 +1106,7 @@ model SopDocument {
   chapter   String
   version   String
   title     String
-  content   String   // Markdown or HTML
+  content   String // Markdown or HTML
   authorId  String
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -1113,13 +1114,13 @@ model SopDocument {
 }
 
 model UserSession {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
-  loginTime  DateTime @default(now())
+  loginTime  DateTime  @default(now())
   logoutTime DateTime?
   ipAddress  String?
   userAgent  String?
-  isValid    Boolean  @default(true)
+  isValid    Boolean   @default(true)
 }
 
 // ==========================================
@@ -1129,22 +1130,22 @@ model UserSession {
 // --- PHASE 1: RBAC & AUDIT TRAIL ---
 
 model BasRole {
-  id          String   @id @default(cuid())
-  name        String   @unique
+  id          String              @id @default(cuid())
+  name        String              @unique
   description String?
-  isActive    Boolean  @default(true)
+  isActive    Boolean             @default(true)
   permissions BasRolePermission[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
 }
 
 model BasPermission {
-  id          String   @id @default(cuid())
+  id          String              @id @default(cuid())
   module      String
   action      String
   description String?
   roles       BasRolePermission[]
-  createdAt   DateTime @default(now())
+  createdAt   DateTime            @default(now())
 }
 
 model BasRolePermission {
@@ -1154,40 +1155,44 @@ model BasRolePermission {
   permissionId String
   permission   BasPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
   createdAt    DateTime      @default(now())
+
   @@unique([roleId, permissionId])
 }
 
 model BasAuditLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  actionType  String
-  module      String
-  targetId    String?
-  oldValue    Json?
-  newValue    Json?
-  ipAddress   String?
-  userAgent   String?
-  createdAt   DateTime @default(now())
+  id         String   @id @default(cuid())
+  userId     String?
+  actionType String
+  module     String
+  targetId   String?
+  oldValue   Json?
+  newValue   Json?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
 }
 
 // --- PHASE 2: CRM & SALES ENGINE ---
 
 model BasCrmLead {
-  id             String              @id @default(cuid())
-  userId         String?
-  customerName   String
-  customerEmail  String?
-  customerPhone  String?
-  source         String
-  status         String              @default("NEW")
-  leadScore      Int                 @default(0)
-  assignedToId   String?
-  expectedValue  Float?
-  notes          String?
-  interactions   BasCrmInteraction[]
-  quotations     BasQuotation[]
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
+  id            String              @id @default(cuid())
+  userId        String?
+  customerName  String
+  customerEmail String?
+  customerPhone String?
+  source        String
+  campaignId    String? // Marketing attribution
+  status        String              @default("NEW") // Pipeline stage (NEW, QUALIFIED, RX_RECEIVED, QUOTED, PAYMENT_PENDING, INVOICED, PACKING, DISPATCHED, DELIVERED)
+  probability   Int                 @default(10) // 0-100% chance of closing
+  leadScore     Int                 @default(0)
+  assignedToId  String?
+  expectedValue Float?
+  notes         String?
+  interactions  BasCrmInteraction[]
+  quotations    BasQuotation[]
+  tasks         BasTask[] // Tasks linked to lead
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
 }
 
 model BasCrmInteraction {
@@ -1419,10 +1424,10 @@ model BasNotification {
 
 model BasSopDocument {
   id               String                  @id @default(cuid())
-  department       String                  // e.g., MARKETING, SALES, OPERATIONS, WAREHOUSE, CS
+  department       String // e.g., MARKETING, SALES, OPERATIONS, WAREHOUSE, CS
   title            String
   description      String?
-  content          String                  // Markdown text of the SOP
+  content          String // Markdown text of the SOP
   version          Int                     @default(1)
   status           String                  @default("DRAFT") // DRAFT, ACTIVE, REVISED, ARCHIVED
   authorId         String
@@ -1437,8 +1442,9 @@ model BasSopAcknowledgement {
   id             String         @id @default(cuid())
   sopDocumentId  String
   sopDocument    BasSopDocument @relation(fields: [sopDocumentId], references: [id], onDelete: Cascade)
-  employeeId     String         // User ID of the employee
+  employeeId     String // User ID of the employee
   acknowledgedAt DateTime       @default(now())
+
   @@unique([sopDocumentId, employeeId])
 }
 
@@ -1448,4 +1454,80 @@ model BasIntegrationConfig {
   name      String
   value     Json
   updatedAt DateTime @updatedAt
+}
+
+// ==========================================
+// ENTERPRISE CRM MODULES (PHASE 1)
+// ==========================================
+
+model BasCustomerProfile {
+  id                String    @id @default(cuid())
+  userId            String    @unique
+  user              User      @relation(fields: [userId], references: [id])
+  classification    String    @default("Retail") // Retail, Wholesale, Doctor, Hospital, Corporate
+  status            String    @default("Active") // Active, Inactive, VIP, High Risk
+  totalSpend        Float     @default(0)
+  totalOrders       Int       @default(0)
+  averageOrderValue Float     @default(0)
+  lifetimeValue     Float     @default(0)
+  lastOrderDate     DateTime?
+  emergencyContact  String?
+  loyaltyPoints     Int       @default(0)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model BasTask {
+  id           String      @id @default(cuid())
+  title        String
+  description  String?
+  type         String // Call, Meeting, Review, FollowUp
+  priority     String      @default("Medium") // Low, Medium, High, Urgent
+  status       String      @default("Pending") // Pending, InProgress, Completed, Overdue
+  dueDate      DateTime
+  assignedToId String // User ID of employee
+  leadId       String?
+  lead         BasCrmLead? @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  customerId   String? // Link to User ID
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model BasDocument {
+  id           String   @id @default(cuid())
+  title        String
+  fileUrl      String
+  type         String // Prescription, Invoice, Identity, Agreement
+  customerId   String? // Linked to User
+  leadId       String?
+  uploadedById String
+  accessLevel  String   @default("Private") // Private, Internal, Public
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BasCommunication {
+  id          String    @id @default(cuid())
+  type        String // Email, SMS, WhatsApp, Push
+  direction   String // Inbound, Outbound
+  recipientId String? // Linked to User or Lead
+  senderId    String? // Internal Employee or System
+  subject     String?
+  content     String    @db.Text
+  status      String    @default("Sent") // Scheduled, Sent, Failed, Delivered, Read
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+model BasLoyaltyAccount {
+  id            String   @id @default(cuid())
+  customerId    String   @unique // Linked to User
+  tier          String   @default("Bronze") // Bronze, Silver, Gold, Platinum
+  pointsBalance Int      @default(0)
+  cashbackValue Float    @default(0)
+  totalEarned   Int      @default(0)
+  totalRedeemed Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
