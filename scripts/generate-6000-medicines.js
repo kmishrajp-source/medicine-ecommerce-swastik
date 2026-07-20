@@ -67,7 +67,10 @@ async function generate() {
         const manufacturer = manufacturers[Math.floor(Math.random() * manufacturers.length)];
         const category = categories[Math.floor(Math.random() * categories.length)];
         
-        const finalName = `${brand} ${dose}`;
+        let finalName = `${brand} ${dose}`;
+        if (usedNames.has(finalName)) {
+            finalName = `${brand} ${dose} ${Math.floor(Math.random() * 100000)}`;
+        }
         
         if (usedNames.has(finalName)) continue;
         usedNames.add(finalName);

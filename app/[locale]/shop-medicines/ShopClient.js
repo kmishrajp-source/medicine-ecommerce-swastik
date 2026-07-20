@@ -25,31 +25,35 @@ export default function ShopClient({ initialProducts = [] }) {
 
     // Fetch products whenever category, search, or page changes
     useEffect(() => {
-        const fetchFiltered = async () => {
-            setLoading(true);
-            try {
-                let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&`;
-                if (activeCategory !== 'All') url += `category=${encodeURIComponent(activeCategory)}&`;
-                if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
+        const delayDebounceFn = setTimeout(() => {
+            const fetchFiltered = async () => {
+                setLoading(true);
+                try {
+                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&`;
+                    if (activeCategory !== 'All') url += `category=${encodeURIComponent(activeCategory)}&`;
+                    if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
 
-                const res = await fetch(url);
-                const data = await res.json();
-                if (data.success) {
-                    if (page === 1) {
-                        setProducts(data.products);
-                    } else {
-                        setProducts(prev => [...prev, ...data.products]);
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if (data.success) {
+                        if (page === 1) {
+                            setProducts(data.products);
+                        } else {
+                            setProducts(prev => [...prev, ...data.products]);
+                        }
+                        setAllLoaded(data.products.length < PAGE_SIZE);
                     }
-                    setAllLoaded(data.products.length < PAGE_SIZE);
+                } catch (error) {
+                    console.error("Failed to load products");
+                } finally {
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error("Failed to load products");
-            } finally {
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchFiltered();
+            fetchFiltered();
+        }, 300); // 300ms debounce
+
+        return () => clearTimeout(delayDebounceFn);
     }, [activeCategory, searchQuery, page]);
 
     // Reset to page 1 when filters change
