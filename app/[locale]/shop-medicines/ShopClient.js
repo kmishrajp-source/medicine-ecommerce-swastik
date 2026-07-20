@@ -21,6 +21,7 @@ export default function ShopClient({ initialProducts = [] }) {
     const [allLoaded, setAllLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
     const PAGE_SIZE = 60;
 
     // Fetch products whenever category, search, or page changes
@@ -41,7 +42,9 @@ export default function ShopClient({ initialProducts = [] }) {
                         } else {
                             setProducts(prev => [...prev, ...data.products]);
                         }
-                        setAllLoaded(data.products.length < PAGE_SIZE);
+                        setTotalCount(data.totalCount || data.products.length);
+                        // allLoaded = we've fetched all available results
+                        setAllLoaded((page * PAGE_SIZE) >= (data.totalCount || data.products.length));
                     }
                 } catch (error) {
                     console.error("Failed to load products");
@@ -79,7 +82,9 @@ export default function ShopClient({ initialProducts = [] }) {
                     <h2 style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--success))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
                         Browse Medicines
                     </h2>
-                    <div style={{ color: 'var(--text-light)' }}>{filteredProducts.length} Results</div>
+                    <div style={{ color: 'var(--text-light)' }}>
+                        {filteredProducts.length} of {totalCount} Results
+                    </div>
                 </div>
 
                 <div className="glass" style={{ padding: '24px', borderRadius: '24px', marginBottom: '40px' }}>

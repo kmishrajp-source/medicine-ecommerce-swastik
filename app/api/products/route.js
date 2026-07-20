@@ -67,14 +67,17 @@ export async function GET(req) {
             ];
         }
 
-        const products = await prisma.product.findMany({
-            where,
-            orderBy: { createdAt: 'desc' },
-            take: Math.min(limit, 200),
-            skip: offset
-        });
+        const [products, totalCount] = await Promise.all([
+            prisma.product.findMany({
+                where,
+                orderBy: { createdAt: 'desc' },
+                take: Math.min(limit, 200),
+                skip: offset
+            }),
+            prisma.product.count({ where })
+        ]);
 
-        return NextResponse.json({ success: true, products, total: products.length });
+        return NextResponse.json({ success: true, products, total: products.length, totalCount });
     } catch (error) {
         console.error("Fetch/Restore Error:", error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
