@@ -226,6 +226,9 @@ export default function AdminDashboard() {
                                 { name: "🛡️ Roles & Perms", path: "/admin/action-approvals", color: "#EF4444", requiredAction: ACTIONS.MANAGE_PERMISSIONS },
                                 { name: "Appointments", path: "/admin/appointments", color: "#10B981", requiredAction: ACTIONS.OVERSEE_SALES },
                                 { name: "📡 Market Intel", path: "/admin/market-intelligence", color: "#06B6D4", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "📒 B2B Directory", path: "/admin/directory", color: "#818CF8", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "🚨 SOS Dispatch", path: "/admin/sos", color: "#EF4444", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "🔍 Track & Trace", path: "/admin/tracking", color: "#34D399", requiredAction: ACTIONS.VIEW_INVENTORY },
                             ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',

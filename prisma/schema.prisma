@@ -1741,3 +1741,49 @@ model LiveStockQuote {
   respondedAt     DateTime @default(now())
 }
 
+// --- STOCKIST DIRECTORY (standalone, no app login required) --- //
+model StockistDirectory {
+  id               String   @id @default(cuid())
+  agencyName       String
+  ownerName        String?
+  phone            String
+  altPhone         String?
+  email            String?
+  address          String
+  city             String
+  pincode          String?
+  state            String   @default("Uttar Pradesh")
+  gstin            String?
+  licenseNumber    String?
+  speciality       String?  // Medicines they focus on
+  verified         Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  source           String   @default("manual") // manual, csv_import, field_agent
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+// --- DISTRIBUTOR DIRECTORY --- //
+model Distributor {
+  id               String   @id @default(cuid())
+  companyName      String
+  ownerName        String?
+  phone            String
+  altPhone         String?
+  email            String?
+  address          String
+  city             String
+  pincode          String?
+  state            String   @default("Uttar Pradesh")
+  gstin            String?
+  drugLicenseNo    String?
+  brands           String?  // Comma-separated list of brands they distribute
+  coverageArea     String?  // Districts/areas they cover
+  verified         Boolean  @default(false)
+  isActive         Boolean  @default(true)
+  source           String   @default("manual") // manual, csv_import, field_agent
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}

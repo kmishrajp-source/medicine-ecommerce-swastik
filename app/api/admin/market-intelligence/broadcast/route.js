@@ -38,12 +38,14 @@ export async function POST(req) {
             const twilio = require('twilio');
             const twilioClient = twilio(twilioSid, twilioAuth);
 
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            // PULL FROM ALL 3 SOURCES — Retailer Directory,
-            // Stockist Directory, and Registered Users
-            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-            const [retailersDir, stockistsDir, registeredUsers] = await Promise.all([
-                // 1. Retailer directory (includes unregistered/field agent entries)
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // PULL FROM ALL 5 SOURCES
+            // 1. Retailer directory  2. Old Stockist (linked users)
+            // 3. New StockistDirectory  4. Distributor Directory
+            // 5. Registered app Users with RETAILER/STOCKIST role
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            const [retailersDir, stockistsDir, stockistDirNew, distributorDir, registeredUsers] = await Promise.all([
+                // 1. Retailer directory (field agents, maps, self-registered)
                 prisma.retailer.findMany({
                     where: {
                         phone: { not: "" },
@@ -52,13 +54,33 @@ export async function POST(req) {
                     select: { id: true, shopName: true, phone: true }
                 }),
 
-                // 2. Stockist directory
+                // 2. Old Stockist (linked to app User)
                 prisma.stockist.findMany({
                     where: { phone: { not: "" } },
                     select: { id: true, agencyName: true, phone: true }
                 }),
 
-                // 3. Registered app users with RETAILER/STOCKIST role
+                // 3. NEW StockistDirectory (standalone, no login required)
+                prisma.stockistDirectory.findMany({
+                    where: {
+                        phone: { not: "" },
+                        isActive: true,
+                        ...(targetArea ? { city: { contains: targetArea, mode: 'insensitive' } } : {})
+                    },
+                    select: { id: true, agencyName: true, phone: true }
+                }),
+
+                // 4. Distributor Directory
+                prisma.distributor.findMany({
+                    where: {
+                        phone: { not: "" },
+                        isActive: true,
+                        ...(targetArea ? { city: { contains: targetArea, mode: 'insensitive' } } : {})
+                    },
+                    select: { id: true, companyName: true, phone: true }
+                }),
+
+                // 5. Registered app users with RETAILER/STOCKIST role
                 prisma.user.findMany({
                     where: {
                         role: { in: ['RETAILER', 'STOCKIST'] },
@@ -84,6 +106,8 @@ export async function POST(req) {
 
             retailersDir.forEach(r => addIfNew(r.phone, r.shopName, 'Retailer'));
             stockistsDir.forEach(s => addIfNew(s.phone, s.agencyName, 'Stockist'));
+            stockistDirNew.forEach(s => addIfNew(s.phone, s.agencyName, 'StockistDir'));
+            distributorDir.forEach(d => addIfNew(d.phone, d.companyName, 'Distributor'));
             registeredUsers.forEach(u => addIfNew(u.phone, u.name, 'User'));
 
             let sentCount = 0;
@@ -108,7 +132,7 @@ export async function POST(req) {
                 data: { sentCount }
             });
 
-            console.log(`[BROADCAST] Sent to ${sentCount} recipients — ${retailersDir.length} retailers + ${stockistsDir.length} stockists + ${registeredUsers.length} app users (deduped).`);
+            console.log(`[BROADCAST] Sent to ${sentCount} recipients — ${retailersDir.length} retailers + ${stockistsDir.length} old stockists + ${stockistDirNew.length} stockist directory + ${distributorDir.length} distributors + ${registeredUsers.length} app users (deduped).`);
 
         } else {
             console.log(`[BROADCAST INITIATED] Missing Twilio Env variables. Simulating broadcast...`);
