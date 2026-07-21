@@ -66,6 +66,7 @@ model User {
   assignedLeads       Lead[]               @relation("AgentLeads")
   blogs               BlogPost[]
   BasCustomerProfile  BasCustomerProfile?
+  riderCashAccount    RiderCashAccount?
 }
 
 model SystemSettings {
@@ -1765,6 +1766,59 @@ model StockistDirectory {
   updatedAt        DateTime @updatedAt
 }
 
+// COD CASH MANAGEMENT SYSTEM
+
+// One account per rider - tracks live cash held & slab enforcement
+model RiderCashAccount {
+  id             String            @id @default(cuid())
+  riderId        String            @unique
+  rider          User              @relation(fields: [riderId], references: [id])
+  cashHeld       Float             @default(0.0)    // Current cash in rider's hands
+  cashSlab       Float             @default(5000.0) // Max allowed before alert (5000 default)
+  totalCollected Float             @default(0.0)    // All-time collections
+  totalDeposited Float             @default(0.0)    // All-time deposits confirmed
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  transactions   CashTransaction[]
+  deposits       CashDeposit[]
+}
+
+// Immutable audit log - every cash event recorded here
+model CashTransaction {
+  id        String           @id @default(cuid())
+  accountId String
+  account   RiderCashAccount @relation(fields: [accountId], references: [id])
+  type      String           // COLLECTION | DEPOSIT | ADJUSTMENT | REFUND
+  amount    Float
+  orderId   String?          // Linked COD order if type=COLLECTION
+  note      String?
+  createdAt DateTime         @default(now())
+
+  @@index([accountId])
+  @@index([type])
+}
+
+// Formal deposit requests - rider submits, admin confirms -> reconciliation
+model CashDeposit {
+  id             String           @id @default(cuid())
+  accountId      String
+  account        RiderCashAccount @relation(fields: [accountId], references: [id])
+  amount         Float
+  status         String           @default("PENDING") // PENDING | CONFIRMED | REJECTED
+  bankName       String?
+  bankRef        String?          // UTR / Reference number
+  receiptUrl     String?          // Optional deposit slip photo
+  note           String?
+  depositedAt    DateTime?        // When rider says they deposited
+  confirmedAt    DateTime?        // When admin confirmed
+  confirmedBy    String?          // Admin userId
+  rejectedReason String?
+  createdAt      DateTime         @default(now())
+
+  @@index([accountId])
+  @@index([status])
+}
 // --- DISTRIBUTOR DIRECTORY --- //
 model Distributor {
   id               String   @id @default(cuid())
