@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 const EMPTY_STOCKIST = { agencyName: "", ownerName: "", phone: "", altPhone: "", email: "", address: "", city: "", pincode: "", state: "Uttar Pradesh", gstin: "", licenseNumber: "", speciality: "", notes: "" };
 const EMPTY_DISTRIBUTOR = { companyName: "", ownerName: "", phone: "", altPhone: "", email: "", address: "", city: "", pincode: "", state: "Uttar Pradesh", gstin: "", drugLicenseNo: "", brands: "", coverageArea: "", notes: "" };
+const EMPTY_HOSPITAL = { name: "", address: "", city: "Gorakhpur", phone: "", email: "", website: "", specialties: "", licenseNumber: "", verified: true, isDirectory: true, openingHours: "24/7 Hours" };
 
 function parseCSV(text) {
     const lines = text.trim().split('\n');
@@ -43,6 +44,15 @@ export default function DirectoryPage() {
     const [editingDistributor, setEditingDistributor] = useState(null);
     const [showDistributorModal, setShowDistributorModal] = useState(false);
 
+    // Hospital state
+    const [hospitals, setHospitals] = useState([]);
+    const [hospitalTotal, setHospitalTotal] = useState(0);
+    const [hospitalSearch, setHospitalSearch] = useState("");
+    const [hospitalLoading, setHospitalLoading] = useState(true);
+    const [hospitalForm, setHospitalForm] = useState(EMPTY_HOSPITAL);
+    const [editingHospital, setEditingHospital] = useState(null);
+    const [showHospitalModal, setShowHospitalModal] = useState(false);
+
     const [csvImporting, setCsvImporting] = useState(false);
     const [csvResult, setCsvResult] = useState(null);
     const fileRef = useRef();
@@ -53,6 +63,7 @@ export default function DirectoryPage() {
 
     useEffect(() => { fetchStockists(); }, [stockistPage, stockistSearch]);
     useEffect(() => { fetchDistributors(); }, [distributorPage, distributorSearch]);
+    useEffect(() => { fetchHospitals(); }, [hospitalSearch]);
 
     const fetchStockists = async () => {
         setStockistLoading(true);
@@ -72,6 +83,15 @@ export default function DirectoryPage() {
         } catch (e) { console.error(e); } finally { setDistributorLoading(false); }
     };
 
+    const fetchHospitals = async () => {
+        setHospitalLoading(true);
+        try {
+            const res = await fetch(`/api/hospitals?all=true&q=${hospitalSearch}`);
+            const data = await res.json();
+            if (data.success) { setHospitals(data.hospitals); setHospitalTotal(data.hospitals.length); }
+        } catch (e) { console.error(e); } finally { setHospitalLoading(false); }
+    };
+
     const handleStockistSave = async () => {
         const method = editingStockist ? "PUT" : "POST";
         const body = editingStockist ? { ...stockistForm, id: editingStockist.id } : stockistForm;
@@ -88,11 +108,32 @@ export default function DirectoryPage() {
         if (data.success) { setShowDistributorModal(false); setDistributorForm(EMPTY_DISTRIBUTOR); setEditingDistributor(null); fetchDistributors(); }
     };
 
+    const handleHospitalSave = async () => {
+        const method = editingHospital ? "PUT" : "POST";
+        const url = editingHospital ? `/api/hospitals/${editingHospital.id}` : "/api/hospitals";
+        const body = hospitalForm;
+        const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (data.success) { setShowHospitalModal(false); setHospitalForm(EMPTY_HOSPITAL); setEditingHospital(null); fetchHospitals(); }
+    };
+
+    const toggleHospitalVerify = async (h) => {
+        const res = await fetch(`/api/hospitals/${h.id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ verified: !h.verified })
+        });
+        const data = await res.json();
+        if (data.success) fetchHospitals();
+    };
+
     const handleDelete = async (type, id) => {
         if (!confirm("Delete this entry?")) return;
-        const url = type === 'stockist' ? `/api/admin/stockist-directory?id=${id}` : `/api/admin/distributor-directory?id=${id}`;
+        let url = type === 'stockist' ? `/api/admin/stockist-directory?id=${id}` : type === 'distributor' ? `/api/admin/distributor-directory?id=${id}` : `/api/hospitals/${id}`;
         await fetch(url, { method: "DELETE" });
-        type === 'stockist' ? fetchStockists() : fetchDistributors();
+        if (type === 'stockist') fetchStockists();
+        else if (type === 'distributor') fetchDistributors();
+        else fetchHospitals();
     };
 
     const handleCSVImport = async (e) => {
@@ -113,6 +154,7 @@ export default function DirectoryPage() {
 
     const openStockistEdit = (s) => { setEditingStockist(s); setStockistForm({ ...s }); setShowStockistModal(true); };
     const openDistributorEdit = (d) => { setEditingDistributor(d); setDistributorForm({ ...d }); setShowDistributorModal(true); };
+    const openHospitalEdit = (h) => { setEditingHospital(h); setHospitalForm({ ...h }); setShowHospitalModal(true); };
 
     const downloadTemplate = () => {
         const isStockist = activeTab === 'stockist';
@@ -148,12 +190,15 @@ export default function DirectoryPage() {
 
             <div className="max-w-7xl mx-auto px-8">
                 {/* Tab Switcher */}
-                <div className="flex gap-2 mb-8 bg-slate-800/50 p-1.5 rounded-2xl inline-flex">
+                <div className="flex gap-2 mb-8 bg-slate-800/50 p-1.5 rounded-2xl inline-flex flex-wrap">
                     <button onClick={() => setActiveTab('stockist')} className={`px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all ${activeTab === 'stockist' ? 'bg-indigo-500 text-white shadow-lg shadow-indigo-500/30' : 'text-slate-400 hover:text-white'}`}>
                         <i className="fa-solid fa-warehouse mr-2"></i> Stockists ({stockistTotal})
                     </button>
                     <button onClick={() => setActiveTab('distributor')} className={`px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all ${activeTab === 'distributor' ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/30' : 'text-slate-400 hover:text-white'}`}>
                         <i className="fa-solid fa-truck-ramp-box mr-2"></i> Distributors ({distributorTotal})
+                    </button>
+                    <button onClick={() => setActiveTab('hospital')} className={`px-8 py-3 rounded-xl font-black uppercase tracking-widest text-xs transition-all ${activeTab === 'hospital' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30' : 'text-slate-400 hover:text-white'}`}>
+                        <i className="fa-solid fa-hospital mr-2"></i> Hospitals ({hospitalTotal})
                     </button>
                 </div>
 
@@ -163,27 +208,35 @@ export default function DirectoryPage() {
                         <i className="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
                         <input
                             type="text"
-                            placeholder={`Search ${activeTab === 'stockist' ? 'stockists' : 'distributors'}...`}
-                            value={activeTab === 'stockist' ? stockistSearch : distributorSearch}
-                            onChange={e => activeTab === 'stockist' ? setStockistSearch(e.target.value) : setDistributorSearch(e.target.value)}
+                            placeholder={`Search ${activeTab}s...`}
+                            value={activeTab === 'stockist' ? stockistSearch : activeTab === 'distributor' ? distributorSearch : hospitalSearch}
+                            onChange={e => activeTab === 'stockist' ? setStockistSearch(e.target.value) : activeTab === 'distributor' ? setDistributorSearch(e.target.value) : setHospitalSearch(e.target.value)}
                             className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                         />
                     </div>
 
                     <div className="flex gap-3 flex-wrap">
-                        <button onClick={downloadTemplate} className="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2">
-                            <i className="fa-solid fa-file-csv text-emerald-400"></i> Download Template
-                        </button>
-                        <label className={`px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer ${csvImporting ? 'opacity-50 pointer-events-none' : ''}`}>
-                            <i className={`fa-solid fa-upload ${csvImporting ? 'animate-spin' : ''}`}></i>
-                            {csvImporting ? 'Importing...' : 'Import CSV'}
-                            <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
-                        </label>
+                        {activeTab !== 'hospital' && (
+                            <>
+                                <button onClick={downloadTemplate} className="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2">
+                                    <i className="fa-solid fa-file-csv text-emerald-400"></i> Download Template
+                                </button>
+                                <label className={`px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 cursor-pointer ${csvImporting ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <i className={`fa-solid fa-upload ${csvImporting ? 'animate-spin' : ''}`}></i>
+                                    {csvImporting ? 'Importing...' : 'Import CSV'}
+                                    <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={handleCSVImport} />
+                                </label>
+                            </>
+                        )}
                         <button
-                            onClick={() => { setEditingStockist(null); setStockistForm(EMPTY_STOCKIST); setEditingDistributor(null); setDistributorForm(EMPTY_DISTRIBUTOR); activeTab === 'stockist' ? setShowStockistModal(true) : setShowDistributorModal(true); }}
-                            className={`px-5 py-2.5 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 text-white ${activeTab === 'stockist' ? 'bg-indigo-500 hover:bg-indigo-400 shadow-indigo-500/30' : 'bg-purple-500 hover:bg-purple-400 shadow-purple-500/30'} shadow-lg`}
+                            onClick={() => {
+                                if (activeTab === 'stockist') { setEditingStockist(null); setStockistForm(EMPTY_STOCKIST); setShowStockistModal(true); }
+                                else if (activeTab === 'distributor') { setEditingDistributor(null); setDistributorForm(EMPTY_DISTRIBUTOR); setShowDistributorModal(true); }
+                                else { setEditingHospital(null); setHospitalForm(EMPTY_HOSPITAL); setShowHospitalModal(true); }
+                            }}
+                            className={`px-5 py-2.5 font-bold text-xs uppercase tracking-widest rounded-xl transition-all flex items-center gap-2 text-white ${activeTab === 'stockist' ? 'bg-indigo-500 hover:bg-indigo-400' : activeTab === 'distributor' ? 'bg-purple-500 hover:bg-purple-400' : 'bg-emerald-500 hover:bg-emerald-400'} shadow-lg`}
                         >
-                            <i className="fa-solid fa-plus"></i> Add New
+                            <i className="fa-solid fa-plus"></i> Add New {activeTab === 'hospital' ? 'Hospital' : ''}
                         </button>
                     </div>
                 </div>
@@ -324,9 +377,126 @@ export default function DirectoryPage() {
                         )}
                     </div>
                 )}
+
+                {/* HOSPITAL TABLE */}
+                {activeTab === 'hospital' && (
+                    <div className="bg-[#1e293b] rounded-3xl border border-slate-700 overflow-hidden shadow-xl">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-slate-700">
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Hospital Name</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Phone / Email</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">City</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Specialties</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Verified Status</th>
+                                    <th className="text-left px-6 py-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {hospitalLoading ? (
+                                    Array(5).fill(0).map((_, i) => (
+                                        <tr key={i} className="border-b border-slate-700/50">
+                                            {Array(6).fill(0).map((_, j) => <td key={j} className="px-6 py-4"><div className="h-4 bg-slate-700 rounded animate-pulse"></div></td>)}
+                                        </tr>
+                                    ))
+                                ) : hospitals.length === 0 ? (
+                                    <tr><td colSpan={6} className="px-6 py-20 text-center text-slate-500 font-bold">No hospitals found. Click "Add New Hospital" to register one.</td></tr>
+                                ) : hospitals.map(h => (
+                                    <tr key={h.id} className="border-b border-slate-700/30 hover:bg-slate-800/30 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <p className="font-bold text-white text-sm">{h.name}</p>
+                                            <p className="text-xs text-slate-400">{h.address}</p>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <p className="text-cyan-400 font-bold text-sm">{h.phone}</p>
+                                            {h.email && <p className="text-xs text-slate-400">{h.email}</p>}
+                                        </td>
+                                        <td className="px-6 py-4 text-slate-300 text-sm">{h.city}</td>
+                                        <td className="px-6 py-4">
+                                            {h.specialties ? (
+                                                <div className="flex flex-wrap gap-1">
+                                                    {h.specialties.split(',').slice(0, 3).map((s, i) => (
+                                                        <span key={i} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-400 text-[9px] font-bold rounded">{s.trim()}</span>
+                                                    ))}
+                                                </div>
+                                            ) : <span className="text-slate-600 text-xs">—</span>}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <button
+                                                onClick={() => toggleHospitalVerify(h)}
+                                                className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${h.verified ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-amber-500/20 text-amber-400 border border-amber-500/30'}`}
+                                            >
+                                                {h.verified ? '✓ Verified Partner' : '⏳ Pending Approval'}
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex gap-2">
+                                                <button onClick={() => openHospitalEdit(h)} className="p-2 bg-slate-700 hover:bg-emerald-500/20 text-slate-300 hover:text-emerald-400 rounded-lg transition-all text-xs">
+                                                    <i className="fa-solid fa-pen"></i>
+                                                </button>
+                                                <button onClick={() => handleDelete('hospital', h.id)} className="p-2 bg-slate-700 hover:bg-red-500/20 text-slate-300 hover:text-red-400 rounded-lg transition-all text-xs">
+                                                    <i className="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
-            {/* STOCKIST MODAL */}
+            {/* HOSPITAL MODAL */}
+            {showHospitalModal && (
+                <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="bg-[#1e293b] rounded-3xl p-8 w-full max-w-2xl border border-emerald-500/30 shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <h2 className="text-xl font-black text-white uppercase tracking-tighter mb-6">{editingHospital ? 'Edit' : 'Add'} Hospital</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="col-span-2">
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Hospital Name *</label>
+                                <input type="text" value={hospitalForm.name || ''} onChange={e => setHospitalForm(f => ({ ...f, name: e.target.value }))} placeholder="Swastik Super Speciality Hospital" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Address *</label>
+                                <input type="text" value={hospitalForm.address || ''} onChange={e => setHospitalForm(f => ({ ...f, address: e.target.value }))} placeholder="123 Medical Road, Park Road" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">City *</label>
+                                <input type="text" value={hospitalForm.city || ''} onChange={e => setHospitalForm(f => ({ ...f, city: e.target.value }))} placeholder="Gorakhpur" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Phone *</label>
+                                <input type="text" value={hospitalForm.phone || ''} onChange={e => setHospitalForm(f => ({ ...f, phone: e.target.value }))} placeholder="9876543210" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Email</label>
+                                <input type="text" value={hospitalForm.email || ''} onChange={e => setHospitalForm(f => ({ ...f, email: e.target.value }))} placeholder="info@hospital.com" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">License Number</label>
+                                <input type="text" value={hospitalForm.licenseNumber || ''} onChange={e => setHospitalForm(f => ({ ...f, licenseNumber: e.target.value }))} placeholder="HOSP-UP-102" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div className="col-span-2">
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Specialties (comma separated)</label>
+                                <input type="text" value={hospitalForm.specialties || ''} onChange={e => setHospitalForm(f => ({ ...f, specialties: e.target.value }))} placeholder="Cardiology, Neurology, Pediatrics, ICU" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div>
+                                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Opening Hours</label>
+                                <input type="text" value={hospitalForm.openingHours || ''} onChange={e => setHospitalForm(f => ({ ...f, openingHours: e.target.value }))} placeholder="24/7 Hours" className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-emerald-500" />
+                            </div>
+                            <div className="flex items-center gap-3 pt-4">
+                                <input type="checkbox" id="verified" checked={hospitalForm.verified} onChange={e => setHospitalForm(f => ({ ...f, verified: e.target.checked }))} className="w-4 h-4 rounded text-emerald-500" />
+                                <label htmlFor="verified" className="text-xs font-bold text-slate-300">Verified Admin Partner</label>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 mt-8">
+                            <button onClick={() => { setShowHospitalModal(false); setEditingHospital(null); }} className="flex-1 py-3 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-xl transition-all">Cancel</button>
+                            <button onClick={handleHospitalSave} className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-black rounded-xl transition-all">Save Hospital</button>
+                        </div>
+                    </div>
+                </div>
+            )}
             {showStockistModal && (
                 <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
                     <div className="bg-[#1e293b] rounded-3xl p-8 w-full max-w-2xl border border-indigo-500/30 shadow-2xl max-h-[90vh] overflow-y-auto">
