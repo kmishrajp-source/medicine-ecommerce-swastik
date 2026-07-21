@@ -25,6 +25,7 @@ model User {
   labBookings         LabBooking[]
   retailer            Retailer?
   stockist            Stockist?
+  distributor         Distributor?
   deliveryAgent       DeliveryAgent?
   appointments        Appointment[]
   ambulance           Ambulance[]
@@ -1767,6 +1768,8 @@ model StockistDirectory {
 // --- DISTRIBUTOR DIRECTORY --- //
 model Distributor {
   id               String   @id @default(cuid())
+  userId           String?  @unique
+  user             User?    @relation(fields: [userId], references: [id])
   companyName      String
   ownerName        String?
   phone            String
