@@ -1,8 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
-import Sidebar from "@/components/Sidebar";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function ShortagePredictor() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const [data, setData] = useState([]);
     const [loading, setLoading] = useState(true);
     const [alerting, setAlerting] = useState(null);
@@ -58,10 +62,16 @@ export default function ShortagePredictor() {
     };
 
     return (
-        <div style={{ display: 'flex', height: '100vh', backgroundColor: '#f3f4f6' }}>
-            <Sidebar />
-            <div style={{ flex: 1, padding: '2rem', overflowY: 'auto' }}>
-                
+        <div style={{ minHeight: '100vh', backgroundColor: '#f3f4f6' }}>
+            {/* Top bar */}
+            <div style={{ background: '#111827', padding: '1rem 2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <Link href="/admin" style={{ color: '#9CA3AF', fontSize: '0.85rem', textDecoration: 'none' }}>← Admin</Link>
+                <span style={{ color: '#374151' }}>|</span>
+                <span style={{ color: 'white', fontWeight: 'bold' }}>🧠 AI Shortage Predictor</span>
+            </div>
+
+            <div style={{ padding: '2rem', maxWidth: '1400px', margin: '0 auto' }}>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
                     <div>
                         <h1 style={{ fontSize: '2rem', fontWeight: 'bold', color: '#111827', margin: 0 }}>
