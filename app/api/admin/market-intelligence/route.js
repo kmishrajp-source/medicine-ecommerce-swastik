@@ -74,6 +74,31 @@ export async function GET(req) {
             take: 5
         });
 
+        // Calculate Analytics
+        let analytics = {
+            totalStock: 0,
+            averagePrice: 0,
+            lowestPrice: null,
+            lowestPriceRetailer: null
+        };
+
+        if (retailerInventory.length > 0) {
+            let sumPrice = 0;
+            let minPrice = Infinity;
+            
+            retailerInventory.forEach(inv => {
+                analytics.totalStock += (inv.stock || 0);
+                sumPrice += (inv.price || 0);
+                if (inv.price < minPrice) {
+                    minPrice = inv.price;
+                    analytics.lowestPriceRetailer = inv.retailer?.shopName || "Unknown Shop";
+                }
+            });
+
+            analytics.averagePrice = (sumPrice / retailerInventory.length).toFixed(2);
+            analytics.lowestPrice = minPrice;
+        }
+
         return NextResponse.json({
             success: true,
             results: {
@@ -81,7 +106,8 @@ export async function GET(req) {
                 retailerAvailability: retailerInventory,
                 centralAvailability: pharmacyInventory,
                 alternatives,
-                vendors
+                vendors,
+                analytics
             }
         });
 

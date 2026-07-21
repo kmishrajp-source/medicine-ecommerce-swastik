@@ -1588,6 +1588,7 @@ model ErpBatch {
   grnId         String?  // The GRN that created this batch
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  movements     SupplyChainMovement[]
 
   @@index([productId, batchNumber])
   @@index([expiryDate])
@@ -1681,4 +1682,37 @@ model ErpH1Register {
   dispensedDate    DateTime @default(now())
   dispensedById    String?
   createdAt        DateTime @default(now())
+}
+
+// --- SOS MODULE --- //
+model EmergencyRequest {
+  id             String   @id @default(cuid())
+  contactName    String
+  contactPhone   String
+  entityType     String   @default("UNREGISTERED") // UNREGISTERED, RETAILER, STOCKIST, HOSPITAL
+  medicineName   String
+  quantity       String
+  location       String
+  pincode        String?
+  licensePhotoUrl String?
+  status         String   @default("PENDING") // PENDING, ASSIGNED, FULFILLED, REJECTED
+  assignedToId   String?  // Optional: User ID of who is handling this
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// --- TRACK & TRACE MODULE --- //
+model SupplyChainMovement {
+  id             String   @id @default(cuid())
+  batchId        String
+  batch          ErpBatch @relation(fields: [batchId], references: [id])
+  fromEntityId   String?  // Manufacturer, Stockist or Retailer ID
+  toEntityId     String?
+  entityType     String   @default("STOCKIST") // MANUFACTURER, STOCKIST, RETAILER
+  action         String   // MINTED, DISPATCHED, RECEIVED
+  quantity       Int
+  timestamp      DateTime @default(now())
+  notes          String?
+  status         String   @default("COMPLETED") // PENDING, IN_TRANSIT, COMPLETED
 }

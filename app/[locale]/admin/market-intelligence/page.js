@@ -92,7 +92,20 @@ export default function MarketIntelligenceDashboard() {
                     </div>
                 )}
 
-                {results && (
+                {loading && (
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
+                        <div className="lg:col-span-2 space-y-8">
+                            <div className="bg-[#1e293b] p-8 rounded-3xl h-48 border border-slate-700/50"></div>
+                            <div className="bg-[#1e293b] p-8 rounded-3xl h-64 border border-slate-700/50"></div>
+                        </div>
+                        <div className="space-y-8">
+                            <div className="bg-[#1e293b] p-8 rounded-3xl h-48 border border-slate-700/50"></div>
+                            <div className="bg-[#1e293b] p-8 rounded-3xl h-64 border border-slate-700/50"></div>
+                        </div>
+                    </div>
+                )}
+
+                {results && !loading && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* LEFT COLUMN: Target & Availability */}
                         <div className="lg:col-span-2 space-y-8">
@@ -125,6 +138,34 @@ export default function MarketIntelligenceDashboard() {
                                 </div>
                             </div>
 
+                            {/* Market Analytics */}
+                            {results.analytics && (
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="bg-gradient-to-br from-cyan-500/10 to-transparent p-6 rounded-2xl border border-cyan-500/30 shadow-lg">
+                                        <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-boxes-stacked mr-2"></i> Total Market Stock</p>
+                                        <p className="text-3xl font-black text-white">{results.analytics.totalStock} <span className="text-sm font-normal text-slate-400">units</span></p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-emerald-500/10 to-transparent p-6 rounded-2xl border border-emerald-500/30 shadow-lg">
+                                        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-tag mr-2"></i> Lowest Price</p>
+                                        <p className="text-3xl font-black text-white">₹{results.analytics.lowestPrice !== null && results.analytics.lowestPrice !== Infinity ? results.analytics.lowestPrice : '-'}</p>
+                                        {results.analytics.lowestPriceRetailer && (
+                                            <p className="text-xs text-slate-400 mt-1 truncate font-bold">at {results.analytics.lowestPriceRetailer}</p>
+                                        )}
+                                    </div>
+                                    <div className="bg-gradient-to-br from-purple-500/10 to-transparent p-6 rounded-2xl border border-purple-500/30 shadow-lg">
+                                        <p className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-chart-line mr-2"></i> Avg Market Price</p>
+                                        <p className="text-3xl font-black text-white">₹{results.analytics.averagePrice || '-'}</p>
+                                        <p className="text-xs font-bold mt-1">
+                                            {results.primaryProduct?.mrp ? (
+                                                Number(results.analytics.averagePrice) > results.primaryProduct.mrp 
+                                                    ? <span className="text-red-400"><i className="fa-solid fa-arrow-up text-[10px]"></i> Above MRP (₹{results.primaryProduct.mrp})</span>
+                                                    : <span className="text-emerald-400"><i className="fa-solid fa-arrow-down text-[10px]"></i> Below MRP (₹{results.primaryProduct.mrp})</span>
+                                            ) : <span className="text-slate-400">vs MRP</span>}
+                                        </p>
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Retailer Availability */}
                             <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-lg">
                                 <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 flex items-center justify-between">
@@ -140,8 +181,13 @@ export default function MarketIntelligenceDashboard() {
                                                     <p className="font-bold text-white text-sm">{inv.retailer?.shopName || "Unknown Shop"}</p>
                                                     <p className="text-xs text-slate-400 mt-1"><i className="fa-solid fa-location-dot mr-1"></i> {inv.retailer?.address || inv.deliveryArea}</p>
                                                 </div>
-                                                <div className="text-right">
-                                                    <p className="text-2xl font-black text-emerald-400 tracking-tighter">{inv.stock} <span className="text-xs font-bold text-slate-500 uppercase">Units</span></p>
+                                                <div className="text-right flex flex-col items-end">
+                                                    <div className="flex items-center gap-2">
+                                                        {inv.stock < 10 && (
+                                                            <span className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] font-black rounded uppercase">Low Stock</span>
+                                                        )}
+                                                        <p className="text-2xl font-black text-emerald-400 tracking-tighter">{inv.stock} <span className="text-xs font-bold text-slate-500 uppercase">Units</span></p>
+                                                    </div>
                                                     <p className="text-xs text-slate-400 font-bold mt-1">Listed at ₹{inv.price}</p>
                                                 </div>
                                             </div>
