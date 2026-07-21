@@ -60,22 +60,41 @@ export async function POST(req) {
                     });
 
                     if (activeBroadcast) {
-                        // Find retailer/stockist by phone
-                        const retailerUser = await prisma.user.findFirst({
-                            where: {
-                                OR: [
-                                    { phone: { contains: cleanPhone } },
-                                    { phone: { contains: from } }
-                                ],
-                                role: { in: ['RETAILER', 'STOCKIST'] }
-                            }
+                        // Try to identify sender from ALL sources
+                        let respondentName = `+91${cleanPhone}`;
+                        let respondentId = null;
+                        let respondentType = 'UNKNOWN';
+
+                        // Check Retailer directory first
+                        const retailerMatch = await prisma.retailer.findFirst({
+                            where: { phone: { contains: cleanPhone } },
+                            select: { id: true, shopName: true }
                         });
+                        if (retailerMatch) {
+                            respondentName = retailerMatch.shopName;
+                            respondentId = retailerMatch.id;
+                            respondentType = 'RETAILER';
+                        }
+
+                        // Then check Stockist directory
+                        if (!retailerMatch) {
+                            const stockistMatch = await prisma.stockist.findFirst({
+                                where: { phone: { contains: cleanPhone } },
+                                select: { id: true, agencyName: true }
+                            });
+                            if (stockistMatch) {
+                                respondentName = stockistMatch.agencyName;
+                                respondentId = stockistMatch.id;
+                                respondentType = 'STOCKIST';
+                            }
+                        }
 
                         await prisma.liveStockQuote.create({
                             data: {
                                 broadcastId: activeBroadcast.id,
-                                retailerId: retailerUser?.id || null,
-                                retailerName: retailerUser?.name || `+91${cleanPhone}`,
+                                retailerId: respondentType === 'RETAILER' ? respondentId : null,
+                                stockistId: respondentType === 'STOCKIST' ? respondentId : null,
+                                retailerName: respondentName,
                                 quantity: qty,
                                 price: price
                             }

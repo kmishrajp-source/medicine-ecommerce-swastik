@@ -35,32 +35,66 @@ export async function POST(req) {
         const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886';
 
         if (twilioSid && twilioAuth) {
-            // Reuse the same twilio client pattern already working in the app
             const twilio = require('twilio');
             const twilioClient = twilio(twilioSid, twilioAuth);
 
-            // Fetch retailers with phone numbers from DB
-            // We find all Users with role RETAILER or STOCKIST that have a phone number
-            const recipients = await prisma.user.findMany({
-                where: {
-                    role: { in: ['RETAILER', 'STOCKIST'] },
-                    phone: { not: null },
-                    ...(targetArea ? { city: targetArea } : {})
-                },
-                select: { id: true, name: true, phone: true },
-                take: 50 // Cap at 50 per broadcast
-            });
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            // PULL FROM ALL 3 SOURCES — Retailer Directory,
+            // Stockist Directory, and Registered Users
+            // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            const [retailersDir, stockistsDir, registeredUsers] = await Promise.all([
+                // 1. Retailer directory (includes unregistered/field agent entries)
+                prisma.retailer.findMany({
+                    where: {
+                        phone: { not: "" },
+                        ...(targetArea ? { city: { contains: targetArea, mode: 'insensitive' } } : {})
+                    },
+                    select: { id: true, shopName: true, phone: true }
+                }),
+
+                // 2. Stockist directory
+                prisma.stockist.findMany({
+                    where: { phone: { not: "" } },
+                    select: { id: true, agencyName: true, phone: true }
+                }),
+
+                // 3. Registered app users with RETAILER/STOCKIST role
+                prisma.user.findMany({
+                    where: {
+                        role: { in: ['RETAILER', 'STOCKIST'] },
+                        phone: { not: null },
+                        ...(targetArea ? { city: { contains: targetArea, mode: 'insensitive' } } : {})
+                    },
+                    select: { id: true, name: true, phone: true }
+                })
+            ]);
+
+            // Build a deduplicated list by phone (last 10 digits)
+            const phonesSeen = new Set();
+            const allRecipients = [];
+
+            const addIfNew = (phone, name, sourceType) => {
+                if (!phone) return;
+                const clean = phone.replace(/\D/g, '').slice(-10);
+                if (clean.length < 10) return;
+                if (phonesSeen.has(clean)) return;
+                phonesSeen.add(clean);
+                allRecipients.push({ phone: clean, name, sourceType });
+            };
+
+            retailersDir.forEach(r => addIfNew(r.phone, r.shopName, 'Retailer'));
+            stockistsDir.forEach(s => addIfNew(s.phone, s.agencyName, 'Stockist'));
+            registeredUsers.forEach(u => addIfNew(u.phone, u.name, 'User'));
 
             let sentCount = 0;
-            for (const recipient of recipients) {
+            for (const recipient of allRecipients) {
                 try {
-                    const phone = recipient.phone.startsWith('+') ? recipient.phone : `+91${recipient.phone.replace(/\D/g, '')}`;
                     const messageBody = `🚨 Urgent inquiry from Swastik Medicare:\nDo you have stock of *${medicineName}*?\nReply: YES [Qty] [Price]\nExample: YES 50 1200\n(Ref: ${broadcast.id})`;
 
                     await twilioClient.messages.create({
                         body: messageBody,
                         from: `whatsapp:${twilioNumber}`,
-                        to: `whatsapp:${phone}`
+                        to: `whatsapp:+91${recipient.phone}`
                     });
                     sentCount++;
                 } catch (msgErr) {
@@ -74,7 +108,7 @@ export async function POST(req) {
                 data: { sentCount }
             });
 
-            console.log(`[TWILIO] Broadcast sent to ${sentCount}/${recipients.length} retailers for: ${medicineName}`);
+            console.log(`[BROADCAST] Sent to ${sentCount} recipients — ${retailersDir.length} retailers + ${stockistsDir.length} stockists + ${registeredUsers.length} app users (deduped).`);
 
         } else {
             console.log(`[BROADCAST INITIATED] Missing Twilio Env variables. Simulating broadcast...`);
