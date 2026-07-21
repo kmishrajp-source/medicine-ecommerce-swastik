@@ -68,6 +68,14 @@ export default function AgentDashboard() {
                             Service Management: {session?.user?.name}
                         </p>
                     </div>
+                    <div className="flex gap-4">
+                        <button 
+                            onClick={() => router.push('/agent/book-appointment')}
+                            className="px-6 py-3 bg-indigo-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-indigo-700 shadow-xl shadow-indigo-500/20 transition-all"
+                        >
+                            <i className="fa-solid fa-plus mr-2"></i> Book Appointment
+                        </button>
+                    </div>
                 </div>
             </div>
 

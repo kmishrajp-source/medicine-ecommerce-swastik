@@ -224,6 +224,7 @@ export default function AdminDashboard() {
                                 { name: "📋 Audit Logs", path: "/admin/audit-logs", color: "#3B82F6", requiredAction: ACTIONS.VIEW_ALL_REPORTS },
                                 { name: "👥 Staff Mgmt", path: "/admin/staff-management", color: "#6366F1", requiredAction: ACTIONS.MANAGE_USERS },
                                 { name: "🛡️ Roles & Perms", path: "/admin/action-approvals", color: "#EF4444", requiredAction: ACTIONS.MANAGE_PERMISSIONS },
+                                { name: "Appointments", path: "/admin/appointments", color: "#10B981", requiredAction: ACTIONS.OVERSEE_SALES },
                             ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',

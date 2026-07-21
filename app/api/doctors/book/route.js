@@ -44,13 +44,43 @@ export async function POST(req) {
         }
 
         if (doctor.isDirectory) {
-            return NextResponse.json({ 
-                error: "Online consultation not available for this doctor.",
-                is_directory: true 
-            }, { status: 403 });
+            // 1. Manual Appointment for Directory Doctors
+            const appointment = await prisma.appointment.create({
+                data: {
+                    patientId: session.user.id,
+                    doctorId: doctor.id,
+                    publisherId: finalPublisherId,
+                    date: new Date(date),
+                    reason,
+                    status: "Manual_Coordination"
+                }
+            });
+
+            try {
+                // We use a safe fallback since doctor.user might not exist for directory doctors
+                const doctorName = doctor.name || (doctor.user?.name) || "Doctor";
+                const patientPhone = session.user.phone || session.user.email;
+                const patientName = session.user.name || "Customer";
+                
+                if (WhatsAppTriggers.appointmentConfirmed) {
+                   await WhatsAppTriggers.appointmentConfirmed(patientPhone, appointment.id, doctorName, new Date(date).toLocaleDateString());
+                }
+                if (WhatsAppTriggers.adminOrderAlert) {
+                   await WhatsAppTriggers.adminOrderAlert("+917992122974", appointment.id, doctor.consultationFee, `Manual Doctor Booking: ${doctorName}`);
+                }
+            } catch (err) {
+                console.error("WhatsApp Notification failed:", err);
+            }
+
+            return NextResponse.json({
+                success: true,
+                appointment,
+                isManual: true,
+                message: "We have received your request. Our agent will call you shortly to confirm."
+            });
         }
 
-        // 1. Database Creation (Status: Pending Payment)
+        // 2. Standard Razorpay Appointment for Registered Doctors (Status: Pending Payment)
         const appointment = await prisma.appointment.create({
             data: {
                 patientId: session.user.id,
@@ -62,16 +92,21 @@ export async function POST(req) {
             }
         });
 
-        // 1.1 Trigger WhatsApp Notifications
+        // 2.1 Trigger WhatsApp Notifications
         try {
-            await WhatsAppTriggers.leadCreatedCustomer(session.user.phone || session.user.email, session.user.name || "Customer", `Doctor Consultation: ${doctor.user.name}`);
-            await WhatsAppTriggers.adminOrderAlert("+917992122974", appointment.id, doctor.consultationFee, `Doctor Booking: ${doctor.user.name}`);
+            const doctorName = doctor.name || (doctor.user?.name) || "Doctor";
+            const patientPhone = session.user.phone || session.user.email;
+            const patientName = session.user.name || "Customer";
+            // We use the correct trigger if available or log it
+            if (WhatsAppTriggers.adminOrderAlert) {
+                await WhatsAppTriggers.adminOrderAlert("+917992122974", appointment.id, doctor.consultationFee, `Doctor Booking: ${doctorName}`);
+            }
         } catch (err) {
             console.error("WhatsApp Notification failed:", err);
         }
 
-        // 2. Razorpay Order Creation with Route (100% Transfer)
-        const amountInPaise = Math.round(doctor.consultationFee * 100);
+        // 3. Razorpay Order Creation with Route (100% Transfer)
+        const amountInPaise = Math.round((doctor.consultationFee || 500) * 100);
 
         const orderPayload = {
             amount: amountInPaise,
@@ -90,7 +125,7 @@ export async function POST(req) {
                     amount: amountInPaise,
                     currency: "INR",
                     notes: {
-                        name: `Consultation Fee for ${doctor.user.name}`,
+                        name: `Consultation Fee for ${doctor.user?.name || doctor.name}`,
                         appointmentId: appointment.id
                     },
                     linked_account_notes: ["appointmentId"],
