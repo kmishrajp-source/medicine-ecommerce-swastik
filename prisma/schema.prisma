@@ -549,11 +549,17 @@ model DeliveryAgent {
   verified      Boolean              @default(false)
   lat           Float?
   lng           Float?
+  heading       Float?               // Degrees 0-360 for map marker rotation
+  speed         Float?               // km/h from GPS
+  lastPingAt    DateTime?            // Last GPS broadcast timestamp
+  batteryLevel  Int?                 // Optional device battery %
   isOnline      Boolean              @default(false)
   walletBalance Float                @default(0.0)
   createdAt     DateTime             @default(now())
   deliveries    Order[]              @relation("AssignedDeliveries")
   assignments   DeliveryAssignment[]
+  locationLogs  RiderLocationLog[]
+  alerts        DeliveryAlert[]
 }
 
 model WalletTransaction {
@@ -1766,6 +1772,43 @@ model StockistDirectory {
   updatedAt        DateTime @updatedAt
 }
 
+// GPS TRACKING SYSTEM
+
+// Breadcrumb trail of every GPS ping for route replay and deviation detection
+model RiderLocationLog {
+  id        String        @id @default(cuid())
+  agentId   String
+  agent     DeliveryAgent @relation(fields: [agentId], references: [id])
+  orderId   String?       // Active order at time of ping
+  lat       Float
+  lng       Float
+  heading   Float?        // Degrees 0-360
+  speed     Float?        // km/h
+  accuracy  Float?        // GPS accuracy in meters
+  createdAt DateTime      @default(now())
+
+  @@index([agentId])
+  @@index([orderId])
+  @@index([createdAt])
+}
+
+// Alert events for ops monitoring - DELAY, DEVIATION, OFFLINE, SOS
+model DeliveryAlert {
+  id          String        @id @default(cuid())
+  agentId     String
+  agent       DeliveryAgent @relation(fields: [agentId], references: [id])
+  orderId     String?
+  type        String        // DELAY | DEVIATION | OFFLINE | SOS
+  message     String
+  isResolved  Boolean       @default(false)
+  resolvedAt  DateTime?
+  resolvedBy  String?       // Admin userId
+  createdAt   DateTime      @default(now())
+
+  @@index([agentId])
+  @@index([type])
+  @@index([isResolved])
+}
 // COD CASH MANAGEMENT SYSTEM
 
 // One account per rider - tracks live cash held & slab enforcement
