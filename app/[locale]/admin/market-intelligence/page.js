@@ -11,6 +11,46 @@ export default function MarketIntelligenceDashboard() {
     const [loading, setLoading] = useState(false);
     const [results, setResults] = useState(null);
     const [message, setMessage] = useState(null);
+    const [broadcast, setBroadcast] = useState(null);
+    const [broadcasting, setBroadcasting] = useState(false);
+
+    useEffect(() => {
+        let interval;
+        if (broadcast && broadcast.status === 'ACTIVE') {
+            interval = setInterval(async () => {
+                try {
+                    const res = await fetch(`/api/admin/market-intelligence/broadcast?id=${broadcast.id}`);
+                    const data = await res.json();
+                    if (data.success) {
+                        setBroadcast(data.broadcast);
+                    }
+                } catch (err) {
+                    console.error("Polling error", err);
+                }
+            }, 3000); // Poll every 3s
+        }
+        return () => clearInterval(interval);
+    }, [broadcast]);
+
+    const handleBroadcast = async () => {
+        if (!results?.primaryProduct) return;
+        setBroadcasting(true);
+        try {
+            const res = await fetch("/api/admin/market-intelligence/broadcast", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ medicineName: results.primaryProduct.name })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setBroadcast(data.broadcast);
+            }
+        } catch (error) {
+            console.error("Broadcast failed", error);
+        } finally {
+            setBroadcasting(false);
+        }
+    };
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -27,6 +67,7 @@ export default function MarketIntelligenceDashboard() {
         setLoading(true);
         setResults(null);
         setMessage(null);
+        setBroadcast(null);
 
         try {
             const res = await fetch(`/api/admin/market-intelligence?q=${encodeURIComponent(searchQuery)}`);
@@ -134,6 +175,14 @@ export default function MarketIntelligenceDashboard() {
                                                 </span>
                                             )}
                                         </div>
+                                        <button 
+                                            onClick={handleBroadcast}
+                                            disabled={broadcasting || broadcast}
+                                            className="mt-4 px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase tracking-widest text-[10px] rounded-lg transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
+                                        >
+                                            <i className={`fa-brands fa-whatsapp text-sm ${broadcasting ? 'animate-ping' : ''}`}></i>
+                                            {broadcast ? 'Broadcast Active' : 'Live WhatsApp Broadcast'}
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -204,6 +253,51 @@ export default function MarketIntelligenceDashboard() {
                         {/* RIGHT COLUMN: Alternatives & Vendors */}
                         <div className="space-y-8">
                             
+                            {/* Live WhatsApp Broadcast feed */}
+                            {broadcast && (
+                                <div className="bg-gradient-to-b from-[#1e293b] to-slate-900 p-8 rounded-3xl border border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.15)] relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-bl-full pointer-events-none"></div>
+                                    <h2 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 flex items-center">
+                                        <span className="relative flex h-3 w-3 mr-2">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                                        </span>
+                                        Live WhatsApp Broadcast
+                                    </h2>
+                                    
+                                    <div className="flex justify-between items-end mb-6">
+                                        <div>
+                                            <p className="text-2xl font-black text-white">{broadcast.repliesCount} <span className="text-sm font-bold text-slate-500">Replies</span></p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-[10px] text-slate-400 font-bold uppercase">Sent to</p>
+                                            <p className="text-lg font-bold text-slate-200">{broadcast.sentCount} Retailers</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3 max-h-60 overflow-y-auto pr-2 custom-scrollbar">
+                                        {broadcast.responses && broadcast.responses.length > 0 ? (
+                                            broadcast.responses.map(quote => (
+                                                <div key={quote.id} className="p-3 bg-slate-800/80 rounded-xl border border-slate-700">
+                                                    <div className="flex justify-between items-start mb-1">
+                                                        <p className="text-sm font-bold text-white">{quote.retailerName || "Unknown Shop"}</p>
+                                                        <span className="text-[9px] text-slate-400 bg-slate-900 px-2 py-0.5 rounded font-bold">Just Now</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center mt-2">
+                                                        <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-1 rounded">Yes, {quote.quantity} Units</span>
+                                                        <span className="text-xs font-black text-white">₹{quote.price}</span>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="text-center py-8 text-slate-500 text-xs font-bold animate-pulse">
+                                                Waiting for WhatsApp replies...
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Alternatives */}
                             <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-lg relative overflow-hidden">
                                 <div className="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full pointer-events-none"></div>

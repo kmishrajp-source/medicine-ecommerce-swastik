@@ -1716,3 +1716,28 @@ model SupplyChainMovement {
   notes          String?
   status         String   @default("COMPLETED") // PENDING, IN_TRANSIT, COMPLETED
 }
+
+// --- REAL-TIME MARKET BROADCAST MODULE --- //
+model StockBroadcast {
+  id             String   @id @default(cuid())
+  medicineName   String
+  targetArea     String?
+  sentCount      Int      @default(0)
+  repliesCount   Int      @default(0)
+  status         String   @default("ACTIVE") // ACTIVE, CLOSED
+  createdAt      DateTime @default(now())
+  responses      LiveStockQuote[]
+}
+
+model LiveStockQuote {
+  id              String   @id @default(cuid())
+  broadcastId     String
+  broadcast       StockBroadcast @relation(fields: [broadcastId], references: [id])
+  retailerId      String?
+  stockistId      String?
+  retailerName    String?  // Denormalized for rapid display
+  quantity        Int
+  price           Float
+  respondedAt     DateTime @default(now())
+}
+
