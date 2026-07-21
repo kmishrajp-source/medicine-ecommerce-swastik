@@ -29,43 +29,80 @@ export async function POST(req) {
             }
         });
 
-        // 2. In a real system, you would iterate over retailers and send WhatsApp messages here.
-        // Example:
-        // const retailers = await prisma.retailer.findMany({ where: { city: targetArea } });
-        // for (let r of retailers) {
-        //     await sendWhatsAppTemplate(r.phone, medicineName, broadcast.id);
-        // }
+        // 2. Twilio WhatsApp Integration
+        const accountSid = process.env.TWILIO_ACCOUNT_SID;
+        const authToken = process.env.TWILIO_AUTH_TOKEN;
+        const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER;
 
-        console.log(`[BROADCAST INITIATED] Sent WhatsApp inquiry for ${medicineName} to 50 retailers.`);
+        if (accountSid && authToken && twilioNumber) {
+            // Find real retailers to message
+            // Currently, we don't have a specific Retailer model with valid phone numbers in schema.prisma,
+            // so we will simulate fetching from DB and send a test message to a specified admin number if provided,
+            // or just log that we would iterate over them.
+            const targetPhone = process.env.TWILIO_TEST_DESTINATION_NUMBER; // E.g., whatsapp:+919876543210
+            
+            if (targetPhone) {
+                const messageBody = `Urgent inquiry from Swastik Medicare:\nDo you have stock of *${medicineName}*?\nReply with: YES [Qty] [Price]\n(Ref: ${broadcast.id})`;
+                const encodedCreds = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
+                
+                const formData = new URLSearchParams();
+                formData.append('To', targetPhone.startsWith('whatsapp:') ? targetPhone : `whatsapp:${targetPhone}`);
+                formData.append('From', twilioNumber.startsWith('whatsapp:') ? twilioNumber : `whatsapp:${twilioNumber}`);
+                formData.append('Body', messageBody);
 
-        // 3. To simulate real-time replies for testing purposes, we'll schedule a few mock replies.
-        // In production, this block is removed and replies come strictly through the Webhook.
-        setTimeout(async () => {
-            try {
-                const mockRetailers = ["Swastik Medicos", "City Pharmacy", "HealthPlus Stores"];
-                for (let i = 0; i < mockRetailers.length; i++) {
-                    await new Promise(r => setTimeout(r, 2000 + (Math.random() * 3000))); // Random delay between 2-5s
-                    
-                    // Simulate webhook receiving a message
-                    await prisma.liveStockQuote.create({
-                        data: {
-                            broadcastId: broadcast.id,
-                            retailerName: mockRetailers[i],
-                            quantity: Math.floor(Math.random() * 50) + 10,
-                            price: Math.floor(Math.random() * 500) + 50,
-                        }
+                try {
+                    const twilioRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Basic ${encodedCreds}`,
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: formData
                     });
 
-                    // Update broadcast reply count
-                    await prisma.stockBroadcast.update({
-                        where: { id: broadcast.id },
-                        data: { repliesCount: { increment: 1 } }
-                    });
+                    if (twilioRes.ok) {
+                        console.log(`[TWILIO] Sent real WhatsApp message for ${medicineName} to ${targetPhone}`);
+                        await prisma.stockBroadcast.update({
+                            where: { id: broadcast.id },
+                            data: { sentCount: 1 }
+                        });
+                    } else {
+                        const errText = await twilioRes.text();
+                        console.error(`[TWILIO ERROR] Failed to send: ${errText}`);
+                    }
+                } catch (apiError) {
+                    console.error("[TWILIO FETCH ERROR]", apiError);
                 }
-            } catch (err) {
-                console.error("Mock reply simulation error:", err);
             }
-        }, 1000); // Start simulating after 1 second
+        } else {
+            console.log(`[BROADCAST INITIATED] Missing Twilio Env variables. Simulating broadcast...`);
+
+            // 3. Fallback Simulator (if no Twilio credentials)
+            setTimeout(async () => {
+                try {
+                    const mockRetailers = ["Swastik Medicos", "City Pharmacy", "HealthPlus Stores"];
+                    for (let i = 0; i < mockRetailers.length; i++) {
+                        await new Promise(r => setTimeout(r, 2000 + (Math.random() * 3000))); // Random delay between 2-5s
+                        
+                        await prisma.liveStockQuote.create({
+                            data: {
+                                broadcastId: broadcast.id,
+                                retailerName: mockRetailers[i],
+                                quantity: Math.floor(Math.random() * 50) + 10,
+                                price: Math.floor(Math.random() * 500) + 50,
+                            }
+                        });
+
+                        await prisma.stockBroadcast.update({
+                            where: { id: broadcast.id },
+                            data: { repliesCount: { increment: 1 } }
+                        });
+                    }
+                } catch (err) {
+                    console.error("Mock reply simulation error:", err);
+                }
+            }, 1000); // Start simulating after 1 second
+        }
 
         return NextResponse.json({ success: true, broadcast });
 
