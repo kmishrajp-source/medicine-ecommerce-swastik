@@ -5,6 +5,9 @@ import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
+        const body = await req.json();
+        const { serviceType, providerId, userId, publisherId, guestName, guestPhone, guestEmail, details } = body;
+
         // 1. Check for Publisher Referral in Cookie if not provided in body
         let finalPublisherId = publisherId;
         if (!finalPublisherId) {
