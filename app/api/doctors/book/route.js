@@ -117,12 +117,14 @@ export async function POST(req) {
         };
 
         // If the Doctor has completed KYC and linked their Virtual Account,
-        // we use Razorpay Route to instantly split 100% of the funds to them.
+        // we use Razorpay Route to instantly split the funds.
+        // We transfer 90% to the doctor, keeping 10% as platform fee.
         if (doctor.razorpayAccountId) {
+            const transferAmount = Math.round(amountInPaise * 0.90);
             orderPayload.transfers = [
                 {
                     account: doctor.razorpayAccountId,
-                    amount: amountInPaise,
+                    amount: transferAmount,
                     currency: "INR",
                     notes: {
                         name: `Consultation Fee for ${doctor.user?.name || doctor.name}`,
