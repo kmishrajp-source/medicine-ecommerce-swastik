@@ -43,6 +43,59 @@ export async function POST(req) {
         if (from && text) {
             // Normalize phone
             const cleanPhone = from.slice(-10);
+
+            // --- STOCK BROADCAST REPLY DETECTION ---
+            // If the message starts with "YES" and contains numbers, it might be a stock quote reply
+            // Format: YES [Qty] [Price] — e.g. "YES 50 1200"
+            if (text.startsWith("YES")) {
+                const parts = text.trim().split(/\s+/);
+                const qty = parseInt(parts[1]);
+                const price = parseFloat(parts[2]);
+
+                if (!isNaN(qty) && !isNaN(price)) {
+                    // Find most recent active broadcast
+                    const activeBroadcast = await prisma.stockBroadcast.findFirst({
+                        where: { status: 'ACTIVE' },
+                        orderBy: { createdAt: 'desc' }
+                    });
+
+                    if (activeBroadcast) {
+                        // Find retailer/stockist by phone
+                        const retailerUser = await prisma.user.findFirst({
+                            where: {
+                                OR: [
+                                    { phone: { contains: cleanPhone } },
+                                    { phone: { contains: from } }
+                                ],
+                                role: { in: ['RETAILER', 'STOCKIST'] }
+                            }
+                        });
+
+                        await prisma.liveStockQuote.create({
+                            data: {
+                                broadcastId: activeBroadcast.id,
+                                retailerId: retailerUser?.id || null,
+                                retailerName: retailerUser?.name || `+91${cleanPhone}`,
+                                quantity: qty,
+                                price: price
+                            }
+                        });
+
+                        await prisma.stockBroadcast.update({
+                            where: { id: activeBroadcast.id },
+                            data: { repliesCount: { increment: 1 } }
+                        });
+
+                        console.log(`[STOCK BROADCAST] Quote received from ${from}: ${qty} units @ ₹${price}`);
+
+                        // Auto-reply to confirm receipt
+                        await sendWhatsAppText(from, `✅ Thank you! Your stock quote of ${qty} units @ ₹${price} for *${activeBroadcast.medicineName}* has been recorded by Swastik Medicare.`);
+                        return NextResponse.json({ success: true });
+                    }
+                }
+            }
+            // --- END STOCK BROADCAST DETECTION ---
+
             const lead = await prisma.lead.findFirst({
                 where: {
                     OR: [

@@ -29,51 +29,53 @@ export async function POST(req) {
             }
         });
 
-        // 2. Twilio WhatsApp Integration
-        const accountSid = process.env.TWILIO_ACCOUNT_SID;
-        const authToken = process.env.TWILIO_AUTH_TOKEN;
-        const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER;
+        // 2. Twilio WhatsApp Integration — uses same env vars as /api/send-whatsapp
+        const twilioSid = process.env.TWILIO_SID;
+        const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
+        const twilioNumber = process.env.TWILIO_WHATSAPP_NUMBER || '+14155238886';
 
-        if (accountSid && authToken && twilioNumber) {
-            // Find real retailers to message
-            // Currently, we don't have a specific Retailer model with valid phone numbers in schema.prisma,
-            // so we will simulate fetching from DB and send a test message to a specified admin number if provided,
-            // or just log that we would iterate over them.
-            const targetPhone = process.env.TWILIO_TEST_DESTINATION_NUMBER; // E.g., whatsapp:+919876543210
-            
-            if (targetPhone) {
-                const messageBody = `Urgent inquiry from Swastik Medicare:\nDo you have stock of *${medicineName}*?\nReply with: YES [Qty] [Price]\n(Ref: ${broadcast.id})`;
-                const encodedCreds = Buffer.from(`${accountSid}:${authToken}`).toString('base64');
-                
-                const formData = new URLSearchParams();
-                formData.append('To', targetPhone.startsWith('whatsapp:') ? targetPhone : `whatsapp:${targetPhone}`);
-                formData.append('From', twilioNumber.startsWith('whatsapp:') ? twilioNumber : `whatsapp:${twilioNumber}`);
-                formData.append('Body', messageBody);
+        if (twilioSid && twilioAuth) {
+            // Reuse the same twilio client pattern already working in the app
+            const twilio = require('twilio');
+            const twilioClient = twilio(twilioSid, twilioAuth);
 
+            // Fetch retailers with phone numbers from DB
+            // We find all Users with role RETAILER or STOCKIST that have a phone number
+            const recipients = await prisma.user.findMany({
+                where: {
+                    role: { in: ['RETAILER', 'STOCKIST'] },
+                    phone: { not: null },
+                    ...(targetArea ? { city: targetArea } : {})
+                },
+                select: { id: true, name: true, phone: true },
+                take: 50 // Cap at 50 per broadcast
+            });
+
+            let sentCount = 0;
+            for (const recipient of recipients) {
                 try {
-                    const twilioRes = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Basic ${encodedCreds}`,
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: formData
-                    });
+                    const phone = recipient.phone.startsWith('+') ? recipient.phone : `+91${recipient.phone.replace(/\D/g, '')}`;
+                    const messageBody = `🚨 Urgent inquiry from Swastik Medicare:\nDo you have stock of *${medicineName}*?\nReply: YES [Qty] [Price]\nExample: YES 50 1200\n(Ref: ${broadcast.id})`;
 
-                    if (twilioRes.ok) {
-                        console.log(`[TWILIO] Sent real WhatsApp message for ${medicineName} to ${targetPhone}`);
-                        await prisma.stockBroadcast.update({
-                            where: { id: broadcast.id },
-                            data: { sentCount: 1 }
-                        });
-                    } else {
-                        const errText = await twilioRes.text();
-                        console.error(`[TWILIO ERROR] Failed to send: ${errText}`);
-                    }
-                } catch (apiError) {
-                    console.error("[TWILIO FETCH ERROR]", apiError);
+                    await twilioClient.messages.create({
+                        body: messageBody,
+                        from: `whatsapp:${twilioNumber}`,
+                        to: `whatsapp:${phone}`
+                    });
+                    sentCount++;
+                } catch (msgErr) {
+                    console.error(`[TWILIO] Failed to send to ${recipient.phone}:`, msgErr.message);
                 }
             }
+
+            // Update broadcast with actual sent count
+            await prisma.stockBroadcast.update({
+                where: { id: broadcast.id },
+                data: { sentCount }
+            });
+
+            console.log(`[TWILIO] Broadcast sent to ${sentCount}/${recipients.length} retailers for: ${medicineName}`);
+
         } else {
             console.log(`[BROADCAST INITIATED] Missing Twilio Env variables. Simulating broadcast...`);
 
