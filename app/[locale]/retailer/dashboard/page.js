@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import ProviderWallet from "@/components/wallet/ProviderWallet";
 import Papa from "papaparse";
+import PendingApprovalBanner from "@/components/PendingApprovalBanner";
 
 export default function RetailerDashboard() {
     const { data: session, status } = useSession();
@@ -35,9 +36,26 @@ export default function RetailerDashboard() {
     const [sealCode, setSealCode] = useState("");
     const [isPacking, setIsPacking] = useState(false);
 
+    // Verification State
+    const [verifiedStatus, setVerifiedStatus] = useState(null); // null = loading, true/false
+    const [partnerType, setPartnerType] = useState("");
+
     // Training Video Popup State
     const [showVideoPopup, setShowVideoPopup] = useState(false);
     const [dontShowAgain, setDontShowAgain] = useState(false);
+
+    // Check verification on mount
+    useEffect(() => {
+        if (status === 'authenticated') {
+            fetch('/api/partner/status')
+                .then(r => r.json())
+                .then(d => {
+                    setVerifiedStatus(d.verified ?? true);
+                    setPartnerType(d.partnerType || 'Retailer');
+                })
+                .catch(() => setVerifiedStatus(true)); // fail-open
+        }
+    }, [status]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -297,7 +315,12 @@ export default function RetailerDashboard() {
         });
     };
 
-    if (status === 'loading') return <div>Loading...</div>;
+    if (status === 'loading' || verifiedStatus === null) return <div style={{ minHeight: '100vh', background: '#090d16', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.1rem' }}>Loading...</div>;
+
+    // Verification gate — show pending approval screen if not yet verified by admin
+    if (verifiedStatus === false) {
+        return <PendingApprovalBanner partnerType={partnerType || "Pharmacy Retailer"} />;
+    }
 
     return (
         <>

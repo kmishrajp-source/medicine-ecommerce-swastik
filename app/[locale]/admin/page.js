@@ -230,6 +230,10 @@ export default function AdminDashboard() {
                                 { name: "📒 B2B Directory", path: "/admin/directory", color: "#818CF8", requiredAction: ACTIONS.VIEW_INVENTORY },
                                 { name: "🚨 SOS Dispatch", path: "/admin/sos", color: "#EF4444", requiredAction: ACTIONS.OVERSEE_SALES },
                                 { name: "🔍 Track & Trace", path: "/admin/tracking", color: "#34D399", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                // NEW SYSTEMS
+                                { name: "💵 COD Cash Mgmt", path: "/admin/cash-management", color: "#FBBF24", requiredAction: ACTIONS.MANAGE_FINANCES },
+                                { name: "🛰️ Fleet Monitor", path: "/admin/delivery-monitor", color: "#34D399", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "📦 Distributor Dir", path: "/distributor", color: "#A5B4FC", requiredAction: ACTIONS.VIEW_INVENTORY },
                             ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',
