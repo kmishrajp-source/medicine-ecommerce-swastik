@@ -10,19 +10,25 @@ export async function GET(req) {
     }
 
     try {
-        // 1. Medicine Orders (Platform keeps 100% of retail profit, but let's say 10% commission on marketplace model)
-        const orders = await prisma.order.aggregate({
-            _sum: { total: true },
-            where: { status: 'Delivered' }
+        // 1. Medicine Orders via Retailer DraftInvoices (Dynamic Platform Fee based on agreements)
+        const invoices = await prisma.draftInvoice.aggregate({
+            _sum: { platformFee: true, retailerAmount: true, customerTotal: true },
+            where: { status: 'Approved' } // Or any valid status
+        });
+        const medicineCommission = invoices._sum.platformFee || 0;
+
+        // Fetch Recent Invoices for the UI
+        const recentInvoices = await prisma.draftInvoice.findMany({
+            take: 10,
+            orderBy: { createdAt: 'desc' },
+            include: { subOrder: { include: { retailer: true } } }
         });
 
         // 2. Doctor Appointments (Assuming avg fee ₹500 if not stored, commission 10%)
-        // We need to look up Doctor fees. For now, estimate based on count.
         const appointments = await prisma.appointment.count({ where: { status: 'Confirmed' } });
         const doctorRevenue = appointments * 500 * 0.10; // 10% of ₹500
 
         // 3. Lab Bookings 
-        // Need to join LabTest price
         const labBookings = await prisma.labBooking.findMany({
             where: { status: 'Confirmed' },
             include: { test: true }
@@ -42,7 +48,7 @@ export async function GET(req) {
             where: { status: { in: ['Active', 'Expired'] } }
         });
 
-        const totalRevenue = (orders._sum.total || 0) * 0.10 // 10% on medicines for marketplace model
+        const totalRevenue = medicineCommission
             + doctorRevenue
             + labRevenue
             + ambulanceRevenue
@@ -51,12 +57,13 @@ export async function GET(req) {
         return NextResponse.json({
             success: true,
             data: {
-                medicineCommission: (orders._sum.total || 0) * 0.10,
+                medicineCommission,
                 doctorCommission: doctorRevenue,
                 labCommission: labRevenue,
                 ambulanceCommission: ambulanceRevenue,
                 adRevenue: ads._sum.price || 0,
-                totalRevenue
+                totalRevenue,
+                recentInvoices
             }
         });
     } catch (error) {

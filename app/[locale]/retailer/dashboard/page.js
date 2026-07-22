@@ -34,6 +34,7 @@ export default function RetailerDashboard() {
     // Packing Modal State
     const [packingOrder, setPackingOrder] = useState(null);
     const [sealCode, setSealCode] = useState("");
+    const [retailerProcurementCost, setRetailerProcurementCost] = useState("");
     const [isPacking, setIsPacking] = useState(false);
 
     // Verification State
@@ -164,14 +165,19 @@ export default function RetailerDashboard() {
             const res = await fetch('/api/retailer/orders/pack', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: packingOrder.id, tamperSealCode: sealCode })
+                body: JSON.stringify({ 
+                    orderId: packingOrder.id, 
+                    tamperSealCode: sealCode,
+                    retailerProcurementCost 
+                })
             });
             const data = await res.json();
             if (data.success) {
-                alert("Order status updated: Ready for Pickup");
+                alert("Order status updated: Ready for Pickup & Invoice Generated");
                 setPreparingOrders(prev => prev.filter(o => o.id !== packingOrder.id));
                 setPackingOrder(null);
                 setSealCode("");
+                setRetailerProcurementCost("");
             } else {
                 alert("Error: " + data.error);
             }
@@ -417,6 +423,40 @@ export default function RetailerDashboard() {
                             <p className="text-sm text-gray-600 mb-6 font-medium">Please enter the unique code from the tamper-evident seal/joint applied to the package.</p>
                             
                             <form onSubmit={handlePackOrder}>
+                                {/* Auto Invoice Preview */}
+                                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '15px', marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '10px', textTransform: 'uppercase' }}>Financial Ledger (Auto-Invoice)</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                                        <span style={{ color: '#64748b' }}>Platform Selling Price (Customer Paid)</span>
+                                        <span style={{ fontWeight: 600 }}>₹{packingOrder.total}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                                        <span style={{ color: '#ef4444' }}>Platform Service Charge (approx. 10%)</span>
+                                        <span style={{ fontWeight: 600, color: '#ef4444' }}>- ₹{(packingOrder.total * 0.1).toFixed(2)}</span>
+                                    </div>
+                                    <hr style={{ borderTop: '1px dashed #cbd5e1', margin: '10px 0' }} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem' }}>
+                                        <span style={{ fontWeight: 700, color: '#0f172a' }}>Retailer Settlement Invoice</span>
+                                        <span style={{ fontWeight: 800, color: '#10b981' }}>₹{(packingOrder.total * 0.9).toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Procurement Cost (Optional for ROI tracking)</label>
+                                    <input 
+                                        type="number" 
+                                        className="w-full p-3 border rounded-xl bg-gray-50" 
+                                        placeholder="Enter your cost (₹) to see profit margin"
+                                        value={retailerProcurementCost}
+                                        onChange={e => setRetailerProcurementCost(e.target.value)}
+                                    />
+                                    {retailerProcurementCost && (
+                                        <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#059669', fontWeight: 600 }}>
+                                            Estimated Profit Margin: ₹{((packingOrder.total * 0.9) - parseFloat(retailerProcurementCost)).toFixed(2)}
+                                        </p>
+                                    )}
+                                </div>
+
                                 <div className="mb-6">
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Tamper-Evident Seal Code</label>
                                     <input 
@@ -430,18 +470,18 @@ export default function RetailerDashboard() {
                                 </div>
 
                                 <div className="p-4 bg-yellow-50 rounded-xl mb-6 border border-yellow-100 italic text-xs text-yellow-800">
-                                    "I confirm that this order is correctly packed as per the prescription and a unique tamper-evident joint/seal has been applied."
+                                    "I confirm that this order is correctly packed as per the prescription, the invoice is generated, and a unique tamper-evident joint/seal has been applied."
                                 </div>
 
                                 <button 
                                     type="submit" 
                                     disabled={isPacking}
                                     style={{ width: '100%', padding: '15px', background: '#059669', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 'bold' }}>
-                                    {isPacking ? 'Processing...' : 'CONFIRM PACKED & SEALED'}
+                                    {isPacking ? 'Processing & Generating Invoice...' : 'CONFIRM PACKED & GENERATE INVOICE'}
                                 </button>
                                 <button 
                                     type="button"
-                                    onClick={() => { setPackingOrder(null); setSealCode(""); }} 
+                                    onClick={() => { setPackingOrder(null); setSealCode(""); setRetailerProcurementCost(""); }} 
                                     style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#eee', borderRadius: '12px', border: 'none' }}>
                                     Cancel
                                 </button>
