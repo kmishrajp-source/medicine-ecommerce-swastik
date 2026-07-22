@@ -235,7 +235,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 rounded-lg"><i className="fa-solid fa-capsules text-[11px]"></i> {t('interaction_checker')}</Link></li>
                         <li className="opacity-10 md:hidden self-center">|</li>
                         <li><Link href="/support" className="hover:text-white transition-all md:hidden hover:bg-white/10 px-3 py-1.5 rounded-lg">{t('support')}</Link></li>
-                        <li><Link href="/blog" className="hover:text-orange-300 transition-all hover:bg-orange-900/30 px-3 py-1.5 rounded-lg font-bold">{tHome('top_brands')}</Link></li>
+                        <li><Link href="/top-brands" className="hover:text-orange-300 transition-all hover:bg-orange-900/30 px-3 py-1.5 rounded-lg font-bold">{tHome('top_brands')}</Link></li>
                     </ul>
                 </div>
             </nav>
