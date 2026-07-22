@@ -216,26 +216,26 @@ export default function Navbar({ cartCount, openCart }) {
             </div>
 
             {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
-            <nav className="hidden lg:block bg-indigo-900 text-white/90 w-full overflow-hidden">
-                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
-                        <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
-                        <li><Link href="/shop-medicines" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tHome('shop_medicines')}</Link></li>
-                        <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
-                        <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
-                        <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{t('hospitals')}</Link></li>
-                        <li><Link href="/retailers" className="hover:text-white transition-colors">{t('inventory')}</Link></li>
-                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">{t('ambulance')}</Link></li>
-                        <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>
-                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">{t('ai_assistant')}</Link></li>
-                        <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> {t('symptom_checker')}</Link></li>
-                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> {t('rx_analyzer')}</Link></li>
-                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> {t('interaction_checker')}</Link></li>
-                        <li className="opacity-10 md:hidden">|</li>
-                        <li><Link href="/support" className="hover:text-white transition-colors md:hidden">{t('support')}</Link></li>
-                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">{tHome('top_brands')}</Link></li>
+            <nav className="hidden lg:block w-full border-b border-indigo-800 shadow-sm" style={{ background: 'linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' }}>
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 20px', overflowX: 'auto', width: '100%' }}>
+                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '24px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)' }}>
+                        <li><Link href="/" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
+                        <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-3 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
+                        <li><Link href="/upload-prescription" className="hover:text-indigo-200 hover:bg-indigo-900/50 px-3 py-1.5 rounded-lg transition-all font-bold text-indigo-300">{t('my_rx')}</Link></li>
+                        <li><Link href="/refer" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('refer_earn')}</Link></li>
+                        <li><Link href="/doctors" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('doctor_consult')}</Link></li>
+                        <li><Link href="/hospitals" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('hospitals')}</Link></li>
+                        <li><Link href="/retailers" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('inventory')}</Link></li>
+                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 hover:bg-red-900/30 px-3 py-1.5 rounded-lg transition-all font-bold">{t('ambulance')}</Link></li>
+                        <li><Link href="/labs" className="hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-lg transition-all">{t('labs')}</Link></li>
+                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/40 px-3 py-1.5 rounded-lg transition-all font-bold">{t('ai_assistant')}</Link></li>
+                        <li className="opacity-40 self-center">|</li>
+                        <li><Link href="/symptom-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 rounded-lg"><i className="fa-solid fa-wand-sparkles text-[11px]"></i> {t('symptom_checker')}</Link></li>
+                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 rounded-lg"><i className="fa-solid fa-file-medical text-[11px]"></i> {t('rx_analyzer')}</Link></li>
+                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-3 py-1.5 rounded-lg"><i className="fa-solid fa-capsules text-[11px]"></i> {t('interaction_checker')}</Link></li>
+                        <li className="opacity-10 md:hidden self-center">|</li>
+                        <li><Link href="/support" className="hover:text-white transition-all md:hidden hover:bg-white/10 px-3 py-1.5 rounded-lg">{t('support')}</Link></li>
+                        <li><Link href="/blog" className="hover:text-orange-300 transition-all hover:bg-orange-900/30 px-3 py-1.5 rounded-lg font-bold">{tHome('top_brands')}</Link></li>
                     </ul>
                 </div>
             </nav>

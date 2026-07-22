@@ -46,13 +46,17 @@
 
 body {
     font-family: var(--font-main);
-    background-color: var(--bg-light);
+    background-color: #f8fafc; /* Modern slate-50 base */
     color: var(--text-dark);
     line-height: 1.6;
     overflow-x: hidden;
-    background-image:
-        radial-gradient(circle at 10% 20%, rgba(131, 197, 190, 0.1) 0%, transparent 40%),
-        radial-gradient(circle at 90% 80%, rgba(226, 149, 120, 0.05) 0%, transparent 40%);
+    background-image: 
+        radial-gradient(at 40% 20%, rgba(131, 197, 190, 0.15) 0px, transparent 50%),
+        radial-gradient(at 80% 0%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+        radial-gradient(at 0% 50%, rgba(226, 149, 120, 0.12) 0px, transparent 50%),
+        radial-gradient(at 80% 100%, rgba(59, 130, 246, 0.12) 0px, transparent 50%),
+        radial-gradient(at 0% 100%, rgba(16, 185, 129, 0.12) 0px, transparent 50%);
+    background-attachment: fixed;
 }
 
 a {
