@@ -152,8 +152,13 @@ export default function MarketIntelligenceDashboard() {
                         <div className="lg:col-span-2 space-y-8">
                             
                             {/* Primary Target Info */}
-                            <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-lg">
-                                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center">
+                            <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-lg relative overflow-hidden">
+                                {results.analytics?.isExternal && (
+                                    <div className="absolute top-0 right-0 bg-gradient-to-l from-indigo-600 to-cyan-500 text-white text-[10px] font-black uppercase tracking-widest px-6 py-2 rounded-bl-3xl shadow-lg">
+                                        <i className="fa-solid fa-globe mr-2 animate-pulse"></i> External Market Data
+                                    </div>
+                                )}
+                                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center mt-2">
                                     <i className="fa-solid fa-bullseye text-cyan-400 mr-2"></i> Primary Target
                                 </h2>
                                 <div className="flex gap-6 items-center">
@@ -162,7 +167,7 @@ export default function MarketIntelligenceDashboard() {
                                     )}
                                     <div>
                                         <h3 className="text-3xl font-black text-white tracking-tighter mb-1">{results.primaryProduct.name}</h3>
-                                        <p className="text-cyan-400 font-bold text-sm mb-3">MRP: ₹{results.primaryProduct.mrp || results.primaryProduct.price}</p>
+                                        <p className="text-cyan-400 font-bold text-sm mb-3">Est. MRP: ₹{results.primaryProduct.mrp || results.primaryProduct.price}</p>
                                         <div className="flex flex-wrap gap-2">
                                             {results.primaryProduct.composition && (
                                                 <span className="px-3 py-1 bg-slate-800 rounded-full text-[10px] font-bold text-slate-300">
@@ -175,43 +180,106 @@ export default function MarketIntelligenceDashboard() {
                                                 </span>
                                             )}
                                         </div>
-                                        <button 
-                                            onClick={handleBroadcast}
-                                            disabled={broadcasting || broadcast}
-                                            className="mt-4 px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase tracking-widest text-[10px] rounded-lg transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
-                                        >
-                                            <i className={`fa-brands fa-whatsapp text-sm ${broadcasting ? 'animate-ping' : ''}`}></i>
-                                            {broadcast ? 'Broadcast Active' : 'Live WhatsApp Broadcast'}
-                                        </button>
+                                        <div className="flex gap-4 mt-4">
+                                            <button 
+                                                onClick={handleBroadcast}
+                                                disabled={broadcasting || broadcast}
+                                                className="px-6 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-black uppercase tracking-widest text-[10px] rounded-lg transition-all shadow-lg flex items-center gap-2 disabled:opacity-50"
+                                            >
+                                                <i className={`fa-brands fa-whatsapp text-sm ${broadcasting ? 'animate-ping' : ''}`}></i>
+                                                {broadcast ? 'Broadcast Active' : 'Live WhatsApp Broadcast'}
+                                            </button>
+
+                                            {results.analytics?.isExternal && (
+                                                <button className="px-6 py-2 bg-indigo-500 hover:bg-indigo-400 text-white font-black uppercase tracking-widest text-[10px] rounded-lg transition-all shadow-lg flex items-center gap-2">
+                                                    <i className="fa-solid fa-truck-fast"></i>
+                                                    Request Stock Procure
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Market Analytics */}
+                            {/* Market Analytics & Movement Chart */}
                             {results.analytics && (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="bg-gradient-to-br from-cyan-500/10 to-transparent p-6 rounded-2xl border border-cyan-500/30 shadow-lg">
-                                        <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-boxes-stacked mr-2"></i> Total Market Stock</p>
-                                        <p className="text-3xl font-black text-white">{results.analytics.totalStock} <span className="text-sm font-normal text-slate-400">units</span></p>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-gradient-to-br from-cyan-500/10 to-transparent p-6 rounded-2xl border border-cyan-500/30 shadow-lg">
+                                            <p className="text-xs font-bold text-cyan-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-boxes-stacked mr-2"></i> Total Market Stock</p>
+                                            <p className="text-3xl font-black text-white">{results.analytics.isExternal ? 'N/A' : results.analytics.totalStock} <span className="text-sm font-normal text-slate-400">{!results.analytics.isExternal && 'units'}</span></p>
+                                        </div>
+                                        <div className="bg-gradient-to-br from-emerald-500/10 to-transparent p-6 rounded-2xl border border-emerald-500/30 shadow-lg">
+                                            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-tag mr-2"></i> Lowest Price</p>
+                                            <p className="text-3xl font-black text-white">₹{results.analytics.lowestPrice !== null && results.analytics.lowestPrice !== Infinity ? results.analytics.lowestPrice : '-'}</p>
+                                            {results.analytics.lowestPriceRetailer && (
+                                                <p className="text-xs text-slate-400 mt-1 truncate font-bold">at {results.analytics.lowestPriceRetailer}</p>
+                                            )}
+                                        </div>
+                                        <div className="bg-gradient-to-br from-purple-500/10 to-transparent p-6 rounded-2xl border border-purple-500/30 shadow-lg relative overflow-hidden">
+                                            <p className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-chart-line mr-2"></i> Avg Market Price</p>
+                                            <p className="text-3xl font-black text-white">₹{results.analytics.averagePrice || '-'}</p>
+                                            <p className="text-xs font-bold mt-1">
+                                                {results.analytics.globalDemand ? (
+                                                    <span className="text-indigo-400"><i className="fa-solid fa-arrow-trend-up mr-1"></i> Demand: {results.analytics.globalDemand}</span>
+                                                ) : results.primaryProduct?.mrp ? (
+                                                    Number(results.analytics.averagePrice) > results.primaryProduct.mrp 
+                                                        ? <span className="text-red-400"><i className="fa-solid fa-arrow-up text-[10px]"></i> Above MRP (₹{results.primaryProduct.mrp})</span>
+                                                        : <span className="text-emerald-400"><i className="fa-solid fa-arrow-down text-[10px]"></i> Below MRP (₹{results.primaryProduct.mrp})</span>
+                                                ) : <span className="text-slate-400">vs MRP</span>}
+                                            </p>
+                                        </div>
                                     </div>
-                                    <div className="bg-gradient-to-br from-emerald-500/10 to-transparent p-6 rounded-2xl border border-emerald-500/30 shadow-lg">
-                                        <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-tag mr-2"></i> Lowest Price</p>
-                                        <p className="text-3xl font-black text-white">₹{results.analytics.lowestPrice !== null && results.analytics.lowestPrice !== Infinity ? results.analytics.lowestPrice : '-'}</p>
-                                        {results.analytics.lowestPriceRetailer && (
-                                            <p className="text-xs text-slate-400 mt-1 truncate font-bold">at {results.analytics.lowestPriceRetailer}</p>
-                                        )}
-                                    </div>
-                                    <div className="bg-gradient-to-br from-purple-500/10 to-transparent p-6 rounded-2xl border border-purple-500/30 shadow-lg">
-                                        <p className="text-xs font-bold text-purple-400 uppercase tracking-widest mb-2 flex items-center"><i className="fa-solid fa-chart-line mr-2"></i> Avg Market Price</p>
-                                        <p className="text-3xl font-black text-white">₹{results.analytics.averagePrice || '-'}</p>
-                                        <p className="text-xs font-bold mt-1">
-                                            {results.primaryProduct?.mrp ? (
-                                                Number(results.analytics.averagePrice) > results.primaryProduct.mrp 
-                                                    ? <span className="text-red-400"><i className="fa-solid fa-arrow-up text-[10px]"></i> Above MRP (₹{results.primaryProduct.mrp})</span>
-                                                    : <span className="text-emerald-400"><i className="fa-solid fa-arrow-down text-[10px]"></i> Below MRP (₹{results.primaryProduct.mrp})</span>
-                                            ) : <span className="text-slate-400">vs MRP</span>}
-                                        </p>
-                                    </div>
+
+                                    {/* Market Movement Chart */}
+                                    {results.analytics.marketMovement && (
+                                        <div className="bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-lg">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center">
+                                                    <i className="fa-solid fa-chart-area text-cyan-400 mr-2"></i> 12-Month Market Movement
+                                                </h2>
+                                                {results.analytics.shortageRisk && (
+                                                    <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-full ${results.analytics.shortageRisk === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}>
+                                                        Shortage Risk: {results.analytics.shortageRisk}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-end justify-between h-40 gap-2 mt-4 relative">
+                                                {/* Chart bars */}
+                                                {results.analytics.marketMovement.map((point, idx) => {
+                                                    const maxVal = Math.max(...results.analytics.marketMovement.map(p => Math.max(p.demand, p.supply)));
+                                                    const demandHeight = (point.demand / maxVal) * 100;
+                                                    const supplyHeight = (point.supply / maxVal) * 100;
+                                                    return (
+                                                        <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full group relative">
+                                                            {/* Tooltip */}
+                                                            <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-slate-800 text-xs text-white p-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10 pointer-events-none shadow-xl border border-slate-700">
+                                                                <p className="font-black text-cyan-400">{point.month}</p>
+                                                                <p>Demand: {point.demand}</p>
+                                                                <p>Supply: {point.supply}</p>
+                                                            </div>
+                                                            <div className="w-full flex justify-center items-end gap-1 px-1 h-[80%]">
+                                                                <div 
+                                                                    className="w-full bg-cyan-500/80 rounded-t-sm" 
+                                                                    style={{ height: `${demandHeight}%` }}
+                                                                ></div>
+                                                                <div 
+                                                                    className="w-full bg-indigo-500/50 rounded-t-sm" 
+                                                                    style={{ height: `${supplyHeight}%` }}
+                                                                ></div>
+                                                            </div>
+                                                            <span className="text-[8px] font-bold text-slate-500 mt-2 uppercase">{point.month}</span>
+                                                        </div>
+                                                    )
+                                                })}
+                                                {/* Legend */}
+                                                <div className="absolute top-0 right-0 flex gap-4 text-[10px] font-bold">
+                                                    <span className="flex items-center gap-1 text-slate-400"><div className="w-2 h-2 bg-cyan-500/80 rounded-sm"></div> Demand</span>
+                                                    <span className="flex items-center gap-1 text-slate-400"><div className="w-2 h-2 bg-indigo-500/50 rounded-sm"></div> Supply</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 

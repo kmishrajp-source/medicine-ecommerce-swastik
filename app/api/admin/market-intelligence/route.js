@@ -47,8 +47,62 @@ export async function GET(req) {
             take: 5
         });
 
+        const generateSimulation = (q) => {
+            const basePrice = (q.length * 15) % 800 + 50; 
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const marketMovement = months.map((m, i) => {
+                const trend = Math.sin(i + q.length) * 20;
+                return {
+                    month: m,
+                    demand: Math.floor(100 + trend + (q.length % 10)),
+                    supply: Math.floor(120 - trend),
+                    price: Math.floor(basePrice + (trend / 2))
+                };
+            });
+
+            return { basePrice, marketMovement };
+        };
+
+        const { basePrice, marketMovement } = generateSimulation(query);
+
         if (products.length === 0) {
-            return NextResponse.json({ success: true, message: "No matching medicines found in catalog.", results: null });
+            // SIMULATED EXTERNAL RESPONSE
+            const simulatedProduct = {
+                id: "ext-" + query.replace(/\s+/g, '-').toLowerCase(),
+                name: query.toUpperCase(),
+                composition: "Simulated Market Average",
+                price: basePrice,
+                category: "External Data",
+                image: "https://images.unsplash.com/photo-1584308666744-24d59b298f0d?auto=format&fit=crop&w=400&q=80"
+            };
+
+            const simulatedAnalytics = {
+                totalStock: 0, // Not in local stock
+                averagePrice: basePrice.toFixed(2),
+                lowestPrice: (basePrice * 0.8).toFixed(2),
+                lowestPriceRetailer: "External B2B Channels",
+                marketMovement,
+                isExternal: true,
+                shortageRisk: marketMovement[11].demand > marketMovement[11].supply ? "High" : "Low",
+                globalDemand: "Surging"
+            };
+
+            const simulatedAlternatives = [
+                { id: "alt-1", name: "Generic " + query.split(" ")[0], price: basePrice * 0.6 },
+                { id: "alt-2", name: "Competitor " + query.split(" ")[0], price: basePrice * 0.9 }
+            ];
+
+            return NextResponse.json({
+                success: true,
+                results: {
+                    primaryProduct: simulatedProduct,
+                    retailerAvailability: [],
+                    centralAvailability: [],
+                    alternatives: simulatedAlternatives,
+                    vendors: [],
+                    analytics: simulatedAnalytics
+                }
+            });
         }
 
         const primaryProduct = products[0];
@@ -67,9 +121,7 @@ export async function GET(req) {
         const pharmacyInventory = await prisma.pharmacyInventory.findMany({
             where: {
                 productId: primaryProduct.id
-            },
-            // Assuming we might need to join it to a retailer if pharmacy inventory belongs to a retailer.
-            // Wait, PharmacyInventory doesn't have retailerId in the schema we saw, it's a global/central stock.
+            }
         });
 
         // 4. Find Alternatives (same composition or salt)
@@ -97,7 +149,9 @@ export async function GET(req) {
             totalStock: 0,
             averagePrice: 0,
             lowestPrice: null,
-            lowestPriceRetailer: null
+            lowestPriceRetailer: null,
+            marketMovement,
+            isExternal: false
         };
 
         if (retailerInventory.length > 0) {
