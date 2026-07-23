@@ -110,7 +110,13 @@ export default function DoctorsClient() {
                             docSpecClean.includes(cleanQuery) ||
                             mappedSpecialties.some(s => (doc.specialization || "").toLowerCase().includes(s.toLowerCase()));
 
-        const matchesSpecialty = filterSpecialty === "All" || doc.specialization === filterSpecialty;
+        const normalizeSpec = (s) => (s || "").toLowerCase().replace(/ae/g, "e").replace(/[^a-z]/g, "");
+        const docSpecNormalized = normalizeSpec(doc.specialization);
+        const filterSpecNormalized = normalizeSpec(filterSpecialty);
+        
+        const matchesSpecialty = filterSpecialty === "All" || 
+                                 docSpecNormalized.includes(filterSpecNormalized) || 
+                                 filterSpecNormalized.includes(docSpecNormalized);
         
         const areaStr = filterArea.toLowerCase();
         const matchesArea = filterArea === "All" || 
