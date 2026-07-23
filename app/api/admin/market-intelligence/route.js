@@ -18,14 +18,32 @@ export async function GET(req) {
         }
 
         // 1. Find Product matches in Catalog
-        const products = await prisma.product.findMany({
-            where: {
+        // Split the query into keywords to support complex searches like "drugA and drugB"
+        const keywords = query.toLowerCase().split(/[\s\+]+/).filter(w => !['and', 'with', 'mg', 'ml'].includes(w) && w.length > 2);
+        
+        let whereClause = {};
+        if (keywords.length > 0) {
+            whereClause = {
+                AND: keywords.map(kw => ({
+                    OR: [
+                        { name: { contains: kw, mode: 'insensitive' } },
+                        { composition: { contains: kw, mode: 'insensitive' } },
+                        { salt: { contains: kw, mode: 'insensitive' } },
+                    ]
+                }))
+            };
+        } else {
+            whereClause = {
                 OR: [
                     { name: { contains: query, mode: 'insensitive' } },
                     { composition: { contains: query, mode: 'insensitive' } },
                     { salt: { contains: query, mode: 'insensitive' } },
                 ]
-            },
+            };
+        }
+
+        const products = await prisma.product.findMany({
+            where: whereClause,
             take: 5
         });
 
