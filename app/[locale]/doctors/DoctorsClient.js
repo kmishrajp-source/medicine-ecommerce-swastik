@@ -99,15 +99,26 @@ export default function DoctorsClient() {
     }, [searchQuery]);
 
     const filteredDoctors = doctors.filter(doc => {
-        const query = searchQuery.toLowerCase();
+        const query = searchQuery.toLowerCase().trim();
+        const cleanQuery = query.replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ");
         const mappedSpecialties = getSpecialtiesFromQuery(query);
         
-        const matchesSearch = (doc.name || doc.doctorName || "").toLowerCase().includes(query) || 
-                            (doc.specialization || "").toLowerCase().includes(query) ||
+        const docNameClean = (doc.name || doc.doctorName || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ");
+        const docSpecClean = (doc.specialization || "").toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ");
+
+        const matchesSearch = docNameClean.includes(cleanQuery) || 
+                            docSpecClean.includes(cleanQuery) ||
                             mappedSpecialties.some(s => (doc.specialization || "").toLowerCase().includes(s.toLowerCase()));
 
         const matchesSpecialty = filterSpecialty === "All" || doc.specialization === filterSpecialty;
-        const matchesArea = filterArea === "All" || doc.locality === filterArea;
+        
+        const areaStr = filterArea.toLowerCase();
+        const matchesArea = filterArea === "All" || 
+                            (doc.locality || "").toLowerCase().includes(areaStr) ||
+                            (doc.location || "").toLowerCase().includes(areaStr) ||
+                            (doc.hospital || "").toLowerCase().includes(areaStr) ||
+                            (doc.hospitalLink?.address || "").toLowerCase().includes(areaStr);
+        
         return matchesSearch && matchesSpecialty && matchesArea;
     });
 
