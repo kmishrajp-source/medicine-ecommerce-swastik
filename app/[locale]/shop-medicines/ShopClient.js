@@ -5,7 +5,7 @@ import ProductCard from "../../../components/ProductCard";
 import { useCart } from "../../../context/CartContext";
 
 const CATEGORIES = [
-    "All", "General", "Pain Relief", "Antibiotics", "Supplements",
+    "All", "Pain Relief", "Antibiotics", "Supplements",
     "Vitamins", "Diabetes", "Cardiology", "Dermatology", "Respiratory",
     "Gastrointestinal", "Neuro", "Antiallergic", "Antifungal", "Hormonal", "Ayurvedic"
 ];
