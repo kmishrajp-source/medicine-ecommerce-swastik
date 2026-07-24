@@ -1,95 +1,52 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { WhatsAppTriggers } from "@/lib/whatsapp";
 
-// Chronic keywords for filtering
-const CHRONIC_CATEGORIES = ["diabetes", "blood pressure", "heart", "thyroid", "cholesterol", "asthma", "cardiac"];
-const CHRONIC_SALTS = ["metformin", "losartan", "insulin", "amlodipine", "atorvastatin", "thyroxine", "levothyroxine", "rosuvastatin", "telmisartan", "glimepiride"];
-
-function isChronic(product) {
-    if (!product) return false;
-    
-    const cat = (product.category || "").toLowerCase();
-    const name = (product.name || "").toLowerCase();
-    const composition = (product.composition || "").toLowerCase();
-    const salt = (product.salt || "").toLowerCase();
-
-    // Check Categories
-    if (CHRONIC_CATEGORIES.some(c => cat.includes(c))) return true;
-
-    // Check Name, Composition, Salt against known chronic salts
-    const textToCheck = `${name} ${composition} ${salt}`;
-    if (CHRONIC_SALTS.some(s => textToCheck.includes(s))) return true;
-
-    return false;
-}
-
-export async function GET(req) {
+export async function POST(req) {
     try {
-        // Secure the endpoint (Vercel sets CRON_SECRET)
-        const authHeader = req.headers.get('authorization');
-        if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        // Find subscriptions that are Active and their nextDate is within the next 5 days
+        const fiveDaysFromNow = new Date();
+        fiveDaysFromNow.setDate(fiveDaysFromNow.getDate() + 5);
 
-        // Target Date: Exactly 25 days ago
-        const targetDateStart = new Date();
-        targetDateStart.setDate(targetDateStart.getDate() - 25);
-        targetDateStart.setHours(0, 0, 0, 0);
-
-        const targetDateEnd = new Date();
-        targetDateEnd.setDate(targetDateEnd.getDate() - 25);
-        targetDateEnd.setHours(23, 59, 59, 999);
-
-        const targetOrders = await prisma.order.findMany({
+        const subscriptions = await prisma.subscription.findMany({
             where: {
-                createdAt: {
-                    gte: targetDateStart,
-                    lte: targetDateEnd
-                },
-                status: "Delivered"
-            },
-            include: {
-                user: true,
-                items: {
-                    include: { product: true }
+                status: "Active",
+                nextDate: {
+                    lte: fiveDaysFromNow
                 }
-            }
+            },
+            include: { user: true }
         });
 
-        let remindersSent = 0;
+        let processedCount = 0;
 
-        for (const order of targetOrders) {
-            // Find if this order contains any chronic medicine
-            const chronicItems = order.items.filter(item => isChronic(item.product));
+        for (const sub of subscriptions) {
+            // Generate a magic link for reordering (simulated here)
+            const magicLink = `https://swastikmed.online/en/checkout?reorder=${sub.id}`;
             
-            if (chronicItems.length > 0) {
-                const primaryMedicine = chronicItems[0].product.name;
-                const phone = order.guestPhone || order.user?.phone;
-                const name = order.guestName || order.user?.name || "Customer";
-                
-                if (phone) {
-                    // Generate a 1-click reorder link (mocked structure)
-                    // In a real app, this might lead to a cart-rebuild endpoint
-                    const reorderLink = `${process.env.NEXT_PUBLIC_SITE_URL || 'https://medicine-ecommerce-swastik.vercel.app'}/reorder/${order.id}`;
-                    
-                    try {
-                        await WhatsAppTriggers.refillReminder(phone, name, primaryMedicine, reorderLink);
-                        remindersSent++;
-                    } catch (e) {
-                        console.error(`Failed to send refill reminder for order ${order.id}:`, e);
-                    }
-                }
+            // SIMULATE WHATSAPP MESSAGE
+            console.log(`\n[CRON: WHATSAPP] To: ${sub.user.name || sub.userId}`);
+            console.log(`Message: Your ${sub.frequency} refill for ${sub.medicineName} is due in 5 days!`);
+            console.log(`Tap this link to instantly reorder with your 15% discount: ${magicLink}\n`);
+
+            // Update nextDate so we don't spam them tomorrow
+            const nextDate = new Date(sub.nextDate);
+            if (sub.frequency === "Monthly") {
+                nextDate.setMonth(nextDate.getMonth() + 1);
+            } else if (sub.frequency === "Weekly") {
+                nextDate.setDate(nextDate.getDate() + 7);
             }
+
+            await prisma.subscription.update({
+                where: { id: sub.id },
+                data: { nextDate }
+            });
+
+            processedCount++;
         }
 
-        return NextResponse.json({
-            success: true,
-            message: `Cron executed. Scanned ${targetOrders.length} delivered orders. Sent ${remindersSent} refill reminders.`
-        });
-
+        return NextResponse.json({ success: true, processedCount });
     } catch (error) {
-        console.error("Cron Auto-Refill Error:", error);
+        console.error("Cron Error:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }

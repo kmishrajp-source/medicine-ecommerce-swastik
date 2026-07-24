@@ -1893,3 +1893,33 @@ model Distributor {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
+// --- GROWTH ACQUISITION --- //
+model CompetitorBill {
+  id             String    @id @default(cuid())
+  userId         String?   // Optional if uploaded as guest initially
+  phone          String?   // For guest follow-up
+  imageUrl       String
+  competitorName String    // "Amazon Pharmacy", "1mg", "Apollo", "Pharmeasy"
+  status         String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  couponCode     String?   @unique
+  coupon         Coupon?   @relation(fields: [couponCode], references: [code])
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model Coupon {
+  id               String    @id @default(cuid())
+  code             String    @unique
+  discountType     String    @default("FLAT") // FLAT, PERCENTAGE
+  discountValue    Float     @default(100.0)
+  maxDiscount      Float?
+  minOrderValue    Float     @default(0.0)
+  validUntil       DateTime?
+  usageLimit       Int       @default(1)
+  timesUsed        Int       @default(0)
+  isActive         Boolean   @default(true)
+  description      String?
+  competitorBill   CompetitorBill?
+  createdAt        DateTime  @default(now())
+}
