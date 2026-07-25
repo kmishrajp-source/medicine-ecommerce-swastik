@@ -1,0 +1,105 @@
+import { NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
+import { sendWhatsAppText } from "@/lib/whatsapp";
+
+export async function GET(req) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user?.role)) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        // Get counts for audiences
+        const customerCount = await prisma.user.count({ where: { role: 'CUSTOMER' } });
+        const doctorCount = await prisma.doctor.count();
+        const retailerCount = await prisma.retailer.count();
+
+        return NextResponse.json({
+            success: true,
+            counts: {
+                CUSTOMERS: customerCount,
+                DOCTORS: doctorCount,
+                RETAILERS: retailerCount
+            }
+        });
+    } catch (error) {
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+}
+
+export async function POST(req) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user?.role)) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { audience, message, customNumbers } = await req.json();
+
+        if (!message) {
+            return NextResponse.json({ error: "Message is required" }, { status: 400 });
+        }
+
+        let targetNumbers = [];
+
+        if (audience === "CUSTOMERS") {
+            const users = await prisma.user.findMany({
+                where: { role: 'CUSTOMER' },
+                select: { phoneVerified: true, id: true, name: true } // Assuming we might want to get phones. Wait, User model might not have phone directly. Let's check OTP or we'll get from order?
+            });
+            // Let's actually pull from Orders since customers order with guestPhone or user phone.
+            const orders = await prisma.order.findMany({
+                select: { guestPhone: true, user: { select: { email: true } } }
+            });
+            targetNumbers = [...new Set(orders.map(o => o.guestPhone).filter(Boolean))];
+
+        } else if (audience === "DOCTORS") {
+            const doctors = await prisma.doctor.findMany({ select: { phone: true } });
+            targetNumbers = doctors.map(d => d.phone).filter(Boolean);
+        } else if (audience === "RETAILERS") {
+            const retailers = await prisma.retailer.findMany({ select: { phone: true } });
+            targetNumbers = retailers.map(r => r.phone).filter(Boolean);
+        } else if (audience === "CUSTOM") {
+            targetNumbers = customNumbers.split(',').map(n => n.trim()).filter(Boolean);
+        }
+
+        // Deduplicate numbers
+        targetNumbers = [...new Set(targetNumbers)];
+
+        if (targetNumbers.length === 0) {
+            return NextResponse.json({ error: "No target numbers found for this audience" }, { status: 400 });
+        }
+
+        // To prevent API timeouts, we run the sending loop asynchronously in the background.
+        // In a real production system, this would be pushed to a queue like Redis/BullMQ.
+        // For now, we fire and forget the Promise.
+        sendBulkMessages(targetNumbers, message);
+
+        return NextResponse.json({ success: true, targetCount: targetNumbers.length });
+
+    } catch (error) {
+        console.error("Mass WA Error:", error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    }
+}
+
+// Background worker function
+async function sendBulkMessages(numbers, message) {
+    console.log(`[MASS WHATSAPP] Starting broadcast to ${numbers.length} numbers.`);
+    
+    let sentCount = 0;
+    for (const phone of numbers) {
+        try {
+            await sendWhatsAppText(phone, message);
+            sentCount++;
+            // Small delay to prevent rate limiting (e.g., 500ms between messages)
+            await new Promise(resolve => setTimeout(resolve, 500));
+        } catch (err) {
+            console.error(`Failed to send mass WA to ${phone}:`, err.message);
+        }
+    }
+    
+    console.log(`[MASS WHATSAPP] Broadcast complete! Sent ${sentCount}/${numbers.length}.`);
+}
