@@ -234,6 +234,8 @@ export default function AdminDashboard() {
                                 { name: "💵 COD Cash Mgmt", path: "/admin/cash-management", color: "#FBBF24", requiredAction: ACTIONS.MANAGE_FINANCES },
                                 { name: "🛰️ Fleet Monitor", path: "/admin/delivery-monitor", color: "#34D399", requiredAction: ACTIONS.VIEW_INVENTORY },
                                 { name: "📦 Distributor Dir", path: "/distributor", color: "#A5B4FC", requiredAction: ACTIONS.VIEW_INVENTORY },
+                                { name: "💬 Mass WhatsApp", path: "/admin/mass-whatsapp", color: "#10B981", requiredAction: ACTIONS.OVERSEE_SALES },
+                                { name: "🧾 Competitor Bills", path: "/admin/competitor-bills", color: "#8B5CF6", requiredAction: ACTIONS.OVERSEE_SALES },
                             ].filter(btn => !btn.requiredAction || hasPermission(session?.user?.role, btn.requiredAction)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',

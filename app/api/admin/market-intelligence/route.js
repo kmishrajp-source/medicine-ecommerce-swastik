@@ -20,7 +20,7 @@ export async function GET(req) {
         // 1. Find Product matches in Catalog
         // Split the query into keywords to support complex searches like "drugA and drugB"
         const keywords = query.toLowerCase().split(/[\s\+]+/).filter(w => !['and', 'with', 'mg', 'ml'].includes(w) && w.length > 2);
-        
+
         let whereClause = {};
         if (keywords.length > 0) {
             whereClause = {
@@ -48,7 +48,7 @@ export async function GET(req) {
         });
 
         const generateSimulation = (q) => {
-            const basePrice = (q.length * 15) % 800 + 50; 
+            const basePrice = (q.length * 15) % 800 + 50;
             const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             const marketMovement = months.map((m, i) => {
                 const trend = Math.sin(i + q.length) * 20;
@@ -157,7 +157,7 @@ export async function GET(req) {
         if (retailerInventory.length > 0) {
             let sumPrice = 0;
             let minPrice = Infinity;
-            
+
             retailerInventory.forEach(inv => {
                 analytics.totalStock += (inv.stock || 0);
                 sumPrice += (inv.price || 0);
