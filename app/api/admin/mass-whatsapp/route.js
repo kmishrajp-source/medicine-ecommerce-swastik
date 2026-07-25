@@ -15,13 +15,15 @@ export async function GET(req) {
         const customerCount = await prisma.user.count({ where: { role: 'CUSTOMER' } });
         const doctorCount = await prisma.doctor.count();
         const retailerCount = await prisma.retailer.count();
+        const campaignLeadsCount = await prisma.campaignLead.count();
 
         return NextResponse.json({
             success: true,
             counts: {
                 CUSTOMERS: customerCount,
                 DOCTORS: doctorCount,
-                RETAILERS: retailerCount
+                RETAILERS: retailerCount,
+                CAMPAIGN_LEADS: campaignLeadsCount
             }
         });
     } catch (error) {
@@ -61,6 +63,9 @@ export async function POST(req) {
         } else if (audience === "RETAILERS") {
             const retailers = await prisma.retailer.findMany({ select: { phone: true } });
             targetNumbers = retailers.map(r => r.phone).filter(Boolean);
+        } else if (audience === "CAMPAIGN_LEADS") {
+            const leads = await prisma.campaignLead.findMany({ select: { phone: true } });
+            targetNumbers = leads.map(l => l.phone).filter(Boolean);
         } else if (audience === "CUSTOM") {
             targetNumbers = customNumbers.split(',').map(n => n.trim()).filter(Boolean);
         }

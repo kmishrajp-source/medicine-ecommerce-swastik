@@ -7,7 +7,7 @@ export default function MassWhatsAppAdmin() {
     const { data: session, status } = useSession();
     const router = useRouter();
     
-    const [counts, setCounts] = useState({ CUSTOMERS: 0, DOCTORS: 0, RETAILERS: 0 });
+    const [counts, setCounts] = useState({ CUSTOMERS: 0, DOCTORS: 0, RETAILERS: 0, CAMPAIGN_LEADS: 0 });
     const [audience, setAudience] = useState("CUSTOMERS");
     const [customNumbers, setCustomNumbers] = useState("");
     const [message, setMessage] = useState("");
@@ -129,6 +129,18 @@ export default function MassWhatsAppAdmin() {
                                         </div>
                                     </div>
                                     <div className="text-xs font-black bg-slate-900 px-3 py-1 rounded text-amber-400">{counts.RETAILERS}</div>
+                                </label>
+
+                                <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${audience === 'CAMPAIGN_LEADS' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>
+                                    <div className="flex items-center gap-3">
+                                        <input type="radio" name="audience" value="CAMPAIGN_LEADS" checked={audience === 'CAMPAIGN_LEADS'} onChange={() => setAudience('CAMPAIGN_LEADS')} className="hidden" />
+                                        <i className="fa-solid fa-bullhorn text-pink-400 text-xl"></i>
+                                        <div>
+                                            <div className="font-black text-white">Campaign Leads</div>
+                                            <div className="text-xs text-slate-400 font-bold">Marketing funnels</div>
+                                        </div>
+                                    </div>
+                                    <div className="text-xs font-black bg-slate-900 px-3 py-1 rounded text-pink-400">{counts.CAMPAIGN_LEADS}</div>
                                 </label>
 
                                 <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${audience === 'CUSTOM' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>

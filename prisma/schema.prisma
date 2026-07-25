@@ -1923,3 +1923,11 @@ model Coupon {
   competitorBill   CompetitorBill?
   createdAt        DateTime  @default(now())
 }
+
+model CampaignLead {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  campaign  String   // e.g. "DIABETES_GORAKHPUR"
+  createdAt DateTime @default(now())
+}
