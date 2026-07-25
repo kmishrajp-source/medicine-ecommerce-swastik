@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -23,10 +24,10 @@ export async function POST(req) {
             // Generate a magic link for reordering (simulated here)
             const magicLink = `https://swastikmed.online/en/checkout?reorder=${sub.id}`;
             
-            // SIMULATE WHATSAPP MESSAGE
-            console.log(`\n[CRON: WHATSAPP] To: ${sub.user.name || sub.userId}`);
-            console.log(`Message: Your ${sub.frequency} refill for ${sub.medicineName} is due in 5 days!`);
-            console.log(`Tap this link to instantly reorder with your 15% discount: ${magicLink}\n`);
+            // REAL WHATSAPP MESSAGE
+            if (sub.user?.phone) {
+                await WhatsAppTriggers.refillReminder(sub.user.phone, sub.user.name || "Customer", sub.medicineName, magicLink);
+            }
 
             // Update nextDate so we don't spam them tomorrow
             const nextDate = new Date(sub.nextDate);

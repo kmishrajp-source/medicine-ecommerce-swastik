@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
+import { sendWhatsAppText } from "@/lib/whatsapp";
 
 export async function GET(req) {
     try {
@@ -64,9 +65,9 @@ export async function POST(req) {
                 include: { coupon: true }
             });
 
-            // Simulate WhatsApp message to the user
+            // REAL WHATSAPP MESSAGE
             if (updated.phone) {
-                console.log(`[SIMULATED WHATSAPP] To: ${updated.phone} -> Your Amazon/1mg bill was approved! Use code ${code} to get ₹100 OFF your first Swastik Medicare order!`);
+                await sendWhatsAppText(updated.phone, `🎉 Congratulations! Your Amazon/1mg bill was approved by Swastik Medicare.\n\nUse code *${code}* at checkout to get an instant ₹100 OFF your first order! 🎁\n\nOrder now: https://swastikmed.online`);
             }
 
             return NextResponse.json({ success: true, bill: updated });
