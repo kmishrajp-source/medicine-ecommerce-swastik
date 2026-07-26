@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { sendWhatsAppText } from "@/lib/whatsapp";
+import { sendSMS } from "@/lib/sms";
 
 export async function GET(req) {
     try {
@@ -38,7 +39,8 @@ export async function POST(req) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { audience, message, customNumbers } = await req.json();
+        // Add method to request (SMS or WHATSAPP)
+        const { audience, message, customNumbers, method = "WHATSAPP" } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -80,7 +82,7 @@ export async function POST(req) {
         // To prevent API timeouts, we run the sending loop asynchronously in the background.
         // In a real production system, this would be pushed to a queue like Redis/BullMQ.
         // For now, we fire and forget the Promise.
-        sendBulkMessages(targetNumbers, message);
+        sendBulkMessages(targetNumbers, message, method);
 
         return NextResponse.json({ success: true, targetCount: targetNumbers.length });
 
@@ -91,20 +93,25 @@ export async function POST(req) {
 }
 
 // Background worker function
-async function sendBulkMessages(numbers, message) {
-    console.log(`[MASS WHATSAPP] Starting broadcast to ${numbers.length} numbers.`);
+async function sendBulkMessages(numbers, message, method) {
+    console.log(`[MASS BROADCAST] Starting ${method} broadcast to ${numbers.length} numbers.`);
     
     let sentCount = 0;
     for (const phone of numbers) {
         try {
-            await sendWhatsAppText(phone, message);
+            if (method === "SMS") {
+                await sendSMS(phone, message);
+            } else {
+                await sendWhatsAppText(phone, message);
+            }
             sentCount++;
             // Small delay to prevent rate limiting (e.g., 500ms between messages)
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (err) {
-            console.error(`Failed to send mass WA to ${phone}:`, err.message);
+            console.error(`Failed to send mass ${method} to ${phone}:`, err.message);
         }
     }
     
-    console.log(`[MASS WHATSAPP] Broadcast complete! Sent ${sentCount}/${numbers.length}.`);
+    console.log(`[MASS BROADCAST] Complete! Sent ${sentCount}/${numbers.length}.`);
 }
+

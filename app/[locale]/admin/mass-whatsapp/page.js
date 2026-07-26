@@ -11,6 +11,7 @@ export default function MassWhatsAppAdmin() {
     const [audience, setAudience] = useState("CUSTOMERS");
     const [customNumbers, setCustomNumbers] = useState("");
     const [message, setMessage] = useState("");
+    const [method, setMethod] = useState("WHATSAPP");
     
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
@@ -53,7 +54,7 @@ export default function MassWhatsAppAdmin() {
             const res = await fetch("/api/admin/mass-whatsapp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ audience, message, customNumbers })
+                body: JSON.stringify({ audience, message, customNumbers, method })
             });
             const data = await res.json();
             
@@ -78,11 +79,11 @@ export default function MassWhatsAppAdmin() {
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between md:items-center gap-6">
                     <div>
                         <h1 className="text-3xl font-black text-white uppercase tracking-tighter mb-2 flex items-center">
-                            <i className="fa-brands fa-whatsapp text-emerald-400 mr-3"></i>
-                            Mass WhatsApp Engine
+                            <i className="fa-solid fa-satellite-dish text-emerald-400 mr-3"></i>
+                            Universal Broadcast Engine
                         </h1>
                         <p className="text-emerald-400/80 font-bold uppercase tracking-widest text-[10px]">
-                            Extract Contacts & Blast Promotional Messages
+                            Extract Contacts & Blast Promotional Messages via SMS or WhatsApp
                         </p>
                     </div>
                 </div>
@@ -93,7 +94,29 @@ export default function MassWhatsAppAdmin() {
                 <div className="lg:col-span-2 bg-[#1e293b] p-8 rounded-3xl border border-slate-700 shadow-xl relative overflow-hidden">
                     <form onSubmit={handleSend} className="space-y-8">
                         <div>
-                            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4"><i className="fa-solid fa-users mr-2"></i> 1. Select Target Audience</h2>
+                            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4"><i className="fa-solid fa-paper-plane mr-2"></i> 1. Delivery Method</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${method === 'WHATSAPP' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>
+                                    <input type="radio" name="method" value="WHATSAPP" checked={method === 'WHATSAPP'} onChange={() => setMethod('WHATSAPP')} className="hidden" />
+                                    <i className="fa-brands fa-whatsapp text-emerald-400 text-2xl"></i>
+                                    <div>
+                                        <div className="font-black text-white">WhatsApp Message</div>
+                                        <div className="text-xs text-slate-400 font-bold">Best for loyal customers</div>
+                                    </div>
+                                </label>
+                                <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${method === 'SMS' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>
+                                    <input type="radio" name="method" value="SMS" checked={method === 'SMS'} onChange={() => setMethod('SMS')} className="hidden" />
+                                    <i className="fa-solid fa-comment-sms text-blue-400 text-2xl"></i>
+                                    <div>
+                                        <div className="font-black text-white">Traditional SMS Text</div>
+                                        <div className="text-xs text-slate-400 font-bold">Best for cold lists (safe)</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4"><i className="fa-solid fa-users mr-2"></i> 2. Select Target Audience</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <label className={`flex items-center justify-between p-4 rounded-xl border-2 cursor-pointer transition-all ${audience === 'CUSTOMERS' ? 'border-emerald-500 bg-emerald-500/10' : 'border-slate-700 bg-slate-800 hover:border-slate-500'}`}>
                                     <div className="flex items-center gap-3">
@@ -169,16 +192,29 @@ export default function MassWhatsAppAdmin() {
                         </div>
 
                         <div>
-                            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4"><i className="fa-solid fa-message mr-2"></i> 2. Compose Promotional Message</h2>
-                            <textarea 
-                                required
-                                rows="6"
-                                placeholder="Type your WhatsApp broadcast message here..."
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                className="w-full bg-slate-800 border-2 border-slate-700 focus:border-emerald-500 rounded-xl px-4 py-3 outline-none text-white text-sm transition-all"
-                            ></textarea>
-                            <p className="text-xs text-slate-500 font-bold mt-2"><i className="fa-solid fa-circle-info mr-1"></i> You can use WhatsApp formatting like *bold* or _italics_.</p>
+                            <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4"><i className="fa-solid fa-message mr-2"></i> 3. Compose Promotional Message</h2>
+                            <div className="relative">
+                                <textarea 
+                                    required
+                                    rows="6"
+                                    placeholder={method === "SMS" ? "Type your SMS text message here..." : "Type your WhatsApp broadcast message here..."}
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    className={`w-full bg-slate-800 border-2 ${method === 'SMS' && message.length > 160 ? 'border-rose-500' : 'border-slate-700 focus:border-emerald-500'} rounded-xl px-4 py-3 outline-none text-white text-sm transition-all`}
+                                ></textarea>
+                                {method === "SMS" && (
+                                    <div className={`absolute bottom-3 right-3 text-[10px] font-black px-2 py-1 rounded ${message.length > 160 ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-400'}`}>
+                                        {message.length} / 160 chars
+                                    </div>
+                                )}
+                            </div>
+                            {method === "WHATSAPP" ? (
+                                <p className="text-xs text-slate-500 font-bold mt-2"><i className="fa-solid fa-circle-info mr-1"></i> You can use WhatsApp formatting like *bold* or _italics_.</p>
+                            ) : (
+                                <p className={`text-xs font-bold mt-2 ${message.length > 160 ? 'text-rose-400' : 'text-slate-500'}`}>
+                                    <i className="fa-solid fa-triangle-exclamation mr-1"></i> {message.length > 160 ? "Warning: Messages over 160 characters will cost 2 SMS credits per person." : "Standard SMS length is 160 characters."}
+                                </p>
+                            )}
                         </div>
 
                         {successMsg && (
@@ -207,24 +243,30 @@ export default function MassWhatsAppAdmin() {
                 <div>
                     <div className="sticky top-8">
                         <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Live Preview</h2>
-                        <div className="bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')] bg-cover rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 h-[500px] flex flex-col relative">
-                            {/* WhatsApp Header */}
-                            <div className="bg-[#075e54] text-white p-4 flex items-center gap-3">
+                        <div className={`bg-cover rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 h-[500px] flex flex-col relative ${method === 'SMS' ? "bg-slate-900" : "bg-[url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')]"}`}>
+                            {/* Header */}
+                            <div className={`${method === 'SMS' ? 'bg-slate-800/90 backdrop-blur' : 'bg-[#075e54]'} text-white p-4 flex items-center gap-3`}>
                                 <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
-                                    <i className="fa-solid fa-heart-pulse text-[#075e54] text-xl"></i>
+                                    {method === 'SMS' ? (
+                                        <i className="fa-solid fa-comment-sms text-slate-800 text-xl"></i>
+                                    ) : (
+                                        <i className="fa-solid fa-heart-pulse text-[#075e54] text-xl"></i>
+                                    )}
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Swastik Medicare</h3>
-                                    <p className="text-[10px] opacity-80 font-medium">Business Account</p>
+                                    <p className="text-[10px] opacity-80 font-medium">{method === 'SMS' ? 'Text Message' : 'Business Account'}</p>
                                 </div>
                             </div>
 
                             {/* Message Bubble */}
                             <div className="flex-1 p-4 overflow-y-auto flex flex-col justify-end pb-10">
                                 {message ? (
-                                    <div className="bg-[#dcf8c6] text-[#303030] p-3 rounded-lg rounded-tr-none shadow max-w-[85%] self-end text-sm relative">
+                                    <div className={`${method === 'SMS' ? 'bg-blue-500 text-white rounded-br-sm' : 'bg-[#dcf8c6] text-[#303030] rounded-tr-none'} p-3 rounded-2xl shadow max-w-[85%] self-end text-sm relative`}>
                                         <p className="whitespace-pre-wrap">{message}</p>
-                                        <div className="text-[9px] text-right text-slate-500 mt-1">Just now <i className="fa-solid fa-check-double text-blue-500"></i></div>
+                                        <div className={`text-[9px] text-right mt-1 ${method === 'SMS' ? 'text-blue-200' : 'text-slate-500'}`}>
+                                            Just now {method === 'WHATSAPP' && <i className="fa-solid fa-check-double text-blue-500"></i>}
+                                        </div>
                                     </div>
                                 ) : (
                                     <div className="bg-white/80 backdrop-blur text-slate-500 p-3 rounded-xl text-xs text-center font-bold italic shadow">
