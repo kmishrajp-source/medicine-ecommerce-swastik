@@ -1,0 +1,142 @@
+[
+  {
+    "id": 1,
+    "genericName": "Paracetamol 500mg",
+    "commonBrand": "Crocin / Dolo",
+    "useCase": "Fever & Pain Relief",
+    "brandedPrice": 30.00,
+    "genericPrice": 10.00,
+    "category": "Antipyretic",
+    "description": "Used to treat mild to moderate pain and reduce fever."
+  },
+  {
+    "id": 2,
+    "genericName": "Metformin 500mg (SR)",
+    "commonBrand": "Glycomet / Glyciphage",
+    "useCase": "Type 2 Diabetes",
+    "brandedPrice": 45.00,
+    "genericPrice": 18.00,
+    "category": "Anti-Diabetic",
+    "description": "Helps control high blood sugar in patients with type 2 diabetes."
+  },
+  {
+    "id": 3,
+    "genericName": "Atorvastatin 10mg",
+    "commonBrand": "Atorva / Lipikind",
+    "useCase": "High Cholesterol",
+    "brandedPrice": 95.00,
+    "genericPrice": 25.00,
+    "category": "Statins",
+    "description": "Used to lower 'bad' cholesterol and triglycerides in the blood."
+  },
+  {
+    "id": 4,
+    "genericName": "Telmisartan 40mg",
+    "commonBrand": "Telmikind / Telma",
+    "useCase": "High Blood Pressure",
+    "brandedPrice": 85.00,
+    "genericPrice": 22.00,
+    "category": "Anti-Hypertensive",
+    "description": "Relaxes blood vessels so blood can flow more easily."
+  },
+  {
+    "id": 5,
+    "genericName": "Amoxicillin 500mg + Clavulanic Acid",
+    "commonBrand": "Augmentin / Clavam",
+    "useCase": "Bacterial Infections",
+    "brandedPrice": 220.00,
+    "genericPrice": 85.00,
+    "category": "Antibiotic",
+    "description": "Treats a wide variety of bacterial infections like pneumonia and ear infections."
+  },
+  {
+    "id": 6,
+    "genericName": "Pantoprazole 40mg",
+    "commonBrand": "Pan / Pantocid",
+    "useCase": "Acidity / Acid Reflux",
+    "brandedPrice": 140.00,
+    "genericPrice": 35.00,
+    "category": "Antacid",
+    "description": "Reduces the amount of acid produced in the stomach."
+  },
+  {
+    "id": 7,
+    "genericName": "Levocetirizine 5mg",
+    "commonBrand": "Levocet / 1-AL",
+    "useCase": "Allergies",
+    "brandedPrice": 45.00,
+    "genericPrice": 12.00,
+    "category": "Antihistamine",
+    "description": "Relieves allergy symptoms such as watery eyes, runny nose, and sneezing."
+  },
+  {
+    "id": 8,
+    "genericName": "Amlodipine 5mg",
+    "commonBrand": "Amlokind / Stamlo",
+    "useCase": "High Blood Pressure / Angina",
+    "brandedPrice": 38.00,
+    "genericPrice": 10.00,
+    "category": "Anti-Hypertensive",
+    "description": "Calcium channel blocker that helps lower blood pressure."
+  },
+  {
+    "id": 9,
+    "genericName": "Diclofenac Gel",
+    "commonBrand": "Volini / Voveran",
+    "useCase": "Muscle Pain & Sprains",
+    "brandedPrice": 110.00,
+    "genericPrice": 45.00,
+    "category": "Analgesic",
+    "description": "Topical pain relief for joint and muscle pains."
+  },
+  {
+    "id": 10,
+    "genericName": "Levothyroxine 50mcg",
+    "commonBrand": "Thyronorm / Eltroxin",
+    "useCase": "Hypothyroidism (Thyroid)",
+    "brandedPrice": 130.00,
+    "genericPrice": 45.00,
+    "category": "Thyroid Hormone",
+    "description": "Replaces or provides more thyroid hormone, which is normally produced by the thyroid gland."
+  },
+  {
+    "id": 11,
+    "genericName": "Montelukast 10mg + Levocetirizine 5mg",
+    "commonBrand": "Montair LC",
+    "useCase": "Asthma & Severe Allergies",
+    "brandedPrice": 180.00,
+    "genericPrice": 65.00,
+    "category": "Antihistamine",
+    "description": "Prevents asthma attacks and treats allergies."
+  },
+  {
+    "id": 12,
+    "genericName": "Losartan 50mg",
+    "commonBrand": "Losar",
+    "useCase": "High Blood Pressure",
+    "brandedPrice": 65.00,
+    "genericPrice": 18.00,
+    "category": "Anti-Hypertensive",
+    "description": "Keeps blood vessels from narrowing, lowering blood pressure."
+  },
+  {
+    "id": 13,
+    "genericName": "Omeprazole 20mg",
+    "commonBrand": "Omez",
+    "useCase": "Acidity / Acid Reflux",
+    "brandedPrice": 60.00,
+    "genericPrice": 20.00,
+    "category": "Antacid",
+    "description": "Decreases the amount of acid your stomach makes."
+  },
+  {
+    "id": 14,
+    "genericName": "Ibuprofen 400mg",
+    "commonBrand": "Brufen",
+    "useCase": "Pain & Inflammation",
+    "brandedPrice": 18.00,
+    "genericPrice": 8.00,
+    "category": "Analgesic",
+    "description": "Reduces hormones that cause inflammation and pain in the body."
+  }
+]
