@@ -142,6 +142,11 @@ export default function Navbar({ cartCount, openCart }) {
                             <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
                         </button>
+                        {session && (
+                            <Link href="/subscriptions" className="hidden lg:flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1.5 rounded-full transition-all uppercase tracking-widest border border-indigo-100">
+                                <i className="fa-solid fa-repeat"></i> Subscriptions
+                            </Link>
+                        )}
                         {session ? (
                             <div className="flex items-center gap-2">
                                 <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px]">
@@ -260,6 +265,9 @@ export default function Navbar({ cartCount, openCart }) {
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/shop-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold' }}>{tHome('shop_medicines')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/generic-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fde047', textDecoration: 'none', fontWeight: 'bold' }}>Generic Meds</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/upload-prescription" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#a5b4fc', textDecoration: 'none', fontWeight: 'bold' }}>{t('my_rx')}</Link></li>
+                         {session && (
+                             <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/subscriptions" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#c7d2fe', textDecoration: 'none', fontWeight: 'bold' }}><i className="fa-solid fa-repeat mr-2"></i>Subscriptions</Link></li>
+                         )}
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/doctors" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('doctor_consult')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/hospitals" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('hospitals')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ambulance" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fca5a5', textDecoration: 'none', fontWeight: 'bold' }}>{t('ambulance')}</Link></li>
