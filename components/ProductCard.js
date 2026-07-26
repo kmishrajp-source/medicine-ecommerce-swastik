@@ -14,6 +14,35 @@ export default function ProductCard({ product, onAdd }) {
     const [subQuantity, setSubQuantity] = useState(1);
     const [subFreq, setSubFreq] = useState('Monthly');
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDosage, setShowDosage] = useState(false);
+    const [dosageInfo, setDosageInfo] = useState(null);
+    const [isDosageLoading, setIsDosageLoading] = useState(false);
+
+    const fetchDosage = async () => {
+        if (dosageInfo !== null) { setShowDosage(v => !v); return; } // Already loaded
+        setShowDosage(true);
+        setIsDosageLoading(true);
+        try {
+            // Use the salt/composition or name as the search key
+            const searchTerm = (product.salt || product.composition || product.name).split(/[,+]/)[0].trim();
+            const res = await fetch(`https://api.fda.gov/drug/label.json?search=active_ingredient:"${encodeURIComponent(searchTerm)}"&limit=1`);
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+                const info = data.results[0];
+                setDosageInfo({
+                    dosage: info.dosage_and_administration?.[0]?.substring(0, 400) || null,
+                    warnings: info.warnings?.[0]?.substring(0, 300) || null,
+                    indications: info.indications_and_usage?.[0]?.substring(0, 300) || null,
+                });
+            } else {
+                setDosageInfo({ dosage: null, warnings: null, indications: null });
+            }
+        } catch (e) {
+            setDosageInfo({ dosage: null, warnings: null, indications: null });
+        } finally {
+            setIsDosageLoading(false);
+        }
+    };
 
     const handleSubscribe = async () => {
         if (!session) {
@@ -104,6 +133,53 @@ export default function ProductCard({ product, onAdd }) {
                         <strong>{t('side_effects')}:</strong> {product.sideEffects}
                     </div>
                 )}
+
+                {/* Dosage & Info Collapsible Section */}
+                <div style={{ marginBottom: '8px' }}>
+                    <button
+                        onClick={fetchDosage}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', background: showDosage ? '#eef2ff' : '#f8fafc', border: '1px solid', borderColor: showDosage ? '#a5b4fc' : '#e2e8f0', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700, color: showDosage ? '#4f46e5' : '#64748b', cursor: 'pointer', width: '100%', justifyContent: 'space-between', transition: 'all 0.2s' }}
+                    >
+                        <span><i className="fa-solid fa-capsules" style={{ marginRight: '5px' }}></i>Dosage &amp; Info</span>
+                        <i className={`fa-solid ${showDosage ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: '10px' }}></i>
+                    </button>
+
+                    {showDosage && (
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px', fontSize: '0.75rem', color: '#475569', lineHeight: '1.6', maxHeight: '180px', overflowY: 'auto' }}>
+                            {isDosageLoading ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8' }}>
+                                    <span style={{ width: '12px', height: '12px', border: '2px solid #a5b4fc', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }}></span>
+                                    Fetching dosage information...
+                                </div>
+                            ) : dosageInfo ? (
+                                <>
+                                    {dosageInfo.indications && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>✅ Indications</span>
+                                            <p style={{ margin: '4px 0 0 0' }}>{dosageInfo.indications}</p>
+                                        </div>
+                                    )}
+                                    {dosageInfo.dosage && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>💊 Dosage</span>
+                                            <p style={{ margin: '4px 0 0 0' }}>{dosageInfo.dosage}</p>
+                                        </div>
+                                    )}
+                                    {dosageInfo.warnings && (
+                                        <div>
+                                            <span style={{ fontWeight: 800, color: '#EF4444', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>⚠️ Warnings</span>
+                                            <p style={{ margin: '4px 0 0 0', color: '#EF4444' }}>{dosageInfo.warnings}</p>
+                                        </div>
+                                    )}
+                                    {!dosageInfo.dosage && !dosageInfo.indications && (
+                                        <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>No detailed dosage info found. Please consult the medicine label or your pharmacist.</p>
+                                    )}
+                                    <p style={{ marginTop: '8px', fontSize: '10px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>Source: OpenFDA • Always follow doctor&apos;s prescription.</p>
+                                </>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
