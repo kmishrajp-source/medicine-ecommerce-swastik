@@ -107,7 +107,6 @@ export default function ProductCard({ product, onAdd }) {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
                             <span style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--primary)' }}>₹{product.price.toFixed(2)}</span>
                             {product.mrp > product.price && (
