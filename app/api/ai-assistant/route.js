@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { processChatMessage } from "@/lib/ai-brain";
+import { translateToEnglish, addHindiPrefix } from "@/lib/hindi-translate";
 
 export async function POST(req) {
     try {
@@ -9,13 +10,21 @@ export async function POST(req) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
         }
 
-        const aiResult = await processChatMessage(message);
+        // Feature 4: Hindi/Hinglish Translation Layer
+        const { translated, wasHindi } = translateToEnglish(message);
+        const messageToProcess = wasHindi ? translated : message;
+
+        const aiResult = await processChatMessage(messageToProcess);
+
+        // Prepend Hindi acknowledgment if original message was Hindi/Hinglish
+        const finalResponse = addHindiPrefix(aiResult.responseText, wasHindi);
 
         return NextResponse.json({
             success: true,
-            response: aiResult.responseText,
+            response: finalResponse,
             disclaimer: aiResult.disclaimer,
-            sources: aiResult.sources
+            sources: aiResult.sources,
+            detectedLanguage: wasHindi ? "hi" : "en"
         });
 
     } catch (error) {
