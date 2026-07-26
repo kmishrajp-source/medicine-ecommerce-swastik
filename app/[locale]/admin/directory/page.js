@@ -70,7 +70,10 @@ export default function DirectoryPage() {
         try {
             const res = await fetch(`/api/admin/stockist-directory?q=${stockistSearch}&page=${stockistPage}`);
             const data = await res.json();
-            if (data.success) { setStockists(data.stockists); setStockistTotal(data.total); }
+            if (data.success) { 
+                setStockists(prev => stockistPage === 1 ? data.stockists : [...prev, ...data.stockists]); 
+                setStockistTotal(data.total); 
+            }
         } catch (e) { console.error(e); } finally { setStockistLoading(false); }
     };
 
@@ -79,7 +82,10 @@ export default function DirectoryPage() {
         try {
             const res = await fetch(`/api/admin/distributor-directory?q=${distributorSearch}&page=${distributorPage}`);
             const data = await res.json();
-            if (data.success) { setDistributors(data.distributors); setDistributorTotal(data.total); }
+            if (data.success) { 
+                setDistributors(prev => distributorPage === 1 ? data.distributors : [...prev, ...data.distributors]); 
+                setDistributorTotal(data.total); 
+            }
         } catch (e) { console.error(e); } finally { setDistributorLoading(false); }
     };
 
@@ -210,7 +216,11 @@ export default function DirectoryPage() {
                             type="text"
                             placeholder={`Search ${activeTab}s...`}
                             value={activeTab === 'stockist' ? stockistSearch : activeTab === 'distributor' ? distributorSearch : hospitalSearch}
-                            onChange={e => activeTab === 'stockist' ? setStockistSearch(e.target.value) : activeTab === 'distributor' ? setDistributorSearch(e.target.value) : setHospitalSearch(e.target.value)}
+                            onChange={e => {
+                                if (activeTab === 'stockist') { setStockistSearch(e.target.value); setStockistPage(1); }
+                                else if (activeTab === 'distributor') { setDistributorSearch(e.target.value); setDistributorPage(1); }
+                                else { setHospitalSearch(e.target.value); }
+                            }}
                             className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-12 pr-4 py-3 text-white focus:outline-none focus:border-indigo-500 transition-colors"
                         />
                     </div>
@@ -299,13 +309,12 @@ export default function DirectoryPage() {
                                 ))}
                             </tbody>
                         </table>
-                        {stockistTotal > 20 && (
-                            <div className="px-6 py-4 border-t border-slate-700 flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-bold">Showing {stockists.length} of {stockistTotal}</span>
-                                <div className="flex gap-2">
-                                    <button disabled={stockistPage <= 1} onClick={() => setStockistPage(p => p - 1)} className="px-4 py-2 text-xs bg-slate-700 rounded-lg disabled:opacity-30 font-bold text-slate-300">Prev</button>
-                                    <button disabled={stockistPage * 20 >= stockistTotal} onClick={() => setStockistPage(p => p + 1)} className="px-4 py-2 text-xs bg-slate-700 rounded-lg disabled:opacity-30 font-bold text-slate-300">Next</button>
-                                </div>
+                        {stockistTotal > stockists.length && (
+                            <div className="px-6 py-6 border-t border-slate-700 flex justify-center items-center">
+                                <button disabled={stockistLoading} onClick={() => setStockistPage(p => p + 1)} className="px-6 py-3 text-xs bg-indigo-500 hover:bg-indigo-400 rounded-xl disabled:opacity-50 font-black tracking-widest uppercase text-white shadow-lg transition-all flex items-center gap-2">
+                                    {stockistLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-arrow-rotate-right"></i>}
+                                    {stockistLoading ? 'Loading...' : 'Load More Stockists'}
+                                </button>
                             </div>
                         )}
                     </div>
@@ -366,13 +375,12 @@ export default function DirectoryPage() {
                                 ))}
                             </tbody>
                         </table>
-                        {distributorTotal > 20 && (
-                            <div className="px-6 py-4 border-t border-slate-700 flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-bold">Showing {distributors.length} of {distributorTotal}</span>
-                                <div className="flex gap-2">
-                                    <button disabled={distributorPage <= 1} onClick={() => setDistributorPage(p => p - 1)} className="px-4 py-2 text-xs bg-slate-700 rounded-lg disabled:opacity-30 font-bold text-slate-300">Prev</button>
-                                    <button disabled={distributorPage * 20 >= distributorTotal} onClick={() => setDistributorPage(p => p + 1)} className="px-4 py-2 text-xs bg-slate-700 rounded-lg disabled:opacity-30 font-bold text-slate-300">Next</button>
-                                </div>
+                        {distributorTotal > distributors.length && (
+                            <div className="px-6 py-6 border-t border-slate-700 flex justify-center items-center">
+                                <button disabled={distributorLoading} onClick={() => setDistributorPage(p => p + 1)} className="px-6 py-3 text-xs bg-purple-500 hover:bg-purple-400 rounded-xl disabled:opacity-50 font-black tracking-widest uppercase text-white shadow-lg transition-all flex items-center gap-2">
+                                    {distributorLoading ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-arrow-rotate-right"></i>}
+                                    {distributorLoading ? 'Loading...' : 'Load More Distributors'}
+                                </button>
                             </div>
                         )}
                     </div>
