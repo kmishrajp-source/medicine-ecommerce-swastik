@@ -49,9 +49,19 @@ export async function GET(req) {
             orderBy: { rating: 'desc' }
         });
         
+        // Deduplicate doctors by name (in case the database was seeded twice)
+        const uniqueDoctors = [];
+        const seenNames = new Set();
+        for (const doc of doctors) {
+            if (!seenNames.has(doc.name)) {
+                seenNames.add(doc.name);
+                uniqueDoctors.push(doc);
+            }
+        }
+
         return NextResponse.json({ 
             success: true, 
-            doctors: doctors.map(doc => ({
+            doctors: uniqueDoctors.map(doc => ({
                 ...doc,
                 // Ensure legacy compatibility if needed
                 hospital: doc.hospitalLink?.name || doc.hospital
