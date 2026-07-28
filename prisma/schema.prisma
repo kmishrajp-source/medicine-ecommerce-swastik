@@ -107,8 +107,10 @@ model Product {
   brand         String?
   salt          String?
   mrp           Float   @default(0.0)
-  discount      Float   @default(0.0)
+  discount      Float   @default(10.0) // Default 10% discount off MRP for selling price
+  buyingPrice   Float   @default(0.0)  // Latest purchase/buying price from invoice
   isRecommended Boolean @default(false)
+
   packSize      String?
 
   expiryDate   DateTime?

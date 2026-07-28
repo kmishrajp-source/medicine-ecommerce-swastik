@@ -104,7 +104,7 @@ export async function POST(request) {
         }
       });
 
-      // 2. Create Batches & Update legacy Product stock
+      // 2. Create Batches & Update Product stock, buyingPrice, sellingPrice
       for (const item of items) {
         if (item.acceptedQty > 0) {
           // Create the new Batch
@@ -121,16 +121,50 @@ export async function POST(request) {
             }
           });
 
-          // Sync stock to legacy Product model
+          // Business Rule: Selling Price = MRP × 0.90 (10% discount on MRP)
+          const sellingPrice = item.mrp > 0
+            ? parseFloat((item.mrp * 0.90).toFixed(2))
+            : 0;
+          const margin = sellingPrice - item.purchasePrice;
+          const marginPercent = item.mrp > 0
+            ? parseFloat(((margin / item.mrp) * 100).toFixed(2))
+            : 0;
+
+          // Sync stock + prices to Product model
           await prisma.product.update({
             where: { id: item.productId },
             data: {
               stock: { increment: item.acceptedQty },
-              mrp: item.mrp // update latest MRP
+              mrp: item.mrp,                        // update MRP from invoice
+              buyingPrice: item.purchasePrice,       // update buying price from GRN
+              price: sellingPrice,                   // selling price = MRP - 10%
+              batchNumber: item.batchNumber,
+              expiryDate: new Date(item.expiryDate),
             }
           }).catch(() => {}); // catch if product doesn't exist
+
+          // Upsert PharmacyInventory (operational sync)
+          await prisma.pharmacyInventory.upsert({
+            where: { productId: item.productId },
+            create: {
+              productId: item.productId,
+              purchasePrice: item.purchasePrice,
+              sellingPrice,
+              stock: item.acceptedQty,
+              marginPercent,
+              expiryDate: new Date(item.expiryDate),
+            },
+            update: {
+              purchasePrice: item.purchasePrice,
+              sellingPrice,
+              stock: { increment: item.acceptedQty },
+              marginPercent,
+              expiryDate: new Date(item.expiryDate),
+            }
+          }).catch(() => {});
         }
       }
+
 
       // 3. Log to Tax Ledger (Input Tax)
       if (totalGst > 0) {
