@@ -180,6 +180,25 @@ export default async function InvoicePage({ params }) {
                                     <td style={{ ...cellC, fontSize: '0.75rem', color: '#64748B', borderRight: 'none' }}>{l.exp}</td>
                                 </tr>
                             ))}
+                            {/* ── DELIVERY CHARGE ROW (always shown) ── */}
+                            <tr style={{ background: '#FFFBEB', borderTop: '1px solid #94A3B8' }}>
+                                <td style={{ ...cellC, color: '#94A3B8' }}>{lines.length + 1}</td>
+                                <td style={{ ...cell, fontWeight: '700', color: '#B45309' }}>
+                                    🚚 DELIVERY CHARGE
+                                    <div style={{ fontSize: '0.7rem', color: '#94A3B8', fontWeight: '400' }}>Transport Service (HSN: 9965)</div>
+                                </td>
+                                <td style={{ ...cellC, color: '#64748B' }}>—</td>
+                                <td style={{ ...cellC, fontWeight: '700' }}>1</td>
+                                <td style={{ ...cellR }}>{deliveryCharge > 0 ? `₹${dGst.taxable.toFixed(2)}` : '₹0.00'}</td>
+                                <td style={{ ...cellC, color: '#7C3AED', fontWeight: '700' }}>{DELIVERY_GST_RATE}.00</td>
+                                <td style={{ ...cellC, color: '#94A3B8' }}>0.00</td>
+                                <td style={{ ...cellR, fontWeight: '700', color: deliveryCharge > 0 ? '#B45309' : '#16A34A' }}>
+                                    {deliveryCharge > 0 ? `₹${deliveryCharge.toFixed(2)}` : '₹0.00 (FREE)'}
+                                </td>
+                                <td style={{ ...cellR, color: '#64748B' }}>—</td>
+                                <td style={{ ...cellC, color: '#64748B' }}>—</td>
+                                <td style={{ ...cellC, color: '#64748B', borderRight: 'none' }}>—</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -196,9 +215,7 @@ export default async function InvoicePage({ params }) {
                             {i < Object.values(hsnGroups).length - 1 ? ' | ' : ''}
                         </span>
                     ))}
-                    {deliveryCharge > 0 && (
-                        <span> | HSN:9965 GST@{DELIVERY_GST_RATE}% &gt; Del:{dGst.taxable.toFixed(2)} +CGST:{dGst.cgst.toFixed(2)} +SGST:{dGst.sgst.toFixed(2)}</span>
-                    )}
+                    <span> | HSN:9965 GST@{DELIVERY_GST_RATE}% &gt; Del:{dGst.taxable.toFixed(2)} +CGST:{dGst.cgst.toFixed(2)} +SGST:{dGst.sgst.toFixed(2)}{deliveryCharge === 0 ? ' (FREE)' : ''}</span>
                 </div>
 
                 {/* ══ FOOTER TOTALS — exact pharmacy format ══ */}
@@ -214,10 +231,13 @@ export default async function InvoicePage({ params }) {
                                 <div style={{ fontWeight: '700', color: '#16A34A' }}>0.00</div>
                             </td>
                             <td style={{ ...cell, width: '14%' }}>
-                                H.C.:
+                                H.C. (Delivery):
                                 <div style={{ fontWeight: '700', color: deliveryCharge > 0 ? '#B45309' : '#16A34A' }}>
-                                    {deliveryCharge > 0 ? `₹${deliveryCharge.toFixed(2)}` : '0.00 (FREE)'}
+                                    {deliveryCharge > 0 ? `₹${deliveryCharge.toFixed(2)}` : '₹0.00 (FREE)'}
                                 </div>
+                                <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>GST@{DELIVERY_GST_RATE}%: ₹{(dGst.cgst + dGst.sgst).toFixed(2)}</div>
+                                <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>CGST: ₹{dGst.cgst.toFixed(2)}</div>
+                                <div style={{ fontSize: '0.68rem', color: '#94A3B8' }}>SGST: ₹{dGst.sgst.toFixed(2)}</div>
                             </td>
                             <td style={{ ...cell, width: '14%' }}>
                                 GST:
