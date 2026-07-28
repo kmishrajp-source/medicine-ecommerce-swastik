@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import FileUpload from "@/components/FileUpload";
 import { useCart } from "@/context/CartContext";
@@ -19,6 +19,11 @@ export default function Checkout() {
     const { data: session } = useSession();
     const [eligibleForBonus, setEligibleForBonus] = useState(false);
     const [showUtrHelp, setShowUtrHelp] = useState(false);
+
+    // ── Delivery Charge State ─────────────────────────────────────────────────
+    const [deliveryInfo, setDeliveryInfo] = useState(null);   // { charge, isFree, distanceKm, breakdown, method }
+    const [loadingDelivery, setLoadingDelivery] = useState(false);
+    const addressDebounceRef = useRef(null);
 
     // Coupon Handler
     const applyCoupon = () => {
@@ -77,6 +82,31 @@ export default function Checkout() {
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
+        // When address changes, debounce delivery charge fetch
+        if (name === 'address' && value.length > 10 && !location) {
+            clearTimeout(addressDebounceRef.current);
+            addressDebounceRef.current = setTimeout(() => {
+                fetchDeliveryCharge({ address: value });
+            }, 1200);
+        }
+    };
+
+    // ── Fetch Delivery Charge from API ────────────────────────────────────────
+    const fetchDeliveryCharge = async ({ lat, lng, address }) => {
+        setLoadingDelivery(true);
+        try {
+            const res = await fetch('/api/delivery-charge', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ lat, lng, address, cartTotal })
+            });
+            const data = await res.json();
+            if (data.success) setDeliveryInfo(data);
+        } catch (err) {
+            console.error('Delivery charge fetch failed:', err);
+        } finally {
+            setLoadingDelivery(false);
+        }
     };
 
     const handleGetLocation = () => {
@@ -84,17 +114,21 @@ export default function Checkout() {
         if ("geolocation" in navigator) {
             navigator.geolocation.getCurrentPosition(
                 (position) => {
-                    setLocation({
+                    const coords = {
                         lat: position.coords.latitude,
                         lng: position.coords.longitude
-                    });
+                    };
+                    setLocation(coords);
                     setGettingLocation(false);
-                    // Minimal alert so it isn't annoying, or just rely on the button state change
+                    // Immediately calculate delivery charge from GPS
+                    fetchDeliveryCharge(coords);
                 },
                 (error) => {
                     console.error("Error getting location:", error);
                     alert("Could not get your location. Please check browser permissions.");
                     setGettingLocation(false);
+                    // Fallback: use address if already filled
+                    if (formData.address) fetchDeliveryCharge({ address: formData.address });
                 }
             );
         } else {
@@ -134,6 +168,10 @@ export default function Checkout() {
 
         setIsProcessing(true);
 
+        // ── Final total with delivery charge ──
+        const deliveryCharge = deliveryInfo?.charge ?? 0;
+        const finalTotal = cartTotal - discount + deliveryCharge;
+
         // --- HANDLE COD ---
         if (paymentMethod === 'COD') {
             try {
@@ -141,7 +179,7 @@ export default function Checkout() {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: cartTotal - discount,
+                        amount: finalTotal,
                         couponCode: discount > 0 ? couponCode : null,
                         items: cart,
                         guestName: formData.name,
@@ -150,6 +188,7 @@ export default function Checkout() {
                         address: formData.address,
                         lat: location?.lat,
                         lng: location?.lng,
+                        deliveryCharge,
                         prescriptionUrl: prescriptionUrl
                     }),
                 });
@@ -157,9 +196,11 @@ export default function Checkout() {
                 const data = await res.json();
 
                 if (data.success) {
-                    alert(`Order Placed Successfully! \n\nYour Secret Delivery Code is: ${data.deliveryCode}\n\nPlease save this code. You will need it to receive your delivery.`);
+                    const deliveryMsg = deliveryCharge > 0
+                        ? `\nDelivery Charge: ₹${deliveryCharge}`
+                        : '\nDelivery: FREE ✓';
+                    alert(`Order Placed Successfully!${deliveryMsg}\nTotal Paid: ₹${finalTotal.toFixed(2)}\n\nYour Secret Delivery Code: ${data.deliveryCode}\n\nPlease save this code. You will need it to receive your delivery.`);
                     clearCart();
-                    // If guest, maybe redirect to home or a thank you page. If user, profile.
                     router.push(session ? '/profile' : '/');
                 } else {
                     alert(data.error || "Failed to place COD order");
@@ -176,13 +217,11 @@ export default function Checkout() {
         // --- HANDLE QR SCAN ---
         if (paymentMethod === 'QR') {
             try {
-                // We use the COD API structure but will mark it differently on backend if needed.
-                // For now, simpler to treat as "Manual Order" similar to COD but with a note.
                 const res = await fetch('/api/create-cod-order', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        amount: cartTotal - discount,
+                        amount: finalTotal,
                         couponCode: discount > 0 ? couponCode : null,
                         items: cart,
                         guestName: formData.name,
@@ -192,14 +231,15 @@ export default function Checkout() {
                         paymentMethod: 'QR_SCAN',
                         transactionId: transactionId,
                         lat: location?.lat,
-                        lng: location?.lng
+                        lng: location?.lng,
+                        deliveryCharge
                     }),
                 });
 
                 const data = await res.json();
 
                 if (data.success) {
-                    alert(`Order Placed! \n\nPlease ensure you have paid ₹${(cartTotal - discount).toFixed(2)} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
+                    alert(`Order Placed! \n\nPlease ensure you have paid ₹${finalTotal.toFixed(2)} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
                     clearCart();
                     router.push(session ? '/profile' : '/');
                 } else {
@@ -236,8 +276,9 @@ export default function Checkout() {
             // ... (Existing Razorpay Logic - Assuming it uses session)
             const orderRes = await fetch('/api/create-order', {
                 method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    amount: cartTotal - discount,
+                    amount: finalTotal,
                     couponCode: discount > 0 ? couponCode : null
                 }),
             });
@@ -271,8 +312,7 @@ export default function Checkout() {
                                 orderCreationId: orderData.id,
                                 razorpayPaymentId: response.razorpay_payment_id,
                                 razorpaySignature: response.razorpay_signature,
-                                razorpaySignature: response.razorpay_signature,
-                                amount: cartTotal - discount,
+                                amount: finalTotal,
                                 items: cart,
                                 address: formData.address,
                                 guestName: formData.name,
@@ -280,7 +320,8 @@ export default function Checkout() {
                                 guestPhone: formData.phone,
                                 couponCode: discount > 0 ? couponCode : null,
                                 lat: location?.lat,
-                                lng: location?.lng
+                                lng: location?.lng,
+                                deliveryCharge
                             })
                         });
 
@@ -429,19 +470,58 @@ export default function Checkout() {
                             </div>
                         )}
 
-                        <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '8px', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+                        <div style={{ background: '#E3F2FD', padding: '15px', borderRadius: '8px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                             <div>
-                                <h4 style={{ color: '#1565C0', margin: '0 0 5px 0' }}><i className="fa-solid fa-location-dot"></i> Fast Delivery Routing</h4>
-                                <p style={{ fontSize: '0.85rem', margin: 0, color: '#333' }}>Share your live location to auto-assign your order to the nearest pharmacy.</p>
+                                <h4 style={{ color: '#1565C0', margin: '0 0 5px 0' }}><i className="fa-solid fa-location-dot"></i> Live Location (for accurate delivery charge)</h4>
+                                <p style={{ fontSize: '0.85rem', margin: 0, color: '#333' }}>Share GPS for exact distance. Otherwise delivery charge is estimated from your address.</p>
                             </div>
                             <button
                                 type="button"
                                 onClick={handleGetLocation}
-                                disabled={gettingLocation || location}
+                                disabled={gettingLocation || !!location}
                                 style={{ background: location ? '#4CAF50' : '#1976D2', color: 'white', border: 'none', padding: '8px 15px', borderRadius: '50px', cursor: 'pointer', fontWeight: 'bold' }}>
-                                {location ? "Location Captured ✓" : (gettingLocation ? "Locating..." : "Get Live Location")}
+                                {location ? "📍 Location Captured ✓" : (gettingLocation ? "Locating..." : "📡 Get Live Location")}
                             </button>
                         </div>
+
+                        {/* ── Delivery Charge Widget ── */}
+                        {(loadingDelivery || deliveryInfo) && (
+                            <div style={{
+                                background: deliveryInfo?.isFree ? '#F0FDF4' : '#FFFBEB',
+                                border: `1px solid ${deliveryInfo?.isFree ? '#86EFAC' : '#FCD34D'}`,
+                                borderRadius: '10px', padding: '14px 16px', marginBottom: '20px',
+                                display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px'
+                            }}>
+                                {loadingDelivery ? (
+                                    <span style={{ color: '#64748B', fontSize: '0.9em' }}>🔄 Calculating delivery charge...</span>
+                                ) : (
+                                    <>
+                                        <div>
+                                            <div style={{ fontWeight: '700', fontSize: '1em', color: deliveryInfo?.isFree ? '#16A34A' : '#B45309' }}>
+                                                🚚 Delivery Charge: {deliveryInfo?.isFree ? 'FREE ✓' : `₹${deliveryInfo?.charge?.toFixed(2)}`}
+                                            </div>
+                                            <div style={{ fontSize: '0.78em', color: '#64748B', marginTop: '3px' }}>
+                                                📍 Distance: {deliveryInfo?.distanceKm?.toFixed(1)} km from store · {deliveryInfo?.breakdown}
+                                            </div>
+                                            {deliveryInfo?.method === 'address_geocoded' && (
+                                                <div style={{ fontSize: '0.72em', color: '#94A3B8', marginTop: '2px' }}>Estimated via address · Share GPS for exact distance</div>
+                                            )}
+                                        </div>
+                                        <div style={{ fontWeight: '800', fontSize: '1.1em', color: deliveryInfo?.isFree ? '#16A34A' : '#D97706' }}>
+                                            {deliveryInfo?.isFree ? '₹0' : `₹${deliveryInfo?.charge?.toFixed(2)}`}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
+
+                        {/* Delivery rules info */}
+                        {!deliveryInfo && !loadingDelivery && (
+                            <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', padding: '12px 16px', marginBottom: '20px', fontSize: '0.82em', color: '#64748B' }}>
+                                🚚 <strong>Delivery Charge Info:</strong> Free for orders ≥ ₹500 within 6 km · ₹50 flat up to 6 km · ₹9/km beyond 6 km
+                                <span style={{ marginLeft: '8px', color: '#94A3B8' }}>· Share your location or fill address to calculate</span>
+                            </div>
+                        )}
 
                         <h3 style={{ marginBottom: '20px', borderBottom: '1px solid #eee', paddingBottom: '10px', marginTop: '30px' }}>Payment Method</h3>
                         <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '15px' }}>
@@ -549,13 +629,21 @@ export default function Checkout() {
                             </div>
                             {discount > 0 && (
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: 'green' }}>
-                                    <span>Discount</span>
-                                    <span>- ₹{discount.toFixed(2)}</span>
+                                    <span>Coupon Discount</span>
+                                    <span>− ₹{discount.toFixed(2)}</span>
                                 </div>
                             )}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', color: deliveryInfo?.isFree ? '#16A34A' : '#B45309' }}>
+                                <span>🚚 Delivery Charge
+                                    {deliveryInfo?.distanceKm && <span style={{ fontSize: '0.75em', color: '#94A3B8', marginLeft: '6px' }}>({deliveryInfo.distanceKm.toFixed(1)} km)</span>}
+                                </span>
+                                <span style={{ fontWeight: '600' }}>
+                                    {loadingDelivery ? '...' : deliveryInfo ? (deliveryInfo.isFree ? 'FREE' : `₹${deliveryInfo.charge.toFixed(2)}`) : '—'}
+                                </span>
+                            </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, fontSize: '1.2rem', borderTop: '1px solid #ddd', paddingTop: '10px' }}>
                                 <span>Total to Pay</span>
-                                <span>₹{(cartTotal - discount).toFixed(2)}</span>
+                                <span>₹{(cartTotal - discount + (deliveryInfo?.charge ?? 0)).toFixed(2)}</span>
                             </div>
                         </div>
 
