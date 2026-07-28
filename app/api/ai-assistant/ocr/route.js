@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { createWorker } from 'tesseract.js';
 import genericMedicinesData from '@/data/generic-medicines.json';
 
@@ -62,15 +62,15 @@ export async function POST(req) {
         // Build a helpful response
         let responseText = '';
         if (foundMedicines.length > 0) {
-            responseText = ✅ **Prescription Scanned Successfully!**\n\nI found ** medicine(s)** in your prescription:\n\n;
+            responseText = `✅ **Prescription Scanned Successfully!**\n\nI found **${foundMedicines.length} medicine(s)** in your prescription:\n\n`;
             for (const med of foundMedicines) {
-                const shopUrl = https://swastikmed.online/en/shop-medicines?q=;
-                responseText += 💊 **** → [Search & Order]()\n;
+                const shopUrl = `https://swastikmed.online/en/shop-medicines?q=${encodeURIComponent(med)}`;
+                responseText += `💊 **${med}** → [Search & Order](${shopUrl})\n`;
             }
-            responseText += \n🛒 **[View All in Cart-Ready Format](https://swastikmed.online/en/shop-medicines)**\n\n;
-            responseText += ⚠️ _Prescription medicines require a valid doctor's prescription for dispensing._;
+            responseText += `\n🛒 **[View All in Cart-Ready Format](https://swastikmed.online/en/shop-medicines)**\n\n`;
+            responseText += `⚠️ _Prescription medicines require a valid doctor's prescription for dispensing._`;
         } else {
-            responseText = ⚠️ **Could Not Identify Medicines**\n\nI scanned the image but couldn't clearly identify medicine names. This may be due to:\n- Handwriting being difficult to read\n- Low image quality\n\n📞 **Please WhatsApp us your prescription:** [+91-7992122974](https://wa.me/917992122974) and our pharmacist will process it within 10 minutes!;
+            responseText = `⚠️ **Could Not Identify Medicines**\n\nI scanned the image but couldn't clearly identify medicine names. This may be due to:\n- Handwriting being difficult to read\n- Low image quality\n\n📞 **Please WhatsApp us your prescription:** [+91-7992122974](https://wa.me/917992122974) and our pharmacist will process it within 10 minutes!`;
         }
 
         return NextResponse.json({
