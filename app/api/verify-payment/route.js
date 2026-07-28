@@ -12,6 +12,7 @@ import { logFailure } from "@/lib/logger";
 import { settlePartnerPayment } from "@/lib/settlements";
 import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
 import { processMLMCommissions } from "@/lib/referrals";
+import { deductStockAndAlert } from "@/lib/stock-alerts";
 
 export async function POST(req) {
     // Fetch session at top level so it is available in the catch block
@@ -324,6 +325,13 @@ export async function POST(req) {
             // WhatsApp Customer Trigger
             const phone = guestPhone || session?.user?.phone;
             if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "Online").catch(e => console.log("WA Error:", e));
+        }
+
+        // 3.6 ★ AUTO STOCK DEDUCTION — deduct for each ordered medicine (non-blocking)
+        if (medicineItems && medicineItems.length > 0) {
+            const stockItems = medicineItems.map(i => ({ productId: i.id, quantity: i.quantity }));
+            deductStockAndAlert(stockItems, 'ONLINE_ORDER', newOrder.id.slice(-6).toUpperCase())
+                .catch(e => console.error('[STOCK DEDUCTION RAZORPAY]', e.message));
         }
 
         // 4. Send SMS (non-blocking)

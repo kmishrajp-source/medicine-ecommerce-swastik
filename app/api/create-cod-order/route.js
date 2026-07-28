@@ -8,6 +8,7 @@ import { assignOrderToNearestRetailer } from "@/utils/routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
+import { deductStockAndAlert } from "@/lib/stock-alerts";
 
 export async function POST(req) {
     let session = null;
@@ -177,6 +178,16 @@ export async function POST(req) {
             splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
             const p = guestPhone || session?.user?.phone;
             if (p) WhatsAppTriggers.orderConfirmed(p, order.id, amount, "COD").catch(e => console.log(e));
+        }
+
+        // 4.6 ★ AUTO STOCK DEDUCTION — deduct inventory for each ordered item (non-blocking)
+        const stockItems = (items || []).filter(i => !i.isLab).map(i => ({
+            productId: i.id,
+            quantity: i.quantity
+        }));
+        if (stockItems.length > 0) {
+            deductStockAndAlert(stockItems, 'ONLINE_ORDER', order.id.slice(-6).toUpperCase())
+                .catch(e => console.error('[STOCK DEDUCTION]', e.message));
         }
 
         // 5. Customer Notification Data (Non-Blocking / Safe)

@@ -8,6 +8,13 @@ import { useRouter } from "next/navigation";
 const calcSellingPrice = (mrp) => mrp > 0 ? parseFloat((mrp * 0.90).toFixed(2)) : 0;
 const calcMargin = (sellingPrice, buyingPrice) => parseFloat((sellingPrice - buyingPrice).toFixed(2));
 
+const URGENCY_STYLE = {
+    OUT_OF_STOCK: { bg: '#FEE2E2', color: '#991B1B', border: '#FCA5A5', label: '🔴 OUT OF STOCK' },
+    CRITICAL:     { bg: '#FEF3C7', color: '#92400E', border: '#FCD34D', label: '🟠 CRITICAL (≤5)' },
+    LOW:          { bg: '#DBEAFE', color: '#1E40AF', border: '#93C5FD', label: '🔵 LOW (≤10)' },
+    WARNING:      { bg: '#F0FDF4', color: '#166534', border: '#86EFAC', label: '🟡 WARNING (≤20)' },
+};
+
 export default function Inventory() {
     const { data: session, status } = useSession();
     const router = useRouter();
@@ -20,6 +27,19 @@ export default function Inventory() {
     const [showInvoiceModal, setShowInvoiceModal] = useState(false);
     const [restockTarget, setRestockTarget] = useState(null);
     const fileInputRef = useRef(null);
+    const [activeTab, setActiveTab] = useState('inventory'); // 'inventory' | 'reorder' | 'counter-sales'
+
+    // Counter Sale State
+    const [showCounterSaleModal, setShowCounterSaleModal] = useState(false);
+    const [counterSaleItems, setCounterSaleItems] = useState([{ productId: '', quantity: 1, price: 0, name: '' }]);
+    const [counterCustomer, setCounterCustomer] = useState({ name: '', phone: '' });
+    const [counterPayment, setCounterPayment] = useState('CASH');
+    const [counterLoading, setCounterLoading] = useState(false);
+    const [counterResult, setCounterResult] = useState(null);
+
+    // Reorder List State
+    const [reorderList, setReorderList] = useState(null);
+    const [reorderLoading, setReorderLoading] = useState(false);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -45,10 +65,55 @@ export default function Inventory() {
             router.push('/login?error=Please login to access inventory');
         } else if (session?.user?.role === 'ADMIN') {
             fetchProducts();
+            fetchReorderList();
         } else {
             setLoading(false);
         }
     }, [status, session]);
+
+    const fetchReorderList = async () => {
+        setReorderLoading(true);
+        try {
+            const res = await fetch('/api/admin/reorder-list');
+            const data = await res.json();
+            if (data.success) setReorderList(data);
+        } catch (e) { console.error(e); }
+        finally { setReorderLoading(false); }
+    };
+
+    const handleCounterSaleProductChange = (index, productId) => {
+        const product = products.find(p => p.id === productId);
+        const updated = [...counterSaleItems];
+        updated[index] = { ...updated[index], productId, price: product?.price || 0, name: product?.name || '' };
+        setCounterSaleItems(updated);
+    };
+
+    const submitCounterSale = async () => {
+        if (!counterSaleItems[0]?.productId) { alert('Please select at least one medicine'); return; }
+        setCounterLoading(true);
+        setCounterResult(null);
+        try {
+            const res = await fetch('/api/admin/counter-sale', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    items: counterSaleItems.filter(i => i.productId),
+                    customerName: counterCustomer.name,
+                    customerPhone: counterCustomer.phone,
+                    paymentMethod: counterPayment
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setCounterResult(data);
+                fetchProducts(); // refresh stock
+                fetchReorderList(); // refresh reorder
+                setCounterSaleItems([{ productId: '', quantity: 1, price: 0, name: '' }]);
+                setCounterCustomer({ name: '', phone: '' });
+            } else { alert(data.error || 'Failed to record sale'); }
+        } catch (e) { alert('Error: ' + e.message); }
+        finally { setCounterLoading(false); }
+    };
 
     const fetchProducts = async () => {
         try {
@@ -254,9 +319,20 @@ export default function Inventory() {
             <div className="container" style={{ marginTop: '100px', paddingBottom: '60px' }}>
 
                 {/* ── Header ─── */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '12px' }}>
-                    <h2 style={{ margin: 0 }}>📦 Inventory Management</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <h2 style={{ margin: 0 }}>📦 Inventory Management</h2>
+                        {reorderList?.summary?.total > 0 && (
+                            <span style={{ background: reorderList.summary.outOfStock > 0 ? '#DC2626' : '#D97706', color: 'white', borderRadius: '20px', padding: '3px 12px', fontSize: '0.8rem', fontWeight: '800' }}>
+                                ⚠️ {reorderList.summary.total} alerts
+                            </span>
+                        )}
+                    </div>
                     <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button onClick={() => setShowCounterSaleModal(true)}
+                            style={{ background: 'linear-gradient(135deg,#16A34A,#15803D)', color: '#fff', border: 'none', borderRadius: '50px', padding: '10px 22px', fontWeight: 'bold', cursor: 'pointer' }}>
+                            💵 Counter Sale
+                        </button>
                         <button onClick={() => setShowInvoiceModal(true)}
                             style={{ background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', color: '#fff', border: 'none', borderRadius: '50px', padding: '10px 22px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
                             📄 Upload Purchase Invoice
@@ -280,6 +356,114 @@ export default function Inventory() {
                     <span>🏪 Retailer commission = <strong>10% of Selling Price</strong></span>
                     <span>📊 Margin = Selling Price − Buying Price</span>
                 </div>
+
+                {/* ── Tab Navigation ─── */}
+                <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', borderBottom: '2px solid #E2E8F0', paddingBottom: '0' }}>
+                    {[['inventory','📦 Inventory', null],['reorder','🚨 Reorder List', reorderList?.summary?.total],['counter-sales','💵 Counter Sales', null]].map(([tab, label, badge]) => (
+                        <button key={tab} onClick={() => setActiveTab(tab)} style={{
+                            padding: '10px 20px', border: 'none', background: 'none', cursor: 'pointer',
+                            fontWeight: activeTab === tab ? '800' : '600',
+                            color: activeTab === tab ? '#4F46E5' : '#64748B',
+                            borderBottom: activeTab === tab ? '3px solid #4F46E5' : '3px solid transparent',
+                            marginBottom: '-2px', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '6px'
+                        }}>
+                            {label}
+                            {badge > 0 && <span style={{ background: '#DC2626', color: 'white', borderRadius: '12px', padding: '1px 8px', fontSize: '0.72rem' }}>{badge}</span>}
+                        </button>
+                    ))}
+                </div>
+
+                {/* ── REORDER LIST TAB ─── */}
+                {activeTab === 'reorder' && (
+                    <div>
+                        {reorderLoading ? <div style={{ textAlign: 'center', padding: '60px' }}>⏳ Loading reorder list...</div> : !reorderList ? <div style={{ textAlign: 'center', padding: '60px', color: '#94A3B8' }}>No data</div> : (
+                            <>
+                                {/* Summary Cards */}
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(160px,1fr))', gap: '12px', marginBottom: '28px' }}>
+                                    {[['OUT_OF_STOCK','🔴','outOfStock','Out of Stock','#FEE2E2','#991B1B'],
+                                      ['CRITICAL','🟠','critical','Critical (≤5)','#FEF3C7','#92400E'],
+                                      ['LOW','🔵','low','Low (≤10)','#DBEAFE','#1E40AF'],
+                                      ['WARNING','🟡','warning','Warning (≤20)','#F0FDF4','#166534']].map(([key,icon,countKey,label,bg,color]) => (
+                                        <div key={key} style={{ background: bg, border: `1px solid ${URGENCY_STYLE[key].border}`, borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                                            <div style={{ fontSize: '1.6rem' }}>{icon}</div>
+                                            <div style={{ fontSize: '1.8rem', fontWeight: '800', color }}>{reorderList.summary[countKey]}</div>
+                                            <div style={{ fontSize: '0.8rem', color, fontWeight: '600' }}>{label}</div>
+                                        </div>
+                                    ))}
+                                    <div style={{ background: '#F8FAFC', border: '1px solid #CBD5E1', borderRadius: '12px', padding: '16px', textAlign: 'center' }}>
+                                        <div style={{ fontSize: '1.6rem' }}>💰</div>
+                                        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#1E293B' }}>₹{reorderList.summary.totalEstimatedCost?.toLocaleString()}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748B', fontWeight: '600' }}>Est. Reorder Cost</div>
+                                    </div>
+                                </div>
+
+                                {/* Tables by urgency */}
+                                {['OUT_OF_STOCK','CRITICAL','LOW','WARNING'].map(urgency => {
+                                    const grpItems = reorderList.items[urgency] || [];
+                                    if (grpItems.length === 0) return null;
+                                    const s = URGENCY_STYLE[urgency];
+                                    return (
+                                        <div key={urgency} style={{ marginBottom: '28px' }}>
+                                            <h4 style={{ color: s.color, marginBottom: '10px' }}>{s.label} ({grpItems.length})</h4>
+                                            <div style={{ overflowX: 'auto' }}>
+                                                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                                                    <thead>
+                                                        <tr style={{ background: s.bg }}>
+                                                            {['Medicine','Category','Current Stock','Suggest Order','Last Buy Price','Est. Cost','Action'].map(h => (
+                                                                <th key={h} style={{ padding: '10px 12px', textAlign: 'left', color: s.color, fontWeight: '700', borderBottom: `2px solid ${s.border}` }}>{h}</th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {grpItems.map((item, i) => (
+                                                            <tr key={item.productId} style={{ background: i % 2 === 0 ? 'white' : s.bg + '55', borderBottom: '1px solid #F1F5F9' }}>
+                                                                <td style={{ padding: '10px 12px', fontWeight: '700' }}>{item.name}</td>
+                                                                <td style={{ padding: '10px 12px', color: '#64748B' }}>{item.category}</td>
+                                                                <td style={{ padding: '10px 12px' }}>
+                                                                    <span style={{ background: s.bg, color: s.color, padding: '2px 10px', borderRadius: '20px', fontWeight: '800' }}>{item.currentStock}</span>
+                                                                </td>
+                                                                <td style={{ padding: '10px 12px', fontWeight: '700', color: '#4F46E5' }}>{item.suggestedOrderQty} units</td>
+                                                                <td style={{ padding: '10px 12px' }}>₹{item.lastBuyingPrice.toFixed(2)}</td>
+                                                                <td style={{ padding: '10px 12px', fontWeight: '700' }}>₹{item.estimatedCost.toFixed(2)}</td>
+                                                                <td style={{ padding: '10px 12px' }}>
+                                                                    <button onClick={() => { setRestockTarget(item); setShowRestockModal(true); }}
+                                                                        style={{ background: '#4F46E5', color: 'white', border: 'none', borderRadius: '20px', padding: '5px 14px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: '700' }}>
+                                                                        + Restock
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                                {reorderList.summary.total === 0 && (
+                                    <div style={{ textAlign: 'center', padding: '60px', color: '#16A34A' }}>
+                                        <div style={{ fontSize: '3rem' }}>✅</div>
+                                        <h3>All stock levels are healthy!</h3>
+                                        <p style={{ color: '#64748B' }}>No medicines need reordering right now.</p>
+                                    </div>
+                                )}
+                                <button onClick={fetchReorderList} style={{ background: '#E2E8F0', border: 'none', borderRadius: '20px', padding: '8px 20px', cursor: 'pointer', fontWeight: '600' }}>🔄 Refresh</button>
+                            </>
+                        )}
+                    </div>
+                )}
+
+                {/* ── COUNTER SALES TAB (placeholder list) ─── */}
+                {activeTab === 'counter-sales' && (
+                    <div style={{ textAlign: 'center', padding: '60px' }}>
+                        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>💵</div>
+                        <h3 style={{ color: '#1E293B' }}>Counter Sales</h3>
+                        <p style={{ color: '#64748B', marginBottom: '20px' }}>Record walk-in pharmacy sales using the Counter Sale button above.</p>
+                        <button onClick={() => setShowCounterSaleModal(true)}
+                            style={{ background: 'linear-gradient(135deg,#16A34A,#15803D)', color: 'white', border: 'none', borderRadius: '50px', padding: '12px 28px', fontWeight: '800', cursor: 'pointer', fontSize: '1rem' }}>
+                            💵 New Counter Sale
+                        </button>
+                    </div>
+                )}
 
                 {/* ── Add/Edit Product Form ─── */}
                 {showForm && (
@@ -534,6 +718,115 @@ export default function Inventory() {
                                         🔄 Re-scan
                                     </button>
                                 </div>
+                            </>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* ════════════ COUNTER SALE MODAL ════════════ */}
+            {showCounterSaleModal && (
+                <div style={overlayStyle} onClick={e => e.target === e.currentTarget && setShowCounterSaleModal(false)}>
+                    <div style={{ ...modalStyle, maxWidth: '680px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ margin: 0 }}>💵 Counter Sale Entry</h3>
+                            <button onClick={() => { setShowCounterSaleModal(false); setCounterResult(null); }} style={{ background: 'none', border: 'none', fontSize: '1.4rem', cursor: 'pointer' }}>✕</button>
+                        </div>
+
+                        {counterResult ? (
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <div style={{ fontSize: '3rem', marginBottom: '12px' }}>✅</div>
+                                <h3 style={{ color: '#16A34A' }}>Sale Recorded!</h3>
+                                <p><strong>Ref:</strong> {counterResult.saleRef}</p>
+                                <p><strong>Total:</strong> ₹{counterResult.total}</p>
+                                <p><strong>Items Sold:</strong> {counterResult.itemsSold}</p>
+                                <p><strong>Payment:</strong> {counterResult.paymentMethod}</p>
+                                {counterResult.alerts?.length > 0 && (
+                                    <div style={{ background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '8px', padding: '12px', marginTop: '12px', textAlign: 'left' }}>
+                                        <strong>⚠️ Low Stock Alerts Sent:</strong>
+                                        {counterResult.alerts.map((a, i) => (
+                                            <div key={i} style={{ color: '#92400E', fontSize: '0.88rem', marginTop: '4px' }}>
+                                                {a.medicine}: {a.stock} units left ({a.urgency})
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                                <button onClick={() => setCounterResult(null)}
+                                    style={{ marginTop: '16px', background: '#4F46E5', color: 'white', border: 'none', borderRadius: '20px', padding: '10px 24px', cursor: 'pointer', fontWeight: '700' }}>
+                                    + New Sale
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Customer Info */}
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+                                    <div>
+                                        <label style={labelStyle}>Customer Name (optional)</label>
+                                        <input style={inputStyle} placeholder="Walk-in customer" value={counterCustomer.name}
+                                            onChange={e => setCounterCustomer(c => ({ ...c, name: e.target.value }))} />
+                                    </div>
+                                    <div>
+                                        <label style={labelStyle}>Phone (optional)</label>
+                                        <input style={inputStyle} placeholder="+91 XXXXXXXXXX" value={counterCustomer.phone}
+                                            onChange={e => setCounterCustomer(c => ({ ...c, phone: e.target.value }))} />
+                                    </div>
+                                </div>
+
+                                {/* Payment Method */}
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={labelStyle}>Payment Method</label>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        {['CASH','UPI','CARD'].map(m => (
+                                            <button key={m} onClick={() => setCounterPayment(m)}
+                                                style={{ flex: 1, padding: '8px', border: `2px solid ${counterPayment === m ? '#4F46E5' : '#E2E8F0'}`, borderRadius: '8px', background: counterPayment === m ? '#EEF2FF' : 'white', cursor: 'pointer', fontWeight: '700', color: counterPayment === m ? '#4F46E5' : '#64748B' }}>
+                                                {m === 'CASH' ? '💵' : m === 'UPI' ? '📱' : '💳'} {m}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Items */}
+                                <div style={{ marginBottom: '16px' }}>
+                                    <label style={labelStyle}>Medicines Sold</label>
+                                    {counterSaleItems.map((item, idx) => (
+                                        <div key={idx} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr auto', gap: '8px', marginBottom: '8px', alignItems: 'center' }}>
+                                            <select value={item.productId}
+                                                onChange={e => handleCounterSaleProductChange(idx, e.target.value)}
+                                                style={{ ...inputStyle, color: item.productId ? '#1E293B' : '#94A3B8' }}>
+                                                <option value="">Select Medicine</option>
+                                                {products.filter(p => p.stock > 0).map(p => (
+                                                    <option key={p.id} value={p.id}>{p.name} (Stock: {p.stock})</option>
+                                                ))}
+                                            </select>
+                                            <input type="number" min="1" value={item.quantity} placeholder="Qty"
+                                                onChange={e => { const u = [...counterSaleItems]; u[idx].quantity = parseInt(e.target.value) || 1; setCounterSaleItems(u); }}
+                                                style={inputStyle} />
+                                            <input type="number" step="0.01" value={item.price} placeholder="Rate"
+                                                onChange={e => { const u = [...counterSaleItems]; u[idx].price = parseFloat(e.target.value) || 0; setCounterSaleItems(u); }}
+                                                style={inputStyle} />
+                                            <button onClick={() => setCounterSaleItems(items => items.filter((_, i) => i !== idx))}
+                                                disabled={counterSaleItems.length === 1}
+                                                style={{ background: '#FEE2E2', color: '#DC2626', border: 'none', borderRadius: '8px', padding: '8px 12px', cursor: 'pointer', fontWeight: '700' }}>✕</button>
+                                        </div>
+                                    ))}
+                                    <button onClick={() => setCounterSaleItems(i => [...i, { productId: '', quantity: 1, price: 0, name: '' }])}
+                                        style={{ background: '#F1F5F9', border: '1px dashed #94A3B8', borderRadius: '8px', padding: '8px 16px', cursor: 'pointer', color: '#64748B', fontWeight: '600', width: '100%' }}>
+                                        + Add Another Medicine
+                                    </button>
+                                </div>
+
+                                {/* Total Preview */}
+                                <div style={{ background: '#F0FDF4', border: '1px solid #86EFAC', borderRadius: '8px', padding: '12px 16px', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ fontWeight: '700', color: '#166534' }}>Total Amount:</span>
+                                    <span style={{ fontSize: '1.3rem', fontWeight: '800', color: '#166534' }}>
+                                        ₹{counterSaleItems.reduce((s, i) => s + ((i.price || 0) * (i.quantity || 1)), 0).toFixed(2)}
+                                    </span>
+                                </div>
+
+                                <button onClick={submitCounterSale} disabled={counterLoading}
+                                    style={{ width: '100%', background: 'linear-gradient(135deg,#16A34A,#15803D)', color: 'white', border: 'none', borderRadius: '12px', padding: '14px', fontWeight: '800', fontSize: '1rem', cursor: counterLoading ? 'not-allowed' : 'pointer', opacity: counterLoading ? 0.7 : 1 }}>
+                                    {counterLoading ? '⏳ Recording...' : '✅ Record Counter Sale'}
+                                </button>
                             </>
                         )}
                     </div>
