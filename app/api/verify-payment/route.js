@@ -38,7 +38,8 @@ export async function POST(req) {
             appointmentId,
             targetId,
             targetType,
-            leadId
+            leadId,
+            deliveryCharge
         } = body;
 
         // 1. Verify Signature
@@ -245,6 +246,7 @@ export async function POST(req) {
                     lat: lat ? parseFloat(lat) : null,
                     lng: lng ? parseFloat(lng) : null,
                     total: parseFloat(amount),
+                    deliveryFee: parseFloat(deliveryCharge) || 0,
                     status: "Processing",
                     paymentMethod: "ONLINE",
                     deliveryCode: deliveryCode,

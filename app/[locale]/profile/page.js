@@ -145,39 +145,59 @@ export default function Profile() {
                     ) : (
                         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                             <thead>
-                                <tr style={{ borderBottom: '1px solid #eee', textAlign: 'left' }}>
-                                    <th style={{ padding: '10px' }}>Order ID</th>
-                                    <th style={{ padding: '10px' }}>Date</th>
-                                    <th style={{ padding: '10px' }}>Total</th>
-                                    <th style={{ padding: '10px' }}>Status</th>
-                                    <th style={{ padding: '10px' }}>Tracking</th>
+                                <tr style={{ borderBottom: '2px solid #E2E8F0', textAlign: 'left', background: '#F8FAFC' }}>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Order ID</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Date</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Items Total</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>🚚 Delivery</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Grand Total</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Status</th>
+                                    <th style={{ padding: '12px 10px', fontSize: '0.82em', color: '#64748B', fontWeight: '700', textTransform: 'uppercase' }}>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {orders.map(order => (
-                                    <tr key={order.id} style={{ borderBottom: '1px solid #eee' }}>
-                                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{order.id.slice(-6).toUpperCase()}</td>
-                                        <td style={{ padding: '10px' }}>{new Date(order.createdAt).toLocaleDateString()}</td>
-                                        <td style={{ padding: '10px' }}>₹{order.total.toFixed(2)}</td>
-                                        <td style={{ padding: '10px' }}>
-                                            <span style={{
-                                                padding: '4px 8px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold',
-                                                background: order.status === 'Delivered' ? '#E8F5E9' : '#E3F2FD',
-                                                color: order.status === 'Delivered' ? '#2E7D32' : '#1565C0'
-                                            }}>
-                                                {order.status.replace(/_/g, ' ')}
-                                            </span>
-                                        </td>
-                                        <td style={{ padding: '10px', display: 'flex', gap: '10px' }}>
-                                            <button
-                                                onClick={() => router.push(`/track/${order.id}`)}
-                                                style={{ padding: '6px 12px', fontSize: '0.8rem', cursor: 'pointer', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold' }}
-                                            >
-                                                <i className="fa-solid fa-location-dot"></i> Track Map
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                                {orders.map(order => {
+                                    const deliveryFee = order.deliveryFee ?? 0;
+                                    const itemsTotal = order.total - deliveryFee;
+                                    return (
+                                        <tr key={order.id} style={{ borderBottom: '1px solid #F1F5F9' }}>
+                                            <td style={{ padding: '12px 10px', fontWeight: '700', color: '#1E293B' }}>SM{order.id.slice(-6).toUpperCase()}</td>
+                                            <td style={{ padding: '12px 10px', color: '#64748B', fontSize: '0.88em' }}>
+                                                {new Date(order.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </td>
+                                            <td style={{ padding: '12px 10px', fontWeight: '600' }}>₹{itemsTotal.toFixed(2)}</td>
+                                            <td style={{ padding: '12px 10px', fontWeight: '600', color: deliveryFee === 0 ? '#16A34A' : '#B45309' }}>
+                                                {deliveryFee === 0 ? '✅ FREE' : `₹${deliveryFee.toFixed(2)}`}
+                                            </td>
+                                            <td style={{ padding: '12px 10px', fontWeight: '800', color: '#0D8ABC', fontSize: '1em' }}>₹{order.total.toFixed(2)}</td>
+                                            <td style={{ padding: '12px 10px' }}>
+                                                <span style={{
+                                                    padding: '4px 10px', borderRadius: '12px', fontSize: '0.78rem', fontWeight: '700',
+                                                    background: order.status === 'Delivered' ? '#DCFCE7' : '#DBEAFE',
+                                                    color: order.status === 'Delivered' ? '#15803D' : '#1D4ED8'
+                                                }}>
+                                                    {order.status.replace(/_/g, ' ')}
+                                                </span>
+                                            </td>
+                                            <td style={{ padding: '12px 10px' }}>
+                                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                    <button
+                                                        onClick={() => router.push(`/order/${order.id}/invoice`)}
+                                                        style={{ padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer', background: '#0D8ABC', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', whiteSpace: 'nowrap' }}
+                                                    >
+                                                        📄 Invoice
+                                                    </button>
+                                                    <button
+                                                        onClick={() => router.push(`/track/${order.id}`)}
+                                                        style={{ padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer', background: '#3B82F6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', whiteSpace: 'nowrap' }}
+                                                    >
+                                                        📍 Track
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     )}

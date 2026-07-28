@@ -25,10 +25,12 @@ export async function GET(req) {
             select: {
                 id: true,
                 total: true,
+                deliveryFee: true,
                 status: true,
                 createdAt: true,
                 paymentMethod: true,
-                isPaid: true
+                isPaid: true,
+                isDelivered: true
             }
         });
 
