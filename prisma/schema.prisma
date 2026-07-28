@@ -120,6 +120,10 @@ model Product {
   isColdChain  Boolean   @default(false)
   createdAt    DateTime  @default(now())
 
+  // --- Regulatory / Tax ---
+  hsnCode   String  @default("3004")    // HSN 3004 = Medicaments (Most pharma products)
+  gstRate   Float   @default(5.0)       // 0 / 5 / 12 / 18 % — MRP is GST-inclusive
+
   orderItems          OrderItem[]
   stockLogs           StockLog[]
   inventory           PharmacyInventory? // 1-to-1 operational link
