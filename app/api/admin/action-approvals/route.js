@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { ACTIONS, hasPermission } from "@/lib/rbac";
+import { canAccess } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { sendCriticalAlert } from "@/lib/notifications";
 
@@ -12,7 +12,7 @@ export async function GET(req) {
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
         // Is user a Super Admin?
-        const isSuperAdmin = hasPermission(session.user.role, ACTIONS.MANAGE_PERMISSIONS);
+        const isSuperAdmin = session.user.role === 'SUPER_ADMIN' || session.user.role === 'ADMIN';
         
         let requests;
         if (isSuperAdmin) {
@@ -76,8 +76,8 @@ export async function PUT(req) {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        // Only Super Admin (or someone with MANAGE_SETTINGS) can approve
-        if (!hasPermission(session.user.role, ACTIONS.MANAGE_SETTINGS)) {
+        // Only Super Admin or Admin can approve
+        if (session.user.role !== 'SUPER_ADMIN' && session.user.role !== 'ADMIN') {
             return NextResponse.json({ error: "Forbidden: Requires Super Admin" }, { status: 403 });
         }
 

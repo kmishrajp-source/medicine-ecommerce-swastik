@@ -2,19 +2,14 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { ACTIONS, hasPermission } from "@/lib/rbac";
+import { canAccess, STAFF_ROLES } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
-
-const STAFF_ROLES = ['OPERATIONS_MANAGER','SALES_MANAGER','MARKETING_MANAGER','PHARMACIST',
-    'WAREHOUSE_STAFF','CUSTOMER_SUPPORT','ORDER_PROCESSING','PROCUREMENT_OFFICER',
-    'STORE_KEEPER','DISPATCH_TEAM','SOCIAL_MEDIA_EXECUTIVE','DIGITAL_MARKETING_EXECUTIVE',
-    'FINANCE_ACCOUNTS','SALES_STAFF','ADMIN'];
 
 export async function GET(req) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        if (!hasPermission(session.user.role, ACTIONS.MANAGE_USERS)) {
+        if (!canAccess(session.user.role, 'staff-approvals')) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -44,7 +39,7 @@ export async function PUT(req) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        if (!hasPermission(session.user.role, ACTIONS.MANAGE_USERS)) {
+        if (!canAccess(session.user.role, 'staff-approvals')) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -83,7 +78,7 @@ export async function POST(req) {
     try {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        if (!hasPermission(session.user.role, ACTIONS.MANAGE_USERS)) {
+        if (!canAccess(session.user.role, 'staff-approvals')) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
-import { ACTIONS, hasPermission } from "@/lib/rbac";
+import { canAccess } from "@/lib/permissions";
 import { logAudit } from "@/lib/audit";
 import { sendCriticalAlert } from "@/lib/notifications";
 
@@ -39,7 +39,7 @@ export async function POST(req) {
         const session = await getServerSession(authOptions);
         if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-        if (!hasPermission(session.user.role, ACTIONS.MANAGE_SOPS)) {
+        if (!canAccess(session.user.role, 'sop')) {
             return NextResponse.json({ error: "Forbidden: Cannot manage SOPs" }, { status: 403 });
         }
 

@@ -14,7 +14,8 @@ model User {
   email               String               @unique
   password            String
   name                String?
-  role                String               @default("CUSTOMER") // ADMIN, CUSTOMER
+  role                String               @default("CUSTOMER") // SUPER_ADMIN, ADMIN, PHARMACIST, ACCOUNTS, DELIVERY_MANAGER, CRM_STAFF, OPERATIONS, CUSTOMER
+  staffDepartment     String?              // e.g. "Pharmacy", "Accounts", "Delivery", "CRM", "Operations"
   isApproved          Boolean              @default(false)
   createdAt           DateTime             @default(now())
   orders              Order[]
@@ -122,7 +123,7 @@ model Product {
 
   // --- Regulatory / Tax ---
   hsnCode   String  @default("3004")    // HSN 3004 = Medicaments (Most pharma products)
-  gstRate   Float   @default(5.0)       // 0 / 5 / 12 / 18 % — MRP is GST-inclusive
+  gstRate   Float   @default(5.0)       // 0 / 5 / 12 / 18 % - MRP is GST-inclusive
 
   orderItems          OrderItem[]
   stockLogs           StockLog[]
