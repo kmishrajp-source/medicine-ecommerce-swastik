@@ -199,7 +199,7 @@ export async function POST(req) {
                 const shortId = order.id.slice(-6).toUpperCase();
                 await sendSMS(
                     phone,
-                    `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                    `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nView your invoice here: https://www.swastikmed.online/order/${order.id}/invoice\n\nThank you for trusting Swastik Medicare.`
                 );
             }
 

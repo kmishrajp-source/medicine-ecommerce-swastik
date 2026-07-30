@@ -343,7 +343,7 @@ export async function POST(req) {
         if (customerPhone) {
             await sendSMS(
                 customerPhone,
-                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${newOrder.deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${newOrder.deliveryCode}\n\nView your invoice here: https://www.swastikmed.online/order/${newOrder.id}/invoice\n\nThank you for trusting Swastik Medicare.`
             );
         }
 
