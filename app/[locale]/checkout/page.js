@@ -161,6 +161,16 @@ export default function Checkout() {
             return;
         }
 
+        if (!deliveryInfo && !loadingDelivery) {
+            alert("Please wait for the delivery charge to be calculated, or provide a complete address/location first.");
+            return;
+        }
+
+        if (loadingDelivery) {
+            alert("Calculating delivery charge, please wait a moment.");
+            return;
+        }
+
         if (hasRxItems && !prescriptionUrl) {
             alert("Please provide a prescription image URL for the medicines in your cart.");
             return;
@@ -201,7 +211,7 @@ export default function Checkout() {
                         : '\nDelivery: FREE ✓';
                     alert(`Order Placed Successfully!${deliveryMsg}\nTotal Paid: ₹${finalTotal.toFixed(2)}\n\nYour Secret Delivery Code: ${data.deliveryCode}\n\nPlease save this code. You will need it to receive your delivery.`);
                     clearCart();
-                    router.push(session ? '/profile' : '/');
+                    router.push(`/order/${data.orderId}/invoice`);
                 } else {
                     alert(data.error || "Failed to place COD order");
                 }
@@ -241,7 +251,7 @@ export default function Checkout() {
                 if (data.success) {
                     alert(`Order Placed! \n\nPlease ensure you have paid ₹${finalTotal.toFixed(2)} to the QR Code.\nYour Order ID: ${data.deliveryCode} (Use this as reference).`);
                     clearCart();
-                    router.push(session ? '/profile' : '/');
+                    router.push(`/order/${data.orderId}/invoice`);
                 } else {
                     alert(data.error || "Failed to place order");
                 }
@@ -344,7 +354,7 @@ export default function Checkout() {
 
                             clearCart();
                             alert("Payment Successful! Order Placed.");
-                            router.push(session ? '/profile' : '/');
+                            router.push(`/order/${verifyData.orderId || orderData.id}/invoice`);
                         } else {
                             alert("Payment Verification Failed: " + verifyData.error);
                         }
