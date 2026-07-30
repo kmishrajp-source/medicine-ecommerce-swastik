@@ -17,7 +17,6 @@ const DELIVERY_GST_RATE = 18; // Transport = 18% GST
 
 export default async function InvoicePage({ params }) {
     const session = await getServerSession(authOptions);
-    if (!session) redirect('/login');
     const { id } = await params;
 
     const order = await prisma.order.findUnique({
@@ -41,8 +40,15 @@ export default async function InvoicePage({ params }) {
     });
 
     if (!order) return <div style={{ padding: '40px', fontFamily: 'monospace' }}>Order not found</div>;
-    if (order.userId !== session.user.id && session.user.role !== 'ADMIN')
+
+    const isOwner = session?.user?.id === order.userId;
+    const isAdmin = session?.user?.role === 'ADMIN';
+    const isGuestOrder = Boolean(order.guestPhone || order.guestEmail || order.guestName);
+
+    if (!isOwner && !isAdmin && !isGuestOrder) {
+        if (!session) redirect('/login');
         return <div style={{ padding: '40px', fontFamily: 'monospace' }}>Unauthorized</div>;
+    }
 
     // ── Line items with GST ───────────────────────────────────────────────────
     const lines = order.items.map((item) => {
