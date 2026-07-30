@@ -20,7 +20,7 @@ export async function GET(req) {
             where: { role: { in: STAFF_ROLES } },
             select: {
                 id: true, name: true, email: true, role: true,
-                isApproved: true, createdAt: true, staffDepartment: true
+                isApproved: true, createdAt: true
             },
             orderBy: { createdAt: 'desc' }
         });
@@ -42,7 +42,7 @@ export async function POST(req) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { name, email, password, role, staffDepartment } = await req.json();
+        const { name, email, password, role } = await req.json();
 
         if (!email || !password || !role) {
             return NextResponse.json({ error: 'Email, password and role are required' }, { status: 400 });
@@ -66,7 +66,6 @@ export async function POST(req) {
                 email: email.toLowerCase(),
                 password: hashedPassword,
                 role,
-                staffDepartment: staffDepartment || null,
                 isApproved: true // admin-created accounts are auto-approved
             },
             select: { id: true, name: true, email: true, role: true, isApproved: true }
@@ -89,13 +88,12 @@ export async function PUT(req) {
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { id, name, password, role, staffDepartment } = await req.json();
+        const { id, name, password, role } = await req.json();
         if (!id) return NextResponse.json({ error: 'Staff ID required' }, { status: 400 });
 
         const updateData = {};
         if (name !== undefined) updateData.name = name;
         if (role && STAFF_ROLES.includes(role)) updateData.role = role;
-        if (staffDepartment !== undefined) updateData.staffDepartment = staffDepartment;
         if (password && password.length >= 6) {
             updateData.password = await bcrypt.hash(password, 10);
         }
@@ -103,7 +101,7 @@ export async function PUT(req) {
         const updated = await prisma.user.update({
             where: { id },
             data: updateData,
-            select: { id: true, name: true, email: true, role: true, isApproved: true, staffDepartment: true }
+            select: { id: true, name: true, email: true, role: true, isApproved: true }
         });
 
         return NextResponse.json({ success: true, staff: updated });
