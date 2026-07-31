@@ -23,6 +23,12 @@ export default function ReferPage() {
     const [copied, setCopied] = useState(false);
     const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
 
+    // Direct Invite State
+    const [invitePhone, setInvitePhone] = useState("");
+    const [inviteLoading, setInviteLoading] = useState(false);
+    const [inviteMessage, setInviteMessage] = useState("");
+    const [inviteError, setInviteError] = useState("");
+
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/login");
@@ -59,6 +65,33 @@ export default function ReferPage() {
         navigator.clipboard.writeText(referralCode);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleDirectInvite = async (e) => {
+        e.preventDefault();
+        setInviteMessage("");
+        setInviteError("");
+        setInviteLoading(true);
+
+        try {
+            const res = await fetch("/api/refer/invite", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ friendPhone: invitePhone })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                setInviteMessage(data.message);
+                setInvitePhone("");
+            } else {
+                setInviteError(data.error || "Failed to send invite.");
+            }
+        } catch (err) {
+            setInviteError("Network error. Please try again.");
+        } finally {
+            setInviteLoading(false);
+        }
     };
 
     return (
@@ -137,6 +170,47 @@ export default function ReferPage() {
                             >
                                 <i className="fa-brands fa-whatsapp" style={{ fontSize: '1.4rem' }}></i> Send via WhatsApp
                             </button>
+
+                            {/* Direct Invite Form */}
+                            <div style={{ marginTop: '30px', paddingTop: '30px', borderTop: '1px solid #E5E7EB', textAlign: 'left' }}>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#374151', marginBottom: '10px' }}>
+                                    Or directly invite a friend 🤝
+                                </h3>
+                                <p style={{ color: '#6B7280', fontSize: '0.9rem', marginBottom: '15px' }}>
+                                    Enter their mobile number and we'll instantly send them an SMS invite with your referral code.
+                                </p>
+                                
+                                {inviteMessage && (
+                                    <div style={{ background: '#D1FAE5', color: '#065F46', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.9rem', border: '1px solid #34D399' }}>
+                                        ✅ {inviteMessage}
+                                    </div>
+                                )}
+                                
+                                {inviteError && (
+                                    <div style={{ background: '#FEE2E2', color: '#991B1B', padding: '10px', borderRadius: '8px', marginBottom: '15px', fontSize: '0.9rem', border: '1px solid #F87171' }}>
+                                        ❌ {inviteError}
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleDirectInvite} style={{ display: 'flex', gap: '10px' }}>
+                                    <input
+                                        type="tel"
+                                        placeholder="10-digit Mobile No."
+                                        value={invitePhone}
+                                        onChange={(e) => setInvitePhone(e.target.value)}
+                                        required
+                                        maxLength={10}
+                                        style={{ flex: 1, padding: '12px', border: '1px solid #D1D5DB', borderRadius: '8px', outline: 'none' }}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={inviteLoading}
+                                        style={{ background: '#4F46E5', color: 'white', padding: '12px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold', cursor: inviteLoading ? 'not-allowed' : 'pointer' }}
+                                    >
+                                        {inviteLoading ? 'Sending...' : 'Invite & Earn'}
+                                    </button>
+                                </form>
+                            </div>
                         </div>
                     )}
 
