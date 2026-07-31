@@ -147,8 +147,13 @@ export default function HomeClient() {
                         </Link>
 
                         {/* Medicine Directory Button */}
-                        <Link href="/shop-medicines" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
-                            <i className="fa-solid fa-book-medical" style={{ marginRight: '8px', fontSize: '12px' }}></i> Medicine Directory
+                        <Link href="/shop-medicines" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                            <i className="fa-solid fa-capsules" style={{ marginRight: '8px', fontSize: '12px' }}></i> Medicine Directory
+                        </Link>
+
+                        {/* Marketing Team: Register Customer */}
+                        <Link href="/marketing/register-customer" className="bg-green-50 text-green-700 border-2 border-green-200 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-green-600 hover:text-white hover:border-green-600 transition-all text-center shadow-lg shadow-green-100" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
+                            <i className="fa-solid fa-user-plus" style={{ marginRight: '8px', fontSize: '12px' }}></i> Register Customer
                         </Link>
 
                         {/* Doctor Directory Button */}
