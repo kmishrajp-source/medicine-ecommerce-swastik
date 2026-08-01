@@ -676,15 +676,15 @@ export default function Inventory() {
                         </div>
 
                         <p style={{ color: '#64748B', marginTop: 0, fontSize: '0.9em' }}>
-                            Upload a photo of your distributor's purchase invoice. The system will use OCR to automatically detect medicine names, batch numbers, buying prices, and MRP — then update your inventory and pricing.
+                            Upload a photo or PDF of your distributor's purchase invoice. The system will automatically detect medicine names, batch numbers, buying prices, and MRP — then update your inventory and pricing.
                         </p>
 
                         {!invoiceResults ? (
                             <>
                                 <div style={{ border: '2px dashed #CBD5E1', borderRadius: '12px', padding: '40px', textAlign: 'center', background: '#F8FAFC', marginBottom: '16px' }}>
                                     <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🧾</div>
-                                    <p style={{ margin: '0 0 12px', color: '#64748B' }}>Click below to select invoice image (JPG, PNG)</p>
-                                    <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={e => setInvoiceFile(e.target.files[0])} />
+                                    <p style={{ margin: '0 0 12px', color: '#64748B' }}>Click below to select invoice (JPG, PNG, PDF)</p>
+                                    <input ref={fileInputRef} type="file" accept="image/*,.pdf,application/pdf" style={{ display: 'none' }} onChange={e => setInvoiceFile(e.target.files[0])} />
                                     <button onClick={() => fileInputRef.current?.click()}
                                         style={{ background: '#EDE9FE', color: '#7C3AED', border: '1px solid #C4B5FD', borderRadius: '8px', padding: '10px 20px', cursor: 'pointer', fontWeight: '600' }}>
                                         📁 Choose File

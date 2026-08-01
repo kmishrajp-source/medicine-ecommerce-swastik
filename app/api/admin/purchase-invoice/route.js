@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createWorker } from 'tesseract.js';
+import pdfParse from 'pdf-parse';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -114,15 +115,31 @@ export async function POST(req) {
             return NextResponse.json({ error: 'No invoice image provided' }, { status: 400 });
         }
 
-        // 1. Run Tesseract OCR
+        const isPdf = imageFile.type === 'application/pdf' || imageFile.name.toLowerCase().endsWith('.pdf');
+
         const arrayBuffer = await imageFile.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
 
-        const worker = await createWorker('eng');
-        const { data: { text } } = await worker.recognize(buffer);
-        await worker.terminate();
+        let text = "";
 
-        // 2. Parse invoice items from OCR text
+        if (isPdf) {
+            // 1a. Parse digital PDF directly
+            try {
+                const pdfData = await pdfParse(buffer);
+                text = pdfData.text;
+            } catch (err) {
+                console.error("PDF Parse error", err);
+                return NextResponse.json({ error: 'Failed to parse PDF document.' }, { status: 400 });
+            }
+        } else {
+            // 1b. Run Tesseract OCR for images
+            const worker = await createWorker('eng');
+            const result = await worker.recognize(buffer);
+            text = result.data.text;
+            await worker.terminate();
+        }
+
+        // 2. Parse invoice items from extracted text
         const parsedItems = parseInvoiceText(text);
 
         if (parsedItems.length === 0) {
