@@ -230,12 +230,12 @@ export default function Inventory() {
 
             const res = await fetch('/api/admin/purchase-invoice', { method: 'POST', body: fd });
             
+            const responseText = await res.text();
             let data;
             try {
-                data = await res.json();
+                data = JSON.parse(responseText);
             } catch (jsonErr) {
-                const text = await res.text();
-                throw new Error(`Server returned non-JSON: ${res.status} ${text.substring(0, 100)}`);
+                throw new Error(`Server returned non-JSON: ${res.status} ${responseText.substring(0, 100)}`);
             }
 
             if (res.status >= 400) {
