@@ -237,38 +237,60 @@ export async function PATCH(req) {
 
         for (const item of items) {
             const { productId, purchasePrice, mrp, qty, batchNumber, expiryDate } = item;
-            if (!productId) {
-                results.push({ ...item, status: 'SKIPPED_NO_ID' });
-                continue;
-            }
+            let finalProductId = productId;
 
             const sellingPrice = parseFloat((mrp * 0.90).toFixed(2));
             const margin = parseFloat((sellingPrice - purchasePrice).toFixed(2));
             const marginPercent = mrp > 0 ? parseFloat(((margin / mrp) * 100).toFixed(2)) : 0;
 
-            await prisma.product.update({
-                where: { id: productId },
-                data: {
-                    buyingPrice: purchasePrice,
-                    mrp,
-                    price: sellingPrice,
-                    stock: { increment: qty || 0 },
-                    ...(batchNumber && { batchNumber }),
-                    ...(expiryDate && { expiryDate: new Date(expiryDate) }),
-                }
-            });
+            if (!finalProductId) {
+                // Auto-create new product
+                const newProduct = await prisma.product.create({
+                    data: {
+                        name: item.medicineName,
+                        category: 'General',
+                        price: sellingPrice,
+                        buyingPrice: purchasePrice,
+                        mrp: mrp,
+                        stock: qty,
+                        requiresPrescription: false,
+                        description: `Auto-created from invoice`,
+                        ...(batchNumber && { batchNumber }),
+                        ...(expiryDate && { expiryDate: new Date(expiryDate) }),
+                    }
+                });
+                finalProductId = newProduct.id;
+            } else {
+                // Update existing product
+                await prisma.product.update({
+                    where: { id: finalProductId },
+                    data: {
+                        buyingPrice: purchasePrice,
+                        mrp,
+                        price: sellingPrice,
+                        stock: { increment: qty || 0 },
+                        ...(batchNumber && { batchNumber }),
+                        ...(expiryDate && { expiryDate: new Date(expiryDate) }),
+                    }
+                });
+            }
 
             await prisma.pharmacyInventory.upsert({
-                where: { productId },
-                create: { productId, purchasePrice, sellingPrice, stock: qty || 0, marginPercent },
+                where: { productId: finalProductId },
+                create: { productId: finalProductId, purchasePrice, sellingPrice, stock: qty || 0, marginPercent },
                 update: { purchasePrice, sellingPrice, stock: { increment: qty || 0 }, marginPercent }
             });
 
             await prisma.stockLog.create({
-                data: { productId, quantity: qty || 0, buyingPrice: purchasePrice, type: 'PURCHASE_INVOICE' }
+                data: {
+                    productId: finalProductId,
+                    quantity: qty || 0,
+                    buyingPrice: purchasePrice,
+                    type: productId ? 'PURCHASE_INVOICE' : 'INITIAL_STOCK'
+                }
             });
 
-            results.push({ ...item, sellingPrice, margin, marginPercent, status: 'UPDATED' });
+            results.push({ ...item, sellingPrice, margin, marginPercent, status: productId ? 'UPDATED' : 'CREATED', productId: finalProductId });
         }
 
         return NextResponse.json({ success: true, results });

@@ -238,10 +238,10 @@ export default function Inventory() {
                         p.name.toLowerCase().includes(item.medicineName.toLowerCase().split(' ')[0]) ||
                         item.medicineName.toLowerCase().includes(p.name.toLowerCase().split(' ')[0])
                     );
-                    return { ...item, productId: match?.id || null, productName: match?.name || '❌ Not Found', confirmed: !!match };
+                    return { ...item, productId: match?.id || null, productName: match?.name || '✨ New Product (Will Auto-Create)', confirmed: true };
                 });
                 setInvoiceResults(enriched);
-                setSelectedInvoiceItems(enriched.filter(i => i.confirmed).map((_, idx) => idx));
+                setSelectedInvoiceItems(enriched.map((_, idx) => idx));
             } else {
                 alert(data.message || "Could not parse invoice. Try a clearer image.");
             }
@@ -255,8 +255,7 @@ export default function Inventory() {
 
     const handleApplyInvoice = async () => {
         const itemsToApply = invoiceResults
-            .filter((_, idx) => selectedInvoiceItems.includes(idx))
-            .filter(i => i.productId);
+            .filter((_, idx) => selectedInvoiceItems.includes(idx));
 
         if (itemsToApply.length === 0) return alert("No matched items selected");
 
