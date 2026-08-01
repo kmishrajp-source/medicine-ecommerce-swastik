@@ -229,7 +229,18 @@ export default function Inventory() {
             fd.append('autoApply', 'false'); // Parse only, let admin confirm
 
             const res = await fetch('/api/admin/purchase-invoice', { method: 'POST', body: fd });
-            const data = await res.json();
+            
+            let data;
+            try {
+                data = await res.json();
+            } catch (jsonErr) {
+                const text = await res.text();
+                throw new Error(`Server returned non-JSON: ${res.status} ${text.substring(0, 100)}`);
+            }
+
+            if (res.status >= 400) {
+                throw new Error(data.error || `HTTP Error ${res.status}`);
+            }
 
             if (data.parsedItems?.length > 0) {
                 // Enrich with product match from current product list
@@ -246,8 +257,7 @@ export default function Inventory() {
                 alert(data.message || "Could not parse invoice. Try a clearer image.");
             }
         } catch (err) {
-            console.error(err);
-            alert("Error processing invoice");
+            alert("Error processing invoice: " + (err.message || JSON.stringify(err)));
         } finally {
             setInvoiceParsing(false);
         }

@@ -34,6 +34,7 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  serverExternalPackages: ['pdf-parse'],
 };
 
 export default withNextIntl(withPWA(nextConfig));
