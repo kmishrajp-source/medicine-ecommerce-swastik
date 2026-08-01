@@ -15,11 +15,6 @@ const URGENCY_STYLE = {
     WARNING:      { bg: '#F0FDF4', color: '#166534', border: '#86EFAC', label: '🟡 WARNING (≤20)' },
 };
 
-const overlayStyle = { position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.7)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(4px)' };
-const modalStyle = { background: 'white', padding: '32px', borderRadius: '24px', width: '90%', maxWidth: '600px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', border: '1px solid #E2E8F0' };
-const inputStyle = { width: '100%', padding: '12px 16px', border: '2px solid #E2E8F0', borderRadius: '12px', fontSize: '1em', outline: 'none', transition: 'border-color 0.2s' };
-const labelStyle = { display: 'block', marginBottom: '8px', fontWeight: '700', color: '#1E293B', fontSize: '0.9em' };
-
 export default function Inventory() {
     const { data: session, status } = useSession();
     const router = useRouter();
