@@ -315,7 +315,7 @@ export default function Inventory() {
     return (
         <>
             <Navbar cartCount={0} openCart={() => { }} />
-            <div className="container" style={{ marginTop: '100px', paddingBottom: '60px' }}>
+            <div className="container" style={{ marginTop: '180px', paddingBottom: '60px' }}>
 
                 {/* ── Header ─── */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
@@ -333,8 +333,22 @@ export default function Inventory() {
                             💵 Counter Sale
                         </button>
                         <button onClick={() => setShowInvoiceModal(true)}
-                            style={{ background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', color: '#fff', border: 'none', borderRadius: '50px', padding: '10px 22px', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            📄 Upload Purchase Invoice
+                            style={{ 
+                                background: 'linear-gradient(135deg,#7C3AED,#4F46E5)', 
+                                color: '#fff', 
+                                border: 'none', 
+                                borderRadius: '50px', 
+                                padding: '15px 30px', 
+                                fontSize: '1.2rem',
+                                fontWeight: '900', 
+                                cursor: 'pointer', 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: '10px',
+                                boxShadow: '0 8px 20px rgba(79, 70, 229, 0.4)',
+                                transform: 'scale(1.05)'
+                            }}>
+                            📄 UPLOAD AI INVOICE
                         </button>
                         <button onClick={() => router.push('/admin/bulk-upload')}
                             style={{ background: '#E2E8F0', color: '#1E293B', border: 'none', borderRadius: '50px', padding: '10px 22px', fontWeight: 'bold', cursor: 'pointer' }}>
