@@ -655,12 +655,31 @@ export default function AdminCRMDashboard() {
                         </div>
 
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Paste VCF / CSV / Numbers List</label>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: 800, color: '#475569', textTransform: 'uppercase' }}>Select File from Phone OR Paste Below</label>
+                                <label style={{ background: '#e0e7ff', color: '#4338ca', padding: '6px 12px', borderRadius: '8px', fontSize: '0.75rem', fontWeight: 800, cursor: 'pointer', border: '1px solid #c7d2fe' }}>
+                                    📁 Pick File (.vcf / .csv / .txt)
+                                    <input
+                                        type="file"
+                                        accept=".vcf,.csv,.txt,text/vcard,text/plain"
+                                        style={{ display: 'none' }}
+                                        onChange={e => {
+                                            const file = e.target.files[0];
+                                            if (!file) return;
+                                            const reader = new FileReader();
+                                            reader.onload = (evt) => {
+                                                setRawContactText(evt.target.result);
+                                            };
+                                            reader.readAsText(file);
+                                        }}
+                                    />
+                                </label>
+                            </div>
                             <textarea
                                 rows={6}
                                 value={rawContactText}
                                 onChange={e => setRawContactText(e.target.value)}
-                                placeholder="Paste numbers or VCF text here, e.g.:&#10;Rahul Friend, 9876543210&#10;Neha Wife Friend, +91 9123456789&#10;Pooja Bhabhi, 8877665544"
+                                placeholder="Click '📁 Pick File' above to load directly from your phone / USB storage, or paste text here!&#10;&#10;Supported files: .vcf (Contacts export), .csv, .txt"
                                 style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '0.85rem', fontFamily: 'monospace' }}
                             />
                         </div>
