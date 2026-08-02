@@ -130,7 +130,11 @@ export async function POST(req) {
                     
                     pdfParser.on("pdfParser_dataError", errData => reject(new Error(errData.parserError)));
                     pdfParser.on("pdfParser_dataReady", pdfData => {
-                        resolve(pdfParser.getRawTextContent());
+                        try {
+                            resolve(decodeURIComponent(pdfParser.getRawTextContent()));
+                        } catch (e) {
+                            resolve(pdfParser.getRawTextContent()); // fallback if decode fails
+                        }
                     });
                     
                     pdfParser.parseBuffer(buffer);
