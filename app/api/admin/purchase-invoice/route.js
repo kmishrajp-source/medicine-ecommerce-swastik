@@ -122,11 +122,19 @@ export async function POST(req) {
         let text = "";
 
         if (isPdf) {
-            // 1a. Parse digital PDF directly
+            // 1a. Parse digital PDF directly using pdf2json to avoid DOMMatrix error
             try {
-                const pdfParse = (await import('pdf-parse')).default;
-                const pdfData = await pdfParse(buffer);
-                text = pdfData.text;
+                text = await new Promise((resolve, reject) => {
+                    const PDFParser = require("pdf2json");
+                    const pdfParser = new PDFParser(null, 1);
+                    
+                    pdfParser.on("pdfParser_dataError", errData => reject(new Error(errData.parserError)));
+                    pdfParser.on("pdfParser_dataReady", pdfData => {
+                        resolve(pdfParser.getRawTextContent());
+                    });
+                    
+                    pdfParser.parseBuffer(buffer);
+                });
             } catch (err) {
                 console.error("PDF Parse error", err);
                 return NextResponse.json({ error: 'Failed to parse PDF document: ' + (err.message || err.toString()) }, { status: 400 });
