@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import { useSession } from "next-auth/react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 
 // ── Pricing Helper ─────────────────────────────────────────────────────────────
@@ -47,6 +47,29 @@ export default function Inventory() {
         stock: "", description: "", requiresPrescription: false,
         image: "", expiryDate: "", batchNumber: ""
     });
+
+    // Pagination & Search State
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchTerm, setSearchTerm] = useState("");
+    const itemsPerPage = 50;
+
+    const filteredProducts = useMemo(() => {
+        if (!searchTerm) return products;
+        const lower = searchTerm.toLowerCase();
+        return products.filter(p => 
+            p.name.toLowerCase().includes(lower) || 
+            (p.category && p.category.toLowerCase().includes(lower))
+        );
+    }, [products, searchTerm]);
+
+    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1;
+    const paginatedProducts = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredProducts.slice(start, start + itemsPerPage);
+    }, [filteredProducts, currentPage, itemsPerPage]);
+
+    // Reset to page 1 when search changes
+    useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
     // Restock Modal State
     const [restockData, setRestockData] = useState({
@@ -568,6 +591,19 @@ export default function Inventory() {
                 )}
 
                 {/* ── Products Table ─── */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '16px' }}>
+                    <input 
+                        type="text" 
+                        placeholder="🔍 Search medicines by name or category..." 
+                        value={searchTerm} 
+                        onChange={e => setSearchTerm(e.target.value)} 
+                        style={{ ...inputStyle, maxWidth: '400px', background: 'white' }} 
+                    />
+                    <div style={{ color: '#64748B', fontSize: '0.9em', fontWeight: '500' }}>
+                        Showing {paginatedProducts.length} of {filteredProducts.length} medicines
+                    </div>
+                </div>
+
                 <div style={{ background: 'white', borderRadius: '16px', boxShadow: '0 2px 12px rgba(0,0,0,0.06)', overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '900px' }}>
                         <thead style={{ background: '#F8FAFC', textAlign: 'left' }}>
@@ -578,9 +614,9 @@ export default function Inventory() {
                             </tr>
                         </thead>
                         <tbody>
-                            {products.length === 0 ? (
+                            {paginatedProducts.length === 0 ? (
                                 <tr><td colSpan="10" style={{ padding: '40px', textAlign: 'center', color: '#94A3B8' }}>No products found. Add one!</td></tr>
-                            ) : products.map(product => {
+                            ) : paginatedProducts.map(product => {
                                 const sp = calcSellingPrice(product.mrp) || product.price;
                                 const margin = calcMargin(sp, product.buyingPrice || 0);
                                 return (
@@ -623,6 +659,29 @@ export default function Inventory() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* ── Pagination Controls ─── */}
+                {totalPages > 1 && (
+                    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', marginTop: '20px' }}>
+                        <button 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                            style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #CBD5E1', background: currentPage === 1 ? '#F1F5F9' : 'white', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', color: '#475569', fontWeight: '600' }}
+                        >
+                            Previous
+                        </button>
+                        <span style={{ fontWeight: '600', color: '#1E293B' }}>
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button 
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                            style={{ padding: '8px 16px', borderRadius: '8px', border: '1px solid #CBD5E1', background: currentPage === totalPages ? '#F1F5F9' : 'white', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', color: '#475569', fontWeight: '600' }}
+                        >
+                            Next
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* ── Restock Modal ─────────────────────────────────────────────── */}
