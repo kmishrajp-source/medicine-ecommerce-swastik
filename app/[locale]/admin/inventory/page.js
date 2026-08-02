@@ -243,11 +243,18 @@ export default function Inventory() {
             }
 
             if (data.parsedItems?.length > 0) {
+                // Pre-compute product names to avoid freezing the browser with millions of string operations
+                const productSearchKeys = products.map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    searchKey: p.name?.toLowerCase().split(' ')[0] || ''
+                }));
+
                 // Enrich with product match from current product list
                 const enriched = data.parsedItems.map(item => {
-                    const match = products.find(p =>
-                        p.name.toLowerCase().includes(item.medicineName.toLowerCase().split(' ')[0]) ||
-                        item.medicineName.toLowerCase().includes(p.name.toLowerCase().split(' ')[0])
+                    const itemKey = item.medicineName?.toLowerCase().split(' ')[0] || '';
+                    const match = productSearchKeys.find(p =>
+                        p.searchKey && itemKey && (p.searchKey.includes(itemKey) || itemKey.includes(p.searchKey))
                     );
                     return { ...item, productId: match?.id || null, productName: match?.name || '✨ New Product (Will Auto-Create)', confirmed: true };
                 });
