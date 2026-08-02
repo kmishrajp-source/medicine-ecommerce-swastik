@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createWorker } from 'tesseract.js';
-import pdfParse from 'pdf-parse';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -125,6 +124,7 @@ export async function POST(req) {
         if (isPdf) {
             // 1a. Parse digital PDF directly
             try {
+                const pdfParse = (await import('pdf-parse')).default;
                 const pdfData = await pdfParse(buffer);
                 text = pdfData.text;
             } catch (err) {
