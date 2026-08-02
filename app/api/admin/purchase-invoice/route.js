@@ -129,7 +129,7 @@ export async function POST(req) {
                 text = pdfData.text;
             } catch (err) {
                 console.error("PDF Parse error", err);
-                return NextResponse.json({ error: 'Failed to parse PDF document.' }, { status: 400 });
+                return NextResponse.json({ error: 'Failed to parse PDF document: ' + (err.message || err.toString()) }, { status: 400 });
             }
         } else {
             // 1b. Run Tesseract OCR for images
