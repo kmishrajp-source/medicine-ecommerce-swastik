@@ -22,6 +22,14 @@ export default function AdminCRMDashboard() {
     // New States for Providers and Logistics
     const [providers, setProviders] = useState([]);
     const [deliveries, setDeliveries] = useState([]);
+
+    // Contact Import States
+    const [showContactModal, setShowContactModal] = useState(false);
+    const [rawContactText, setRawContactText] = useState("");
+    const [contactTag, setContactTag] = useState("Personal Contact");
+    const [importingContacts, setImportingContacts] = useState(false);
+    const [importedCustomers, setImportedCustomers] = useState([]);
+    const [importResult, setImportResult] = useState(null);
     
     // Pagination state
     const [page, setPage] = useState(1);
@@ -261,6 +269,12 @@ export default function AdminCRMDashboard() {
                 </div>
                 {activeTab === 'leads' && (
                     <div className="flex gap-2">
+                        <button 
+                            onClick={() => setShowContactModal(true)}
+                            className="bg-emerald-600 text-white px-5 py-2.5 rounded-xl font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-lg text-xs"
+                        >
+                            <i className="fa-solid fa-mobile-screen-button"></i> 📱 Import Mobile Contacts (+91)
+                        </button>
                         <button 
                             onClick={exportToClickUp}
                             className="bg-indigo-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-indigo-700 transition-all shadow-lg text-xs"
@@ -615,6 +629,124 @@ export default function AdminCRMDashboard() {
                             ))}
                         </div>
                    </div>
+                </div>
+            )}
+            {/* Contact Import Modal */}
+            {showContactModal && (
+                <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
+                    <div style={{ background: '#ffffff', width: '100%', maxWidth: '640px', borderRadius: '24px', padding: '32px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a' }}>📱 Import Mobile Friends & Contacts</h3>
+                            <button onClick={() => setShowContactModal(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', fontWeight: 700 }}>✕</button>
+                        </div>
+
+                        <p style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '16px' }}>
+                            Paste phone numbers, VCF file text, or CSV rows below. The AI will <strong>filter only Indian (+91) numbers</strong>, clean up names (removes "Friend", "Gym", etc.), register them as Customers, and let you invite them via WhatsApp/SMS!
+                        </p>
+
+                        <div style={{ marginBottom: '16px' }}>
+                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Contact Source / Tag</label>
+                            <select value={contactTag} onChange={e => setContactTag(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}>
+                                <option value="Personal Friend">Personal Friend</option>
+                                <option value="Wife Friend">Wife's Friend</option>
+                                <option value="Family & Relative">Family & Relative</option>
+                                <option value="College / Work Friend">College / Work Friend</option>
+                            </select>
+                        </div>
+
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 800, color: '#475569', marginBottom: '6px', textTransform: 'uppercase' }}>Paste VCF / CSV / Numbers List</label>
+                            <textarea
+                                rows={6}
+                                value={rawContactText}
+                                onChange={e => setRawContactText(e.target.value)}
+                                placeholder="Paste numbers or VCF text here, e.g.:&#10;Rahul Friend, 9876543210&#10;Neha Wife Friend, +91 9123456789&#10;Pooja Bhabhi, 8877665544"
+                                style={{ width: '100%', padding: '12px', borderRadius: '12px', border: '1px solid #cbd5e1', fontSize: '0.85rem', fontFamily: 'monospace' }}
+                            />
+                        </div>
+
+                        {importResult && (
+                            <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', padding: '16px', marginBottom: '20px', fontSize: '0.85rem', color: '#166534' }}>
+                                <strong>✅ {importResult.message}</strong>
+                            </div>
+                        )}
+
+                        {importedCustomers.length > 0 && (
+                            <div style={{ marginBottom: '20px' }}>
+                                <h4 style={{ fontSize: '0.9rem', fontWeight: 800, marginBottom: '10px' }}>⚡ Invite Registered Customers via WhatsApp:</h4>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
+                                    {importedCustomers.map(c => {
+                                        const waMsg = encodeURIComponent(`Hi ${c.name}! Swastik Medicare is now online. Order your daily medicines & health essentials at 10% off: https://swastikmedicare.com/en`);
+                                        return (
+                                            <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
+                                                <div>
+                                                    <strong>{c.name}</strong> ({c.phone})
+                                                </div>
+                                                <a
+                                                    href={`https://wa.me/91${c.phone}?text=${waMsg}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    style={{ background: '#22c55e', color: '#fff', padding: '4px 12px', borderRadius: '6px', fontWeight: 700, textDecoration: 'none', fontSize: '0.75rem' }}
+                                                >
+                                                    💬 Send WhatsApp Invite
+                                                </a>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        )}
+
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <button
+                                disabled={importingContacts || !rawContactText.trim()}
+                                onClick={async () => {
+                                    setImportingContacts(true);
+                                    setImportResult(null);
+                                    try {
+                                        // Simple regex extraction for lines
+                                        const lines = rawContactText.split('\n');
+                                        const parsed = lines.map(line => {
+                                            const matchPhone = line.match(/(?:\+91[\-\s]?)?[6-9]\d{9}/);
+                                            if (!matchPhone) return null;
+                                            const phone = matchPhone[0];
+                                            const name = line.replace(phone, '').replace(/[\,\;\:\+91]/g, '').trim() || 'Customer';
+                                            return { name, phone };
+                                        }).filter(Boolean);
+
+                                        if (parsed.length === 0) {
+                                            alert("No valid Indian phone numbers (+91) found in the text!");
+                                            setImportingContacts(false);
+                                            return;
+                                        }
+
+                                        const res = await fetch("/api/admin/customers/import", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({ contacts: parsed, tag: contactTag })
+                                        });
+                                        const data = await res.json();
+                                        if (data.success) {
+                                            setImportResult(data);
+                                            setImportedCustomers(data.customers || []);
+                                        } else {
+                                            alert(data.error || "Failed to import contacts");
+                                        }
+                                    } catch (e) {
+                                        alert("Error importing contacts: " + e.message);
+                                    } finally {
+                                        setImportingContacts(false);
+                                    }
+                                }}
+                                style={{ flex: 1, background: importingContacts ? '#cbd5e1' : '#059669', color: '#ffffff', border: 'none', borderRadius: '12px', padding: '14px', fontWeight: 800, cursor: importingContacts ? 'not-allowed' : 'pointer' }}
+                            >
+                                {importingContacts ? '⏳ Processing & Registering...' : '🚀 Register Indian (+91) Customers'}
+                            </button>
+                            <button onClick={() => setShowContactModal(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '12px', padding: '14px 24px', fontWeight: 700, cursor: 'pointer' }}>
+                                Close
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
