@@ -81,6 +81,7 @@ export default function Inventory() {
     const [invoiceParsing, setInvoiceParsing] = useState(false);
     const [invoiceResults, setInvoiceResults] = useState(null);
     const [selectedInvoiceItems, setSelectedInvoiceItems] = useState([]);
+    const [scanProgress, setScanProgress] = useState(0);
 
     useEffect(() => {
         if (status === 'loading') return;
@@ -241,15 +242,32 @@ export default function Inventory() {
         }
     };
 
-    // ── Invoice Upload ─────────────────────────────────────────────────────────
     const handleInvoiceUpload = async () => {
         if (!invoiceFile) return alert("Please select an invoice image");
         setInvoiceParsing(true);
         setInvoiceResults(null);
+        setScanProgress(0);
         try {
             const fd = new FormData();
-            fd.append('image', invoiceFile);
             fd.append('autoApply', 'false'); // Parse only, let admin confirm
+
+            const isPdf = invoiceFile.type === 'application/pdf' || invoiceFile.name.toLowerCase().endsWith('.pdf');
+            if (isPdf) {
+                fd.append('image', invoiceFile);
+            } else {
+                // Client-side OCR for images to avoid Vercel timeouts
+                const { createWorker } = await import('tesseract.js');
+                const worker = await createWorker('eng', 1, {
+                    logger: m => {
+                        if (m.status === 'recognizing text') {
+                            setScanProgress(Math.round(m.progress * 100));
+                        }
+                    }
+                });
+                const result = await worker.recognize(invoiceFile);
+                fd.append('extractedText', result.data.text);
+                await worker.terminate();
+            }
 
             const res = await fetch('/api/admin/purchase-invoice', { method: 'POST', body: fd });
             
@@ -292,6 +310,7 @@ export default function Inventory() {
             alert("Error processing invoice: " + (err.message || JSON.stringify(err)));
         } finally {
             setInvoiceParsing(false);
+            setScanProgress(0);
         }
     };
 
@@ -765,8 +784,14 @@ export default function Inventory() {
                                     {invoiceFile && <p style={{ marginTop: '10px', color: '#16A34A', fontWeight: '600' }}>✅ {invoiceFile.name}</p>}
                                 </div>
                                 <button onClick={handleInvoiceUpload} disabled={!invoiceFile || invoiceParsing}
-                                    style={{ width: '100%', background: invoiceParsing ? '#94A3B8' : 'linear-gradient(135deg,#7C3AED,#4F46E5)', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontWeight: '700', cursor: invoiceParsing ? 'not-allowed' : 'pointer', fontSize: '1em' }}>
-                                    {invoiceParsing ? '🔍 Scanning Invoice with OCR...' : '🔍 Scan Invoice'}
+                                    style={{ width: '100%', background: invoiceParsing ? '#94A3B8' : 'linear-gradient(135deg,#7C3AED,#4F46E5)', color: '#fff', border: 'none', borderRadius: '10px', padding: '14px', fontWeight: '700', cursor: invoiceParsing ? 'not-allowed' : 'pointer', fontSize: '1em', position: 'relative', overflow: 'hidden' }}>
+                                    
+                                    {invoiceParsing && scanProgress > 0 && scanProgress < 100 && (
+                                        <div style={{ position: 'absolute', top: 0, left: 0, height: '100%', background: 'rgba(255,255,255,0.2)', width: `${scanProgress}%`, transition: 'width 0.2s' }}></div>
+                                    )}
+                                    <span style={{ position: 'relative', zIndex: 1 }}>
+                                        {invoiceParsing ? (scanProgress > 0 ? `🔍 Scanning OCR... ${scanProgress}%` : '🔍 Processing Invoice...') : '🔍 Scan Invoice'}
+                                    </span>
                                 </button>
                             </>
                         ) : (

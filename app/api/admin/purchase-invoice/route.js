@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { createWorker } from 'tesseract.js';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
@@ -35,8 +34,7 @@ function parseInvoiceText(text) {
         const numbers = [...line.matchAll(/\d+(?:\.\d{1,2})?/g)].map(m => parseFloat(m[0]));
         if (numbers.length < 2) continue; // need at least qty + one price
 
-        // Try to identify medicine name (leading text before numbers)
-        const nameMatch = line.match(/^([A-Za-z][A-Za-z0-9\s\-\.]{2,40?}?)(?:\s+\d|\s+[A-Z]{1,4}\d)/);
+        const nameMatch = line.match(/^([A-Za-z][A-Za-z0-9\s\-\.]{2,40}?)(?:\s+\d|\s+[A-Z]{1,4}\d)/);
         if (!nameMatch) continue;
 
         const medicineName = nameMatch[1].trim();
@@ -108,47 +106,42 @@ export async function POST(req) {
 
         const formData = await req.formData();
         const imageFile = formData.get('image');
+        const extractedText = formData.get('extractedText');
         const autoApply = formData.get('autoApply') === 'true';
 
-        if (!imageFile) {
-            return NextResponse.json({ error: 'No invoice image provided' }, { status: 400 });
+        if (!imageFile && !extractedText) {
+            return NextResponse.json({ error: 'No invoice image or text provided' }, { status: 400 });
         }
 
-        const isPdf = imageFile.type === 'application/pdf' || imageFile.name.toLowerCase().endsWith('.pdf');
+        let text = extractedText || "";
 
-        const arrayBuffer = await imageFile.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
-
-        let text = "";
-
-        if (isPdf) {
-            // 1a. Parse digital PDF directly using pdf2json to avoid DOMMatrix error
-            try {
-                text = await new Promise((resolve, reject) => {
-                    const PDFParser = require("pdf2json");
-                    const pdfParser = new PDFParser(null, 1);
-                    
-                    pdfParser.on("pdfParser_dataError", errData => reject(new Error(errData.parserError)));
-                    pdfParser.on("pdfParser_dataReady", pdfData => {
-                        try {
-                            resolve(decodeURIComponent(pdfParser.getRawTextContent()));
-                        } catch (e) {
-                            resolve(pdfParser.getRawTextContent()); // fallback if decode fails
-                        }
+        if (!extractedText && imageFile) {
+            const isPdf = imageFile.type === 'application/pdf' || imageFile.name.toLowerCase().endsWith('.pdf');
+            if (isPdf) {
+                const arrayBuffer = await imageFile.arrayBuffer();
+                const buffer = Buffer.from(arrayBuffer);
+                // 1a. Parse digital PDF directly using pdf2json to avoid DOMMatrix error
+                try {
+                    text = await new Promise((resolve, reject) => {
+                        const PDFParser = require("pdf2json");
+                        const pdfParser = new PDFParser(null, 1);
+                        
+                        pdfParser.on("pdfParser_dataError", errData => reject(new Error(errData.parserError)));
+                        pdfParser.on("pdfParser_dataReady", pdfData => {
+                            try {
+                                resolve(decodeURIComponent(pdfParser.getRawTextContent()));
+                            } catch (e) {
+                                resolve(pdfParser.getRawTextContent()); // fallback if decode fails
+                            }
+                        });
+                        
+                        pdfParser.parseBuffer(buffer);
                     });
-                    
-                    pdfParser.parseBuffer(buffer);
-                });
-            } catch (err) {
-                console.error("PDF Parse error", err);
-                return NextResponse.json({ error: 'Failed to parse PDF document: ' + (err.message || err.toString()) }, { status: 400 });
+                } catch (err) {
+                    console.error("PDF Parse error", err);
+                    return NextResponse.json({ error: 'Failed to parse PDF document: ' + (err.message || err.toString()) }, { status: 400 });
+                }
             }
-        } else {
-            // 1b. Run Tesseract OCR for images
-            const worker = await createWorker('eng');
-            const result = await worker.recognize(buffer);
-            text = result.data.text;
-            await worker.terminate();
         }
 
         // 2. Parse invoice items from extracted text
