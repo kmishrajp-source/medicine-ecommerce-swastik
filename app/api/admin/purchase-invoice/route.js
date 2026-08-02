@@ -155,12 +155,11 @@ export async function POST(req) {
         const parsedItems = parseInvoiceText(text);
 
         if (parsedItems.length === 0) {
-            return NextResponse.json({
-                success: false,
-                message: 'Could not extract medicine data from invoice. Please check image quality.',
-                rawText: text.substring(0, 1000),
-                parsedItems: []
-            });
+            return NextResponse.json({ 
+                success: false, 
+                message: "Could not extract medicine data from invoice. Please check image quality.",
+                debugText: text.substring(0, 500)
+            }, { status: 400 });
         }
 
         // 3. If autoApply, match medicines in DB and update

@@ -262,7 +262,9 @@ export default function Inventory() {
             }
 
             if (res.status >= 400) {
-                throw new Error(data.error || `HTTP Error ${res.status}`);
+                const errorMsg = data.error || data.message || `HTTP Error ${res.status}`;
+                const debugInfo = data.debugText ? `\n\nDEBUG TEXT:\n${data.debugText}` : '';
+                throw new Error(errorMsg + debugInfo);
             }
 
             if (data.parsedItems?.length > 0) {
