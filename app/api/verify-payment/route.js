@@ -215,13 +215,12 @@ export async function POST(req) {
                 const uniqueGuestEmail = guestPhone ? `guest-${guestPhone}@swastik.com` : `guest-${Date.now()}@swastik.com`;
                 const guestUser = await tx.user.upsert({
                     where: { email: uniqueGuestEmail },
-                    update: { name: guestName || 'Guest User', phone: guestPhone },
+                    update: { name: guestName || 'Guest User' },
                     create: {
                         email: uniqueGuestEmail,
                         name: guestName || 'Guest User',
                         password: '$2a$10$GuestPlaceholderHash',
-                        role: 'CUSTOMER',
-                        phone: guestPhone
+                        role: 'CUSTOMER'
                     }
                 });
                 effectiveUserId = guestUser.id;
