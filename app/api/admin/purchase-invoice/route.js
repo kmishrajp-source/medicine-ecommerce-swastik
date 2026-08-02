@@ -274,6 +274,7 @@ export async function PATCH(req) {
                         buyingPrice: purchasePrice,
                         mrp: mrp,
                         stock: qty,
+                        image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=500&q=80',
                         requiresPrescription: false,
                         description: `Auto-created from invoice`,
                         ...(batchNumber && { batchNumber }),
