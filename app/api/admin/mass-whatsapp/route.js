@@ -51,15 +51,15 @@ export async function POST(req) {
         if (audience === "CUSTOMERS") {
             const users = await prisma.user.findMany({
                 where: { role: 'CUSTOMER' },
-                select: { phoneVerified: true, id: true, name: true } // Assuming we might want to get phones. Wait, User model might not have phone directly. Let's check OTP or we'll get from order?
+                select: { deviceId: true }
             });
-            // Let's actually pull from Orders since customers order with guestPhone or user phone.
             const orders = await prisma.order.findMany({
-                select: { guestPhone: true, user: { select: { email: true } } }
+                select: { guestPhone: true }
             });
-            targetNumbers = [...new Set(orders.map(o => o.guestPhone).filter(Boolean))];
-
-        } else if (audience === "DOCTORS") {
+            targetNumbers = [...new Set([
+                ...users.map(u => u.deviceId).filter(Boolean),
+                ...orders.map(o => o.guestPhone).filter(Boolean)
+            ])];
             const doctors = await prisma.doctor.findMany({ select: { phone: true } });
             targetNumbers = doctors.map(d => d.phone).filter(Boolean);
         } else if (audience === "RETAILERS") {

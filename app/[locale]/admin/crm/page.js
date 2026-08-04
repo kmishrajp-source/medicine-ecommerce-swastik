@@ -23,6 +23,11 @@ export default function AdminCRMDashboard() {
     const [providers, setProviders] = useState([]);
     const [deliveries, setDeliveries] = useState([]);
 
+    // Registered Customers Tab States
+    const [customers, setCustomers] = useState([]);
+    const [customerSearch, setCustomerSearch] = useState("");
+    const [selectedCustomers, setSelectedCustomers] = useState([]);
+
     // Contact Import States
     const [showContactModal, setShowContactModal] = useState(false);
     const [rawContactText, setRawContactText] = useState("");
@@ -73,8 +78,24 @@ export default function AdminCRMDashboard() {
     useEffect(() => {
         if (status === "authenticated") {
             fetchLeads();
+            if (activeTab === 'customers') fetchCustomers(customerSearch);
         }
-    }, [page]);
+    }, [page, activeTab]);
+
+    const fetchCustomers = async (searchQuery = "") => {
+        setLoading(true);
+        try {
+            const res = await fetch(`/api/admin/crm/customers?search=${encodeURIComponent(searchQuery)}`);
+            const data = await res.json();
+            if (data.success) {
+                setCustomers(data.customers);
+            }
+        } catch (err) {
+            console.error("Fetch Customers Error:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
 
@@ -176,22 +197,37 @@ export default function AdminCRMDashboard() {
     };
 
     const handleBulkWhatsApp = async () => {
-        if (selectedLeads.length === 0) return;
-        const template = prompt("Enter Template Name:", "first_contact");
+        const targets = activeTab === 'customers' ? selectedCustomers : selectedLeads;
+        if (targets.length === 0) return;
+        
+        const template = prompt("Enter Template/Message Name:", "hello");
         if (!template) return;
         
         try {
-            const res = await fetch("/api/admin/whatsapp-bulk", {
+            const res = await fetch("/api/admin/mass-whatsapp", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ leadIds: selectedLeads, templateName: template })
+                body: JSON.stringify({ 
+                    audience: "CUSTOM",
+                    customNumbers: targets.join(","),
+                    message: template,
+                    method: "WHATSAPP"
+                })
             });
             const data = await res.json();
             if (data.success) {
-                alert(`Triggered WhatsApp for ${data.sentCount} leads.`);
-                fetchLeads();
+                alert(`Triggered Mass Broadcast for ${data.targetCount} users.`);
+                if (activeTab === 'leads') fetchLeads();
+            } else {
+                alert("Error: " + data.error);
             }
         } catch (err) { console.error(err); }
+    };
+
+    const toggleCustomerSelection = (deviceId) => {
+        setSelectedCustomers(prev => 
+            prev.includes(deviceId) ? prev.filter(id => id !== deviceId) : [...prev, deviceId]
+        );
     };
 
     const handleAssign = async () => {
@@ -266,6 +302,12 @@ export default function AdminCRMDashboard() {
                         className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'logistics' ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400'}`}
                     >
                         Logistics Log
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab("customers")}
+                        className={`px-6 py-2 rounded-xl font-bold transition-all ${activeTab === 'customers' ? 'bg-emerald-600 text-white shadow-lg' : 'bg-white text-slate-400'}`}
+                    >
+                        Registered Customers
                     </button>
                 </div>
                 {activeTab === 'leads' && (
@@ -632,6 +674,100 @@ export default function AdminCRMDashboard() {
                    </div>
                 </div>
             )}
+            {activeTab === 'customers' && (
+                <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
+                    <div className="p-8 border-b border-slate-50 flex justify-between items-center">
+                        <div>
+                            <h2 className="text-xl font-black text-slate-900">Registered Customers</h2>
+                            <p className="text-sm font-bold text-slate-400 mt-2">View and message your imported/registered customers</p>
+                        </div>
+                        <div className="flex gap-3">
+                            <input 
+                                type="text"
+                                placeholder="Search Name/Phone..."
+                                value={customerSearch}
+                                onChange={e => {
+                                    setCustomerSearch(e.target.value);
+                                    if(e.target.value.length > 2 || e.target.value === "") fetchCustomers(e.target.value);
+                                }}
+                                className="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-500"
+                            />
+                            {selectedCustomers.length > 0 && (
+                                <button 
+                                    onClick={handleBulkWhatsApp}
+                                    className="bg-emerald-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-md text-sm flex items-center gap-2"
+                                >
+                                    <i className="fa-brands fa-whatsapp"></i> Broadcast ({selectedCustomers.length})
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                            <thead className="bg-slate-50">
+                                <tr>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400 w-10">
+                                        <input 
+                                            type="checkbox" 
+                                            className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
+                                            onChange={(e) => {
+                                                if (e.target.checked) setSelectedCustomers(customers.map(c => c.deviceId).filter(Boolean));
+                                                else setSelectedCustomers([]);
+                                            }}
+                                            checked={selectedCustomers.length === customers.length && customers.length > 0}
+                                        />
+                                    </th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Customer Details</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Phone (Device ID)</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Joined Date</th>
+                                    <th className="px-8 py-5 text-[10px] font-black uppercase text-slate-400">Source/Tag</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-50">
+                                {customers.map(customer => (
+                                    <tr key={customer.id} className={`hover:bg-slate-50/50 transition-all ${selectedCustomers.includes(customer.deviceId) ? 'bg-emerald-50/30' : ''}`}>
+                                        <td className="px-8 py-5">
+                                            {customer.deviceId && (
+                                                <input 
+                                                    type="checkbox" 
+                                                    className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500"
+                                                    checked={selectedCustomers.includes(customer.deviceId)}
+                                                    onChange={() => toggleCustomerSelection(customer.deviceId)}
+                                                />
+                                            )}
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="font-bold text-slate-900">{customer.name || 'Anonymous'}</div>
+                                            <div className="text-[10px] text-slate-400 font-mono mt-1">{customer.email}</div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <span className="font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full text-xs">
+                                                {customer.deviceId ? `+91 ${customer.deviceId}` : 'N/A'}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-5 text-xs font-bold text-slate-400">
+                                            {new Date(customer.createdAt).toLocaleDateString()}
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider">
+                                                {customer.referredBy || 'Organic'}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))}
+                                {customers.length === 0 && !loading && (
+                                    <tr>
+                                        <td colSpan="5" className="py-20 text-center font-bold text-slate-300">
+                                            No customers found. Try adjusting search or import new contacts.
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
+            
             {/* Contact Import Modal */}
             {showContactModal && (
                 <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '20px' }}>
