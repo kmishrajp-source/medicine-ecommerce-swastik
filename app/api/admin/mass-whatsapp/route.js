@@ -60,6 +60,7 @@ export async function POST(req) {
                 ...users.map(u => u.deviceId).filter(Boolean),
                 ...orders.map(o => o.guestPhone).filter(Boolean)
             ])];
+        } else if (audience === "DOCTORS") {
             const doctors = await prisma.doctor.findMany({ select: { phone: true } });
             targetNumbers = doctors.map(d => d.phone).filter(Boolean);
         } else if (audience === "RETAILERS") {
