@@ -676,12 +676,15 @@ export default function AdminCRMDashboard() {
             )}
             {activeTab === 'customers' && (
                 <div className="bg-white rounded-[2rem] shadow-xl border border-slate-100 overflow-hidden">
-                    <div className="p-8 border-b border-slate-50 flex justify-between items-center">
+                    <div className="p-8 border-b border-slate-50 flex justify-between items-center flex-wrap gap-4">
                         <div>
                             <h2 className="text-xl font-black text-slate-900">Registered Customers</h2>
-                            <p className="text-sm font-bold text-slate-400 mt-2">View and message your imported/registered customers</p>
+                            <p className="text-sm font-bold text-slate-400 mt-2">
+                                {customers.length} customers total &nbsp;|&nbsp; 
+                                <span className="text-red-400">{customers.filter(c => !c.name || c.name === 'Customer' || c.name.startsWith('Type') || c.name.startsWith('type')).length} with missing/bad name</span>
+                            </p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 flex-wrap items-center">
                             <input 
                                 type="text"
                                 placeholder="Search Name/Phone..."
@@ -692,6 +695,17 @@ export default function AdminCRMDashboard() {
                                 }}
                                 className="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-500"
                             />
+                            <button
+                                onClick={() => {
+                                    const corrupted = customers.filter(c => !c.name || c.name === 'Customer' || c.name.startsWith('Type') || c.name.startsWith('type')).map(c => c.deviceId).filter(Boolean);
+                                    if (corrupted.length === 0) { alert('No corrupted customers found! ✅'); return; }
+                                    setSelectedCustomers(corrupted);
+                                    alert(`Selected ${corrupted.length} corrupted entries. Now click the red Delete button to remove them.`);
+                                }}
+                                className="bg-orange-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-orange-600 transition-all shadow-md text-sm flex items-center gap-2"
+                            >
+                                🧹 Select Corrupted
+                            </button>
                             {selectedCustomers.length > 0 && (
                                 <div className="flex gap-2">
                                     <button 
@@ -745,8 +759,11 @@ export default function AdminCRMDashboard() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-50">
-                                {customers.map(customer => (
-                                    <tr key={customer.id} className={`hover:bg-slate-50/50 transition-all ${selectedCustomers.includes(customer.deviceId) ? 'bg-emerald-50/30' : ''}`}>
+                                {customers.map(customer => {
+                                    const isBadName = !customer.name || customer.name === 'Customer' || customer.name.startsWith('Type') || customer.name.startsWith('type');
+                                    const isValidIndianMobile = customer.deviceId && /^[6-9]\d{9}$/.test(customer.deviceId);
+                                    return (
+                                    <tr key={customer.id} className={`hover:bg-slate-50/50 transition-all ${selectedCustomers.includes(customer.deviceId) ? 'bg-emerald-50/30' : ''} ${isBadName ? 'bg-red-50/20' : ''}`}>
                                         <td className="px-8 py-5">
                                             {customer.deviceId && (
                                                 <input 
@@ -758,12 +775,17 @@ export default function AdminCRMDashboard() {
                                             )}
                                         </td>
                                         <td className="px-8 py-5">
-                                            <div className="font-bold text-slate-900">{customer.name || 'Anonymous'}</div>
+                                            <div className="font-bold text-slate-900 flex items-center gap-2">
+                                                {customer.name || 'Anonymous'}
+                                                {isBadName && <span className="text-[9px] bg-red-100 text-red-500 px-2 py-0.5 rounded-full font-black uppercase">⚠️ Bad Name</span>}
+                                            </div>
                                             <div className="text-[10px] text-slate-400 font-mono mt-1">{customer.email}</div>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className="font-bold text-slate-700 bg-slate-100 px-3 py-1 rounded-full text-xs">
-                                                {customer.deviceId ? `+91 ${customer.deviceId}` : 'N/A'}
+                                            <span className={`font-bold px-3 py-1 rounded-full text-xs ${isValidIndianMobile ? 'text-slate-700 bg-slate-100' : 'text-red-600 bg-red-100'}`}>
+                                                {customer.deviceId 
+                                                    ? (isValidIndianMobile ? `🇮🇳 +91 ${customer.deviceId}` : `⚠️ ${customer.deviceId} (Not Indian)`)
+                                                    : 'N/A'}
                                             </span>
                                         </td>
                                         <td className="px-8 py-5 text-xs font-bold text-slate-400">
@@ -775,7 +797,8 @@ export default function AdminCRMDashboard() {
                                             </span>
                                         </td>
                                     </tr>
-                                ))}
+                                    );
+                                })}
                                 {customers.length === 0 && !loading && (
                                     <tr>
                                         <td colSpan="5" className="py-20 text-center font-bold text-slate-300">
@@ -888,11 +911,23 @@ export default function AdminCRMDashboard() {
                                             const cleanLine = line.trim();
                                             if (!cleanLine) continue;
 
-                                            // Extract name from VCF FN:
+                                            // --- NAME EXTRACTION ---
+                                            // VCF Full Name tag (most reliable)
                                             if (cleanLine.startsWith('FN:')) {
-                                                currentName = cleanLine.substring(3).trim();
+                                                const fn = cleanLine.substring(3).trim();
+                                                if (fn && fn.length > 0) currentName = fn;
                                             } 
-                                            // Extract from plain text names (no VCF tags)
+                                            // VCF N: tag fallback (Surname;FirstName;Middle;Prefix;Suffix)
+                                            else if (cleanLine.startsWith('N:') && currentName === 'Customer') {
+                                                const parts = cleanLine.substring(2).split(';').map(p => p.trim()).filter(Boolean);
+                                                // N: is often Surname;FirstName — swap them for natural order
+                                                if (parts.length >= 2) {
+                                                    currentName = `${parts[1]} ${parts[0]}`.trim();
+                                                } else if (parts.length === 1 && parts[0].length > 1) {
+                                                    currentName = parts[0];
+                                                }
+                                            }
+                                            // Plain text name line (CSV / plain list)
                                             else if (!cleanLine.includes(':') && !cleanLine.includes(';') && /[a-zA-Z]{3,}/.test(cleanLine)) {
                                                 currentName = cleanLine.replace(/[\,\;\"]/g, '').trim();
                                             }
