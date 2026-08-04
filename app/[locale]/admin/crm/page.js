@@ -28,6 +28,7 @@ export default function AdminCRMDashboard() {
     const [rawContactText, setRawContactText] = useState("");
     const [contactTag, setContactTag] = useState("Personal Contact");
     const [importingContacts, setImportingContacts] = useState(false);
+    const [importProgress, setImportProgress] = useState("");
     const [importedCustomers, setImportedCustomers] = useState([]);
     const [importResult, setImportResult] = useState(null);
     
@@ -769,6 +770,7 @@ export default function AdminCRMDashboard() {
 
                                         for (let i = 0; i < parsed.length; i += chunkSize) {
                                             const chunk = parsed.slice(i, i + chunkSize);
+                                            setImportProgress(`Processing batch ${Math.floor(i/chunkSize) + 1} of ${Math.ceil(parsed.length/chunkSize)}... (${Math.min(i + chunkSize, parsed.length)}/${parsed.length} contacts)`);
                                             const res = await fetch("/api/admin/customers/import", {
                                                 method: "POST",
                                                 headers: { "Content-Type": "application/json" },
@@ -797,11 +799,12 @@ export default function AdminCRMDashboard() {
                                         alert("Error importing contacts: " + e.message);
                                     } finally {
                                         setImportingContacts(false);
+                                        setImportProgress("");
                                     }
                                 }}
                                 style={{ flex: 1, background: importingContacts ? '#cbd5e1' : '#059669', color: '#ffffff', border: 'none', borderRadius: '12px', padding: '14px', fontWeight: 800, cursor: importingContacts ? 'not-allowed' : 'pointer' }}
                             >
-                                {importingContacts ? '⏳ Processing & Registering...' : '🚀 Register Indian (+91) Customers'}
+                                {importingContacts ? `⏳ ${importProgress || 'Processing & Registering...'}` : '🚀 Register Indian (+91) Customers'}
                             </button>
                             <button onClick={() => setShowContactModal(false)} style={{ background: '#f1f5f9', border: 'none', borderRadius: '12px', padding: '14px 24px', fontWeight: 700, cursor: 'pointer' }}>
                                 Close
