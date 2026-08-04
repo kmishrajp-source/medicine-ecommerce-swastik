@@ -700,7 +700,7 @@ export default function AdminCRMDashboard() {
                                         return (
                                             <div key={c.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', fontSize: '0.82rem' }}>
                                                 <div>
-                                                    <strong>{c.name}</strong> ({c.phone})
+                                                    <strong>{c.name}</strong> (+91 {c.phone})
                                                 </div>
                                                 <a
                                                     href={`https://wa.me/91${c.phone}?text=${waMsg}`}
@@ -740,19 +740,38 @@ export default function AdminCRMDashboard() {
                                                 currentName = cleanLine.replace(/[\,\;\"]/g, '').trim();
                                             }
 
-                                            const matchPhone = cleanLine.match(/(?:\+91[\-\s]?)?[6-9]\d{9}/);
-                                            if (matchPhone) {
-                                                const phone = matchPhone[0];
-                                                let nameToUse = currentName;
-                                                
-                                                // If CSV row has both name and phone
-                                                const textWithoutPhone = cleanLine.replace(phone, '').replace(/[\,\;\:\+91\"]/g, '').replace(/TELTYPE=CELL/i, '').replace(/PREF/i, '').trim();
-                                                if (textWithoutPhone.length > 2 && /[a-zA-Z]/.test(textWithoutPhone)) {
-                                                    nameToUse = textWithoutPhone;
+                                            // Extract phone numbers carefully to avoid matching inside international numbers
+                                            const potentialPhones = cleanLine.match(/(?:\+?\d[\d\-\s]{8,}\d)/g);
+                                            if (potentialPhones) {
+                                                let validIndianPhone = null;
+                                                for (const match of potentialPhones) {
+                                                    let clean = match.replace(/[\s\-]/g, '');
+                                                    if (clean.startsWith('+')) {
+                                                        if (!clean.startsWith('+91')) continue; // Reject non-Indian country codes
+                                                        clean = clean.substring(3);
+                                                    } else if (clean.startsWith('91') && clean.length === 12) {
+                                                        clean = clean.substring(2);
+                                                    } else if (clean.startsWith('0') && clean.length === 11) {
+                                                        clean = clean.substring(1);
+                                                    }
+                                                    if (/^[6-9]\d{9}$/.test(clean)) {
+                                                        validIndianPhone = clean;
+                                                        break;
+                                                    }
                                                 }
-                                                
-                                                parsed.push({ name: nameToUse, phone });
-                                                currentName = 'Customer'; // Reset
+
+                                                if (validIndianPhone) {
+                                                    let nameToUse = currentName;
+                                                    
+                                                    // If CSV row has both name and phone
+                                                    const textWithoutPhone = cleanLine.replace(validIndianPhone, '').replace(/[\,\;\:\+91\"]/g, '').replace(/TELTYPE=CELL/i, '').replace(/PREF/i, '').trim();
+                                                    if (textWithoutPhone.length > 2 && /[a-zA-Z]/.test(textWithoutPhone)) {
+                                                        nameToUse = textWithoutPhone;
+                                                    }
+                                                    
+                                                    parsed.push({ name: nameToUse, phone: validIndianPhone });
+                                                    currentName = 'Customer'; // Reset
+                                                }
                                             }
                                         }
 
