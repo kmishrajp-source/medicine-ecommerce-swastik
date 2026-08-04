@@ -44,3 +44,30 @@ export async function GET(req) {
         return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
     }
 }
+
+export async function DELETE(req) {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session || !['ADMIN', 'SUPER_ADMIN'].includes(session.user?.role)) {
+            return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        const { deviceIds } = await req.json();
+
+        if (!Array.isArray(deviceIds) || deviceIds.length === 0) {
+            return NextResponse.json({ error: 'No customers specified' }, { status: 400 });
+        }
+
+        const result = await prisma.user.deleteMany({
+            where: {
+                deviceId: { in: deviceIds },
+                role: 'CUSTOMER' // Ensure we only delete customers
+            }
+        });
+
+        return NextResponse.json({ success: true, count: result.count });
+    } catch (error) {
+        console.error('[CRM Customers Delete Error]:', error);
+        return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    }
+}

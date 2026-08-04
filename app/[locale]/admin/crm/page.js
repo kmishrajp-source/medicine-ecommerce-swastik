@@ -693,12 +693,33 @@ export default function AdminCRMDashboard() {
                                 className="px-4 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-emerald-500"
                             />
                             {selectedCustomers.length > 0 && (
-                                <button 
-                                    onClick={handleBulkWhatsApp}
-                                    className="bg-emerald-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-md text-sm flex items-center gap-2"
-                                >
-                                    <i className="fa-brands fa-whatsapp"></i> Broadcast ({selectedCustomers.length})
-                                </button>
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={async () => {
+                                            if (!confirm(`Are you sure you want to delete ${selectedCustomers.length} customers?`)) return;
+                                            try {
+                                                const res = await fetch("/api/admin/crm/customers", {
+                                                    method: "DELETE",
+                                                    headers: { "Content-Type": "application/json" },
+                                                    body: JSON.stringify({ deviceIds: selectedCustomers })
+                                                });
+                                                if (res.ok) {
+                                                    setSelectedCustomers([]);
+                                                    fetchCustomers(customerSearch);
+                                                }
+                                            } catch (e) { console.error(e); }
+                                        }}
+                                        className="bg-red-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-red-600 transition-all shadow-md text-sm flex items-center gap-2"
+                                    >
+                                        <i className="fa-solid fa-trash"></i> Delete
+                                    </button>
+                                    <button 
+                                        onClick={handleBulkWhatsApp}
+                                        className="bg-emerald-500 text-white px-5 py-2 rounded-xl font-bold hover:bg-emerald-600 transition-all shadow-md text-sm flex items-center gap-2"
+                                    >
+                                        <i className="fa-brands fa-whatsapp"></i> Broadcast ({selectedCustomers.length})
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -899,10 +920,12 @@ export default function AdminCRMDashboard() {
                                                 if (validIndianPhone) {
                                                     let nameToUse = currentName;
                                                     
-                                                    // If CSV row has both name and phone
-                                                    const textWithoutPhone = cleanLine.replace(validIndianPhone, '').replace(/[\,\;\:\+91\"]/g, '').replace(/TELTYPE=CELL/i, '').replace(/PREF/i, '').trim();
-                                                    if (textWithoutPhone.length > 2 && /[a-zA-Z]/.test(textWithoutPhone)) {
-                                                        nameToUse = textWithoutPhone;
+                                                    // Only extract name from phone line if it's clearly a CSV/Plain text and we don't have a good name
+                                                    if (!cleanLine.toUpperCase().includes('TEL;') && !cleanLine.toUpperCase().includes('TYPE=')) {
+                                                        const textWithoutPhone = cleanLine.replace(validIndianPhone, '').replace(/[\,\;\:\+91\"]/g, '').trim();
+                                                        if (textWithoutPhone.length > 2 && /[a-zA-Z]/.test(textWithoutPhone)) {
+                                                            nameToUse = textWithoutPhone;
+                                                        }
                                                     }
                                                     
                                                     parsed.push({ name: nameToUse, phone: validIndianPhone });
