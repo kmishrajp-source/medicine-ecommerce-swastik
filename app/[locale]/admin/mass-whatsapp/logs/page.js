@@ -100,7 +100,7 @@ export default function BroadcastLogsPage() {
                                 {/* Progress Bar */}
                                 {camp.status === 'IN_PROGRESS' && (
                                     <div className="w-full bg-slate-700 rounded-full h-1.5 mt-2">
-                                        <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style={{ width: \`\${((camp.totalSent + camp.totalFailed) / (camp.totalSent + camp.totalFailed + camp.totalPending)) * 100}%\` }}></div>
+                                        <div className="bg-indigo-500 h-1.5 rounded-full transition-all duration-500" style={{ width: `${((camp.totalSent + camp.totalFailed) / (camp.totalSent + camp.totalFailed + camp.totalPending)) * 100}%` }}></div>
                                     </div>
                                 )}
                             </div>
