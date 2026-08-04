@@ -723,15 +723,37 @@ export default function AdminCRMDashboard() {
                                     setImportingContacts(true);
                                     setImportResult(null);
                                     try {
-                                        // Simple regex extraction for lines
+                                        const parsed = [];
+                                        let currentName = 'Customer';
                                         const lines = rawContactText.split('\n');
-                                        const parsed = lines.map(line => {
-                                            const matchPhone = line.match(/(?:\+91[\-\s]?)?[6-9]\d{9}/);
-                                            if (!matchPhone) return null;
-                                            const phone = matchPhone[0];
-                                            const name = line.replace(phone, '').replace(/[\,\;\:\+91]/g, '').trim() || 'Customer';
-                                            return { name, phone };
-                                        }).filter(Boolean);
+                                        for (const line of lines) {
+                                            const cleanLine = line.trim();
+                                            if (!cleanLine) continue;
+
+                                            // Extract name from VCF FN:
+                                            if (cleanLine.startsWith('FN:')) {
+                                                currentName = cleanLine.substring(3).trim();
+                                            } 
+                                            // Extract from plain text names (no VCF tags)
+                                            else if (!cleanLine.includes(':') && !cleanLine.includes(';') && /[a-zA-Z]{3,}/.test(cleanLine)) {
+                                                currentName = cleanLine.replace(/[\,\;\"]/g, '').trim();
+                                            }
+
+                                            const matchPhone = cleanLine.match(/(?:\+91[\-\s]?)?[6-9]\d{9}/);
+                                            if (matchPhone) {
+                                                const phone = matchPhone[0];
+                                                let nameToUse = currentName;
+                                                
+                                                // If CSV row has both name and phone
+                                                const textWithoutPhone = cleanLine.replace(phone, '').replace(/[\,\;\:\+91\"]/g, '').replace(/TELTYPE=CELL/i, '').replace(/PREF/i, '').trim();
+                                                if (textWithoutPhone.length > 2 && /[a-zA-Z]/.test(textWithoutPhone)) {
+                                                    nameToUse = textWithoutPhone;
+                                                }
+                                                
+                                                parsed.push({ name: nameToUse, phone });
+                                                currentName = 'Customer'; // Reset
+                                            }
+                                        }
 
                                         if (parsed.length === 0) {
                                             alert("No valid Indian phone numbers (+91) found in the text!");
@@ -739,18 +761,38 @@ export default function AdminCRMDashboard() {
                                             return;
                                         }
 
-                                        const res = await fetch("/api/admin/customers/import", {
-                                            method: "POST",
-                                            headers: { "Content-Type": "application/json" },
-                                            body: JSON.stringify({ contacts: parsed, tag: contactTag })
-                                        });
-                                        const data = await res.json();
-                                        if (data.success) {
-                                            setImportResult(data);
-                                            setImportedCustomers(data.customers || []);
-                                        } else {
-                                            alert(data.error || "Failed to import contacts");
+                                        // Process in chunks of 100 to avoid Vercel 10-second timeout!
+                                        const chunkSize = 100;
+                                        let totalImported = 0;
+                                        let totalSkipped = 0;
+                                        const allNewCustomers = [];
+
+                                        for (let i = 0; i < parsed.length; i += chunkSize) {
+                                            const chunk = parsed.slice(i, i + chunkSize);
+                                            const res = await fetch("/api/admin/customers/import", {
+                                                method: "POST",
+                                                headers: { "Content-Type": "application/json" },
+                                                body: JSON.stringify({ contacts: chunk, tag: contactTag })
+                                            });
+                                            
+                                            if (!res.ok) {
+                                                const text = await res.text();
+                                                throw new Error(text.substring(0, 100)); // Throw first 100 chars of HTML error
+                                            }
+                                            
+                                            const data = await res.json();
+                                            if (data.success) {
+                                                totalImported += data.importedCount || 0;
+                                                totalSkipped += (data.skippedNonIndian || 0) + (data.skippedDuplicates || 0);
+                                                allNewCustomers.push(...(data.customers || []));
+                                            } else {
+                                                throw new Error(data.error || "Failed to import contacts");
+                                            }
                                         }
+
+                                        setImportedCustomers(allNewCustomers);
+                                        setImportResult({ message: `Successfully registered ${totalImported} Indian (+91) customer contacts! (${totalSkipped} existing/invalid skipped)` });
+                                        
                                     } catch (e) {
                                         alert("Error importing contacts: " + e.message);
                                     } finally {

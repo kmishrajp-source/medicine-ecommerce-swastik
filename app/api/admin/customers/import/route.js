@@ -66,6 +66,23 @@ export async function POST(req) {
         let skippedDuplicates = 0;
         const importedCustomers = [];
 
+        // Bulk lookup existing users to avoid slow sequential DB calls
+        const allPhones = contacts.map(c => normalizeIndianPhone(c.phone || c.tel || c.mobile)).filter(Boolean);
+        const allEmails = allPhones.map(p => `customer_${p}@swastikmedicare.com`);
+
+        const existingUsers = await prisma.user.findMany({
+            where: {
+                OR: [
+                    { deviceId: { in: allPhones } },
+                    { email: { in: allEmails } }
+                ]
+            },
+            select: { deviceId: true, email: true }
+        });
+
+        const existingPhoneSet = new Set(existingUsers.map(u => u.deviceId).filter(Boolean));
+        const existingEmailSet = new Set(existingUsers.map(u => u.email).filter(Boolean));
+
         for (const contact of contacts) {
             const rawPhone = contact.phone || contact.tel || contact.mobile;
             const validPhone = normalizeIndianPhone(rawPhone);
@@ -78,20 +95,14 @@ export async function POST(req) {
             const cleanName = cleanContactName(contact.name || contact.fn);
             const userEmail = contact.email || `customer_${validPhone}@swastikmedicare.com`;
 
-            // Check existing user by phone or email
-            const existingUser = await prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { deviceId: validPhone },
-                        { email: userEmail }
-                    ]
-                }
-            });
-
-            if (existingUser) {
+            if (existingPhoneSet.has(validPhone) || existingEmailSet.has(userEmail)) {
                 skippedDuplicates++;
                 continue;
             }
+
+            // Temporarily mark as existing in set so duplicates within same batch are skipped
+            existingPhoneSet.add(validPhone);
+            existingEmailSet.add(userEmail);
 
             // Create Customer Account
             const newUser = await prisma.user.create({
