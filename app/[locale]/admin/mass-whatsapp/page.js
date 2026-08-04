@@ -244,13 +244,27 @@ export default function MassWhatsAppAdmin() {
         <div style={{ background: "linear-gradient(135deg, #0f172a, #090d1a)", minHeight: "100vh", paddingBottom: "60px", fontFamily: "'Inter', sans-serif" }}>
             {/* Header */}
             <div style={{ background: "rgba(30,41,59,0.95)", borderBottom: "1px solid rgba(16,185,129,0.2)", padding: "30px 40px", backdropFilter: "blur(10px)" }}>
-                <div style={{ maxWidth: "1300px", margin: "0 auto" }}>
-                    <h1 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: "12px" }}>
-                        <span style={{ fontSize: "1.8rem" }}>📡</span> Broadcast Control Center
-                    </h1>
-                    <p style={{ color: "#34d399", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.1em", margin: "8px 0 0 0" }}>
-                        Send targeted WhatsApp & SMS broadcasts to customers and retailers
-                    </p>
+                <div style={{ maxWidth: "1300px", margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                        <h1 style={{ fontSize: "2rem", fontWeight: 900, color: "#fff", margin: 0, display: "flex", alignItems: "center", gap: "12px" }}>
+                            <span style={{ fontSize: "1.8rem" }}>📡</span> Broadcast Control Center
+                        </h1>
+                        <p style={{ color: "#34d399", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.1em", margin: "8px 0 0 0" }}>
+                            Send targeted WhatsApp & SMS broadcasts to customers and retailers
+                        </p>
+                    </div>
+                    <button
+                        onClick={() => router.push(`/${session?.user?.locale || 'en'}/admin/mass-whatsapp/logs`)}
+                        style={{
+                            background: "rgba(99, 102, 241, 0.15)", color: "#a5b4fc", border: "1px solid rgba(99, 102, 241, 0.3)",
+                            padding: "12px 20px", borderRadius: "12px", fontWeight: 800, fontSize: "0.85rem", cursor: "pointer",
+                            display: "flex", alignItems: "center", gap: "8px", transition: "all 0.2s"
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.background = "rgba(99, 102, 241, 0.25)"; e.currentTarget.style.color = "#c7d2fe"; }}
+                        onMouseOut={(e) => { e.currentTarget.style.background = "rgba(99, 102, 241, 0.15)"; e.currentTarget.style.color = "#a5b4fc"; }}
+                    >
+                        <i className="fa-solid fa-clock-rotate-left"></i> View Broadcast History
+                    </button>
                 </div>
             </div>
 

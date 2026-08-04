@@ -79,10 +79,18 @@ export async function POST(req) {
             return NextResponse.json({ error: "No target numbers found for this audience" }, { status: 400 });
         }
 
-        // To prevent API timeouts, we run the sending loop asynchronously in the background.
-        // In a real production system, this would be pushed to a queue like Redis/BullMQ.
-        // For now, we fire and forget the Promise.
-        sendBulkMessages(targetNumbers, message, method);
+        // Create BroadcastCampaign record to track progress
+        const campaign = await prisma.broadcastCampaign.create({
+            data: {
+                audience: audience,
+                method: method,
+                message: message,
+                totalPending: targetNumbers.length
+            }
+        });
+
+        // Background worker
+        sendBulkMessages(targetNumbers, message, method, campaign.id);
 
         return NextResponse.json({ success: true, targetCount: targetNumbers.length });
 
@@ -93,25 +101,73 @@ export async function POST(req) {
 }
 
 // Background worker function
-async function sendBulkMessages(numbers, message, method) {
+async function sendBulkMessages(numbers, message, method, campaignId) {
     console.log(`[MASS BROADCAST] Starting ${method} broadcast to ${numbers.length} numbers.`);
     
     let sentCount = 0;
+    let failedCount = 0;
     for (const phone of numbers) {
         try {
+            let result;
             if (method === "SMS") {
-                await sendSMS(phone, message);
+                result = await sendSMS(phone, message);
             } else {
-                await sendWhatsAppText(phone, message);
+                result = await sendWhatsAppText(phone, message);
             }
-            sentCount++;
+
+            if (result && result.success) {
+                sentCount++;
+                await prisma.broadcastLog.create({
+                    data: {
+                        campaignId,
+                        phone,
+                        method,
+                        status: "SENT",
+                        providerMsgId: result.data?.id || null
+                    }
+                });
+            } else {
+                failedCount++;
+                await prisma.broadcastLog.create({
+                    data: {
+                        campaignId,
+                        phone,
+                        method,
+                        status: "FAILED",
+                        errorMessage: result?.error || "Unknown error"
+                    }
+                });
+            }
+            
             // Small delay to prevent rate limiting (e.g., 500ms between messages)
             await new Promise(resolve => setTimeout(resolve, 500));
         } catch (err) {
+            failedCount++;
             console.error(`Failed to send mass ${method} to ${phone}:`, err.message);
+            await prisma.broadcastLog.create({
+                data: {
+                    campaignId,
+                    phone,
+                    method,
+                    status: "FAILED",
+                    errorMessage: err.message
+                }
+            });
         }
     }
     
+    // Mark Campaign as Completed
+    await prisma.broadcastCampaign.update({
+        where: { id: campaignId },
+        data: {
+            status: "COMPLETED",
+            totalSent: sentCount,
+            totalFailed: failedCount,
+            totalPending: 0,
+            completedAt: new Date()
+        }
+    });
+
     console.log(`[MASS BROADCAST] Complete! Sent ${sentCount}/${numbers.length}.`);
 }
 

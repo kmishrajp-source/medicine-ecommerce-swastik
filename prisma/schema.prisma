@@ -1937,3 +1937,32 @@ model CampaignLead {
   campaign  String   // e.g. "DIABETES_GORAKHPUR"
   createdAt DateTime @default(now())
 }
+
+// --- BROADCAST TRACKING --- //
+model BroadcastCampaign {
+  id           String         @id @default(cuid())
+  audience     String         // CUSTOMERS, RETAILERS, DOCTORS, CUSTOM
+  method       String         // WHATSAPP, SMS
+  message      String
+  totalSent    Int            @default(0)
+  totalFailed  Int            @default(0)
+  totalPending Int            @default(0)
+  status       String         @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED
+  createdAt    DateTime       @default(now())
+  completedAt  DateTime?
+  logs         BroadcastLog[]
+}
+
+model BroadcastLog {
+  id            String            @id @default(cuid())
+  campaignId    String
+  campaign      BroadcastCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  phone         String
+  method        String            // WHATSAPP, SMS
+  status        String            @default("PENDING") // PENDING, SENT, FAILED
+  providerMsgId String?           // Ultramsg/SMS provider message ID
+  errorMessage  String?
+  sentAt        DateTime          @default(now())
+
+  @@index([campaignId])
+}
