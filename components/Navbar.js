@@ -223,8 +223,20 @@ export default function Navbar({ cartCount, openCart }) {
             {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
             <nav className="hidden lg:block w-full border-b border-indigo-800 shadow-sm" style={{ background: 'linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' }}>
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)' }}>
+                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)', alignItems: 'center' }}>
                         <li><Link href="/" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
+                        <li className="relative group cursor-pointer">
+                            <span className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">Company <i className="fa-solid fa-chevron-down text-[10px]"></i></span>
+                            <div className="absolute left-0 top-full mt-1 w-56 bg-white rounded-xl shadow-xl shadow-indigo-900/20 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden flex flex-col">
+                                <Link href="/about" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-bullseye w-5 text-slate-400"></i> About Us</Link>
+                                <Link href="/innovation" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-microchip w-5 text-slate-400"></i> Innovation & Tech</Link>
+                                <Link href="/trust" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-shield-check w-5 text-slate-400"></i> Trust & Compliance</Link>
+                                <Link href="/digital-health" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-shield-halved w-5 text-slate-400"></i> Digital Health</Link>
+                                <Link href="/partner" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-handshake w-5 text-slate-400"></i> Partner Network</Link>
+                                <Link href="#" className="px-4 py-3 text-slate-400 hover:bg-slate-50 font-bold border-b border-slate-50 cursor-not-allowed"><i className="fa-solid fa-briefcase w-5 text-slate-300"></i> Careers (Soon)</Link>
+                                <Link href="#" className="px-4 py-3 text-slate-400 hover:bg-slate-50 font-bold cursor-not-allowed"><i className="fa-solid fa-chart-line w-5 text-slate-300"></i> Investor Relations</Link>
+                            </div>
+                        </li>
                         <li><Link href="/digital-health" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-indigo-500/20 uppercase tracking-tighter border border-indigo-400"><i className="fa-solid fa-shield-halved mr-1"></i> Digital Health (ABDM)</Link></li>
                         <li><Link href="/switch" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-slate-900 px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-orange-500/20 uppercase tracking-tighter"><i className="fa-solid fa-bolt mr-1"></i> Switch & Save ₹100</Link></li>
                         <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
@@ -264,6 +276,18 @@ export default function Navbar({ cartCount, openCart }) {
 
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('home')}</Link></li>
+                         
+                         {/* Mobile Company Menu */}
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ color: 'white', fontWeight: 'bold', marginBottom: '10px' }}>Company</div>
+                            <div className="flex flex-col pl-4 gap-4 mt-2 border-l border-white/10">
+                                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">About Us</Link>
+                                <Link href="/innovation" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Innovation & Tech</Link>
+                                <Link href="/trust" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Trust & Compliance</Link>
+                                <Link href="/partner" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Partner Network</Link>
+                            </div>
+                         </li>
+
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #3b82f6 0%, #4f46e5 100%)' }}><Link href="/digital-health" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}><i className="fa-solid fa-shield-halved text-white"></i> Digital Health (ABDM)</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #f59e0b 0%, #f97316 100%)' }}><Link href="/switch" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#1e293b', textDecoration: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}><i className="fa-solid fa-bolt text-white"></i> Switch & Save ₹100</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/shop-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold' }}>{tHome('shop_medicines')}</Link></li>

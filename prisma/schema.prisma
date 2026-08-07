@@ -1316,6 +1316,28 @@ model DoctorHprProfile {
   updatedAt          DateTime @updatedAt
 }
 
+// ============================================================================
+// DPIIT STARTUP INDIA - CORPORATE PROFILE (NON-BREAKING)
+// ============================================================================
+
+model CompanyProfile {
+  id                   String   @id @default("default") // Singleton
+  companyName          String   @default("Swastik Medicare")
+  legalEntity          String   @default("Swastik Medicare Pvt Ltd")
+  cin                  String?
+  registrationNumber   String?
+  registeredOffice     String?
+  corporateOffice      String?
+  drugLicense          String?
+  pharmacyRegistration String?
+  gstNumber            String?
+  certifications       Json?    // Array of {name, url}
+  innovationContent    Json?    // Array of initiatives or text blocks
+  researchInitiatives  Json?    // Array of {title, description}
+  partnerInformation   Json?    // Links or text
+  updatedAt            DateTime @updatedAt
+}
+
 model DigitalHealthRecord {
   id           String   @id @default(cuid())
   userId       String
