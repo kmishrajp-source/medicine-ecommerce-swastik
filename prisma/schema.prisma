@@ -65,6 +65,11 @@ model User {
   blogs               BlogPost[]
   RiderCashAccount    RiderCashAccount?
   Distributor         Distributor?
+
+  // --- ABDM Integrations ---
+  abhaProfile          AbhaProfile?
+  digitalHealthRecords DigitalHealthRecord[]
+  consentRequests      ConsentRequest[]      @relation("PatientConsent")
 }
 
 model SystemSettings {
@@ -236,6 +241,10 @@ model Doctor {
   appointments  Appointment[]
   visits        Visit[]
   reports       Report[]
+
+  // --- ABDM Integrations ---
+  hprProfile      DoctorHprProfile?
+  consentRequests ConsentRequest[]  @relation("DoctorConsent")
 }
 
 model Prescription {
@@ -1277,4 +1286,75 @@ model BroadcastLog {
   sentAt        DateTime          @default(now())
 
   @@index([campaignId])
+}
+
+// ============================================================================
+// ABDM (AYUSHMAN BHARAT DIGITAL MISSION) INTEGRATION MODELS (NON-BREAKING)
+// ============================================================================
+
+model AbhaProfile {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  abhaNumber     String?  @unique
+  abhaAddress    String?  @unique
+  kycStatus      String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  healthIdNumber String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model DoctorHprProfile {
+  id                 String   @id @default(cuid())
+  doctorId           String   @unique
+  doctor             Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  hprId              String?  @unique
+  registrationNumber String?
+  medicalCouncil     String?
+  hprStatus          String   @default("PENDING") // PENDING, VERIFIED, REJECTED
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model DigitalHealthRecord {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  recordType   String // PRESCRIPTION, LAB_REPORT, VACCINE, CONSULTATION
+  documentUrl  String
+  documentHash String? // For integrity checking
+  isShared     Boolean  @default(false)
+  issuedBy     String? // Doctor/Hospital Name or ID
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model ConsentRequest {
+  id        String    @id @default(cuid())
+  patientId String
+  patient   User      @relation("PatientConsent", fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  String
+  doctor    Doctor    @relation("DoctorConsent", fields: [doctorId], references: [id], onDelete: Cascade)
+  purpose   String // e.g. "Consultation", "Second Opinion"
+  status    String    @default("PENDING") // PENDING, GRANTED, REVOKED, EXPIRED
+  expiresAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([patientId])
+  @@index([doctorId])
+}
+
+model DigitalPrescription {
+  id               String   @id @default(cuid())
+  prescriptionId   String   @unique // Links to existing Prescription or standalone
+  qrCodeUrl        String?
+  validationStatus String   @default("UNVERIFIED") // UNVERIFIED, VERIFIED, TAMPERED
+  pharmacistId     String?
+  dispensed        Boolean  @default(false)
+  dispensingRecord Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
