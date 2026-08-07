@@ -34,6 +34,8 @@ export default function Footer() {
                         <li style={{ marginBottom: '10px' }}><Link href="/labs" style={{ color: 'inherit', textDecoration: 'none' }}>{t('lab_tests')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/ambulance" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_ambulance')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop/ayurvedic" style={{ color: 'inherit', textDecoration: 'none' }}>{t('ayurveda')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/shop-medicines/homeopathy" style={{ color: 'inherit', textDecoration: 'none' }}>Homeopathy Shop</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/doctors/homeopathy" style={{ color: 'inherit', textDecoration: 'none' }}>Homeopathic Doctors</Link></li>
                     </ul>
                 </div>
 
