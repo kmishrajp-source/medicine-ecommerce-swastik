@@ -100,6 +100,14 @@ export default function Footer() {
                             <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Doctor Duniya & Medindia</div>
                         </div>
                     </div>
+
+                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(249,115,22,0.3)' }}>
+                        <i className="fa-solid fa-certificate" style={{ fontSize: '1.5rem', color: '#F97316' }}></i>
+                        <div>
+                            <div style={{ fontSize: '0.8rem', color: '#FDBA74', textTransform: 'uppercase', letterSpacing: '1px' }}>Udyam MSME</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Registered MSME Enterprise</div>
+                        </div>
+                    </div>
                 </div>
 
                 <div style={{ maxWidth: '800px', textAlign: 'center', fontSize: '0.75rem', color: '#6B7280', lineHeight: '1.6' }}>

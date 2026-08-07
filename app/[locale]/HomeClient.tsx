@@ -73,10 +73,22 @@ export default function HomeClient() {
                     <span className="bg-indigo-100 text-indigo-600 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest mb-8 inline-block shadow-sm">
                         <i className="fa-solid fa-bolt mr-2 text-indigo-500"></i> {t('local_network')}
                     </span>
-                    <h1 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase">
+                    <h1 className="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-6 uppercase">
                         {t('medical_care')} <br/> <span className="text-indigo-600">{t('delivered_in')}</span> <br/> {t('mins')}
                     </h1>
-                    <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0">
+                    
+                    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-5 rounded-2xl shadow-xl shadow-indigo-600/20 mb-8 inline-block text-left w-full max-w-xl mx-auto md:mx-0">
+                        <h2 className="text-lg md:text-xl font-black uppercase tracking-widest mb-3 text-blue-100">India's AI Powered Digital Healthcare Network</h2>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold">
+                            <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded"><i className="fa-solid fa-user-doctor text-blue-300"></i> Doctors</span>
+                            <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded"><i className="fa-solid fa-pills text-emerald-300"></i> Pharmacies</span>
+                            <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded"><i className="fa-solid fa-microscope text-purple-300"></i> Labs</span>
+                            <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded"><i className="fa-solid fa-truck-medical text-red-300"></i> Ambulance</span>
+                            <span className="flex items-center gap-1 bg-white/10 px-2 py-1 rounded border border-white/20"><i className="fa-solid fa-robot text-blue-200"></i> AI Assistant</span>
+                        </div>
+                    </div>
+
+                    <p className="text-xl font-bold text-slate-500 mb-10 max-w-lg mx-auto md:mx-0 hidden md:block">
                         {t('hero_subtitle')}
                     </p>
 
@@ -286,6 +298,37 @@ export default function HomeClient() {
             </div>
         </div>
 
+
+        {/* PATIENT DATA SECURITY BLOCK */}
+        <div className="container px-8 mb-20">
+            <div className="bg-slate-900 text-white rounded-[3rem] p-10 flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl border border-slate-800">
+                <div className="md:w-1/2">
+                    <div className="bg-indigo-500/20 text-indigo-300 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full inline-block mb-4 border border-indigo-400/30">
+                        <i className="fa-solid fa-lock mr-2"></i> Data Protection
+                    </div>
+                    <h2 className="text-3xl font-black mb-4 uppercase tracking-tight">Patient Data Security</h2>
+                    <p className="text-slate-400 font-medium mb-6">Your health records belong strictly to you. Swastik Medicare implements enterprise-grade security protocols ensuring complete privacy.</p>
+                </div>
+                <div className="md:w-1/2 grid grid-cols-2 gap-4">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <i className="fa-solid fa-file-shield text-emerald-400 text-2xl mb-2"></i>
+                        <span className="text-xs font-bold uppercase tracking-widest">Encrypted Health Data</span>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <i className="fa-solid fa-handshake-angle text-blue-400 text-2xl mb-2"></i>
+                        <span className="text-xs font-bold uppercase tracking-widest">Consent-Based Sharing</span>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <i className="fa-solid fa-key text-orange-400 text-2xl mb-2"></i>
+                        <span className="text-xs font-bold uppercase tracking-widest">Secure Login</span>
+                    </div>
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col items-center justify-center text-center">
+                        <i className="fa-solid fa-users-gear text-purple-400 text-2xl mb-2"></i>
+                        <span className="text-xs font-bold uppercase tracking-widest">Role-Based Access</span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         {/* BEST SELLING (Elevated) */}
         <div className="container px-8">
