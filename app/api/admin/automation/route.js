@@ -11,8 +11,11 @@ import { WhatsAppTriggers } from "@/lib/whatsapp";
 export async function POST(req) {
     // API KEY Verification (Optional but recommended)
     const authHeader = req.headers.get('authorization');
-    if (process.env.ADMIN_AUTOMATION_SECRET && authHeader !== `Bearer ${process.env.ADMIN_AUTOMATION_SECRET}`) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const secret = process.env.ADMIN_AUTOMATION_SECRET;
+    
+    // Strict enforcement: block if secret is missing from environment, or if auth header doesn't match
+    if (!secret || authHeader !== `Bearer ${secret}`) {
+        return NextResponse.json({ error: "Unauthorized or missing server configuration" }, { status: 401 });
     }
 
     try {

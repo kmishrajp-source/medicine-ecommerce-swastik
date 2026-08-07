@@ -142,6 +142,11 @@ export default function Navbar({ cartCount, openCart }) {
                             <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
                         </button>
+                        {session && (
+                            <Link href="/subscriptions" className="hidden lg:flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-1.5 rounded-full transition-all uppercase tracking-widest border border-indigo-100">
+                                <i className="fa-solid fa-repeat"></i> Subscriptions
+                            </Link>
+                        )}
                         {session ? (
                             <div className="flex items-center gap-2">
                                 <Link href="/profile" className="hidden border border-blue-100 md:flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 rounded-full font-bold text-[10px]">
@@ -216,26 +221,28 @@ export default function Navbar({ cartCount, openCart }) {
             </div>
 
             {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
-            <nav className="hidden lg:block bg-indigo-900 text-white/90 w-full overflow-hidden">
-                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '4px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '15px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.65rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'center', flexWrap: 'nowrap' }}>
-                        <li><Link href="/" className="hover:text-white transition-colors">{t('home')}</Link></li>
-                        <li><Link href="/shop-medicines" className="hover:text-emerald-400 transition-colors font-bold text-emerald-300">{tHome('shop_medicines')}</Link></li>
-                        <li><Link href="/upload-prescription" className="hover:text-indigo-300 transition-colors font-bold text-indigo-300">{t('my_rx')}</Link></li>
-                        <li><Link href="/refer" className="hover:text-white transition-colors">{t('refer_earn')}</Link></li>
-                        <li><Link href="/doctors" className="hover:text-white transition-colors">{t('doctor_consult')}</Link></li>
-                        <li><Link href="/hospitals" className="hover:text-white transition-colors">{t('hospitals')}</Link></li>
-                        <li><Link href="/retailers" className="hover:text-white transition-colors">{t('inventory')}</Link></li>
-                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 transition-colors font-bold">{t('ambulance')}</Link></li>
-                        <li><Link href="/labs" className="hover:text-white transition-colors">{t('labs')}</Link></li>
-                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 transition-colors font-bold">{t('ai_assistant')}</Link></li>
-                        <li className="opacity-40">|</li>
-                        <li><Link href="/symptom-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-wand-sparkles text-[9px]"></i> {t('symptom_checker')}</Link></li>
-                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-file-medical text-[9px]"></i> {t('rx_analyzer')}</Link></li>
-                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-80 transition-opacity flex items-center gap-1"><i className="fa-solid fa-capsules text-[9px]"></i> {t('interaction_checker')}</Link></li>
-                        <li className="opacity-10 md:hidden">|</li>
-                        <li><Link href="/support" className="hover:text-white transition-colors md:hidden">{t('support')}</Link></li>
-                        <li><Link href="/blog" className="hover:text-orange-300 transition-colors">{tHome('top_brands')}</Link></li>
+            <nav className="hidden lg:block w-full border-b border-indigo-800 shadow-sm" style={{ background: 'linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' }}>
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 20px', overflowX: 'auto', width: '100%' }}>
+                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)' }}>
+                        <li><Link href="/" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
+                        <li><Link href="/switch" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-slate-900 px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-orange-500/20 uppercase tracking-tighter"><i className="fa-solid fa-bolt mr-1"></i> Switch & Save ₹100</Link></li>
+                        <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
+                        <li><Link href="/generic-medicines" className="hover:text-yellow-300 hover:bg-yellow-900/40 px-2 py-1.5 rounded-lg transition-all font-black text-yellow-400"><i className="fa-solid fa-pills mr-1"></i>Generic Meds</Link></li>
+                        <li><Link href="/upload-prescription" className="hover:text-indigo-200 hover:bg-indigo-900/50 px-2 py-1.5 rounded-lg transition-all font-bold text-indigo-300">{t('my_rx')}</Link></li>
+                        <li><Link href="/refer" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('refer_earn')}</Link></li>
+                        <li><Link href="/doctors" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('doctor_consult')}</Link></li>
+                        <li><Link href="/hospitals" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('hospitals')}</Link></li>
+                        <li><Link href="/retailers" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('inventory')}</Link></li>
+                        <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 hover:bg-red-900/30 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ambulance')}</Link></li>
+                        <li><Link href="/labs" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('labs')}</Link></li>
+                        <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/40 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ai_assistant')}</Link></li>
+                        <li className="opacity-40 self-center">|</li>
+                        <li><Link href="/symptom-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-wand-sparkles text-[11px]"></i> {t('symptom_checker')}</Link></li>
+                        <li><Link href="/prescription-analyzer" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-file-medical text-[11px]"></i> {t('rx_analyzer')}</Link></li>
+                        <li><Link href="/drug-interaction-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-capsules text-[11px]"></i> {t('interaction_checker')}</Link></li>
+                        <li className="opacity-10 md:hidden self-center">|</li>
+                        <li><Link href="/support" className="hover:text-white transition-all md:hidden hover:bg-white/10 px-2 py-1.5 rounded-lg">{t('support')}</Link></li>
+                        <li><Link href="/top-brands" className="hover:text-orange-300 transition-all hover:bg-orange-900/30 px-2 py-1.5 rounded-lg font-bold">{tHome('top_brands')}</Link></li>
                     </ul>
                 </div>
             </nav>
@@ -254,8 +261,13 @@ export default function Navbar({ cartCount, openCart }) {
 
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('home')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #f59e0b 0%, #f97316 100%)' }}><Link href="/switch" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#1e293b', textDecoration: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}><i className="fa-solid fa-bolt text-white"></i> Switch & Save ₹100</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/shop-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold' }}>{tHome('shop_medicines')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/generic-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fde047', textDecoration: 'none', fontWeight: 'bold' }}>Generic Meds</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/upload-prescription" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#a5b4fc', textDecoration: 'none', fontWeight: 'bold' }}>{t('my_rx')}</Link></li>
+                         {session && (
+                             <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/subscriptions" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#c7d2fe', textDecoration: 'none', fontWeight: 'bold' }}><i className="fa-solid fa-repeat mr-2"></i>Subscriptions</Link></li>
+                         )}
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/doctors" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('doctor_consult')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/hospitals" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('hospitals')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ambulance" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fca5a5', textDecoration: 'none', fontWeight: 'bold' }}>{t('ambulance')}</Link></li>

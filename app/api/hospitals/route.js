@@ -10,12 +10,26 @@ export async function GET(req) {
         const isAuthenticated = !!session;
 
         const { searchParams } = new URL(req.url);
-        const city = searchParams.get('city') || 'Gorakhpur';
+        const city = searchParams.get('city');
         const specialty = searchParams.get('specialty');
+        const q = searchParams.get('q');
+        const all = searchParams.get('all') === 'true';
 
-        const where = { city };
+        const where = {};
+        if (city && !all) {
+            where.city = { equals: city, mode: 'insensitive' };
+        }
         if (specialty) {
             where.specialties = { contains: specialty, mode: 'insensitive' };
+        }
+        if (q) {
+            where.OR = [
+                { name: { contains: q, mode: 'insensitive' } },
+                { city: { contains: q, mode: 'insensitive' } },
+                { specialties: { contains: q, mode: 'insensitive' } },
+                { address: { contains: q, mode: 'insensitive' } },
+                { phone: { contains: q, mode: 'insensitive' } }
+            ];
         }
 
         const hospitals = await prisma.hospital.findMany({

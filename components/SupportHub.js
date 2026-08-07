@@ -10,29 +10,45 @@ const SupportHub = () => {
     
     const toggleHub = () => setIsOpen(!isOpen);
 
+    const isMobile = () => typeof window !== 'undefined' && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+
+    const handleEmergencyCall = (e) => {
+        e.preventDefault();
+        if (isMobile()) {
+            window.location.href = `tel:+${phoneNumber}`;
+        } else {
+            // Desktop: open WhatsApp as fallback since tel: doesn't work on desktop
+            window.open(`https://wa.me/${phoneNumber}?text=${encodeURIComponent("I need urgent help / talk to a representative")}`, '_blank');
+        }
+    };
+
     const supportOptions = [
         {
             icon: <MessageCircle size={20} className="text-emerald-500" />,
             title: "WhatsApp Support",
             description: "Chat with us instantly",
             link: whatsappUrl,
-            color: "hover:bg-emerald-50"
+            color: "hover:bg-emerald-50",
+            onClick: null
         },
         {
             icon: <Phone size={20} className="text-blue-500" />,
             title: "Emergency Call",
-            description: "Talk to a representative",
+            description: "Call or WhatsApp a representative",
             link: `tel:+${phoneNumber}`,
-            color: "hover:bg-blue-50"
+            color: "hover:bg-blue-50",
+            onClick: handleEmergencyCall
         },
         {
             icon: <Package size={20} className="text-orange-500" />,
             title: "Request Medicine",
             description: "Tell us what you need",
             link: "/en/request-medicine",
-            color: "hover:bg-orange-50"
+            color: "hover:bg-orange-50",
+            onClick: null
         }
     ];
+
 
     return (
         <div className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[9999] flex flex-col items-end">
@@ -49,8 +65,9 @@ const SupportHub = () => {
                             <a 
                                 key={index}
                                 href={option.link}
-                                target={option.link.startsWith('http') ? "_blank" : "_self"}
-                                rel={option.link.startsWith('http') ? "noopener noreferrer" : ""}
+                                onClick={option.onClick || undefined}
+                                target={!option.onClick && option.link.startsWith('http') ? "_blank" : "_self"}
+                                rel={!option.onClick && option.link.startsWith('http') ? "noopener noreferrer" : ""}
                                 className={`flex items-center gap-4 p-4 rounded-xl transition-colors ${option.color} group`}
                             >
                                 <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-50">

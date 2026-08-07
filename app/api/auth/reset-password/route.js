@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
+import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-
-const prisma = new PrismaClient();
 
 export async function POST(req) {
     try {
@@ -12,46 +10,51 @@ export async function POST(req) {
             return NextResponse.json({ error: "Token and new password are required" }, { status: 400 });
         }
 
-        // Validate password strength (basic)
         if (newPassword.length < 6) {
             return NextResponse.json({ error: "Password must be at least 6 characters long" }, { status: 400 });
         }
 
-        // Find the specific token in the database
-        const resetRecord = await prisma.passwordResetToken.findUnique({
-            where: { token },
-        });
+        // Find the specific token via raw SQL (avoids Prisma model schema cache issues)
+        const records = await prisma.$queryRawUnsafe(
+            `SELECT * FROM "PasswordResetToken" WHERE "token" = $1 LIMIT 1`,
+            token
+        );
 
-        if (!resetRecord) {
-            return NextResponse.json({ error: "Invalid or expired reset token" }, { status: 400 });
+        if (!records || records.length === 0) {
+            return NextResponse.json({ error: "Invalid or expired reset token. Please request a new one." }, { status: 400 });
         }
 
-        // Check if the token has expired
+        const resetRecord = records[0];
+
+        // Check if expired
         if (new Date() > new Date(resetRecord.expiresAt)) {
-            // Delete expired token to clean up DB
-            await prisma.passwordResetToken.delete({ where: { id: resetRecord.id } });
-            return NextResponse.json({ error: "Reset token has expired. Please request a new one." }, { status: 400 });
+            await prisma.$executeRawUnsafe(
+                `DELETE FROM "PasswordResetToken" WHERE "id" = $1`,
+                resetRecord.id
+            );
+            return NextResponse.json({ error: "Reset token has expired. Please request a new link." }, { status: 400 });
         }
 
-        // Token is valid. Hash the new password securely
+        // Hash new password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-        // Run as a transaction: Update the user and delete the token simultaneously
-        await prisma.$transaction([
-            prisma.user.update({
-                where: { email: resetRecord.email },
-                data: { password: hashedPassword },
-            }),
-            prisma.passwordResetToken.delete({
-                where: { id: resetRecord.id },
-            })
-        ]);
+        // Update user password
+        await prisma.user.update({
+            where: { email: resetRecord.email },
+            data: { password: hashedPassword },
+        });
 
-        return NextResponse.json({ message: "Password has been successfully reset" }, { status: 200 });
+        // Delete used token
+        await prisma.$executeRawUnsafe(
+            `DELETE FROM "PasswordResetToken" WHERE "id" = $1`,
+            resetRecord.id
+        );
+
+        return NextResponse.json({ message: "Password has been successfully reset. You can now log in." }, { status: 200 });
 
     } catch (error) {
         console.error("Reset Password Error:", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ error: "Internal Server Error: " + error.message }, { status: 500 });
     }
 }

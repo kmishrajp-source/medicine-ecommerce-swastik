@@ -5,8 +5,7 @@ export async function GET(req, { params }) {
     try {
         const { id } = params;
         const doctor = await prisma.doctor.findUnique({
-            where: { id },
-            include: { user: { select: { name: true, email: true } } }
+            where: { id }
         });
         if (!doctor) return NextResponse.json({ success: false, error: "Doctor not found" }, { status: 404 });
         return NextResponse.json({ success: true, doctor });

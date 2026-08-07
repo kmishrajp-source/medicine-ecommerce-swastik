@@ -11,15 +11,24 @@ import { WhatsAppTriggers } from "@/lib/whatsapp";
 import { logFailure } from "@/lib/logger";
 import { settlePartnerPayment } from "@/lib/settlements";
 import { processContactUnlock, distributeLeadCommission } from "@/lib/finance";
+import { processMLMCommissions } from "@/lib/referrals";
+import { deductStockAndAlert } from "@/lib/stock-alerts";
 
 export async function POST(req) {
+    // Fetch session at top level so it is available in the catch block
+    let session = null;
+    let orderCreationId, razorpayPaymentId, amount, items;
     try {
-        const {
+        session = await getServerSession(authOptions);
+        const body = await req.json();
+        ({
             orderCreationId,
             razorpayPaymentId,
-            razorpaySignature,
             amount,
-            items,
+            items
+        } = body);
+        const {
+            razorpaySignature,
             address,
             guestName,
             guestEmail,
@@ -30,8 +39,9 @@ export async function POST(req) {
             appointmentId,
             targetId,
             targetType,
-            leadId
-        } = await req.json();
+            leadId,
+            deliveryCharge
+        } = body;
 
         // 1. Verify Signature
         const signature = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
@@ -191,34 +201,30 @@ export async function POST(req) {
             }
         }
 
-        // 2. Multi-Step Atomic Transaction
-        const { newOrder, userId } = await prisma.$transaction(async (tx) => {
-            // Identify User
-            let effectiveUserId = null;
-            const currentSession = await getServerSession(authOptions);
+        // 2. Prepare items (needed outside transaction for manufacturer settlement)
+        const medicineItems = items ? items.filter(i => !i.isLab) : [];
+        const labItems = items ? items.filter(i => i.isLab) : [];
 
-            if (currentSession?.user) {
-                effectiveUserId = currentSession.user.id;
-            } else {
+        // 3. Multi-Step Atomic Transaction
+        const { newOrder, userId } = await prisma.$transaction(async (tx) => {
+            // Identify User — reuse top-level session
+            let effectiveUserId = session?.user?.id || null;
+
+            if (!effectiveUserId) {
                 // Unique Guest Handling
                 const uniqueGuestEmail = guestPhone ? `guest-${guestPhone}@swastik.com` : `guest-${Date.now()}@swastik.com`;
                 const guestUser = await tx.user.upsert({
                     where: { email: uniqueGuestEmail },
-                    update: { name: guestName || 'Guest User', phone: guestPhone },
+                    update: { name: guestName || 'Guest User' },
                     create: {
                         email: uniqueGuestEmail,
                         name: guestName || 'Guest User',
                         password: '$2a$10$GuestPlaceholderHash',
-                        role: 'CUSTOMER',
-                        phone: guestPhone
+                        role: 'CUSTOMER'
                     }
                 });
                 effectiveUserId = guestUser.id;
             }
-
-            // Prepare Items
-            const medicineItems = items.filter(i => !i.isLab);
-            const labItems = items.filter(i => i.isLab);
 
             const orderItems = medicineItems.map(item => ({
                 productId: String(item.id),
@@ -240,6 +246,7 @@ export async function POST(req) {
                     lat: lat ? parseFloat(lat) : null,
                     lng: lng ? parseFloat(lng) : null,
                     total: parseFloat(amount),
+                    deliveryFee: parseFloat(deliveryCharge) || 0,
                     status: "Processing",
                     paymentMethod: "ONLINE",
                     deliveryCode: deliveryCode,
@@ -269,7 +276,7 @@ export async function POST(req) {
         });
 
         // 3.3 Handle Manufacturer Settlements (If items belong to a manufacturer)
-        if (medicineItems.length > 0) {
+        if (medicineItems && medicineItems.length > 0) {
             try {
                 // Fetch products to check manufacturers
                 const productIds = medicineItems.map(i => String(i.id));
@@ -308,21 +315,34 @@ export async function POST(req) {
             splitOrderIntoSubOrders(newOrder.id).catch(e => console.error("Marketplace Split Exception:", e));
             // Webhook Event
             triggerWebhook("payment_success", newOrder.id, { amount });
+            
+            // Trigger 2-Tier MLM Commissions
+            if (userId) {
+                processMLMCommissions(userId, newOrder.id, parseFloat(amount)).catch(e => console.error("MLM Commission Exception:", e));
+            }
+
             // WhatsApp Customer Trigger
             const phone = guestPhone || session?.user?.phone;
-            if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "N/A");
+            if (phone) WhatsAppTriggers.orderConfirmed(phone, newOrder.id, amount, "Online").catch(e => console.log("WA Error:", e));
         }
 
-        // 4. Send SMS
+        // 3.6 ★ AUTO STOCK DEDUCTION — deduct for each ordered medicine (non-blocking)
+        if (medicineItems && medicineItems.length > 0) {
+            const stockItems = medicineItems.map(i => ({ productId: i.id, quantity: i.quantity }));
+            deductStockAndAlert(stockItems, 'ONLINE_ORDER', newOrder.id.slice(-6).toUpperCase())
+                .catch(e => console.error('[STOCK DEDUCTION RAZORPAY]', e.message));
+        }
+
+        // 4. Send SMS (non-blocking)
         const customerPhone = guestPhone || session?.user?.phone || "";
-        const adminPhone = "9161364908"; // Hardcoded as requested
+        const adminPhone = process.env.ADMIN_PHONE || "917992122974";
         const orderId = newOrder.id.slice(-6).toUpperCase();
 
         // Customer SMS
         if (customerPhone) {
             await sendSMS(
                 customerPhone,
-                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${newOrder.deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${orderId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${newOrder.deliveryCode}\n\nView your invoice here: https://www.swastikmed.online/order/${newOrder.id}/invoice\n\nThank you for trusting Swastik Medicare.`
             );
         }
 
@@ -331,6 +351,9 @@ export async function POST(req) {
             adminPhone,
             `New Order Received! ID: #${orderId}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Check Admin Dashboard.`
         );
+
+        // Admin WhatsApp
+        await WhatsAppTriggers.adminOrderAlert("+917992122974", orderId, amount, "Online Payment Order");
 
         return NextResponse.json({
             success: true,

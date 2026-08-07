@@ -1,9 +1,79 @@
 "use client";
 import Image from "next/image";
 import { useTranslations } from 'next-intl';
+import React, { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function ProductCard({ product, onAdd }) {
     const t = useTranslations('Product');
+    const { data: session } = useSession();
+    const router = useRouter();
+
+    const [showSubModal, setShowSubModal] = useState(false);
+    const [subQuantity, setSubQuantity] = useState(1);
+    const [subFreq, setSubFreq] = useState('Monthly');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showDosage, setShowDosage] = useState(false);
+    const [dosageInfo, setDosageInfo] = useState(null);
+    const [isDosageLoading, setIsDosageLoading] = useState(false);
+
+    const fetchDosage = async () => {
+        if (dosageInfo !== null) { setShowDosage(v => !v); return; } // Already loaded
+        setShowDosage(true);
+        setIsDosageLoading(true);
+        try {
+            // Use the salt/composition or name as the search key
+            const searchTerm = (product.salt || product.composition || product.name).split(/[,+]/)[0].trim();
+            const res = await fetch(`https://api.fda.gov/drug/label.json?search=active_ingredient:"${encodeURIComponent(searchTerm)}"&limit=1`);
+            const data = await res.json();
+            if (data.results && data.results.length > 0) {
+                const info = data.results[0];
+                setDosageInfo({
+                    dosage: info.dosage_and_administration?.[0]?.substring(0, 400) || null,
+                    warnings: info.warnings?.[0]?.substring(0, 300) || null,
+                    indications: info.indications_and_usage?.[0]?.substring(0, 300) || null,
+                });
+            } else {
+                setDosageInfo({ dosage: null, warnings: null, indications: null });
+            }
+        } catch (e) {
+            setDosageInfo({ dosage: null, warnings: null, indications: null });
+        } finally {
+            setIsDosageLoading(false);
+        }
+    };
+
+    const handleSubscribe = async () => {
+        if (!session) {
+            router.push('/login?callbackUrl=/shop-medicines');
+            return;
+        }
+
+        setIsSubmitting(true);
+        try {
+            const res = await fetch('/api/subscription', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    medicineName: product.name,
+                    quantity: subQuantity,
+                    frequency: subFreq
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                setShowSubModal(false);
+                router.push('/subscriptions');
+            } else {
+                alert(data.error || "Failed to subscribe");
+            }
+        } catch (error) {
+            alert("An error occurred");
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
     
     return (
         <div className="product-card" style={{ background: 'white', borderRadius: '16px', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'transform 0.3s', display: 'flex', flexDirection: 'column' }}>
@@ -64,6 +134,53 @@ export default function ProductCard({ product, onAdd }) {
                     </div>
                 )}
 
+                {/* Dosage & Info Collapsible Section */}
+                <div style={{ marginBottom: '8px' }}>
+                    <button
+                        onClick={fetchDosage}
+                        style={{ display: 'flex', alignItems: 'center', gap: '6px', background: showDosage ? '#eef2ff' : '#f8fafc', border: '1px solid', borderColor: showDosage ? '#a5b4fc' : '#e2e8f0', borderRadius: '8px', padding: '6px 12px', fontSize: '0.75rem', fontWeight: 700, color: showDosage ? '#4f46e5' : '#64748b', cursor: 'pointer', width: '100%', justifyContent: 'space-between', transition: 'all 0.2s' }}
+                    >
+                        <span><i className="fa-solid fa-capsules" style={{ marginRight: '5px' }}></i>Dosage &amp; Info</span>
+                        <i className={`fa-solid ${showDosage ? 'fa-chevron-up' : 'fa-chevron-down'}`} style={{ fontSize: '10px' }}></i>
+                    </button>
+
+                    {showDosage && (
+                        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 8px 8px', padding: '12px', fontSize: '0.75rem', color: '#475569', lineHeight: '1.6', maxHeight: '180px', overflowY: 'auto' }}>
+                            {isDosageLoading ? (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#94a3b8' }}>
+                                    <span style={{ width: '12px', height: '12px', border: '2px solid #a5b4fc', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }}></span>
+                                    Fetching dosage information...
+                                </div>
+                            ) : dosageInfo ? (
+                                <>
+                                    {dosageInfo.indications && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>✅ Indications</span>
+                                            <p style={{ margin: '4px 0 0 0' }}>{dosageInfo.indications}</p>
+                                        </div>
+                                    )}
+                                    {dosageInfo.dosage && (
+                                        <div style={{ marginBottom: '8px' }}>
+                                            <span style={{ fontWeight: 800, color: '#1e293b', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>💊 Dosage</span>
+                                            <p style={{ margin: '4px 0 0 0' }}>{dosageInfo.dosage}</p>
+                                        </div>
+                                    )}
+                                    {dosageInfo.warnings && (
+                                        <div>
+                                            <span style={{ fontWeight: 800, color: '#EF4444', textTransform: 'uppercase', fontSize: '10px', letterSpacing: '0.05em' }}>⚠️ Warnings</span>
+                                            <p style={{ margin: '4px 0 0 0', color: '#EF4444' }}>{dosageInfo.warnings}</p>
+                                        </div>
+                                    )}
+                                    {!dosageInfo.dosage && !dosageInfo.indications && (
+                                        <p style={{ color: '#94a3b8', fontStyle: 'italic' }}>No detailed dosage info found. Please consult the medicine label or your pharmacist.</p>
+                                    )}
+                                    <p style={{ marginTop: '8px', fontSize: '10px', color: '#94a3b8', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>Source: OpenFDA • Always follow doctor&apos;s prescription.</p>
+                                </>
+                            ) : null}
+                        </div>
+                    )}
+                </div>
+
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'auto', paddingTop: '16px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
@@ -81,15 +198,75 @@ export default function ProductCard({ product, onAdd }) {
                             <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px' }}>Pack Size: {product.packSize}</div>
                         )}
                     </div>
-                    <button
-                        onClick={() => onAdd(product)}
-                        className="btn-icon-small"
-                        title={product.stock > 0 ? t('add_to_cart') : t('out_of_stock')}
-                        style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'var(--secondary)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', border: 'none', cursor: 'pointer' }}>
-                        <i className={`fa-solid ${product.stock > 0 ? 'fa-plus' : 'fa-cart-plus'}`}></i>
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button
+                            onClick={() => setShowSubModal(true)}
+                            className="btn-icon-small"
+                            title="Subscribe & Save"
+                            style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#e0e7ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', border: 'none', cursor: 'pointer' }}>
+                            <i className="fa-solid fa-repeat"></i>
+                        </button>
+                        <button
+                            onClick={() => onAdd(product)}
+                            className="btn-icon-small"
+                            title={product.stock > 0 ? t('add_to_cart') : t('out_of_stock')}
+                            style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--secondary)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', border: 'none', cursor: 'pointer' }}>
+                            <i className={`fa-solid ${product.stock > 0 ? 'fa-plus' : 'fa-cart-plus'}`}></i>
+                        </button>
+                    </div>
                 </div>
             </div>
+
+            {/* Subscribe Modal */}
+            {showSubModal && (
+                <div style={{ position: 'fixed', inset: 0, zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(4px)' }}>
+                    <div style={{ background: 'white', padding: '32px', borderRadius: '24px', width: '90%', maxWidth: '400px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#1e293b', margin: 0 }}>Subscribe to {product.name}</h3>
+                            <button onClick={() => setShowSubModal(false)} style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', fontSize: '1.2rem' }}>
+                                <i className="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Quantity per delivery</label>
+                            <input 
+                                type="number" 
+                                min="1"
+                                value={subQuantity} 
+                                onChange={(e) => setSubQuantity(e.target.value)}
+                                style={{ width: '100%', padding: '12px 16px', borderRadius: '12px', border: '1px solid #e2e8f0', outline: 'none', fontWeight: 600 }}
+                            />
+                        </div>
+
+                        <div style={{ marginBottom: '24px' }}>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 800, color: '#64748b', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Delivery Frequency</label>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button 
+                                    onClick={() => setSubFreq('Monthly')}
+                                    style={{ flex: 1, padding: '12px', borderRadius: '12px', border: subFreq === 'Monthly' ? '2px solid #6366f1' : '1px solid #e2e8f0', background: subFreq === 'Monthly' ? '#eef2ff' : 'white', color: subFreq === 'Monthly' ? '#4f46e5' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                                >
+                                    Monthly
+                                </button>
+                                <button 
+                                    onClick={() => setSubFreq('Weekly')}
+                                    style={{ flex: 1, padding: '12px', borderRadius: '12px', border: subFreq === 'Weekly' ? '2px solid #6366f1' : '1px solid #e2e8f0', background: subFreq === 'Weekly' ? '#eef2ff' : 'white', color: subFreq === 'Weekly' ? '#4f46e5' : '#64748b', fontWeight: 700, cursor: 'pointer', transition: 'all 0.2s' }}
+                                >
+                                    Weekly
+                                </button>
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleSubscribe}
+                            disabled={isSubmitting}
+                            style={{ width: '100%', padding: '16px', borderRadius: '12px', background: isSubmitting ? '#cbd5e1' : '#4f46e5', color: 'white', fontWeight: 900, border: 'none', cursor: isSubmitting ? 'not-allowed' : 'pointer', fontSize: '1rem', transition: 'all 0.2s' }}
+                        >
+                            {isSubmitting ? 'Setting up...' : 'Confirm Subscription'}
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

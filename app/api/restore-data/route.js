@@ -224,7 +224,10 @@ export async function GET(req) {
 
         // ── MEDICINES (6000) ──────────────────────────────────
         if (step === "all" || step === "medicines") {
-            const medicines = generateMedicines(6000);
+            const offset = parseInt(searchParams.get("offset") || "0", 10);
+            const count = parseInt(searchParams.get("count") || "500", 10);
+            const allMedicines = generateMedicines(6000);
+            const medicines = allMedicines.slice(offset, offset + count);
             const batchSize = 100;
             for (let i = 0; i < medicines.length; i += batchSize) {
                 const batch = medicines.slice(i, i + batchSize);

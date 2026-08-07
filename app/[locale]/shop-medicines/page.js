@@ -23,7 +23,7 @@ export default async function Page({ params }) {
   let initialProducts = [];
   try {
       initialProducts = await prisma.product.findMany({
-          take: 20,
+          take: 60,
           orderBy: { createdAt: 'desc' }
       });
   } catch (e) {

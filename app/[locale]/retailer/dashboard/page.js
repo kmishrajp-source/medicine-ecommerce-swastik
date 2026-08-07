@@ -1,9 +1,11 @@
 "use client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import ProviderWallet from "@/components/wallet/ProviderWallet";
+import Papa from "papaparse";
+import PendingApprovalBanner from "@/components/PendingApprovalBanner";
 
 export default function RetailerDashboard() {
     const { data: session, status } = useSession();
@@ -12,6 +14,10 @@ export default function RetailerDashboard() {
     const [inventory, setInventory] = useState([]);
     const [newItem, setNewItem] = useState({ medicineName: "", stock: "", price: "", deliveryArea: "" });
     const [showInvForm, setShowInvForm] = useState(false);
+    
+    // CSV Import State
+    const [isImporting, setIsImporting] = useState(false);
+    const fileInputRef = useRef(null);
     
     // Prescription Quoting State
     const [prescriptions, setPrescriptions] = useState([]);
@@ -28,11 +34,29 @@ export default function RetailerDashboard() {
     // Packing Modal State
     const [packingOrder, setPackingOrder] = useState(null);
     const [sealCode, setSealCode] = useState("");
+    const [retailerProcurementCost, setRetailerProcurementCost] = useState("");
     const [isPacking, setIsPacking] = useState(false);
+
+    // Verification State
+    const [verifiedStatus, setVerifiedStatus] = useState(null); // null = loading, true/false
+    const [partnerType, setPartnerType] = useState("");
 
     // Training Video Popup State
     const [showVideoPopup, setShowVideoPopup] = useState(false);
     const [dontShowAgain, setDontShowAgain] = useState(false);
+
+    // Check verification on mount
+    useEffect(() => {
+        if (status === 'authenticated') {
+            fetch('/api/partner/status')
+                .then(r => r.json())
+                .then(d => {
+                    setVerifiedStatus(d.verified ?? true);
+                    setPartnerType(d.partnerType || 'Retailer');
+                })
+                .catch(() => setVerifiedStatus(true)); // fail-open
+        }
+    }, [status]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -141,14 +165,19 @@ export default function RetailerDashboard() {
             const res = await fetch('/api/retailer/orders/pack', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ orderId: packingOrder.id, tamperSealCode: sealCode })
+                body: JSON.stringify({ 
+                    orderId: packingOrder.id, 
+                    tamperSealCode: sealCode,
+                    retailerProcurementCost 
+                })
             });
             const data = await res.json();
             if (data.success) {
-                alert("Order status updated: Ready for Pickup");
+                alert("Order status updated: Ready for Pickup & Invoice Generated");
                 setPreparingOrders(prev => prev.filter(o => o.id !== packingOrder.id));
                 setPackingOrder(null);
                 setSealCode("");
+                setRetailerProcurementCost("");
             } else {
                 alert("Error: " + data.error);
             }
@@ -221,7 +250,83 @@ export default function RetailerDashboard() {
         }
     };
 
-    if (status === 'loading') return <div>Loading...</div>;
+    const handleFileUpload = (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setIsImporting(true);
+
+        Papa.parse(file, {
+            header: true,
+            skipEmptyLines: true,
+            complete: async function(results) {
+                try {
+                    // Map Marg export columns to our format
+                    // Common Marg headers: "Item Name", "Stock", "Sale Rate", "MRP"
+                    const mappedItems = results.data.map(row => {
+                        // Attempt to find the right keys (case insensitive, space trimmed)
+                        const getVal = (possibleKeys) => {
+                            for (let key of Object.keys(row)) {
+                                if (possibleKeys.includes(key.toLowerCase().trim())) {
+                                    return row[key];
+                                }
+                            }
+                            return null;
+                        };
+
+                        const name = getVal(['item name', 'itemname', 'product name', 'product', 'name', 'medicinename']) || row[Object.keys(row)[0]];
+                        const stockStr = getVal(['stock', 'closing stock', 'qty', 'quantity']);
+                        const priceStr = getVal(['sale rate', 'rate', 'price', 'mrp']);
+
+                        return {
+                            medicineName: name,
+                            stock: parseInt(stockStr, 10) || 0,
+                            price: parseFloat(priceStr) || 0
+                        };
+                    }).filter(i => i.medicineName && i.price > 0);
+
+                    if (mappedItems.length === 0) {
+                        alert("No valid items found in CSV. Please ensure you have Name, Stock, and Price columns.");
+                        setIsImporting(false);
+                        return;
+                    }
+
+                    const res = await fetch('/api/retailer/inventory/import', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items: mappedItems })
+                    });
+                    
+                    const data = await res.json();
+                    if (data.success) {
+                        alert(data.message);
+                        fetchInventory();
+                    } else {
+                        alert("Import failed: " + data.error);
+                    }
+                } catch (err) {
+                    console.error("Import logic error:", err);
+                    alert("Failed to parse or upload the file.");
+                } finally {
+                    setIsImporting(false);
+                    if (fileInputRef.current) fileInputRef.current.value = "";
+                }
+            },
+            error: function(error) {
+                console.error("CSV Parse Error", error);
+                alert("Failed to parse CSV file.");
+                setIsImporting(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+            }
+        });
+    };
+
+    if (status === 'loading' || verifiedStatus === null) return <div style={{ minHeight: '100vh', background: '#090d16', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '1.1rem' }}>Loading...</div>;
+
+    // Verification gate — show pending approval screen if not yet verified by admin
+    if (verifiedStatus === false) {
+        return <PendingApprovalBanner partnerType={partnerType || "Pharmacy Retailer"} />;
+    }
 
     return (
         <>
@@ -318,6 +423,40 @@ export default function RetailerDashboard() {
                             <p className="text-sm text-gray-600 mb-6 font-medium">Please enter the unique code from the tamper-evident seal/joint applied to the package.</p>
                             
                             <form onSubmit={handlePackOrder}>
+                                {/* Auto Invoice Preview */}
+                                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '15px', marginBottom: '20px' }}>
+                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '10px', textTransform: 'uppercase' }}>Financial Ledger (Auto-Invoice)</h4>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                                        <span style={{ color: '#64748b' }}>Platform Selling Price (Customer Paid)</span>
+                                        <span style={{ fontWeight: 600 }}>₹{packingOrder.total}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                                        <span style={{ color: '#ef4444' }}>Platform Service Charge (approx. 10%)</span>
+                                        <span style={{ fontWeight: 600, color: '#ef4444' }}>- ₹{(packingOrder.total * 0.1).toFixed(2)}</span>
+                                    </div>
+                                    <hr style={{ borderTop: '1px dashed #cbd5e1', margin: '10px 0' }} />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem' }}>
+                                        <span style={{ fontWeight: 700, color: '#0f172a' }}>Retailer Settlement Invoice</span>
+                                        <span style={{ fontWeight: 800, color: '#10b981' }}>₹{(packingOrder.total * 0.9).toFixed(2)}</span>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="block text-sm font-bold text-gray-700 mb-2">Your Procurement Cost (Optional for ROI tracking)</label>
+                                    <input 
+                                        type="number" 
+                                        className="w-full p-3 border rounded-xl bg-gray-50" 
+                                        placeholder="Enter your cost (₹) to see profit margin"
+                                        value={retailerProcurementCost}
+                                        onChange={e => setRetailerProcurementCost(e.target.value)}
+                                    />
+                                    {retailerProcurementCost && (
+                                        <p style={{ marginTop: '8px', fontSize: '0.85rem', color: '#059669', fontWeight: 600 }}>
+                                            Estimated Profit Margin: ₹{((packingOrder.total * 0.9) - parseFloat(retailerProcurementCost)).toFixed(2)}
+                                        </p>
+                                    )}
+                                </div>
+
                                 <div className="mb-6">
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Tamper-Evident Seal Code</label>
                                     <input 
@@ -331,18 +470,18 @@ export default function RetailerDashboard() {
                                 </div>
 
                                 <div className="p-4 bg-yellow-50 rounded-xl mb-6 border border-yellow-100 italic text-xs text-yellow-800">
-                                    "I confirm that this order is correctly packed as per the prescription and a unique tamper-evident joint/seal has been applied."
+                                    "I confirm that this order is correctly packed as per the prescription, the invoice is generated, and a unique tamper-evident joint/seal has been applied."
                                 </div>
 
                                 <button 
                                     type="submit" 
                                     disabled={isPacking}
                                     style={{ width: '100%', padding: '15px', background: '#059669', color: 'white', borderRadius: '12px', border: 'none', fontWeight: 'bold' }}>
-                                    {isPacking ? 'Processing...' : 'CONFIRM PACKED & SEALED'}
+                                    {isPacking ? 'Processing & Generating Invoice...' : 'CONFIRM PACKED & GENERATE INVOICE'}
                                 </button>
                                 <button 
                                     type="button"
-                                    onClick={() => { setPackingOrder(null); setSealCode(""); }} 
+                                    onClick={() => { setPackingOrder(null); setSealCode(""); setRetailerProcurementCost(""); }} 
                                     style={{ width: '100%', marginTop: '10px', padding: '10px', background: '#eee', borderRadius: '12px', border: 'none' }}>
                                     Cancel
                                 </button>
@@ -404,9 +543,25 @@ export default function RetailerDashboard() {
 
                 {/* Inventory Area */}
                 <div style={{ background: 'white', padding: '30px', borderRadius: '16px', border: '1px solid #e5e7eb' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' }}>
                         <h3>📦 My Inventory</h3>
-                        <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary">{showInvForm ? 'Close' : '+ Add Item'}</button>
+                        <div style={{ display: 'flex', gap: '10px' }}>
+                            <input 
+                                type="file" 
+                                accept=".csv" 
+                                ref={fileInputRef} 
+                                style={{ display: 'none' }} 
+                                onChange={handleFileUpload} 
+                            />
+                            <button 
+                                onClick={() => fileInputRef.current.click()} 
+                                disabled={isImporting}
+                                style={{ background: '#10b981', color: 'white', padding: '10px 20px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>
+                                <i className="fa-solid fa-file-csv mr-2"></i>
+                                {isImporting ? 'Importing...' : 'Sync Marg ERP (CSV)'}
+                            </button>
+                            <button onClick={() => setShowInvForm(!showInvForm)} className="btn btn-primary">{showInvForm ? 'Close' : '+ Add Item'}</button>
+                        </div>
                     </div>
                     {showInvForm && (
                         <form onSubmit={handleAddItem} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', marginBottom: '20px' }}>

@@ -61,6 +61,24 @@ export default function PartnerPortal() {
             link: "/mr-portal",
             register: "/partner/register?type=mr",
             btnText: "MR Access"
+        },
+        {
+            title: "Stockists",
+            icon: "fa-boxes-stacked",
+            color: "#B91C1C",
+            desc: "Manage wholesale inventory and B2B orders.",
+            link: "/stockist/login",
+            register: "/stockist/register",
+            btnText: "Stockist Login"
+        },
+        {
+            title: "Distributors",
+            icon: "fa-truck-fast",
+            color: "#7C3AED",
+            desc: "Supply large-scale medicines and manage stockists.",
+            link: "/distributor/login",
+            register: "/distributor/register",
+            btnText: "Distributor Login"
         }
     ];
 

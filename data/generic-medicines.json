@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "genericName": "Paracetamol 500mg",
+    "commonBrand": "Crocin / Dolo",
+    "useCase": "Fever & Pain Relief",
+    "brandedPrice": 30.00,
+    "genericPrice": 6.50,
+    "category": "Analgesic & Antipyretic",
+    "description": "Used to treat mild to moderate pain and reduce fever."
+  },
+  {
+    "id": 2,
+    "genericName": "Metformin 500mg (SR)",
+    "commonBrand": "Glycomet / Glyciphage",
+    "useCase": "Type 2 Diabetes",
+    "brandedPrice": 45.00,
+    "genericPrice": 14.50,
+    "category": "Anti-Diabetic",
+    "description": "Helps control high blood sugar in patients with type 2 diabetes."
+  },
+  {
+    "id": 3,
+    "genericName": "Atorvastatin 10mg",
+    "commonBrand": "Atorva / Lipikind",
+    "useCase": "High Cholesterol",
+    "brandedPrice": 95.00,
+    "genericPrice": 12.00,
+    "category": "Cardiovascular",
+    "description": "Used to lower 'bad' cholesterol and triglycerides in the blood."
+  },
+  {
+    "id": 4,
+    "genericName": "Telmisartan 40mg",
+    "commonBrand": "Telmikind / Telma",
+    "useCase": "High Blood Pressure",
+    "brandedPrice": 85.00,
+    "genericPrice": 14.00,
+    "category": "Cardiovascular",
+    "description": "Relaxes blood vessels so blood can flow more easily."
+  },
+  {
+    "id": 5,
+    "genericName": "Amoxicillin 500mg + Clavulanic Acid 125mg",
+    "commonBrand": "Augmentin / Clavam",
+    "useCase": "Bacterial Infections",
+    "brandedPrice": 220.00,
+    "genericPrice": 65.00,
+    "category": "Antibiotic",
+    "description": "Treats a wide variety of bacterial infections like pneumonia and ear infections."
+  },
+  {
+    "id": 6,
+    "genericName": "Pantoprazole 40mg",
+    "commonBrand": "Pan / Pantocid",
+    "useCase": "Acidity / Acid Reflux",
+    "brandedPrice": 140.00,
+    "genericPrice": 18.00,
+    "category": "Gastrointestinal",
+    "description": "Reduces the amount of acid produced in the stomach."
+  },
+  {
+    "id": 7,
+    "genericName": "Levocetirizine 5mg",
+    "commonBrand": "Levocet / 1-AL",
+    "useCase": "Allergies",
+    "brandedPrice": 45.00,
+    "genericPrice": 8.50,
+    "category": "Anti-Allergic",
+    "description": "Relieves allergy symptoms such as watery eyes, runny nose, and sneezing."
+  },
+  {
+    "id": 8,
+    "genericName": "Amlodipine 5mg",
+    "commonBrand": "Amlokind / Stamlo",
+    "useCase": "High Blood Pressure / Angina",
+    "brandedPrice": 38.00,
+    "genericPrice": 7.00,
+    "category": "Cardiovascular",
+    "description": "Calcium channel blocker that helps lower blood pressure."
+  },
+  {
+    "id": 9,
+    "genericName": "Diclofenac Gel",
+    "commonBrand": "Volini / Voveran",
+    "useCase": "Muscle Pain & Sprains",
+    "brandedPrice": 110.00,
+    "genericPrice": 35.00,
+    "category": "Analgesic & Antipyretic",
+    "description": "Topical pain relief for joint and muscle pains."
+  },
+  {
+    "id": 10,
+    "genericName": "Levothyroxine 50mcg",
+    "commonBrand": "Thyronorm / Eltroxin",
+    "useCase": "Hypothyroidism (Thyroid)",
+    "brandedPrice": 130.00,
+    "genericPrice": 32.00,
+    "category": "Thyroid Hormone",
+    "description": "Replaces or provides more thyroid hormone, which is normally produced by the thyroid gland."
+  },
+  {
+    "id": 11,
+    "genericName": "Montelukast 10mg + Levocetirizine 5mg",
+    "commonBrand": "Montair LC",
+    "useCase": "Asthma & Severe Allergies",
+    "brandedPrice": 180.00,
+    "genericPrice": 42.00,
+    "category": "Anti-Allergic",
+    "description": "Prevents asthma attacks and treats allergies."
+  },
+  {
+    "id": 12,
+    "genericName": "Losartan 50mg",
+    "commonBrand": "Losar",
+    "useCase": "High Blood Pressure",
+    "brandedPrice": 65.00,
+    "genericPrice": 12.50,
+    "category": "Cardiovascular",
+    "description": "Keeps blood vessels from narrowing, lowering blood pressure."
+  },
+  {
+    "id": 13,
+    "genericName": "Omeprazole 20mg",
+    "commonBrand": "Omez",
+    "useCase": "Acidity / Acid Reflux",
+    "brandedPrice": 60.00,
+    "genericPrice": 11.00,
+    "category": "Gastrointestinal",
+    "description": "Decreases the amount of acid your stomach makes."
+  },
+  {
+    "id": 14,
+    "genericName": "Ibuprofen 400mg",
+    "commonBrand": "Brufen",
+    "useCase": "Pain & Inflammation",
+    "brandedPrice": 18.00,
+    "genericPrice": 7.00,
+    "category": "Analgesic & Antipyretic",
+    "description": "Reduces hormones that cause inflammation and pain in the body."
+  },
+  {
+    "id": 15,
+    "genericName": "Cefixime 200mg",
+    "commonBrand": "Zifi / Taxim O",
+    "useCase": "Bacterial Infections",
+    "brandedPrice": 115.00,
+    "genericPrice": 45.00,
+    "category": "Antibiotic",
+    "description": "Used to treat bacterial infections in many different parts of the body."
+  },
+  {
+    "id": 16,
+    "genericName": "Azithromycin 500mg",
+    "commonBrand": "Azee / Azithral",
+    "useCase": "Bacterial Infections",
+    "brandedPrice": 125.00,
+    "genericPrice": 48.00,
+    "category": "Antibiotic",
+    "description": "Macrolide antibiotic used to treat certain bacterial infections."
+  },
+  {
+    "id": 17,
+    "genericName": "Glimepiride 1mg",
+    "commonBrand": "Amaryl",
+    "useCase": "Type 2 Diabetes",
+    "brandedPrice": 55.00,
+    "genericPrice": 10.00,
+    "category": "Anti-Diabetic",
+    "description": "Helps control blood sugar levels in patients with Type 2 diabetes."
+  },
+  {
+    "id": 18,
+    "genericName": "Glimepiride 2mg + Metformin 500mg (SR)",
+    "commonBrand": "Amaryl M2 / Glycomet GP2",
+    "useCase": "Type 2 Diabetes",
+    "brandedPrice": 145.00,
+    "genericPrice": 38.00,
+    "category": "Anti-Diabetic",
+    "description": "Combination medicine for effective blood sugar control."
+  },
+  {
+    "id": 19,
+    "genericName": "Rosuvastatin 10mg",
+    "commonBrand": "Rozavel / Rosuvas",
+    "useCase": "High Cholesterol",
+    "brandedPrice": 180.00,
+    "genericPrice": 35.00,
+    "category": "Cardiovascular",
+    "description": "Helps lower 'bad' cholesterol and raise 'good' cholesterol in the blood."
+  },
+  {
+    "id": 20,
+    "genericName": "Rabeprazole 20mg + Domperidone 30mg (SR)",
+    "commonBrand": "Rablet D / Rabium DSR",
+    "useCase": "Acidity / Acid Reflux / Nausea",
+    "brandedPrice": 165.00,
+    "genericPrice": 32.00,
+    "category": "Gastrointestinal",
+    "description": "Combination medicine to treat GERD and peptic ulcer disease."
+  },
+  {
+    "id": 21,
+    "genericName": "Ondansetron 4mg",
+    "commonBrand": "Emeset / Zofer",
+    "useCase": "Nausea & Vomiting",
+    "brandedPrice": 55.00,
+    "genericPrice": 15.00,
+    "category": "Gastrointestinal",
+    "description": "Prevents nausea and vomiting caused by surgery or stomach issues."
+  },
+  {
+    "id": 22,
+    "genericName": "Cetirizine 10mg",
+    "commonBrand": "Cetzine / Zyrtec",
+    "useCase": "Allergies / Cold",
+    "brandedPrice": 22.00,
+    "genericPrice": 6.50,
+    "category": "Anti-Allergic",
+    "description": "Used to temporarily relieve symptoms of hay fever and other allergies."
+  },
+  {
+    "id": 23,
+    "genericName": "Ciprofloxacin 500mg",
+    "commonBrand": "Ciplox",
+    "useCase": "Bacterial Infections",
+    "brandedPrice": 45.00,
+    "genericPrice": 18.00,
+    "category": "Antibiotic",
+    "description": "Broad-spectrum antibiotic used to treat severe infections."
+  },
+  {
+    "id": 24,
+    "genericName": "Fluconazole 150mg",
+    "commonBrand": "Zocon / Forcan",
+    "useCase": "Fungal Infections",
+    "brandedPrice": 32.00,
+    "genericPrice": 12.00,
+    "category": "Anti-Fungal",
+    "description": "Used to treat and prevent various fungal and yeast infections."
+  },
+  {
+    "id": 25,
+    "genericName": "Diclofenac 50mg + Paracetamol 325mg",
+    "commonBrand": "Voveran Plus / Dicloran A",
+    "useCase": "Pain & Inflammation",
+    "brandedPrice": 65.00,
+    "genericPrice": 15.00,
+    "category": "Analgesic & Antipyretic",
+    "description": "Combination painkiller for back ache, tooth ache, or muscle pain."
+  },
+  {
+    "id": 26,
+    "genericName": "Albendazole 400mg",
+    "commonBrand": "Zentel / Bandy",
+    "useCase": "Worm Infections",
+    "brandedPrice": 18.00,
+    "genericPrice": 8.00,
+    "category": "Anti-Parasitic",
+    "description": "Used to treat infections caused by worms such as pork tapeworm and dog tapeworm."
+  },
+  {
+    "id": 27,
+    "genericName": "Domperidone 10mg",
+    "commonBrand": "Domstal",
+    "useCase": "Nausea / Vomiting / Indigestion",
+    "brandedPrice": 30.00,
+    "genericPrice": 9.00,
+    "category": "Gastrointestinal",
+    "description": "Increases movement through the digestive system to relieve symptoms."
+  },
+  {
+    "id": 28,
+    "genericName": "Atenolol 50mg",
+    "commonBrand": "Tenormin",
+    "useCase": "High Blood Pressure",
+    "brandedPrice": 35.00,
+    "genericPrice": 11.00,
+    "category": "Cardiovascular",
+    "description": "Beta-blocker that affects the heart and circulation (blood flow through arteries and veins)."
+  },
+  {
+    "id": 29,
+    "genericName": "Clopidogrel 75mg",
+    "commonBrand": "Clavix / Plavix",
+    "useCase": "Blood Thinner / Heart Attack Prevention",
+    "brandedPrice": 115.00,
+    "genericPrice": 22.00,
+    "category": "Cardiovascular",
+    "description": "Prevents platelets in your blood from sticking together to form an unwanted blood clot."
+  },
+  {
+    "id": 30,
+    "genericName": "Metoprolol 25mg",
+    "commonBrand": "Metolar / Seloken",
+    "useCase": "High Blood Pressure / Heart Conditions",
+    "brandedPrice": 50.00,
+    "genericPrice": 14.00,
+    "category": "Cardiovascular",
+    "description": "Beta-blocker used to treat angina and hypertension."
+  },
+  {
+    "id": 31,
+    "genericName": "Calcium 500mg + Vitamin D3 250IU",
+    "commonBrand": "Shelcal / Cipcal",
+    "useCase": "Calcium Deficiency / Bone Health",
+    "brandedPrice": 120.00,
+    "genericPrice": 35.00,
+    "category": "Vitamins & Supplements",
+    "description": "Nutritional supplement used to treat calcium and Vitamin D3 deficiency."
+  },
+  {
+    "id": 32,
+    "genericName": "Vitamin B Complex",
+    "commonBrand": "Becosules",
+    "useCase": "Vitamin Deficiency / Mouth Ulcers",
+    "brandedPrice": 45.00,
+    "genericPrice": 18.00,
+    "category": "Vitamins & Supplements",
+    "description": "Helps maintain good health and has been shown to be beneficial in helping to reduce stress."
+  },
+  {
+    "id": 33,
+    "genericName": "Loperamide 2mg",
+    "commonBrand": "Imodium / Lopamide",
+    "useCase": "Diarrhea",
+    "brandedPrice": 24.00,
+    "genericPrice": 8.00,
+    "category": "Gastrointestinal",
+    "description": "Used to treat diarrhea by slowing down the movement of the gut."
+  },
+  {
+    "id": 34,
+    "genericName": "Mefenamic Acid 250mg + Dicyclomine 10mg",
+    "commonBrand": "Meftal Spas",
+    "useCase": "Menstrual Pain / Stomach Cramps",
+    "brandedPrice": 55.00,
+    "genericPrice": 16.00,
+    "category": "Analgesic & Antispasmodic",
+    "description": "Treats menstrual cramps and colicky pain."
+  },
+  {
+    "id": 35,
+    "genericName": "Ambroxol + Levosalbutamol + Guaiphenesin Syrup",
+    "commonBrand": "Ascoril LS / Bro-Zedex LS",
+    "useCase": "Cough with Mucus",
+    "brandedPrice": 115.00,
+    "genericPrice": 38.00,
+    "category": "Respiratory",
+    "description": "Combination medicine used in the treatment of cough with mucus."
+  }
+]

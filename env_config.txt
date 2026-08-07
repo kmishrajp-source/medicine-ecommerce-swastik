@@ -1,0 +1,26 @@
+DATABASE_URL="postgresql://postgres.kklkpnzwxaxekxraqswh:SwastikMedicare%402026@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+PRISMA_DATABASE_URL="postgresql://postgres.kklkpnzwxaxekxraqswh:SwastikMedicare%402026@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres.kklkpnzwxaxekxraqswh:SwastikMedicare%402026@aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres"
+
+# Supabase REST API
+NEXT_PUBLIC_SUPABASE_URL="https://kklkpnzwxaxekxraqswh.supabase.co"
+NEXT_PUBLIC_SUPABASE_ANON_KEY="YOUR_SUPABASE_ANON_KEY_HERE"
+SUPABASE_SERVICE_ROLE_KEY="YOUR_SUPABASE_SERVICE_ROLE_KEY_HERE"
+
+# Authentication
+NEXTAUTH_SECRET="SwastikSecuritySecret2026"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Razorpay
+NEXT_PUBLIC_RAZORPAY_KEY_ID="rzp_test_YourKeyHere"
+RAZORPAY_KEY_SECRET="YourSecretHere"
+
+# SMS Gateway (MSG91) - Fill these to enable real SMS OTPs and alerts
+MSG91_AUTH_KEY="YOUR_MSG91_AUTH_KEY"
+MSG91_SENDER_ID="SWASTIK"
+MSG91_PE_ID="YOUR_TRAI_DLT_PRINCIPAL_ENTITY_ID"
+MSG91_DEFAULT_TE_ID="YOUR_DLT_SMS_TEMPLATE_ID"
+
+# Email SMTP Setup (Nodemailer Gmail) - Fill these to enable reset-password and other mail notifications
+EMAIL_USER="your_email@gmail.com"
+EMAIL_PASS="your_gmail_app_password"

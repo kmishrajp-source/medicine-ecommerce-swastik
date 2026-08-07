@@ -5,8 +5,9 @@ import ProductCard from "../../../components/ProductCard";
 import { useCart } from "../../../context/CartContext";
 
 const CATEGORIES = [
-    "All", "Antibiotics", "Pain Relief", "Fever", "Cough & Cold", 
-    "Diabetes", "Heart", "Gastro", "Ayurvedic", "General"
+    "All", "Pain Relief", "Antibiotics", "Supplements",
+    "Vitamins", "Diabetes", "Cardiology", "Dermatology", "Respiratory",
+    "Gastrointestinal", "Neuro", "Antiallergic", "Antifungal", "Hormonal", "Ayurvedic"
 ];
 
 export default function ShopClient({ initialProducts = [] }) {
@@ -17,48 +18,59 @@ export default function ShopClient({ initialProducts = [] }) {
     
     // Default to the SSR properties for instantaneous payload
     const [products, setProducts] = useState(initialProducts);
+    const [allLoaded, setAllLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalCount, setTotalCount] = useState(0);
+    const PAGE_SIZE = 60;
 
-    // Only fetch if a category or search changes (Client Side filtering fallback)
+    // Fetch products whenever category, search, or page changes
     useEffect(() => {
-        // Skip fetch if it's the initial render without filters
-        if (activeCategory === "All" && !searchQuery) {
-            setProducts(initialProducts);
-            return;
-        }
+        const delayDebounceFn = setTimeout(() => {
+            const fetchFiltered = async () => {
+                setLoading(true);
+                try {
+                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&`;
+                    if (activeCategory !== 'All') url += `category=${encodeURIComponent(activeCategory)}&`;
+                    if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
 
-        const fetchFiltered = async () => {
-            setLoading(true);
-            try {
-                let url = '/api/products?';
-                if (activeCategory !== 'All') url += `category=${activeCategory}&`;
-                if (searchQuery) url += `search=${searchQuery}`;
-                
-                const res = await fetch(url);
-                const data = await res.json();
-                if (data.success) {
-                    setProducts(data.products);
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    if (data.success) {
+                        if (page === 1) {
+                            setProducts(data.products);
+                        } else {
+                            setProducts(prev => [...prev, ...data.products]);
+                        }
+                        setTotalCount(data.totalCount || data.products.length);
+                        // allLoaded = we've fetched all available results
+                        setAllLoaded((page * PAGE_SIZE) >= (data.totalCount || data.products.length));
+                    }
+                } catch (error) {
+                    console.error("Failed to load products");
+                } finally {
+                    setLoading(false);
                 }
-            } catch (error) {
-                console.error("Failed to load products");
-            } finally {
-                setLoading(false);
-            }
-        };
+            };
 
-        fetchFiltered();
-    }, [activeCategory, searchQuery, initialProducts]);
+            fetchFiltered();
+        }, 300); // 300ms debounce
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [activeCategory, searchQuery, page]);
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setPage(1);
+        setAllLoaded(false);
+    }, [activeCategory, searchQuery]);
 
     const filteredProducts = products.filter(product => {
-        const matchesCategory = activeCategory === "All" || product.category === activeCategory;
-        const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
         const matchesRx = rxFilter === "All"
             ? true
             : rxFilter === "Rx" ? product.requiresPrescription
                 : !product.requiresPrescription;
-
-        return matchesCategory && matchesSearch && matchesRx;
+        return matchesRx;
     });
 
     return (
@@ -70,7 +82,9 @@ export default function ShopClient({ initialProducts = [] }) {
                     <h2 style={{ fontSize: '2.5rem', fontWeight: 800, background: 'linear-gradient(to right, var(--primary), var(--success))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>
                         Browse Medicines
                     </h2>
-                    <div style={{ color: 'var(--text-light)' }}>{filteredProducts.length} Results</div>
+                    <div style={{ color: 'var(--text-light)' }}>
+                        {filteredProducts.length} of {totalCount} Results
+                    </div>
                 </div>
 
                 <div className="glass" style={{ padding: '24px', borderRadius: '24px', marginBottom: '40px' }}>
@@ -136,7 +150,7 @@ export default function ShopClient({ initialProducts = [] }) {
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '30px' }}>
-                    {loading ? <p>Loading medicines...</p> : (
+                    {loading && products.length === 0 ? <p style={{gridColumn:'1/-1',textAlign:'center',padding:'60px',fontSize:'1.2rem'}}>Loading medicines... 💊</p> : (
                         filteredProducts.length > 0 ? (
                             filteredProducts.map(product => (
                                 <ProductCard key={product.id} product={product} onAdd={addToCart} />
@@ -203,6 +217,20 @@ export default function ShopClient({ initialProducts = [] }) {
                         )
                     )}
                 </div>
+                {!loading && !allLoaded && filteredProducts.length > 0 && (
+                    <div style={{ textAlign: 'center', marginTop: '40px', gridColumn: '1/-1' }}>
+                        <button
+                            onClick={() => setPage(p => p + 1)}
+                            className="btn btn-primary"
+                            style={{ borderRadius: '50px', padding: '14px 48px', fontSize: '1rem', fontWeight: 700 }}
+                        >
+                            Load More Medicines
+                        </button>
+                    </div>
+                )}
+                {loading && products.length > 0 && (
+                    <div style={{ textAlign: 'center', padding: '20px', gridColumn: '1/-1' }}>Loading more...</div>
+                )}
             </main >
         </>
     );

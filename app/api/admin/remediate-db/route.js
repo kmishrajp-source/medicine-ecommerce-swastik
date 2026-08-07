@@ -16,8 +16,8 @@ export async function GET(req) {
         const { searchParams } = new URL(req.url);
         const secret = searchParams.get("secret");
 
-        // Use a temporary hardcoded secret for this one-time fix
-        if (secret !== "swastik_remediate_2026") {
+        const envSecret = process.env.REMEDIATE_SECRET;
+        if (!envSecret || secret !== envSecret) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 

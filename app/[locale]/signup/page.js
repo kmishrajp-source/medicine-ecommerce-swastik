@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 
 export default function Signup() {
     const [name, setName] = useState("");
+    const [phone, setPhone] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [referralCode, setReferralCode] = useState("");
@@ -20,7 +21,7 @@ export default function Signup() {
             const res = await fetch("/api/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, email, password, referralCode }),
+                body: JSON.stringify({ name, phone, email, password, referralCode }),
             });
 
             const data = await res.json();
@@ -53,12 +54,24 @@ export default function Signup() {
                         />
                     </div>
                     <div style={{ marginBottom: '15px' }}>
-                        <label style={{ display: 'block', marginBottom: '5px' }}>Email</label>
+                        <label style={{ display: 'block', marginBottom: '5px' }}>Mobile Number *</label>
+                        <input
+                            type="tel"
+                            value={phone}
+                            onChange={(e) => setPhone(e.target.value)}
+                            required
+                            maxLength={10}
+                            placeholder="Enter 10-digit number"
+                            style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
+                        />
+                    </div>
+                    <div style={{ marginBottom: '15px' }}>
+                        <label style={{ display: 'block', marginBottom: '5px' }}>Email (Optional)</label>
                         <input
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            required
+                            placeholder="e.g. name@example.com"
                             style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #ddd' }}
                         />
                     </div>

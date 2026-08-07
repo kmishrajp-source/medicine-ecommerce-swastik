@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
+import { processChatMessage } from "@/lib/ai-brain";
+import { sendWhatsAppText } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -41,6 +43,78 @@ export async function POST(req) {
         if (from && text) {
             // Normalize phone
             const cleanPhone = from.slice(-10);
+
+            // --- STOCK BROADCAST REPLY DETECTION ---
+            // If the message starts with "YES" and contains numbers, it might be a stock quote reply
+            // Format: YES [Qty] [Price] — e.g. "YES 50 1200"
+            if (text.startsWith("YES")) {
+                const parts = text.trim().split(/\s+/);
+                const qty = parseInt(parts[1]);
+                const price = parseFloat(parts[2]);
+
+                if (!isNaN(qty) && !isNaN(price)) {
+                    // Find most recent active broadcast
+                    const activeBroadcast = await prisma.stockBroadcast.findFirst({
+                        where: { status: 'ACTIVE' },
+                        orderBy: { createdAt: 'desc' }
+                    });
+
+                    if (activeBroadcast) {
+                        // Try to identify sender from ALL sources
+                        let respondentName = `+91${cleanPhone}`;
+                        let respondentId = null;
+                        let respondentType = 'UNKNOWN';
+
+                        // Check Retailer directory first
+                        const retailerMatch = await prisma.retailer.findFirst({
+                            where: { phone: { contains: cleanPhone } },
+                            select: { id: true, shopName: true }
+                        });
+                        if (retailerMatch) {
+                            respondentName = retailerMatch.shopName;
+                            respondentId = retailerMatch.id;
+                            respondentType = 'RETAILER';
+                        }
+
+                        // Then check Stockist directory
+                        if (!retailerMatch) {
+                            const stockistMatch = await prisma.stockist.findFirst({
+                                where: { phone: { contains: cleanPhone } },
+                                select: { id: true, agencyName: true }
+                            });
+                            if (stockistMatch) {
+                                respondentName = stockistMatch.agencyName;
+                                respondentId = stockistMatch.id;
+                                respondentType = 'STOCKIST';
+                            }
+                        }
+
+                        await prisma.liveStockQuote.create({
+                            data: {
+                                broadcastId: activeBroadcast.id,
+                                retailerId: respondentType === 'RETAILER' ? respondentId : null,
+                                stockistId: respondentType === 'STOCKIST' ? respondentId : null,
+                                retailerName: respondentName,
+                                quantity: qty,
+                                price: price
+                            }
+                        });
+
+                        await prisma.stockBroadcast.update({
+                            where: { id: activeBroadcast.id },
+                            data: { repliesCount: { increment: 1 } }
+                        });
+
+                        console.log(`[STOCK BROADCAST] Quote received from ${from}: ${qty} units @ ₹${price}`);
+
+                        // Auto-reply to confirm receipt
+                        await sendWhatsAppText(from, `✅ Thank you! Your stock quote of ${qty} units @ ₹${price} for *${activeBroadcast.medicineName}* has been recorded by Swastik Medicare.`);
+                        return NextResponse.json({ success: true });
+                    }
+                }
+            }
+            // --- END STOCK BROADCAST DETECTION ---
+
             const lead = await prisma.lead.findFirst({
                 where: {
                     OR: [
@@ -58,17 +132,26 @@ export async function POST(req) {
                 };
 
                 // Specific "YES" logic
-                if (text.includes("YES")) {
+                if (text.includes("YES") && text.length < 10) {
                     updateData.status = "interested";
                     updateData.qualityScore = 90;
                     if (!lead.tags.includes("HIGH_INTENT")) {
                         updateData.tags = { push: "HIGH_INTENT" };
                     }
                     updateData.notes = (lead.notes || "") + `\n[System] Marked HIGH_INTENT via "YES" reply. (${new Date().toLocaleString()})`;
+                    
+                    // Reply to the YES
+                    await sendWhatsAppText(from, "Great! A Swastik Medicare representative will contact you shortly.");
                 } else {
                     // General replied status boost
                     updateData.qualityScore = Math.min((lead.qualityScore || 0) + 10, 80);
                     updateData.notes = (lead.notes || "") + `\n[System] Replied to WhatsApp. (${new Date().toLocaleString()})`;
+
+                    // Pass to AI Brain
+                    const aiResult = await processChatMessage(text);
+                    if (aiResult && aiResult.responseText) {
+                        await sendWhatsAppText(from, aiResult.responseText);
+                    }
                 }
 
                 await prisma.lead.update({
@@ -76,6 +159,12 @@ export async function POST(req) {
                     data: updateData
                 });
                 console.log(`[WHATSAPP WEBHOOK] Updated Lead ${lead.id} on reply.`);
+            } else {
+                // If not a known lead, just act as a general AI chatbot
+                const aiResult = await processChatMessage(text);
+                if (aiResult && aiResult.responseText) {
+                    await sendWhatsAppText(from, aiResult.responseText);
+                }
             }
         }
 

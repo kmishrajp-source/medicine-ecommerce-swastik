@@ -6,8 +6,9 @@ export async function GET(req) {
     try {
         const { searchParams } = new URL(req.url);
         const secret = searchParams.get("secret");
+        const envSecret = process.env.REMEDIATE_SECRET;
 
-        if (secret !== "swastik_fix_2026") {
+        if (!envSecret || secret !== envSecret) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 

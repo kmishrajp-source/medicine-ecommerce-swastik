@@ -1,19 +1,30 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { processReferralSignup } from "@/lib/referrals";
 import { logFailure } from "@/lib/logger";
 
 export async function POST(req) {
     try {
-        const { name, email, password, referralCode: passedReferralCode } = await req.json();
+        const { name, phone, email, password, referralCode: passedReferralCode } = await req.json();
 
-        if (!name || !email || !password) {
-            return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+        if (!name || !password || !phone) {
+            return NextResponse.json({ error: "Name, Phone, and Password are required fields" }, { status: 400 });
         }
 
+        let cleanPhone = phone.replace(/[^0-9]/g, '');
+        if (cleanPhone.length > 10 && cleanPhone.startsWith('91')) {
+            cleanPhone = cleanPhone.substring(2);
+        }
+
+        if (cleanPhone.length !== 10) {
+            return NextResponse.json({ error: "Invalid 10-digit mobile number" }, { status: 400 });
+        }
+
+        // Auto-generate email if left blank
+        const finalEmail = email ? email.toLowerCase() : `customer-${cleanPhone}@swastik.com`;
+
         const existingUser = await prisma.user.findUnique({
-            where: { email },
+            where: { email: finalEmail },
         });
 
         if (existingUser) {
@@ -45,7 +56,7 @@ export async function POST(req) {
         const user = await prisma.user.create({
             data: {
                 name,
-                email,
+                email: finalEmail,
                 password: hashedPassword,
                 role: "CUSTOMER",
                 referralCode: newReferralCode,
@@ -54,11 +65,8 @@ export async function POST(req) {
             },
         });
 
-        // 5. Trigger the Referral Bonus Engine (Non-blocking)
-        if (validReferredBy) {
-            processReferralSignup(user.id, validReferredBy).catch(e => console.error("Referral Bonus Error", e));
-        }
-
+        // Note: The MLM Referral Bonus Engine is now triggered post-sale in verify-payment
+        
         return NextResponse.json({ message: "User created successfully", user: { id: user.id, email: user.email } }, { status: 201 });
     } catch (error) {
         console.error("Registration Error:", error);

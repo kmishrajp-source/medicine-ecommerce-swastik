@@ -36,20 +36,33 @@ export async function GET(req) {
             }
         });
 
-        // Also fetch the 1st-tier referred network with their orders to determine "Active Buyers"
-        const referredNetwork = await prisma.user.findMany({
-            where: { referredBy: user.referralCode },
-            select: {
-                name: true,
-                createdAt: true,
-                email: true,
-                orders: {
-                    select: { id: true },
-                    take: 1 // We just need to know if they placed at least 1 order
-                }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+        // Guard: user must exist before we access any properties
+        if (!user) {
+            return NextResponse.json({ error: "User not found" }, { status: 404 });
+        }
+
+        // Ensure session role overrides DB role if set by next-auth
+        if (session.user.role && session.user.role !== user.role) {
+            user.role = session.user.role;
+        }
+
+        // Only fetch referred network if user has a referral code
+        let referredNetwork = [];
+        if (user.referralCode) {
+            referredNetwork = await prisma.user.findMany({
+                where: { referredBy: user.referralCode },
+                select: {
+                    name: true,
+                    createdAt: true,
+                    email: true,
+                    orders: {
+                        select: { id: true },
+                        take: 1 // We just need to know if they placed at least 1 order
+                    }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+        }
 
         const totalInvited = referredNetwork.length;
         const activeBuyers = referredNetwork.filter(u => u.orders && u.orders.length > 0).length;
@@ -57,10 +70,6 @@ export async function GET(req) {
         user.referredNetwork = referredNetwork.map(u => ({ name: u.name, email: u.email, createdAt: u.createdAt, isActive: u.orders && u.orders.length > 0 }));
         user.totalInvited = totalInvited;
         user.activeBuyers = activeBuyers;
-
-        if (!user) {
-            return NextResponse.json({ error: "User not found" }, { status: 404 });
-        }
 
         return NextResponse.json({ success: true, user });
     } catch (error) {

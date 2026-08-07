@@ -55,7 +55,9 @@ export default function Footer() {
                         <li style={{ marginBottom: '10px' }}><Link href="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/terms-conditions" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>{t('refund')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/returns" style={{ color: '#F87171', textDecoration: 'none', fontWeight: '600' }}>↩ Request a Return</Link></li>
                     </ul>
+
                 </div>
 
                 {/* Column 5: Contact */}

@@ -83,33 +83,104 @@ export default function HomeClient() {
                     {/* Module 10: Smart Intent Search Bar */}
                     <div className="relative max-w-2xl mx-auto md:mx-0 mb-12 group">
                         <div className="absolute inset-0 bg-indigo-600/20 blur-[100px] opacity-0 group-focus-within:opacity-100 transition-opacity"></div>
-                        <form action={`/doctors`} className="relative flex items-center bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
-                            <div className="flex-1 flex items-center px-6">
-                                <i className="fa-solid fa-magnifying-glass text-slate-300 mr-4"></i>
-                                <input 
-                                    name="q"
-                                    type="text" 
-                                    placeholder="Search by specialty, symptom (e.g. lungs, skin)..." 
-                                    className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-bold placeholder:text-slate-400 py-4"
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
+                        <form onSubmit={(e) => {
+                            e.preventDefault();
+                            if (userPhone) {
+                                fetch('/api/leads', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        guestPhone: userPhone,
+                                        source: 'homepage_search',
+                                        notes: `Searched for: ${searchQuery}`
+                                    })
+                                }).catch(() => {});
+                            }
+                            window.location.href = `/doctors?q=${encodeURIComponent(searchQuery)}`;
+                        }} className="relative flex flex-col bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
+                            <div className="flex items-center w-full">
+                                <div className="flex-1 flex items-center px-6">
+                                    <i className="fa-solid fa-magnifying-glass text-slate-300 mr-4"></i>
+                                    <input 
+                                        name="q"
+                                        type="text" 
+                                        placeholder="Search by specialty, symptom (e.g. lungs, skin)..." 
+                                        className="w-full bg-transparent border-none focus:ring-0 text-slate-900 font-bold placeholder:text-slate-400 py-4"
+                                        value={searchQuery}
+                                        onChange={(e) => setSearchQuery(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="bg-slate-900 text-white px-10 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all flex items-center gap-2 shrink-0">
+                                    {t('search')} <i className="fa-solid fa-arrow-right"></i>
+                                </button>
+                            </div>
+                            <div className="px-6 py-3 border-t border-slate-50 flex flex-col sm:flex-row items-center gap-4 bg-slate-50/50 mt-2 rounded-b-[2rem]">
+                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+                                    <i className="fa-solid fa-hand-holding-medical text-indigo-500 mr-1"></i> Need help?
+                                </p>
+                                <input
+                                    type="text"
+                                    placeholder="Enter Phone Number (Optional)"
+                                    value={userPhone}
+                                    onChange={(e) => setUserPhone(e.target.value)}
+                                    className="flex-1 bg-white border border-slate-200 rounded-full py-2 px-4 text-xs font-bold focus:ring-2 focus:ring-indigo-100 focus:border-indigo-300 outline-none w-full"
                                 />
                             </div>
-                            <button type="submit" className="bg-slate-900 text-white px-10 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-600 transition-all flex items-center gap-2">
-                                {t('search')} <i className="fa-solid fa-arrow-right"></i>
-                            </button>
                         </form>
                     </div>
 
                     <div className="flex flex-wrap gap-4 mt-12 justify-center" style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '40px', width: '100%' }}>
                         <Link href="/doctors" className="bg-slate-900 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all shadow-xl shadow-slate-900/10 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            {t('find_doctor')}
+                            <i className="fa-solid fa-user-doctor" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('find_doctor')}
                         </Link>
                         <Link href="/shop-medicines" className="bg-indigo-600 text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200/20 text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            {t('shop_medicines')}
+                            <i className="fa-solid fa-pills" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('shop_medicines')}
                         </Link>
-                        <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px' }}>
-                            {t('upload_rx')}
+                        <Link href="/upload-prescription" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                            <i className="fa-solid fa-file-medical" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('upload_rx')}
+                        </Link>
+                        
+                        {/* Retailers Directory Button */}
+                        <Link href="/healthcare-directory/store/gorakhpur" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                            <i className="fa-solid fa-shop" style={{ marginRight: '8px', fontSize: '12px' }}></i> Retailers in Gorakhpur
+                        </Link>
+
+                        {/* Medicine Directory Button */}
+                        <Link href="/shop-medicines" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
+                            <i className="fa-solid fa-capsules" style={{ marginRight: '8px', fontSize: '12px' }}></i> Medicine Directory
+                        </Link>
+
+                        {/* Marketing Team: Register Customer */}
+                        <Link href="/marketing/register-customer" className="bg-green-50 text-green-700 border-2 border-green-200 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:bg-green-600 hover:text-white hover:border-green-600 transition-all text-center shadow-lg shadow-green-100" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
+                            <i className="fa-solid fa-user-plus" style={{ marginRight: '8px', fontSize: '12px' }}></i> Register Customer
+                        </Link>
+
+                        {/* Doctor Directory Button */}
+                        <Link href="/healthcare-directory/gorakhpur" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px', marginTop: '15px' }}>
+                            <i className="fa-solid fa-stethoscope" style={{ marginRight: '8px', fontSize: '12px' }}></i> Doctor Directory
+                        </Link>
+
+                        <Link href="/admin/login" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '180px',
+                            background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                            boxShadow: '0 8px 20px rgba(16, 185, 129, 0.3), 0 0 15px rgba(16, 185, 129, 0.15)',
+                            marginRight: '15px'
+                        }}>
+                            <i className="fa-solid fa-user-shield" style={{ marginRight: '8px', fontSize: '12px' }}></i> Admin Control
+                        </Link>
+                        <Link href="/delivery" className="text-white px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] transition-all text-center" style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            minWidth: '180px',
+                            background: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)',
+                            boxShadow: '0 8px 20px rgba(124, 58, 237, 0.3), 0 0 15px rgba(139, 92, 246, 0.15)'
+                        }}>
+                            <i className="fa-solid fa-motorcycle" style={{ marginRight: '8px', fontSize: '12px' }}></i> Rider Portal
                         </Link>
                     </div>
 

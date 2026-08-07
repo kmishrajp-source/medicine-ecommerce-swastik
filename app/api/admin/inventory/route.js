@@ -33,26 +33,28 @@ export async function POST(req) {
         }
 
         const body = await req.json();
-        const { name, description, price, category, image, requiresPrescription, stock, buyingPrice, expiryDate, batchNumber } = body;
+        const { name, description, price, category, image, requiresPrescription, stock, buyingPrice, mrp, expiryDate, batchNumber } = body;
 
         if (!name || !category) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        // Auto-calculate profit if price is not provided but buyingPrice is
-        let finalPrice = parseFloat(price);
-        let finalBuyingPrice = parseFloat(buyingPrice) || 0;
+        const finalBuyingPrice = parseFloat(buyingPrice) || 0;
+        const finalMrp = parseFloat(mrp) || 0;
 
-        if (!finalPrice && finalBuyingPrice > 0) {
-            finalPrice = finalBuyingPrice * 1.18; // 18% Profit
-        }
+        // Business Rule: Selling Price = MRP × 0.90 (10% discount on MRP)
+        // Fallback: use manual price if MRP not provided
+        const finalPrice = finalMrp > 0
+            ? parseFloat((finalMrp * 0.90).toFixed(2))
+            : parseFloat(price) || 0;
 
         const product = await prisma.product.create({
             data: {
                 name,
                 description: description || "",
-                price: finalPrice || 0,
+                price: finalPrice,
                 buyingPrice: finalBuyingPrice,
+                mrp: finalMrp,
                 category,
                 image: image || "https://placehold.co/200",
                 requiresPrescription: requiresPrescription || false,
@@ -74,6 +76,23 @@ export async function POST(req) {
             });
         }
 
+        // Create initial PharmacyInventory entry
+        if (finalMrp > 0 || finalBuyingPrice > 0) {
+            const margin = finalPrice - finalBuyingPrice;
+            await prisma.pharmacyInventory.upsert({
+                where: { productId: product.id },
+                create: {
+                    productId: product.id,
+                    purchasePrice: finalBuyingPrice,
+                    sellingPrice: finalPrice,
+                    stock: parseInt(stock) || 0,
+                    marginPercent: finalMrp > 0 ? parseFloat(((margin / finalMrp) * 100).toFixed(2)) : 0,
+                    expiryDate: expiryDate ? new Date(expiryDate) : null,
+                },
+                update: {}
+            });
+        }
+
         return NextResponse.json({ success: true, product });
 
     } catch (error) {
@@ -81,6 +100,7 @@ export async function POST(req) {
         return NextResponse.json({ error: "Failed to create product" }, { status: 500 });
     }
 }
+
 
 // PUT: Update a product
 export async function PUT(req) {
@@ -91,19 +111,29 @@ export async function PUT(req) {
         }
 
         const body = await req.json();
-        const { id, name, description, price, category, image, requiresPrescription, stock, buyingPrice, expiryDate, batchNumber } = body;
+        const { id, name, description, price, category, image, requiresPrescription, stock, buyingPrice, mrp, expiryDate, batchNumber } = body;
 
         if (!id) {
             return NextResponse.json({ error: "Product ID required" }, { status: 400 });
         }
+
+        const mrpVal = parseFloat(mrp) || 0;
+        const buyPrice = parseFloat(buyingPrice) || 0;
+
+        // Business Rule: Selling Price = MRP × 0.90 (10% discount always)
+        // If MRP is provided, recalculate selling price. Otherwise use manual price.
+        const sellingPrice = mrpVal > 0
+            ? parseFloat((mrpVal * 0.90).toFixed(2))
+            : parseFloat(price) || 0;
 
         const product = await prisma.product.update({
             where: { id },
             data: {
                 name,
                 description,
-                price: parseFloat(price),
-                buyingPrice: parseFloat(buyingPrice) || 0,
+                price: sellingPrice,
+                buyingPrice: buyPrice,
+                mrp: mrpVal || undefined,
                 category,
                 image,
                 requiresPrescription,
@@ -113,6 +143,26 @@ export async function PUT(req) {
             }
         });
 
+        // Also sync PharmacyInventory
+        if (mrpVal > 0 || buyPrice > 0) {
+            const margin = sellingPrice - buyPrice;
+            await prisma.pharmacyInventory.upsert({
+                where: { productId: id },
+                create: {
+                    productId: id,
+                    purchasePrice: buyPrice,
+                    sellingPrice,
+                    stock: parseInt(stock) || 0,
+                    marginPercent: mrpVal > 0 ? parseFloat(((margin / mrpVal) * 100).toFixed(2)) : 0,
+                },
+                update: {
+                    purchasePrice: buyPrice > 0 ? buyPrice : undefined,
+                    sellingPrice,
+                    marginPercent: mrpVal > 0 ? parseFloat(((margin / mrpVal) * 100).toFixed(2)) : undefined,
+                }
+            });
+        }
+
         return NextResponse.json({ success: true, product });
 
     } catch (error) {
@@ -120,6 +170,7 @@ export async function PUT(req) {
         return NextResponse.json({ error: "Failed to update product" }, { status: 500 });
     }
 }
+
 
 // DELETE: Delete a product
 export async function DELETE(req) {

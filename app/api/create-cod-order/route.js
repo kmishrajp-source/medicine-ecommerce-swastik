@@ -8,6 +8,7 @@ import { assignOrderToNearestRetailer } from "@/utils/routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
+import { deductStockAndAlert } from "@/lib/stock-alerts";
 
 export async function POST(req) {
     let session = null;
@@ -17,7 +18,7 @@ export async function POST(req) {
 
         const body = await req.json();
         ({ amount, items } = body);
-        const { couponCode, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl } = body;
+        const { couponCode, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl, deliveryCharge } = body;
 
         // Validate Coupon if present
         if (couponCode === 'FIRST100') {
@@ -99,9 +100,9 @@ export async function POST(req) {
             status: hasRxItems ? "Rx_Uploaded" : "Received",
             paymentMethod: paymentMethod || "COD",
             deliveryCode: deliveryCode,
+            deliveryFee: parseFloat(deliveryCharge) || 0,
             isPaid: false,
             isDelivered: false,
-            transactionId: transactionId || null,
             lat: lat ? parseFloat(lat) : null,
             lng: lng ? parseFloat(lng) : null,
             items: {
@@ -171,6 +172,24 @@ export async function POST(req) {
             return createdOrder;
         });
 
+        // 4.5 Execute HyperLocal Routing (Non-Blocking)
+        if (order && order.lat && order.lng) {
+            assignOrderToNearestRetailer(order.id).catch(e => console.error("Routing Exception:", e));
+            splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
+            const p = guestPhone || session?.user?.phone;
+            if (p) WhatsAppTriggers.orderConfirmed(p, order.id, amount, "COD").catch(e => console.log(e));
+        }
+
+        // 4.6 ★ AUTO STOCK DEDUCTION — deduct inventory for each ordered item (non-blocking)
+        const stockItems = (items || []).filter(i => !i.isLab).map(i => ({
+            productId: i.id,
+            quantity: i.quantity
+        }));
+        if (stockItems.length > 0) {
+            deductStockAndAlert(stockItems, 'ONLINE_ORDER', order.id.slice(-6).toUpperCase())
+                .catch(e => console.error('[STOCK DEDUCTION]', e.message));
+        }
+
         // 5. Customer Notification Data (Non-Blocking / Safe)
         try {
             const phone = session?.user?.phone || guestPhone || "Unknown";
@@ -180,15 +199,19 @@ export async function POST(req) {
                 const shortId = order.id.slice(-6).toUpperCase();
                 await sendSMS(
                     phone,
-                    `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nInvoice sent to your email.\nThank you for trusting Swastik Medicare.`
+                    `Dear Customer, your order from Swastik Medicare has been billed successfully.\n\nInvoice No: SM${shortId}\nAmount: ₹${amount}\nStatus: Confirmed\nDelivery Code: ${deliveryCode}\n\nView your invoice here: https://www.swastikmed.online/order/${order.id}/invoice\n\nThank you for trusting Swastik Medicare.`
                 );
             }
 
             // Admin SMS
+            const adminPhone = process.env.ADMIN_PHONE || "917992122974";
             await sendSMS(
-                "9161364908",
+                adminPhone,
                 `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
             );
+
+            // Admin WhatsApp
+            await WhatsAppTriggers.adminOrderAlert("+917992122974", order.id.slice(-6).toUpperCase(), amount, "COD Order");
         } catch (smsError) {
             console.error("Delayed Notification Warning:", smsError.message);
             // We don't throw here, because the order is already created successfully.
@@ -197,6 +220,7 @@ export async function POST(req) {
         return NextResponse.json({
             success: true,
             orderId: order.id,
+            deliveryCode: order.deliveryCode,
             message: "Order placed successfully! Check your SMS for the delivery code."
         });
 

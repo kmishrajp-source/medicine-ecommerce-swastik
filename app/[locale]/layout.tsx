@@ -4,6 +4,8 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
 import VoiceAIAssistant from "@/components/VoiceAIAssistant";
+import SwastikChatWidget from "@/components/SwastikChatWidget";
+import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
 import Script from "next/script";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -114,10 +116,12 @@ export default async function RootLayout({
         </ClientProviders>
         
         <VoiceAIAssistant />
+        <SwastikChatWidget />
+        <AIRecoveryAssistant />
 
         {/* Global Tracking Scripts */}
         <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=\${process.env.NEXT_PUBLIC_GA_ID || 'G-PLACEHOLDER'}`}
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID || 'G-PLACEHOLDER'}`}
           strategy="afterInteractive"
         />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -125,7 +129,7 @@ export default async function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){window.dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', '\${process.env.NEXT_PUBLIC_GA_ID || 'G-PLACEHOLDER'}', {
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID || 'G-PLACEHOLDER'}', {
               page_path: window.location.pathname,
             });
           `}
@@ -141,7 +145,7 @@ export default async function RootLayout({
             t.src=v;s=b.getElementsByTagName(e)[0];
             s.parentNode.insertBefore(t,s)}(window, document,'script',
             'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '\${process.env.NEXT_PUBLIC_FB_PIXEL_ID || 'PLACEHOLDER_FB_PIXEL'}');
+            fbq('init', '${process.env.NEXT_PUBLIC_FB_PIXEL_ID || 'PLACEHOLDER_FB_PIXEL'}');
             fbq('track', 'PageView');
           `}
         </Script>
