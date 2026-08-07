@@ -38,17 +38,29 @@ test.describe('PHASE 2: Limited Dry Run (Registration & Login)', () => {
     });
 
     test('2.1 User Registration Flow (Mocked)', async ({ page }) => {
-        await page.goto('/en/signup');
+        // Extend timeout — WebKit is slower under parallel load (6 browsers)
+        test.setTimeout(60000);
 
-        // Locating by order since labels aren't associated with IDs
+        // Use 'load' instead of 'networkidle' — faster for all browsers
+        await page.goto('/en/signup', { waitUntil: 'load' });
+
+        // Wait for form to be fully interactive
         const form = page.locator('form');
+        await form.waitFor({ state: 'visible', timeout: 10000 });
+
+        // Small pause to let any Fast Refresh complete before interacting
+        await page.waitForTimeout(500);
+
         await form.locator('input[type="text"]').first().fill('Dry Run User');
         await form.locator('input[type="email"]').fill('automation_dryrun@tests.swastik.com');
         await form.locator('input[type="password"]').fill('DryRunPass123!');
-        
-        await page.getByRole('button', { name: /sign up/i }).click();
 
-        // Should normally redirect to login if success without OTP
+        // Click submit and wait for navigation — 25s covers WebKit's slower pace
+        await Promise.all([
+          page.waitForURL(/.*login.*/, { timeout: 25000 }),
+          page.getByRole('button', { name: /sign up/i }).click(),
+        ]);
+
         await expect(page).toHaveURL(/.*login/);
     });
 
