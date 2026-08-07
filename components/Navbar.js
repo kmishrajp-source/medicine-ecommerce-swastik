@@ -227,14 +227,22 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
                         <li className="relative group cursor-pointer">
                             <span className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">Company <i className="fa-solid fa-chevron-down text-[10px]"></i></span>
-                            <div className="absolute left-0 top-full mt-1 w-56 bg-white rounded-xl shadow-xl shadow-indigo-900/20 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden flex flex-col">
-                                <Link href="/about" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-bullseye w-5 text-slate-400"></i> About Us</Link>
-                                <Link href="/innovation" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-microchip w-5 text-slate-400"></i> Innovation & Tech</Link>
-                                <Link href="/trust" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-shield-check w-5 text-slate-400"></i> Trust & Compliance</Link>
-                                <Link href="/digital-health" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-shield-halved w-5 text-slate-400"></i> Digital Health</Link>
-                                <Link href="/partner" className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold border-b border-slate-50"><i className="fa-solid fa-handshake w-5 text-slate-400"></i> Partner Network</Link>
-                                <Link href="#" className="px-4 py-3 text-slate-400 hover:bg-slate-50 font-bold border-b border-slate-50 cursor-not-allowed"><i className="fa-solid fa-briefcase w-5 text-slate-300"></i> Careers (Soon)</Link>
-                                <Link href="#" className="px-4 py-3 text-slate-400 hover:bg-slate-50 font-bold cursor-not-allowed"><i className="fa-solid fa-chart-line w-5 text-slate-300"></i> Investor Relations</Link>
+                            <div className="absolute left-0 top-full mt-1 w-64 bg-white rounded-xl shadow-xl shadow-indigo-900/20 border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden flex flex-col">
+                                <div className="px-4 pt-3 pb-2 bg-slate-50 border-b border-slate-100">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">About Us</span>
+                                </div>
+                                <Link href="/about" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-bullseye w-4 text-slate-400"></i> About Swastik Medicare</Link>
+                                <Link href="/innovation" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-microchip w-4 text-slate-400"></i> Innovation & Technology</Link>
+                                <Link href="/company/ai-healthcare" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-robot w-4 text-blue-400"></i> AI Healthcare Platform</Link>
+                                <Link href="/digital-health" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-shield-halved w-4 text-indigo-400"></i> Digital Health Mission</Link>
+                                <div className="px-4 pt-3 pb-2 bg-slate-50 border-b border-slate-100 border-t border-t-slate-100">
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enterprise</span>
+                                </div>
+                                <Link href="/trust" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-shield-check w-4 text-slate-400"></i> Trust & Compliance</Link>
+                                <Link href="/partner" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-handshake w-4 text-slate-400"></i> Partner Network</Link>
+                                <Link href="/investors" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-chart-line w-4 text-emerald-500"></i> Investor Relations</Link>
+                                <Link href="/careers" className="px-4 py-2.5 text-slate-400 hover:bg-slate-50 font-bold text-sm border-b border-slate-50 flex items-center gap-2 cursor-not-allowed"><i className="fa-solid fa-briefcase w-4 text-slate-300"></i> Careers <span className="text-[9px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full ml-auto">Soon</span></Link>
+                                <Link href="/media" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-newspaper w-4 text-slate-400"></i> News & Media</Link>
                             </div>
                         </li>
                         <li><Link href="/digital-health" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-indigo-500/20 uppercase tracking-tighter border border-indigo-400"><i className="fa-solid fa-shield-halved mr-1"></i> Digital Health (ABDM)</Link></li>
@@ -280,11 +288,15 @@ export default function Navbar({ cartCount, openCart }) {
                          {/* Mobile Company Menu */}
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                             <div style={{ color: 'white', fontWeight: 'bold', marginBottom: '10px' }}>Company</div>
-                            <div className="flex flex-col pl-4 gap-4 mt-2 border-l border-white/10">
-                                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">About Us</Link>
-                                <Link href="/innovation" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Innovation & Tech</Link>
+                            <div className="flex flex-col pl-4 gap-3 mt-2 border-l border-white/10">
+                                <Link href="/about" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">About Swastik Medicare</Link>
+                                <Link href="/innovation" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Innovation & Technology</Link>
+                                <Link href="/company/ai-healthcare" onClick={() => setIsMobileMenuOpen(false)} className="text-blue-300 text-sm font-bold hover:text-blue-200"><i className="fa-solid fa-robot mr-1"></i> AI Healthcare Platform</Link>
+                                <Link href="/digital-health" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Digital Health Mission</Link>
                                 <Link href="/trust" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Trust & Compliance</Link>
                                 <Link href="/partner" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Partner Network</Link>
+                                <Link href="/investors" onClick={() => setIsMobileMenuOpen(false)} className="text-emerald-300 text-sm font-bold hover:text-emerald-200">Investor Relations</Link>
+                                <Link href="/media" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">News & Media</Link>
                             </div>
                          </li>
 

@@ -25,6 +25,7 @@ export default function HomeClient() {
   const [searchQuery, setSearchQuery] = useState("");
   const [userPhone, setUserPhone] = useState("");
   const [showWAForm, setShowWAForm] = useState(false);
+  const [impactStats, setImpactStats] = useState<any>(null);
   
   const t = useTranslations('Homepage');
   const tConv = useTranslations('Conversion');
@@ -51,6 +52,10 @@ export default function HomeClient() {
 
     fetch('/api/doctors?limit=4&sort=newest').then(res => res.json()).then(data => {
       if (data.success) setNewDoctors(data.doctors);
+    });
+
+    fetch('/api/stats').then(res => res.json()).then(data => {
+      if (data.success) setImpactStats(data.stats);
     });
   }, []);
 
@@ -228,59 +233,73 @@ export default function HomeClient() {
                     </a>
                 </div>
 
-                <div className="flex-1 relative hidden md:block">
-                     <div className="bg-white rounded-[60px] p-8 shadow-2xl border border-slate-100 rotate-3 transform-gpu relative z-10 transition-transform hover:rotate-0 duration-500">
-                        <div className="flex items-center justify-between mb-8">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center text-white font-black shadow-lg">S</div>
-                                <div>
-                                    <div className="text-sm font-black text-slate-900">Dr. Vivek Sharma</div>
-                                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cardiologist • Golghar</div>
+                <div className="flex-1 relative hidden lg:flex items-center justify-center">
+                    {/* Glassmorphism Ecosystem Animation */}
+                    <div className="relative w-full max-w-md aspect-square rounded-full flex items-center justify-center bg-gradient-to-tr from-indigo-500/10 to-blue-500/10 animate-[spin_60s_linear_infinite]">
+                        
+                        {/* Center Node */}
+                        <div className="absolute w-32 h-32 bg-white/20 backdrop-blur-xl rounded-full border border-white/40 shadow-[0_0_40px_rgba(79,70,229,0.3)] flex flex-col items-center justify-center animate-[spin_60s_linear_infinite_reverse] z-20">
+                            <i className="fa-solid fa-microchip text-4xl text-indigo-600 mb-1"></i>
+                            <span className="text-[9px] font-black uppercase text-indigo-900 tracking-widest text-center leading-tight">AI Health<br/>Engine</span>
+                        </div>
+
+                        {/* Orbit Nodes */}
+                        {[
+                            { label: "Patient", icon: "fa-hospital-user", color: "text-blue-500", deg: 0 },
+                            { label: "Doctor", icon: "fa-user-doctor", color: "text-emerald-500", deg: 60 },
+                            { label: "Pharmacy", icon: "fa-pills", color: "text-purple-500", deg: 120 },
+                            { label: "Laboratory", icon: "fa-microscope", color: "text-rose-500", deg: 180 },
+                            { label: "Ambulance", icon: "fa-truck-medical", color: "text-red-500", deg: 240 },
+                            { label: "Partners", icon: "fa-handshake", color: "text-amber-500", deg: 300 },
+                        ].map((node, i) => (
+                            <div key={i} className="absolute w-full h-full flex items-center justify-between" style={{ transform: `rotate(${node.deg}deg)` }}>
+                                <div className="w-20 h-20 bg-white rounded-2xl shadow-xl border border-slate-100 flex flex-col items-center justify-center -ml-10 animate-[spin_60s_linear_infinite_reverse] z-10 transition-transform hover:scale-110 cursor-pointer">
+                                    <i className={`fa-solid ${node.icon} text-2xl ${node.color} mb-1`}></i>
+                                    <span className="text-[8px] font-black uppercase text-slate-500 tracking-widest">{node.label}</span>
                                 </div>
+                                <div className="w-1/2 h-px bg-gradient-to-r from-indigo-500/30 to-transparent absolute left-1/2 origin-left"></div>
                             </div>
-                            <div className="bg-emerald-500 text-white text-[8px] font-black px-3 py-1 rounded-full uppercase shadow-lg shadow-emerald-100 animate-pulse">{t('available_now')}</div>
-                        </div>
-                        <div className="space-y-4">
-                             <div className="h-4 w-3/4 bg-slate-50 rounded-full"></div>
-                             <div className="h-4 w-1/2 bg-slate-50 rounded-full"></div>
-                             <div className="grid grid-cols-2 gap-4 mt-8">
-                                <div className="h-24 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-slate-900 transition-all">
-                                    <i className="fa-solid fa-phone text-slate-300 group-hover:text-white transition-colors"></i>
-                                    <span className="text-[8px] font-black text-slate-400 group-hover:text-white uppercase tracking-widest">{t('call')}</span>
-                                </div>
-                                <button 
-                                    onClick={() => setShowWAForm(true)}
-                                    className="h-24 bg-emerald-50 rounded-3xl border border-emerald-100 flex flex-col items-center justify-center gap-2 group cursor-pointer hover:bg-emerald-500 transition-all"
-                                >
-                                    <i className="fa-brands fa-whatsapp text-emerald-300 group-hover:text-white transition-colors"></i>
-                                    <span className="text-[8px] font-black text-emerald-400 group-hover:text-white uppercase tracking-widest">{t('whatsapp')}</span>
-                                </button>
-                             </div>
-                        </div>
-                     </div>
-                     <div className="absolute top-20 -left-10 w-full h-full bg-indigo-600/5 rounded-[60px] -rotate-3 -z-10 border border-indigo-100/20"></div>
+                        ))}
+                    </div>
                 </div>
              </div>
         </div>
 
-        {/* SOCIAL PROOF & STATS (CONSOLIDATED) */}
+        {/* IMPACT DASHBOARD */}
         <div className="-mt-20 relative z-30 container px-8 mb-20">
-            <div className="bg-white rounded-[40px] p-12 shadow-2xl shadow-indigo-100/50 border border-slate-100">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
-                        {[
-                            { count: "200+", label: "Verified Doctors", icon: "fa-user-doctor", color: "text-blue-400" },
-                            { count: "5000+", label: "Patient Inquiries", icon: "fa-hospital-user", color: "text-emerald-400" },
-                            { count: "150+", label: "Medical Stores", icon: "fa-shop", color: "text-indigo-400" },
-                            { count: location, label: "Live Service", icon: "fa-map-location-dot", color: "text-rose-400" }
-                        ].map((stat, i) => (
-                            <div key={i} className="text-center group">
-                                <div className={`w-12 h-12 mx-auto bg-slate-50 rounded-2xl flex items-center justify-center text-xl ${stat.color} mb-4 group-hover:bg-slate-900 group-hover:text-white transition-all shadow-inner`}>
+            <div className="bg-white rounded-[40px] p-10 md:p-12 shadow-2xl shadow-indigo-100/50 border border-slate-100">
+                <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-100">
+                    <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]"><i className="fa-solid fa-chart-line text-indigo-500 mr-2"></i> Live Ecosystem Impact</h3>
+                    <div className="flex items-center gap-2">
+                        <span className="relative flex h-3 w-3">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </span>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-Time Data</span>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8">
+                    {[
+                        { count: impactStats ? impactStats.patientsServed.toLocaleString() : "...", label: "Patients Served", icon: "fa-hospital-user", color: "text-blue-500" },
+                        { count: impactStats ? impactStats.medicinesDelivered.toLocaleString() : "...", label: "Medicines Delivered", icon: "fa-pills", color: "text-emerald-500" },
+                        { count: impactStats ? impactStats.doctors.toLocaleString() : "...", label: "Verified Doctors", icon: "fa-user-doctor", color: "text-indigo-500" },
+                        { count: impactStats ? impactStats.pharmacies.toLocaleString() : "...", label: "Pharmacy Nodes", icon: "fa-shop", color: "text-purple-500" },
+                        { count: impactStats ? impactStats.labs.toLocaleString() : "...", label: "Diagnostic Labs", icon: "fa-microscope", color: "text-rose-500" },
+                        { count: impactStats ? impactStats.consultations.toLocaleString() : "...", label: "Consultations", icon: "fa-stethoscope", color: "text-amber-500" },
+                        { count: impactStats ? impactStats.aiAnalyses.toLocaleString() : "...", label: "AI Rx Analyses", icon: "fa-robot", color: "text-sky-500" },
+                        { count: impactStats ? impactStats.citiesCovered.toLocaleString() : "...", label: "Cities Covered", icon: "fa-map-location-dot", color: "text-slate-700" }
+                    ].map((stat, i) => (
+                        <div key={i} className="group border-l-2 border-slate-50 pl-4 hover:border-indigo-500 transition-colors">
+                            <div className="flex items-center gap-3 mb-2">
+                                <div className={`w-8 h-8 rounded-lg bg-slate-50 flex items-center justify-center ${stat.color} group-hover:bg-indigo-50 transition-colors`}>
                                     <i className={`fa-solid ${stat.icon}`}></i>
                                 </div>
-                                <div className="text-3xl font-black text-slate-900 mb-1 tracking-tighter">{stat.count}</div>
-                                <div className="text-[8px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
+                                <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest">{stat.label}</div>
                             </div>
-                        ))}
+                            <div className="text-3xl font-black text-slate-900 tracking-tighter">{stat.count}</div>
+                        </div>
+                    ))}
                 </div>
                 
                 {/* Local Urgency Bar */}
