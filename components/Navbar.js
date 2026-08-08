@@ -247,8 +247,8 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/trust" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-shield-check w-4 text-slate-400"></i> Trust & Compliance</Link>
                                 <Link href="/partners" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-handshake w-4 text-slate-400"></i> Partner Network</Link>
                                 <Link href="/investors" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-chart-line w-4 text-indigo-500"></i> Investor Relations</Link>
-                                <Link href="/careers" className="px-4 py-2.5 text-slate-400 hover:bg-slate-50 font-bold text-sm border-b border-slate-50 flex items-center gap-2 cursor-not-allowed"><i className="fa-solid fa-briefcase w-4 text-slate-300"></i> Careers <span className="text-[9px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full ml-auto">Soon</span></Link>
-                                <Link href="/media" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-newspaper w-4 text-slate-400"></i> News & Media</Link>
+                                <Link href="/media" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-newspaper w-4 text-slate-400"></i> News & Media</Link>
+                                <Link href="/downloads" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-cloud-arrow-down w-4 text-blue-500"></i> Download Center</Link>
                             </div>
                         </li>
                         <li><Link href="/digital-health" className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-indigo-500/20 uppercase tracking-tighter border border-indigo-400"><i className="fa-solid fa-shield-halved mr-1"></i> Digital Health (ABDM)</Link></li>
@@ -303,6 +303,7 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/partners" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Partner Network</Link>
                                 <Link href="/investors" onClick={() => setIsMobileMenuOpen(false)} className="text-emerald-300 text-sm font-bold hover:text-emerald-200">Investor Relations</Link>
                                 <Link href="/media" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">News & Media</Link>
+                                <Link href="/downloads" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Download Center</Link>
                             </div>
                          </li>
 

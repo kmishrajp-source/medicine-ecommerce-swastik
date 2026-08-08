@@ -11,10 +11,33 @@ import Script from "next/script";
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
 
 export const metadata: Metadata = {
-  title: "Swastik Medicare - Premium Online Pharmacy & Healthcare",
-  description: "Order medicines, upload prescriptions, and get fast home delivery in Gorakhpur.",
+  title: "Swastik Medicare - AI-Powered Digital Healthcare Platform",
+  description: "India's premier HealthTech platform. Order medicines, consult top doctors online, book lab tests, and manage unified health records with AI intelligence.",
+  keywords: "HealthTech, Swastik Medicare, AI Healthcare, Online Pharmacy, Telemedicine, Gorakhpur, ePharmacy, ABDM, Digital Health, Lab Tests, Doctor Consultation, Healthcare Startup",
   manifest: "/manifest.json",
   metadataBase: new URL("https://medicine-ecommerce-swastik-main.vercel.app"),
+  openGraph: {
+    title: "Swastik Medicare | Next-Gen HealthTech Ecosystem",
+    description: "Connecting patients, doctors, pharmacies, and labs through AI. Discover the future of healthcare.",
+    url: "https://medicine-ecommerce-swastik-main.vercel.app",
+    siteName: "Swastik Medicare",
+    images: [
+      {
+        url: "/og-image.jpg", // We will just point to a placeholder/existing asset
+        width: 1200,
+        height: 630,
+        alt: "Swastik Medicare AI Health Ecosystem",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Swastik Medicare - AI-Powered HealthTech",
+    description: "Transforming healthcare with AI prescription safety, telemedicine, and digital pharmacies.",
+    images: ["/og-image.jpg"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
