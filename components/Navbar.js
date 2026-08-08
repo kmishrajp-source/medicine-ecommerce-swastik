@@ -159,7 +159,7 @@ export default function Navbar({ cartCount, openCart }) {
                         ) : (
                              <Link href="/login" className="hidden md:block text-[10px] font-bold text-slate-500 hover:text-blue-600 uppercase tracking-tighter">{t('login')}</Link>
                         )}
-                        <Link href="/partner" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">{t('growth_partner')}</Link>
+                        <Link href="/partners" className="px-3 py-1.5 bg-indigo-600 text-white rounded-full font-bold text-[9px] uppercase tracking-wider whitespace-nowrap hidden lg:block">{t('growth_partner')}</Link>
                         <div className="hidden md:block">
                             <LanguageSwitcher />
                         </div>
@@ -241,9 +241,11 @@ export default function Navbar({ cartCount, openCart }) {
                                 <div className="px-4 pt-3 pb-2 bg-slate-50 border-b border-slate-100 border-t border-t-slate-100">
                                     <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enterprise</span>
                                 </div>
+                                <Link href="/company/ecosystem" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-network-wired w-4 text-indigo-500"></i> Interactive Ecosystem</Link>
+                                <Link href="/programs" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-notes-medical w-4 text-pink-500"></i> Healthcare Programs</Link>
                                 <Link href="/company/security" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-lock w-4 text-emerald-500"></i> Patient Data Security</Link>
                                 <Link href="/trust" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-shield-check w-4 text-slate-400"></i> Trust & Compliance</Link>
-                                <Link href="/partner" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-handshake w-4 text-slate-400"></i> Partner Network</Link>
+                                <Link href="/partners" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-handshake w-4 text-slate-400"></i> Partner Network</Link>
                                 <Link href="/investors" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-chart-line w-4 text-indigo-500"></i> Investor Relations</Link>
                                 <Link href="/careers" className="px-4 py-2.5 text-slate-400 hover:bg-slate-50 font-bold text-sm border-b border-slate-50 flex items-center gap-2 cursor-not-allowed"><i className="fa-solid fa-briefcase w-4 text-slate-300"></i> Careers <span className="text-[9px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full ml-auto">Soon</span></Link>
                                 <Link href="/media" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-newspaper w-4 text-slate-400"></i> News & Media</Link>
@@ -298,7 +300,7 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/company/ai-healthcare" onClick={() => setIsMobileMenuOpen(false)} className="text-blue-300 text-sm font-bold hover:text-blue-200"><i className="fa-solid fa-robot mr-1"></i> AI Healthcare Platform</Link>
                                 <Link href="/digital-health" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Digital Health Mission</Link>
                                 <Link href="/trust" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Trust & Compliance</Link>
-                                <Link href="/partner" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Partner Network</Link>
+                                <Link href="/partners" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Partner Network</Link>
                                 <Link href="/investors" onClick={() => setIsMobileMenuOpen(false)} className="text-emerald-300 text-sm font-bold hover:text-emerald-200">Investor Relations</Link>
                                 <Link href="/media" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">News & Media</Link>
                             </div>
