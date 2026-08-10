@@ -239,8 +239,11 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/digital-health" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-shield-halved w-4 text-indigo-400"></i> Digital Health Mission</Link>
                                 <Link href="/company/government" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-building-columns w-4 text-amber-500"></i> Government Recognition</Link>
                                 <div className="px-4 pt-3 pb-2 bg-slate-50 border-b border-slate-100 border-t border-t-slate-100">
-                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enterprise</span>
+                                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Enterprise & Revenue</span>
                                 </div>
+                                <Link href="/prime" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-crown w-4 text-yellow-500"></i> Swastik Prime</Link>
+                                <Link href="/corporate" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-building w-4 text-indigo-500"></i> Corporate Wellness</Link>
+                                <Link href="/hospital-saas" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-hospital-user w-4 text-sky-500"></i> Hospital SaaS</Link>
                                 <Link href="/company/ecosystem" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-network-wired w-4 text-indigo-500"></i> Interactive Ecosystem</Link>
                                 <Link href="/programs" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-notes-medical w-4 text-pink-500"></i> Healthcare Programs</Link>
                                 <Link href="/company/security" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-lock w-4 text-emerald-500"></i> Patient Data Security</Link>
@@ -329,6 +332,12 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/investors" onClick={() => setIsMobileMenuOpen(false)} className="text-emerald-300 text-sm font-bold hover:text-emerald-200">Investor Relations</Link>
                                 <Link href="/media" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">News & Media</Link>
                                 <Link href="/downloads" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-sm hover:text-white">Download Center</Link>
+                                <div className="mt-2 mb-1">
+                                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Enterprise & Revenue</span>
+                                </div>
+                                <Link href="/prime" onClick={() => setIsMobileMenuOpen(false)} className="text-yellow-400 text-sm font-bold hover:text-yellow-300"><i className="fa-solid fa-crown mr-1"></i> Swastik Prime</Link>
+                                <Link href="/corporate" onClick={() => setIsMobileMenuOpen(false)} className="text-indigo-400 text-sm font-bold hover:text-indigo-300"><i className="fa-solid fa-building mr-1"></i> Corporate Wellness</Link>
+                                <Link href="/hospital-saas" onClick={() => setIsMobileMenuOpen(false)} className="text-sky-400 text-sm font-bold hover:text-sky-300"><i className="fa-solid fa-hospital-user mr-1"></i> Hospital SaaS</Link>
                             </div>
                          </li>
 
