@@ -266,6 +266,17 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/digital-health" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-circle-info w-4 text-slate-400"></i> What is ABDM?</Link>
                             </div>
                         </li>
+                        <li className="relative group">
+                            <button className="bg-gradient-to-r from-purple-500 to-fuchsia-600 hover:from-purple-400 hover:to-fuchsia-500 text-white px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-purple-500/20 uppercase tracking-tighter border border-purple-400 flex items-center gap-1">
+                                <i className="fa-solid fa-wand-magic-sparkles mr-1"></i> AI Tools <i className="fa-solid fa-chevron-down text-[10px] ml-1"></i>
+                            </button>
+                            <div className="absolute top-full right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-50 flex flex-col py-2">
+                                <Link href="/upload-prescription" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-purple-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-file-image w-4 text-indigo-500"></i> AI Prescription Reader</Link>
+                                <Link href="/symptom-helper" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-purple-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-stethoscope w-4 text-blue-500"></i> AI Symptom Triage</Link>
+                                <Link href="/drug-interaction-checker" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-purple-600 font-bold text-sm border-b border-slate-50 flex items-center gap-2"><i className="fa-solid fa-pills w-4 text-emerald-500"></i> Drug Interaction Checker</Link>
+                                <Link href="/lab-interpretation" className="px-4 py-2.5 text-slate-700 hover:bg-slate-50 hover:text-purple-600 font-bold text-sm flex items-center gap-2"><i className="fa-solid fa-microscope w-4 text-purple-500"></i> AI Lab Interpreter</Link>
+                            </div>
+                        </li>
                         <li><Link href="/switch" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-slate-900 px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-orange-500/20 uppercase tracking-tighter"><i className="fa-solid fa-bolt mr-1"></i> Switch & Save ₹100</Link></li>
                         <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
                         <li><Link href="/shop-medicines/homeopathy" className="hover:text-cyan-300 hover:bg-cyan-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-cyan-400"><i className="fa-solid fa-leaf mr-1"></i>Homeopathy</Link></li>
@@ -329,6 +340,15 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/my-health-records/prescriptions" onClick={() => setIsMobileMenuOpen(false)} className="text-red-300 text-sm font-bold"><i className="fa-solid fa-file-prescription w-4"></i> Prescriptions</Link>
                                 <Link href="/profile/family" onClick={() => setIsMobileMenuOpen(false)} className="text-indigo-300 text-sm font-bold"><i className="fa-solid fa-users w-4"></i> Family Profiles</Link>
                                 <Link href="/digital-health" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-xs mt-2"><i className="fa-solid fa-circle-info w-4"></i> What is ABDM?</Link>
+                            </div>
+                         </li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #a855f7 0%, #c026d3 100%)' }}>
+                            <div style={{ color: 'white', fontWeight: '900', marginBottom: '10px', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '8px' }}><i className="fa-solid fa-wand-magic-sparkles text-white"></i> AI Tools</div>
+                            <div className="flex flex-col pl-6 gap-3 mt-3 border-l border-white/20">
+                                <Link href="/upload-prescription" onClick={() => setIsMobileMenuOpen(false)} className="text-fuchsia-200 text-sm font-bold"><i className="fa-solid fa-file-image w-4"></i> AI Prescription Reader</Link>
+                                <Link href="/symptom-helper" onClick={() => setIsMobileMenuOpen(false)} className="text-purple-300 text-sm font-bold"><i className="fa-solid fa-stethoscope w-4"></i> AI Symptom Triage</Link>
+                                <Link href="/drug-interaction-checker" onClick={() => setIsMobileMenuOpen(false)} className="text-pink-300 text-sm font-bold"><i className="fa-solid fa-pills w-4"></i> Drug Interactions</Link>
+                                <Link href="/lab-interpretation" onClick={() => setIsMobileMenuOpen(false)} className="text-fuchsia-300 text-sm font-bold"><i className="fa-solid fa-microscope w-4"></i> AI Lab Interpreter</Link>
                             </div>
                          </li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #f59e0b 0%, #f97316 100%)' }}><Link href="/switch" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#1e293b', textDecoration: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}><i className="fa-solid fa-bolt text-white"></i> Switch & Save ₹100</Link></li>
