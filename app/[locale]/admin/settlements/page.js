@@ -220,9 +220,13 @@ export default function AdminSettlementsPage() {
                                 </div>
 
                                 <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
-                                    <button className="flex-1 bg-white border border-gray-200 text-gray-700 py-2 rounded font-medium text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2">
-                                        <Download className="w-4 h-4" /> Export Bank CSV
-                                    </button>
+                                        <a
+                                            href={`/api/admin/settlements/export?batchId=${batch.id}`}
+                                            download
+                                            className="flex-1 bg-white border border-gray-200 text-gray-700 py-2 rounded font-medium text-sm hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+                                        >
+                                            <Download className="w-4 h-4" /> Export Bank CSV
+                                        </a>
                                     {batch.status === 'PROCESSING' && (
                                         <button 
                                             onClick={() => handleMarkPaid(batch.id)}

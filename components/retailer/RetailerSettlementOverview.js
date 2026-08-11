@@ -7,8 +7,9 @@ export default function RetailerSettlementOverview() {
     const [loading, setLoading] = useState(true);
     const [trustData, setTrustData] = useState(null);
     const [accepting, setAccepting] = useState(false);
+    const [settlementSummary, setSettlementSummary] = useState(null);
 
-    // Keeping mock stats for the financial part until Phase 5 or when the full API is wired
+    // Keeping mock operational stats until a dedicated ops API is built
     const [stats] = useState({
         today: {
             received: 18,
@@ -17,35 +18,33 @@ export default function RetailerSettlementOverview() {
             dispatched: 12,
             delivered: 10,
             cancelled: 2
-        },
-        money: {
-            sales: 14250,
-            commission: 1425,
-            pendingSettlement: 8450,
-            paidSettlement: 92450
-        },
-        nextSettlement: {
-            amount: 6800,
-            date: "2026-08-14",
-            status: "PROCESSING",
         }
     });
 
     useEffect(() => {
         fetchTrustData();
+        fetchSettlementSummary();
     }, []);
 
     const fetchTrustData = async () => {
         try {
             const res = await fetch("/api/retailer/trust");
             const data = await res.json();
-            if (data.success) {
-                setTrustData(data.trust);
-            }
+            if (data.success) setTrustData(data.trust);
         } catch (error) {
             console.error("Failed to fetch trust data", error);
         }
         setLoading(false);
+    };
+
+    const fetchSettlementSummary = async () => {
+        try {
+            const res = await fetch("/api/retailer/settlements");
+            const data = await res.json();
+            if (data.success) setSettlementSummary(data.summary);
+        } catch (error) {
+            console.error("Failed to fetch settlement summary", error);
+        }
     };
 
     const handleAcceptAgreement = async () => {
@@ -180,46 +179,39 @@ export default function RetailerSettlementOverview() {
                         </Link>
                     </div>
                     
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
                         <div>
-                            <p className="text-xs text-gray-500">Today's Total Sales</p>
-                            <p className="font-bold text-gray-900">₹{stats.money.sales}</p>
+                            <p className="text-xs text-indigo-500">Eligible (Unbatched)</p>
+                            <p className="font-bold text-indigo-700">₹{settlementSummary?.totalEligible ?? '—'}</p>
                         </div>
                         <div>
-                            <p className="text-xs text-red-500">Platform Commission</p>
-                            <p className="font-bold text-red-600">- ₹{stats.money.commission}</p>
-                        </div>
-                        <div>
-                            <p className="text-xs text-amber-500">Pending Settlement</p>
-                            <p className="font-bold text-amber-600">₹{stats.money.pendingSettlement}</p>
+                            <p className="text-xs text-amber-500">In Processing</p>
+                            <p className="font-bold text-amber-600">₹{settlementSummary?.totalPending ?? '—'}</p>
                         </div>
                         <div>
                             <p className="text-xs text-green-600">Paid (All Time)</p>
-                            <p className="font-bold text-green-700">₹{stats.money.paidSettlement}</p>
+                            <p className="font-bold text-green-700">₹{settlementSummary?.totalPaid ?? '—'}</p>
                         </div>
                     </div>
 
-                    {/* Next Settlement Widget */}
+                    {/* Settlement Status Banner */}
                     <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row justify-between items-center gap-4">
                         <div className="flex items-center gap-3">
                             <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-200">
                                 <IndianRupee className="w-6 h-6 text-slate-700" />
                             </div>
                             <div>
-                                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Next Settlement</p>
-                                <p className="text-xl font-black text-slate-800">₹{stats.nextSettlement.amount}</p>
+                                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Pending Settlement</p>
+                                <p className="text-xl font-black text-slate-800">
+                                    ₹{parseFloat(settlementSummary?.totalPending || 0) + parseFloat(settlementSummary?.totalEligible || 0) > 0
+                                        ? (parseFloat(settlementSummary?.totalPending || 0) + parseFloat(settlementSummary?.totalEligible || 0)).toFixed(2)
+                                        : '0.00'}
+                                </p>
                             </div>
                         </div>
-                        <div className="flex gap-4 text-sm">
-                            <div>
-                                <p className="text-slate-500 text-xs">Expected Date</p>
-                                <p className="font-bold text-slate-700">{new Date(stats.nextSettlement.date).toLocaleDateString()}</p>
-                            </div>
-                            <div>
-                                <p className="text-slate-500 text-xs">Status</p>
-                                <p className="font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded text-xs mt-0.5">{stats.nextSettlement.status}</p>
-                            </div>
-                        </div>
+                        <Link href="/retailer/settlements" className="text-sm font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+                            View Full Ledger <ArrowUpRight className="w-4 h-4" />
+                        </Link>
                     </div>
                 </div>
 
