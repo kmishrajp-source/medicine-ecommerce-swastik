@@ -3,7 +3,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import Navbar from "@/components/Navbar";
-import ProviderWallet from "@/components/wallet/ProviderWallet";
+import RetailerSettlementOverview from "@/components/retailer/RetailerSettlementOverview";
 import Papa from "papaparse";
 import PendingApprovalBanner from "@/components/PendingApprovalBanner";
 
@@ -369,7 +369,7 @@ export default function RetailerDashboard() {
                 </div>
 
                 <div className="mb-8">
-                    <ProviderWallet />
+                    <RetailerSettlementOverview />
                 </div>
 
                 {/* Incoming Orders Area */}

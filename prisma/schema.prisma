@@ -159,6 +159,8 @@ model Order {
   deliveryCode            String? // Secret code for COD verification
   isPaid                  Boolean              @default(false)
   isDelivered             Boolean              @default(false)
+  codCollectedAmount      Float?               @default(0)
+  codReconciled           Boolean              @default(false)
   items                   OrderItem[]
   prescription            Prescription?
   deliveryProofUrl        String?
@@ -172,6 +174,9 @@ model Order {
   subOrders               SubOrder[]
   deliveryAssignments     DeliveryAssignment[]
 
+  // --- Settlement ---
+  settlementStatus        String               @default("PENDING") // PENDING, SETTLED, PARTIAL
+  
   @@index([status])
   @@index([userId])
 }
@@ -374,6 +379,17 @@ model Retailer {
   subOrders          SubOrder[]
   prescriptionQuotes PrescriptionQuote[]
   reports            Report[]
+  
+  // --- Settlement & Trust ---
+  bankAccountName    String?
+  bankAccountNumber  String?
+  bankIfsc           String?
+  bankUpi            String?
+  bankVerified       Boolean             @default(false)
+  trustLevel         String              @default("NEW") // NEW, VERIFIED, TRUSTED, PREMIUM, STRATEGIC
+  kycStatus          String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  agreements         RetailerAgreement[]
+  settlementItems    SettlementItem[]
 }
 
 model Stockist {
@@ -806,6 +822,7 @@ model SubOrder {
   total         Float
   status        String         @default("Pending") // Pending, Invoice_Pending, Approved, Rejected, Shipped, Delivered
   draftInvoices DraftInvoice[]
+  settlementItem SettlementItem?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 }
@@ -1490,4 +1507,53 @@ model ApiToken {
   updatedAt    DateTime @updatedAt
 
   @@index([userId])
+}
+
+// ============================================================================
+// PHASE 7 - RETAILER SETTLEMENT & TRUST SYSTEM
+// ============================================================================
+
+model CommissionRule {
+  id              String   @id @default(cuid())
+  name            String   // e.g., "Default 5%", "Flat 50"
+  type            String   // "PERCENTAGE", "FIXED"
+  value           Float
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+model RetailerAgreement {
+  id              String   @id @default(cuid())
+  retailerId      String
+  retailer        Retailer @relation(fields: [retailerId], references: [id])
+  version         String
+  acceptedAt      DateTime @default(now())
+  ipAddress       String?
+  documentHash    String?
+}
+
+model SettlementBatch {
+  id              String   @id @default(cuid())
+  batchRef        String   @unique // e.g. STL-2026-001
+  totalAmount     Float
+  status          String   @default("DRAFT") // DRAFT, PROCESSING, PAID
+  processedAt     DateTime?
+  reference       String?
+  items           SettlementItem[]
+  createdAt       DateTime @default(now())
+}
+
+model SettlementItem {
+  id              String   @id @default(cuid())
+  batchId         String?
+  batch           SettlementBatch? @relation(fields: [batchId], references: [id])
+  retailerId      String
+  retailer        Retailer @relation(fields: [retailerId], references: [id])
+  subOrderId      String   @unique
+  subOrder        SubOrder @relation(fields: [subOrderId], references: [id])
+  grossAmount     Float
+  commission      Float
+  netAmount       Float
+  status          String   @default("ELIGIBLE") // ELIGIBLE, IN_BATCH, PAID, ON_HOLD
+  createdAt       DateTime @default(now())
 }
