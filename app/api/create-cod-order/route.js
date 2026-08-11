@@ -210,8 +210,17 @@ export async function POST(req) {
                 `New COD Order! ID: #${order.id.slice(-6).toUpperCase()}, Amt: ₹${amount}, Customer: ${guestName || "Guest"}. Code: ${deliveryCode}.`
             );
 
-            // Admin WhatsApp
-            await WhatsAppTriggers.adminOrderAlert("+917992122974", order.id.slice(-6).toUpperCase(), amount, "COD Order");
+            // Admin WhatsApp (Rich)
+            await WhatsAppTriggers.adminRichOrderAlert(
+                "+917992122974", 
+                order.id.slice(-6).toUpperCase(), 
+                guestName || session?.user?.name || "Guest",
+                phone,
+                amount,
+                items?.length || 0,
+                address || "Address not provided",
+                `https://www.swastikmed.online/order/${order.id}/invoice?guest=1`
+            );
         } catch (smsError) {
             console.error("Delayed Notification Warning:", smsError.message);
             // We don't throw here, because the order is already created successfully.

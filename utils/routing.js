@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { sendSMS } from "@/lib/sms";
 import { sendPushNotification } from "@/lib/fcm";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 // Haversine formula to calculate distance between two lat/lng coordinates in kilometers
 export function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
@@ -25,7 +26,15 @@ function deg2rad(deg) {
  */
 export async function assignOrderToNearestRetailer(orderId) {
     try {
-        const order = await prisma.order.findUnique({ where: { id: orderId } });
+        const order = await prisma.order.findUnique({
+            where: { id: orderId },
+            include: {
+                items: {
+                    include: { product: { select: { name: true, packSize: true } } }
+                },
+                user: { select: { name: true, phone: true } }
+            }
+        });
         if (!order || !order.lat || !order.lng) {
             console.log(`[ROUTING ERROR] Order ${orderId} has no GPS coordinates.`);
             return null;
@@ -62,9 +71,6 @@ export async function assignOrderToNearestRetailer(orderId) {
 
         const nearest = validRetailers[0];
 
-        // Ensure the order has a declinedRetailers array initialized in DB 
-        // (Assuming the Prisma schema has a field `declinedRetailers: String[]`)
-        // Assign the order to the nearest retailer
         const nearestIds = validRetailers.slice(0, 3).map(r => r.id);
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
@@ -79,22 +85,46 @@ export async function assignOrderToNearestRetailer(orderId) {
 
         console.log(`[ROUTING] Order ${orderId} assigned to Retailer ${nearest.shopName} (${nearest.distance.toFixed(2)} km away).`);
 
-        // Send SMS Alert to the Retailer
+        // Build medicine list string for WhatsApp
+        const shortId = orderId.slice(-6).toUpperCase();
+        const customerName = order.guestName || order.user?.name || 'Customer';
+        const customerPhone = order.guestPhone || order.user?.phone || 'N/A';
+        const deliveryAddress = order.address || 'Address not provided';
+        const invoiceUrl = `https://www.swastikmed.online/order/${orderId}/invoice?guest=1`;
+        const medicineList = order.items.map((item, i) =>
+            `${i + 1}. ${item.product?.name || 'Medicine'} x${item.quantity}${item.product?.packSize ? ` (${item.product.packSize})` : ''}`
+        ).join('\n') || 'See invoice for details';
+
+        // Send rich WhatsApp to the retailer with full medicine list + invoice link
         if (nearest.phone) {
-            await sendSMS(
+            WhatsAppTriggers.retailerNewOrder(
                 nearest.phone,
-                `Swastik Medicare: New Medicine Order #${orderId.slice(-6).toUpperCase()} received! Please check your Retailer Dashboard to accept within 60 seconds.`
-            );
+                shortId,
+                customerName,
+                order.deliveryCode || '----',
+                order.total,
+                medicineList,
+                deliveryAddress,
+                invoiceUrl
+            ).catch(e => console.error('[WHATSAPP RETAILER]', e.message));
         }
 
-        // Send Push Notification to the Retailer's linked User Account
+        // Fallback SMS (shorter, for basic phones)
+        if (nearest.phone) {
+            sendSMS(
+                nearest.phone,
+                `Swastik Medicare: New Order #${shortId} assigned!\nCustomer: ${customerName}\nAmt: Rs.${order.total}\nDelivery Code: ${order.deliveryCode}\nInvoice: ${invoiceUrl}\nAccept: swastikmed.online/en/retailer/orders`
+            ).catch(e => console.error('[SMS RETAILER]', e.message));
+        }
+
+        // Push Notification to Retailer's linked User Account
         if (nearest.userId) {
-            await sendPushNotification(
+            sendPushNotification(
                 nearest.userId,
                 "New Order Assigned! 🚨",
-                `Order #${orderId.slice(-6).toUpperCase()} is 5km away. You have 3 minutes to accept.`,
-                "/admin/dashboard" // Route retailer to their dashboard on click
-            );
+                `Order #${shortId} is ${nearest.distance.toFixed(1)}km away. Accept within 3 mins.`,
+                "/admin/dashboard"
+            ).catch(e => console.error('[PUSH RETAILER]', e.message));
         }
 
         return updatedOrder;
