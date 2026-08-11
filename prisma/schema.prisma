@@ -1380,3 +1380,93 @@ model DigitalPrescription {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
+// ============================================================================
+// PHASE 6: GOVERNMENT, DIGITAL HEALTH & INVESTOR READINESS (NON-BREAKING)
+// ============================================================================
+
+model ComplianceDocument {
+  id             String   @id @default(cuid())
+  type           String   @unique // e.g., PRIVACY_POLICY, TERMS, MEDICAL_DISCLAIMER
+  title          String
+  content        String   @db.Text
+  version        String   @default("1.0")
+  effectiveDate  DateTime @default(now())
+  status         String   @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
+  pdfUrl         String?
+  updatedByAdmin String?  // Admin User ID
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model SecurityAuditLog {
+  id           String   @id @default(cuid())
+  userId       String?
+  userRole     String?
+  ipAddress    String?
+  action       String   // e.g., LOGIN_FAILED, RECORD_ACCESSED, CONSENT_REVOKED
+  resourceType String?  // e.g., PATIENT_RECORD, ADMIN_DASHBOARD
+  resourceId   String?
+  details      Json?
+  severity     String   @default("INFO") // INFO, WARNING, CRITICAL
+  createdAt    DateTime @default(now())
+
+  @@index([action])
+  @@index([severity])
+  @@index([createdAt])
+}
+
+model InvestorMetric {
+  id              String   @id @default(cuid())
+  metricKey       String   @unique // e.g., GMV_YTD, CAC, REPEAT_RATE
+  metricName      String
+  metricValue     String
+  isPubliclyVisible Boolean @default(false)
+  updatedByAdmin  String?
+  lastVerifiedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ImpactMetric {
+  id              String   @id @default(cuid())
+  metricKey       String   @unique // e.g., RURAL_PATIENTS, FREE_CONSULTS
+  metricName      String
+  metricValue     String
+  isPubliclyVisible Boolean @default(true)
+  updatedByAdmin  String?
+  lastVerifiedAt  DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProviderVerification {
+  id               String   @id @default(cuid())
+  providerType     String   // DOCTOR, PHARMACY, LAB, HOSPITAL, AMBULANCE
+  providerId       String   @unique // The ID of the actual provider record
+  status           String   @default("UNVERIFIED") // UNVERIFIED, SUBMITTED, UNDER_REVIEW, VERIFIED, SUSPENDED
+  documentsUrl     Json?    // Array of uploaded document URLs
+  verifiedByAdmin  String?
+  verificationDate DateTime?
+  remarks          String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([providerType, status])
+}
+
+model GovernmentApplication {
+  id               String   @id @default(cuid())
+  programName      String   @unique // STARTUP_INDIA, ABDM, DHIS, GEM, BIRAC
+  status           String   @default("NOT_STARTED") // NOT_STARTED, PREPARING, APPLIED, APPROVED
+  applicationId    String?  // Reference/Certificate Number
+  applicationDate  DateTime?
+  certificateUrl   String?
+  requiredDocs     Json?
+  missingDocs      Json?
+  responsibleAgent String?
+  targetDate       DateTime?
+  notes            String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
