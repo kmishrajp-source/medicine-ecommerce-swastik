@@ -17,6 +17,11 @@ export async function GET() {
                 address: true,
                 isOnline: true,
                 priority_score: true,
+                verified: true,
+                bankVerified: true,
+                agreements: {
+                    select: { id: true }
+                },
                 user: {
                     select: {
                         phone: true
@@ -33,6 +38,9 @@ export async function GET() {
             address: r.address,
             is_online: r.isOnline,
             priority_score: r.priority_score,
+            verified: r.verified,
+            bankVerified: r.bankVerified,
+            hasAgreement: r.agreements && r.agreements.length > 0,
             users: r.user ? { phone: r.user.phone } : null
         }));
 

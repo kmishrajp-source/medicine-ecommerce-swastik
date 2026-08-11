@@ -56,6 +56,7 @@ export default function AdminRetailers() {
                             <tr className="bg-slate-50 border-b border-slate-200 text-sm font-bold text-slate-700 uppercase tracking-wider">
                                 <th className="p-4 pl-6">Store Name</th>
                                 <th className="p-4 text-center">Status</th>
+                                <th className="p-4">Trust Profile</th>
                                 <th className="p-4">Contact</th>
                                 <th className="p-4 text-right pr-6">Priority Score</th>
                             </tr>
@@ -76,6 +77,20 @@ export default function AdminRetailers() {
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold tracking-wider ${r.is_online ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-600'}`}>
                                                 {r.is_online ? 'ONLINE' : 'OFFLINE'}
                                             </span>
+                                        </td>
+                                        <td className="p-4">
+                                            <div className="flex flex-col gap-1">
+                                                {r.bankVerified ? (
+                                                    <span className="text-[10px] font-bold text-green-700 bg-green-50 px-2 py-0.5 rounded border border-green-200 inline-block w-fit">Bank Verified</span>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-red-700 bg-red-50 px-2 py-0.5 rounded border border-red-200 inline-block w-fit">Bank Unverified</span>
+                                                )}
+                                                {r.hasAgreement ? (
+                                                    <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200 inline-block w-fit">Agreement Signed</span>
+                                                ) : (
+                                                    <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200 inline-block w-fit">No Agreement</span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="p-4 text-sm text-slate-600 font-medium whitespace-nowrap">
                                             {r.users?.phone || 'N/A'}

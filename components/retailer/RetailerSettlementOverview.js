@@ -4,8 +4,12 @@ import { TrendingUp, Package, CheckCircle, Clock, ShieldCheck, IndianRupee, Aler
 import Link from "next/link";
 
 export default function RetailerSettlementOverview() {
-    // Mock data for now until API is ready
-    const [stats, setStats] = useState({
+    const [loading, setLoading] = useState(true);
+    const [trustData, setTrustData] = useState(null);
+    const [accepting, setAccepting] = useState(false);
+
+    // Keeping mock stats for the financial part until Phase 5 or when the full API is wired
+    const [stats] = useState({
         today: {
             received: 18,
             accepted: 16,
@@ -16,50 +20,122 @@ export default function RetailerSettlementOverview() {
         },
         money: {
             sales: 14250,
-            gross: 12825,
             commission: 1425,
-            delivery: 0,
-            refunds: 0,
-            adjustments: 0,
             pendingSettlement: 8450,
-            availableSettlement: 4375,
             paidSettlement: 92450
         },
         nextSettlement: {
             amount: 6800,
             date: "2026-08-14",
             status: "PROCESSING",
-            reference: "STL-2026-042"
-        },
-        trust: {
-            verification: "VERIFIED",
-            kyc: "APPROVED",
-            licence: "VERIFIED",
-            bank: "VERIFIED",
-            settlement: "ACTIVE",
-            riskLevel: "LOW"
         }
     });
 
+    useEffect(() => {
+        fetchTrustData();
+    }, []);
+
+    const fetchTrustData = async () => {
+        try {
+            const res = await fetch("/api/retailer/trust");
+            const data = await res.json();
+            if (data.success) {
+                setTrustData(data.trust);
+            }
+        } catch (error) {
+            console.error("Failed to fetch trust data", error);
+        }
+        setLoading(false);
+    };
+
+    const handleAcceptAgreement = async () => {
+        setAccepting(true);
+        try {
+            const res = await fetch("/api/retailer/trust", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ version: "1.0", ipAddress: "client-ip" })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Agreement Accepted Successfully. Your settlement account is now active.");
+                fetchTrustData();
+            } else {
+                alert(data.error);
+            }
+        } catch (error) {
+            alert("Failed to accept agreement");
+        }
+        setAccepting(false);
+    };
+
+    if (loading) return <div className="p-8 text-center text-gray-500 animate-pulse">Loading Financial Profile...</div>;
+
+    const isHighRisk = trustData?.riskLevel === 'HIGH';
+    const missingAgreement = trustData && !trustData.hasAcceptedAgreement;
+
     return (
         <div className="space-y-6">
+            {/* Agreement Blocker */}
+            {missingAgreement && (
+                <div className="bg-amber-50 border-2 border-amber-400 rounded-2xl p-6 shadow-sm relative overflow-hidden">
+                    <div className="relative z-10">
+                        <h2 className="text-xl font-bold text-amber-900 flex items-center gap-2">
+                            <AlertCircle className="w-6 h-6" />
+                            Action Required: Partner Agreement
+                        </h2>
+                        <p className="text-amber-800 mt-2 max-w-2xl">
+                            Before processing your payouts, you must accept the Swastik Medicare Pharmacy Partner Agreement. 
+                            This covers settlement cycles, platform commissions, and COD reconciliation terms.
+                        </p>
+                        <div className="mt-4 p-4 bg-white rounded-xl border border-amber-200 h-40 overflow-y-auto text-sm text-gray-700">
+                            <strong>Retailer Trust & Settlement Agreement (v1.0)</strong><br/><br/>
+                            1. The Retailer agrees to fulfill all accepted orders strictly according to the prescription.<br/>
+                            2. <strong>Settlement Cycle:</strong> Eligible prepaid transactions will be batched and processed to the Retailer's verified bank account after applying the agreed platform service fee.<br/>
+                            3. <strong>Cash On Delivery (COD):</strong> If the retailer collects cash directly, the platform service fee for those orders will be deducted from their future prepaid payouts. If the negative balance exceeds threshold, the retailer must deposit the difference to the platform.<br/>
+                            4. <strong>Tamper Seals:</strong> The Retailer must apply Swastik-provided tamper-evident seals to all packages. Failure to do so voids protection against transit disputes.<br/>
+                            5. <strong>Returns/Refunds:</strong> If a valid return is initiated by the customer due to wrong/expired medicine, the settlement for that order will be reversed.<br/><br/>
+                            <em>By clicking Accept, you electronically sign this legally binding agreement.</em>
+                        </div>
+                        <button 
+                            onClick={handleAcceptAgreement}
+                            disabled={accepting}
+                            className="mt-4 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg transition-colors disabled:opacity-50 shadow-sm"
+                        >
+                            {accepting ? "Signing..." : "I Accept the Partner Agreement"}
+                        </button>
+                    </div>
+                </div>
+            )}
+
             {/* Trust Banner */}
-            <div className="bg-gradient-to-r from-blue-900 to-indigo-800 rounded-2xl p-6 text-white flex justify-between items-center shadow-lg">
+            <div className={`bg-gradient-to-r rounded-2xl p-6 text-white flex justify-between items-center shadow-lg ${
+                isHighRisk ? 'from-red-900 to-orange-800' : 'from-blue-900 to-indigo-800'
+            }`}>
                 <div>
                     <h2 className="text-2xl font-bold flex items-center gap-2">
-                        <ShieldCheck className="w-8 h-8 text-blue-300" />
-                        Swastik Trusted Retailer
+                        {isHighRisk ? <AlertCircle className="w-8 h-8 text-red-300" /> : <ShieldCheck className="w-8 h-8 text-blue-300" />}
+                        {isHighRisk ? "Action Required: High Risk Profile" : "Swastik Trusted Retailer"}
                     </h2>
-                    <p className="text-blue-100 mt-2">Your settlement is transparent. Track every eligible order from fulfilment to settlement.</p>
+                    <p className={isHighRisk ? "text-red-100 mt-2" : "text-blue-100 mt-2"}>
+                        {trustData?.riskReason || "Your settlement is transparent. Track every eligible order from fulfilment to settlement."}
+                    </p>
                 </div>
                 <div className="hidden md:flex gap-4">
                     <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-center">
-                        <p className="text-xs text-blue-200">Trust Level</p>
-                        <p className="font-bold text-lg text-green-300">{stats.trust.verification}</p>
+                        <p className="text-xs text-white/70">Trust Level</p>
+                        <p className={`font-bold text-lg ${trustData?.verification === 'VERIFIED' ? 'text-green-300' : 'text-amber-300'}`}>
+                            {trustData?.verification || 'PENDING'}
+                        </p>
                     </div>
                     <div className="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20 text-center">
-                        <p className="text-xs text-blue-200">Risk Profile</p>
-                        <p className="font-bold text-lg text-green-300">{stats.trust.riskLevel}</p>
+                        <p className="text-xs text-white/70">Risk Profile</p>
+                        <p className={`font-bold text-lg ${
+                            trustData?.riskLevel === 'LOW' ? 'text-green-300' : 
+                            trustData?.riskLevel === 'MEDIUM' ? 'text-amber-300' : 'text-red-300'
+                        }`}>
+                            {trustData?.riskLevel || 'UNKNOWN'}
+                        </p>
                     </div>
                 </div>
             </div>
