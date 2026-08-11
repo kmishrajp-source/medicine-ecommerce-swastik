@@ -111,7 +111,6 @@ export async function POST(req) {
                     email: userEmail,
                     password: `swastik_${validPhone.slice(-4)}`, // Default temporary password
                     role: 'CUSTOMER',
-                    isApproved: true,
                     deviceId: validPhone, // Store 10-digit mobile number
                     phoneVerified: true,
                     referredBy: tag || 'CONTACT_IMPORT'

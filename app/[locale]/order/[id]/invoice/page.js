@@ -15,10 +15,12 @@ function backCalcGst(amountInclGst, gstRate) {
 
 const DELIVERY_GST_RATE = 18; // Transport = 18% GST
 
-export default async function InvoicePage({ params }) {
+export default async function InvoicePage({ params, searchParams }) {
     try {
         const session = await getServerSession(authOptions);
         const { id } = await params;
+        const sp = await searchParams;
+        const isGuestLink = sp?.guest === '1'; // allow access via SMS link ?guest=1
 
         const order = await prisma.order.findUnique({
             where: { id },
@@ -46,7 +48,8 @@ export default async function InvoicePage({ params }) {
         const isAdmin = session?.user?.role === 'ADMIN';
         const isGuestOrder = Boolean(order.guestPhone || order.guestEmail || order.guestName);
 
-        if (!isOwner && !isAdmin && !isGuestOrder) {
+        // Allow access if: owner, admin, guest order (has guest info), or ?guest=1 link from SMS
+        if (!isOwner && !isAdmin && !isGuestOrder && !isGuestLink) {
             if (!session) redirect('/login');
             return <div style={{ padding: '40px', fontFamily: 'monospace' }}>Unauthorized</div>;
         }

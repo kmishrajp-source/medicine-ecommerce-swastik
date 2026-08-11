@@ -221,9 +221,9 @@ export default function Navbar({ cartCount, openCart }) {
             </div>
 
             {/* SECONDARY ROW: Services & Utilities (Desktop Only - Explicitly hidden on smaller screens) */}
-            <nav className="hidden lg:block w-full border-b border-indigo-800 shadow-sm" style={{ background: 'linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)' }}>
-                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 20px', overflowX: 'auto', width: '100%' }}>
-                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)', alignItems: 'center' }}>
+            <nav className="hidden lg:block w-full border-b border-indigo-800 shadow-sm" style={{ background: 'linear-gradient(90deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%)', overflow: 'visible' }}>
+                <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 20px', overflowX: 'auto', overflowY: 'visible', width: '100%' }}>
+                    <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)', alignItems: 'center', overflow: 'visible' }}>
                         <li><Link href="/" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
                         <li className="relative group cursor-pointer">
                             <span className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all flex items-center gap-1">Company <i className="fa-solid fa-chevron-down text-[10px]"></i></span>
