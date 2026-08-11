@@ -45,21 +45,25 @@ export default function Footer() {
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/about" style={{ color: 'inherit', textDecoration: 'none' }}>{t('about_us')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>{t('contact_us')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/impact" style={{ color: 'inherit', textDecoration: 'none' }}>Social Impact</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/investor-relations" style={{ color: 'inherit', textDecoration: 'none' }}>Investor Relations</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/government-partnership" style={{ color: 'inherit', textDecoration: 'none' }}>Gov Partnerships</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/rural-health" style={{ color: 'inherit', textDecoration: 'none' }}>Rural Health Initiative</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/partner" style={{ color: 'inherit', textDecoration: 'none' }}>{t('partner_portal')}</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/advertise" style={{ color: 'inherit', textDecoration: 'none' }}>{t('advertise')}</Link></li>
                     </ul>
                 </div>
 
-                {/* Column 4: Legal */}
+                {/* Column 4: Legal & Trust */}
                 <div>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('legal')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
+                        <li style={{ marginBottom: '10px' }}><Link href="/trust-compliance" style={{ color: '#34D399', textDecoration: 'none', fontWeight: '600' }}>🛡️ Trust & Compliance</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/terms-conditions" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>{t('refund')}</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/returns" style={{ color: '#F87171', textDecoration: 'none', fontWeight: '600' }}>↩ Request a Return</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/developer/api-portal" style={{ color: '#818CF8', textDecoration: 'none', fontWeight: '600' }}>⚡ Developer API</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/emergency-response" style={{ color: '#F87171', textDecoration: 'none', fontWeight: '600' }}>🚨 Emergency Response</Link></li>
                     </ul>
-
                 </div>
 
                 {/* Column 5: Contact */}
