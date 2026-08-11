@@ -349,6 +349,7 @@ export default function Navbar({ cartCount, openCart }) {
                                 <Link href="/my-health-records/abha" onClick={() => setIsMobileMenuOpen(false)} className="text-emerald-300 text-sm font-bold"><i className="fa-solid fa-id-card w-4"></i> ABHA Login</Link>
                                 <Link href="/my-health-records/timeline" onClick={() => setIsMobileMenuOpen(false)} className="text-blue-300 text-sm font-bold"><i className="fa-solid fa-timeline w-4"></i> EHR Timeline</Link>
                                 <Link href="/my-health-records/prescriptions" onClick={() => setIsMobileMenuOpen(false)} className="text-red-300 text-sm font-bold"><i className="fa-solid fa-file-prescription w-4"></i> Prescriptions</Link>
+                                <Link href="/my-health-records/consent" onClick={() => setIsMobileMenuOpen(false)} className="text-amber-300 text-sm font-bold"><i className="fa-solid fa-handshake-angle w-4"></i> Consent Manager</Link>
                                 <Link href="/profile/family" onClick={() => setIsMobileMenuOpen(false)} className="text-indigo-300 text-sm font-bold"><i className="fa-solid fa-users w-4"></i> Family Profiles</Link>
                                 <Link href="/digital-health" onClick={() => setIsMobileMenuOpen(false)} className="text-slate-300 text-xs mt-2"><i className="fa-solid fa-circle-info w-4"></i> What is ABDM?</Link>
                             </div>
