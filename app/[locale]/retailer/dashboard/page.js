@@ -382,7 +382,17 @@ export default function RetailerDashboard() {
                             </span>
                         </div>
                         <div style={{ background: 'white', padding: '20px', borderRadius: '8px' }}>
-                            <p><strong>Total Value:</strong> ₹{pendingOrders[0].total.toFixed(2)}</p>
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-xl font-bold">Total Value: ₹{pendingOrders[0].total.toFixed(2)}</p>
+                                    <p className="text-sm text-gray-500 mt-1">Order #{pendingOrders[0].id.slice(-6).toUpperCase()}</p>
+                                </div>
+                                <div className={`px-3 py-1.5 rounded-lg text-sm font-bold border ${
+                                    pendingOrders[0].paymentMethod === 'ONLINE' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-amber-50 text-amber-700 border-amber-200'
+                                }`}>
+                                    {pendingOrders[0].paymentMethod === 'ONLINE' ? '✅ PREPAID (Payment Confirmed)' : '💵 COD (Payment at Delivery)'}
+                                </div>
+                            </div>
                             <div style={{ display: 'flex', gap: '10px', marginTop: '15px' }}>
                                 <button onClick={() => handleAcceptOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 2, background: '#16A34A', color: 'white', padding: '12px', borderRadius: '8px', border: 'none', fontWeight: 'bold' }}>ACCEPT</button>
                                 <button onClick={() => handleRejectOrder(pendingOrders[0].id)} disabled={isResponding} style={{ flex: 1, background: '#DC2626', color: 'white', padding: '12px', borderRadius: '8px', border: 'none' }}>Reject</button>
@@ -425,19 +435,38 @@ export default function RetailerDashboard() {
                             <form onSubmit={handlePackOrder}>
                                 {/* Auto Invoice Preview */}
                                 <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '15px', marginBottom: '20px' }}>
-                                    <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', marginBottom: '10px', textTransform: 'uppercase' }}>Financial Ledger (Auto-Invoice)</h4>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
-                                        <span style={{ color: '#64748b' }}>Platform Selling Price (Customer Paid)</span>
-                                        <span style={{ fontWeight: 600 }}>₹{packingOrder.total}</span>
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#475569', textTransform: 'uppercase' }}>Financial Ledger Preview</h4>
+                                        <span className={`px-2 py-1 rounded text-[10px] font-bold ${
+                                            packingOrder.paymentMethod === 'ONLINE' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                        }`}>
+                                            {packingOrder.paymentMethod === 'ONLINE' ? 'PREPAID' : 'COD'}
+                                        </span>
                                     </div>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
-                                        <span style={{ color: '#ef4444' }}>Platform Service Charge (approx. 10%)</span>
+                                        <span style={{ color: '#64748b' }}>Platform Selling Price</span>
+                                        <span style={{ fontWeight: 600 }}>₹{packingOrder.total.toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '5px' }}>
+                                        <span style={{ color: '#ef4444' }}>Platform Commission (approx. 10%)</span>
                                         <span style={{ fontWeight: 600, color: '#ef4444' }}>- ₹{(packingOrder.total * 0.1).toFixed(2)}</span>
                                     </div>
                                     <hr style={{ borderTop: '1px dashed #cbd5e1', margin: '10px 0' }} />
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem' }}>
-                                        <span style={{ fontWeight: 700, color: '#0f172a' }}>Retailer Settlement Invoice</span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1rem', marginBottom: '10px' }}>
+                                        <span style={{ fontWeight: 700, color: '#0f172a' }}>Eligible Settlement</span>
                                         <span style={{ fontWeight: 800, color: '#10b981' }}>₹{(packingOrder.total * 0.9).toFixed(2)}</span>
+                                    </div>
+                                    
+                                    {/* Actionable Instruction based on Payment Type */}
+                                    <div className={`p-3 rounded-lg text-xs font-medium border ${
+                                        packingOrder.paymentMethod === 'ONLINE' 
+                                        ? 'bg-blue-50 border-blue-200 text-blue-800' 
+                                        : 'bg-orange-50 border-orange-200 text-orange-800'
+                                    }`}>
+                                        {packingOrder.paymentMethod === 'ONLINE' 
+                                            ? "✅ Payment Confirmed. Hand over the sealed package to the delivery partner. Your settlement will process automatically."
+                                            : "⚠️ COD Order. The delivery partner will collect cash from the customer. Your settlement will process after cash reconciliation."
+                                        }
                                     </div>
                                 </div>
 
