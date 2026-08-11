@@ -1470,3 +1470,24 @@ model GovernmentApplication {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 }
+
+// ============================================================================
+// PHASE 6 - B2B API PORTAL
+// ============================================================================
+
+model ApiToken {
+  id           String   @id @default(cuid())
+  userId       String   // References User.id (no FK constraint to keep User model intact)
+  label        String
+  token        String   @unique
+  scope        String[] // e.g., ["ORDER_READ", "PRESCRIPTION_WRITE", "PATIENT_CONSENT"]
+  environment  String   @default("SANDBOX") // SANDBOX, PRODUCTION
+  rateLimit    Int      @default(1000) // per day
+  lastUsedAt   DateTime?
+  expiresAt    DateTime?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+}
