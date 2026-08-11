@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { WhatsAppTriggers } from "@/lib/whatsapp";
 
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -91,6 +92,32 @@ export async function POST(req) {
             }
         });
 
+        // ─── WhatsApp Notifications ───────────────────────────────────────
+        // Group items by retailer, fetch phone, notify each unique retailer
+        const uniqueRetailerIds = [...new Set(items.map(i => i.retailerId))];
+        for (const retailerId of uniqueRetailerIds) {
+            try {
+                const retailerData = await prisma.retailer.findUnique({
+                    where: { id: retailerId },
+                    include: { user: { select: { phone: true } } }
+                });
+                const retailerItems = items.filter(i => i.retailerId === retailerId);
+                const retailerNet = retailerItems.reduce((s, i) => s + i.netAmount, 0);
+
+                if (retailerData?.user?.phone) {
+                    WhatsAppTriggers.settlementBatchCreated(
+                        retailerData.user.phone,
+                        retailerData.shopName || 'Partner',
+                        batchRef,
+                        retailerNet.toFixed(2),
+                        retailerItems.length
+                    );
+                }
+            } catch (notifyErr) {
+                console.error('WhatsApp notify error (batch create):', notifyErr.message);
+            }
+        }
+
         return NextResponse.json({ success: true, batch });
 
     } catch (error) {
@@ -139,7 +166,42 @@ export async function PUT(req) {
             }
         });
 
+        // ─── WhatsApp Notifications ─────────────────────────────────────────
+        // Fetch all items in this batch to notify each retailer
+        const batchItems = await prisma.settlementItem.findMany({
+            where: { batchId: batchId },
+            include: {
+                retailer: { include: { user: { select: { phone: true } } } }
+            }
+        });
+
+        // Group by retailer and send one message per retailer
+        const retailerMap = new Map();
+        for (const item of batchItems) {
+            const rid = item.retailerId;
+            if (!retailerMap.has(rid)) {
+                retailerMap.set(rid, { retailer: item.retailer, net: 0 });
+            }
+            retailerMap.get(rid).net += item.netAmount;
+        }
+
+        for (const [, { retailer, net }] of retailerMap) {
+            try {
+                if (retailer?.user?.phone) {
+                    WhatsAppTriggers.settlementPaid(
+                        retailer.user.phone,
+                        retailer.shopName || 'Partner',
+                        updatedBatch.batchRef,
+                        net.toFixed(2)
+                    );
+                }
+            } catch (notifyErr) {
+                console.error('WhatsApp notify error (paid):', notifyErr.message);
+            }
+        }
+
         return NextResponse.json({ success: true, batch: updatedBatch });
+
 
     } catch (error) {
         console.error("Admin Settlements PUT Error:", error);

@@ -236,6 +236,9 @@ export default function AdminDashboard() {
                                 { name: "📦 Distributor Dir", path: "/distributor", color: "#A5B4FC", page: "directory" },
                                 { name: "💬 Mass WhatsApp", path: "/admin/mass-whatsapp", color: "#10B981", page: "mass-whatsapp" },
                                 { name: "🧾 Competitor Bills", path: "/admin/competitor-bills", color: "#8B5CF6", page: "competitor-bills" },
+                                { name: "💰 Settlements", path: "/admin/settlements", color: "#10B981", page: "finance" },
+                                { name: "🏬 Retailer Trust", path: "/admin/retailers", color: "#6366F1", page: "finance" },
+
                             ].filter(btn => !btn.page || canAccess(session?.user?.role, btn.page)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
                                     background: 'rgba(255, 255, 255, 0.03)',

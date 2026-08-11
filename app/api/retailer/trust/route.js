@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { WhatsAppTriggers } from '@/lib/whatsapp';
 
 export async function GET(req) {
     try {
@@ -56,6 +57,25 @@ export async function GET(req) {
         } else if (unremittedCOD > 2000) {
             riskLevel = 'MEDIUM';
             riskReason = 'Moderate unremitted COD balance. Deposit recommended.';
+        }
+
+        // Fire WhatsApp alert for MEDIUM/HIGH risk (non-blocking)
+        if (riskLevel !== 'LOW') {
+            try {
+                const userRecord = await prisma.user.findUnique({
+                    where: { id: session.user.id },
+                    select: { phone: true }
+                });
+                if (userRecord?.phone) {
+                    WhatsAppTriggers.codRiskAlert(
+                        userRecord.phone,
+                        retailer.shopName || 'Partner',
+                        unremittedCOD.toFixed(2)
+                    );
+                }
+            } catch (notifyErr) {
+                console.error('WhatsApp COD risk notify error:', notifyErr.message);
+            }
         }
 
         const hasAcceptedAgreement = retailer.agreements && retailer.agreements.length > 0;
