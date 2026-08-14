@@ -215,6 +215,8 @@ export default function AdminDashboard() {
                                 { name: `Returns ${pendingReturns > 0 ? `(${pendingReturns})` : ""}`, path: "/admin/returns", color: "#F43F5E", page: "returns" },
                                 { name: "CRM", path: "/admin/crm", color: "#06B6D4", page: "crm" },
                                 { name: "B2B Leads", path: "/admin/b2b-leads", color: "#7C3AED", page: "b2b-leads" },
+                                { name: "🎯 Customer Finder", path: "/admin/customer-intelligence", color: "#10B981", page: "customer-intelligence" },
+                                { name: "📦 Supplier Finder", path: "/admin/supplier-intelligence", color: "#F59E0B", page: "supplier-intelligence" },
                                 { name: "📋 SOP Hub", path: "/admin/sop", color: "#10B981", page: "sop" },
                                 { name: "🛡️ BCP Board", path: "/admin/sop/bcp", color: "#8B5CF6", page: "sop/bcp" },
                                 { name: "📊 Reports", path: "/admin/sop/reports", color: "#6366f1", page: "sop/reports" },
