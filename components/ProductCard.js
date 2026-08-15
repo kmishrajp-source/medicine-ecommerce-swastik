@@ -4,11 +4,21 @@ import { useTranslations } from 'next-intl';
 import React, { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 export default function ProductCard({ product, onAdd }) {
     const t = useTranslations('Product');
     const { data: session } = useSession();
     const router = useRouter();
+    const { addToCart } = useCart();
+
+    const handleAddToCart = () => {
+        if (typeof onAdd === 'function') {
+            onAdd(product);
+        } else if (typeof addToCart === 'function') {
+            addToCart(product);
+        }
+    };
 
     const [showSubModal, setShowSubModal] = useState(false);
     const [subQuantity, setSubQuantity] = useState(1);
@@ -207,7 +217,7 @@ export default function ProductCard({ product, onAdd }) {
                             <i className="fa-solid fa-repeat"></i>
                         </button>
                         <button
-                            onClick={() => onAdd(product)}
+                            onClick={handleAddToCart}
                             className="btn-icon-small"
                             title={product.stock > 0 ? t('add_to_cart') : t('out_of_stock')}
                             style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--secondary)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', border: 'none', cursor: 'pointer' }}>

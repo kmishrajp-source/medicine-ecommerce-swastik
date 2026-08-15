@@ -6,7 +6,7 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 
 export default function HomeopathyShop() {
-    const { cartCount, toggleCart } = useCart();
+    const { cartCount, toggleCart, addToCart } = useCart();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -52,7 +52,7 @@ export default function HomeopathyShop() {
                         ) : (
                             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                                 {products.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard key={product.id} product={product} onAdd={addToCart} />
                                 ))}
                             </div>
                         )}

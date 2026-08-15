@@ -6,21 +6,20 @@ import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 
 export default function AyurvedicShop() {
-    const { cartCount, toggleCart } = useCart();
+    const { cartCount, toggleCart, addToCart } = useCart();
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         // Fetch all products and filter for Ayurvedic
-        // In a real app, you'd have a specific API endpoint or query param like ?category=Ayurvedic
         fetch('/api/products')
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     const ayurvedic = data.products.filter(p =>
                         p.category === 'Ayurvedic' ||
-                        p.name.toLowerCase().includes('herbal') ||
-                        p.description.toLowerCase().includes('natural')
+                        p.name?.toLowerCase().includes('herbal') ||
+                        p.description?.toLowerCase().includes('natural')
                     );
                     setProducts(ayurvedic);
                 }
@@ -50,7 +49,7 @@ export default function AyurvedicShop() {
                         ) : (
                             <div className="product-grid">
                                 {products.map(product => (
-                                    <ProductCard key={product.id} product={product} />
+                                    <ProductCard key={product.id} product={product} onAdd={addToCart} />
                                 ))}
                             </div>
                         )}
