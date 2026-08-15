@@ -16,7 +16,11 @@ export default function RetailerRegister() {
         phone: "",
         address: "",
         licenseNumber: "",
+        gstNumber: "",
+        bankUpi: "",
+        riderPreference: "SWASTIK",
         referralCode: "",
+        agreedToCommission: false,
         agreedToTerms: false
     });
     const [loading, setLoading] = useState(false);
@@ -34,6 +38,11 @@ export default function RetailerRegister() {
         try {
             if (!formData.agreedToTerms) {
                 alert("Please agree to the legal terms to register.");
+                setLoading(false);
+                return;
+            }
+            if (!formData.agreedToCommission) {
+                alert("Please agree to the 10% platform commission to register.");
                 setLoading(false);
                 return;
             }
@@ -120,6 +129,21 @@ export default function RetailerRegister() {
                                 onChange={e => setFormData({ ...formData, licenseNumber: e.target.value })}
                                 style={{ padding: "12px", borderRadius: "8px", border: "1px solid #e5e7eb", width: '100%', fontSize: '1rem' }} />
                         </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.85rem', color: '#4b5563', textTransform: 'uppercase' }}>GST Number</label>
+                            <input type="text" placeholder="GSTIN (Optional)"
+                                onChange={e => setFormData({ ...formData, gstNumber: e.target.value })}
+                                style={{ padding: "12px", borderRadius: "8px", border: "1px solid #e5e7eb", width: '100%', fontSize: '1rem' }} />
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.85rem', color: '#4b5563', textTransform: 'uppercase' }}>Bank / PhonePe (UPI ID)</label>
+                            <input type="text" placeholder="e.g. 9999999999@ybl" required
+                                onChange={e => setFormData({ ...formData, bankUpi: e.target.value })}
+                                style={{ padding: "12px", borderRadius: "8px", border: "1px solid #e5e7eb", width: '100%', fontSize: '1rem' }} />
+                        </div>
                         <div style={{ position: 'relative' }}>
                             <label style={{ display: 'block', marginBottom: '8px', fontWeight: 700, fontSize: '0.85rem', color: '#059669', textTransform: 'uppercase' }}>Referral Code (Optional)</label>
                             <input type="text" placeholder="Enter Code"
@@ -128,6 +152,34 @@ export default function RetailerRegister() {
                                 style={{ padding: "12px", borderRadius: "8px", border: "2px solid #10b981", width: '100%', fontSize: '1rem', background: '#f0fdf4' }} />
                                 {formData.referralCode && <i className="fa-solid fa-circle-check" style={{ position: 'absolute', right: '12px', top: '42px', color: '#059669' }}></i>}
                         </div>
+                    </div>
+
+                    <div className="form-group" style={{ padding: '15px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+                        <label style={{ display: 'block', marginBottom: '12px', fontWeight: 800, fontSize: '0.9rem', color: '#1e293b' }}>Rider & Delivery Management</label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                <input type="radio" name="riderPreference" value="SWASTIK" checked={formData.riderPreference === "SWASTIK"}
+                                    onChange={e => setFormData({ ...formData, riderPreference: e.target.value })} />
+                                <span style={{ color: '#334155', fontWeight: 600 }}>Swastik Medicare provides the Delivery Rider</span>
+                            </label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                                <input type="radio" name="riderPreference" value="SELF" checked={formData.riderPreference === "SELF"}
+                                    onChange={e => setFormData({ ...formData, riderPreference: e.target.value })} />
+                                <span style={{ color: '#334155', fontWeight: 600 }}>I will manage deliveries using my own riders</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style={{ padding: '15px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', fontSize: '13px', color: '#92400e' }}>
+                        <label style={{ display: 'flex', gap: '10px', cursor: 'pointer', alignItems: 'flex-start' }}>
+                            <input type="checkbox" required checked={formData.agreedToCommission} 
+                                onChange={e => setFormData({ ...formData, agreedToCommission: e.target.checked })}
+                                style={{ marginTop: '4px' }}
+                            />
+                            <span>
+                                <strong>System Pricing & Commission Agreement:</strong> I agree to supply medicines at the price calculated by the Swastik Medicare system. I agree to provide a <strong>10% platform commission</strong> to Swastik Medicare on all successful orders routed to my pharmacy.
+                            </span>
+                        </label>
                     </div>
 
                     <div style={{ padding: '15px', background: '#f0fdf4', border: '1px solid #bcf0da', borderRadius: '12px', fontSize: '13px', color: '#166534' }}>

@@ -390,6 +390,11 @@ model Retailer {
   kycStatus          String              @default("PENDING") // PENDING, APPROVED, REJECTED
   agreements         RetailerAgreement[]
   settlementItems    SettlementItem[]
+  
+  // --- Compliance & Commission System ---
+  gstNumber          String?
+  agreedPlatformMargin Float @default(10.0) // Swastik Medicare 10% commission
+  riderPreference    String @default("SWASTIK") // SELF or SWASTIK
 }
 
 model Stockist {

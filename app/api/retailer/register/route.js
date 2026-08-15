@@ -4,7 +4,19 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
     try {
-        const { shopName, email, password, phone, address, licenseNumber, referralCode: incomingReferralCode, agreedToTerms } = await req.json();
+        const { 
+            shopName, 
+            email, 
+            password, 
+            phone, 
+            address, 
+            licenseNumber, 
+            gstNumber,
+            bankUpi,
+            riderPreference,
+            referralCode: incomingReferralCode, 
+            agreedToTerms 
+        } = await req.json();
 
         if (!agreedToTerms) {
             return NextResponse.json({ error: "Legal terms must be accepted" }, { status: 400 });
@@ -62,6 +74,10 @@ export async function POST(req) {
                     shopName,
                     address,
                     licenseNumber,
+                    gstNumber: gstNumber || null,
+                    bankUpi: bankUpi || null,
+                    riderPreference: riderPreference || "SWASTIK",
+                    agreedPlatformMargin: 10.0, // Swastik Medicare 10% standard commission
                     phone,
                     verified: false
                 }
