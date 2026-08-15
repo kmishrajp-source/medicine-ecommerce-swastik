@@ -18,8 +18,8 @@ export default function HomeopathyShop() {
                 if (data.success) {
                     const homeopathy = data.products.filter(p =>
                         p.category === 'Homeopathy' ||
-                        p.name.toLowerCase().includes('homeopath') ||
-                        p.description.toLowerCase().includes('homeopath')
+                        p.name?.toLowerCase().includes('homeopath') ||
+                        p.description?.toLowerCase().includes('homeopath')
                     );
                     setProducts(homeopathy);
                 }
