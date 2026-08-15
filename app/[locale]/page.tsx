@@ -7,7 +7,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: "Swastik Medicare - Premium Online Pharmacy & Healthcare",
     description: "Order medicines online, find top doctors in Gorakhpur, and get fast home delivery with Swastik Medicare.",
-    metadataBase: new URL("https://medicine-ecommerce-swastik.vercel.app"),
+    metadataBase: new URL("https://www.swastikmed.online"),
   };
 }
 

@@ -10,7 +10,7 @@ export async function GET(req) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://medicine-ecommerce-swastik.vercel.app';
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.swastikmed.online';
 
         // Define the 2-hour abandonment window
         // We look for orders updated between 2h and 3h ago (to avoid double-messaging)

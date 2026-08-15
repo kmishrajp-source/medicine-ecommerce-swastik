@@ -58,7 +58,7 @@ export async function POST(req) {
         // Send WhatsApp alert to admin
         const adminPhone = "917992122974";
         const urgencyEmoji = urgency === "CRITICAL" ? "🚨" : urgency === "HIGH" ? "🔴" : urgency === "MEDIUM" ? "🟡" : "🟢";
-        const waMessage = `${urgencyEmoji} *PURCHASE REQUISITION - ${requisition.id}*\n\nItem: *${itemName}*\nQty: ${quantity} ${unit || "units"}\nUrgency: ${urgency}\nSupplier: ${supplier || "TBD"}\nEst. Cost: ₹${estimatedCost || "TBD"}\nRequested By: ${requisition.requestedBy}\n\nNotes: ${notes || "None"}\n\nPlease review at: https://medicine-ecommerce-swastik.vercel.app/en/admin/sop/purchase-requisition`;
+        const waMessage = `${urgencyEmoji} *PURCHASE REQUISITION - ${requisition.id}*\n\nItem: *${itemName}*\nQty: ${quantity} ${unit || "units"}\nUrgency: ${urgency}\nSupplier: ${supplier || "TBD"}\nEst. Cost: ₹${estimatedCost || "TBD"}\nRequested By: ${requisition.requestedBy}\n\nNotes: ${notes || "None"}\n\nPlease review at: https://www.swastikmed.online/en/admin/sop/purchase-requisition`;
 
         await sendSMS(adminPhone, waMessage).catch(() => {});
 

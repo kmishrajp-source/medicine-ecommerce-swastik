@@ -86,9 +86,9 @@ export default async function RootLayout({
     "@context": "https://schema.org",
     "@type": "Pharmacy",
     "name": "Swastik Medicare",
-    "image": "https://medicine-ecommerce-swastik.vercel.app/medicine-bg.jpg",
-    "@id": "https://medicine-ecommerce-swastik.vercel.app",
-    "url": "https://medicine-ecommerce-swastik.vercel.app",
+    "image": "https://www.swastikmed.online/medicine-bg.jpg",
+    "@id": "https://www.swastikmed.online",
+    "url": "https://www.swastikmed.online",
     "telephone": "+917992122974",
     "address": {
       "@type": "PostalAddress",

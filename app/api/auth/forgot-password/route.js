@@ -61,7 +61,7 @@ export async function POST(req) {
         );
 
         // Construct the reset link
-        const baseUrl = "https://medicine-ecommerce-swastik.vercel.app";
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.swastikmed.online";
         const resetLink = `${baseUrl}/reset-password?token=${resetToken}`;
 
         // Try to send email if credentials are available
