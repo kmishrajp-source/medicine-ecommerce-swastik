@@ -14,6 +14,7 @@ function backCalcGst(amountInclGst, gstRate) {
 }
 
 const DELIVERY_GST_RATE = 18; // Transport = 18% GST
+// v2 - cache bust
 
 export default async function InvoicePage({ params, searchParams }) {
     try {
@@ -56,7 +57,7 @@ export default async function InvoicePage({ params, searchParams }) {
 
         // ── Line items with GST ───────────────────────────────────────────────────
         const lines = order.items.map((item) => {
-            const gstRate = item.product?.gstRate ?? 5;
+            const gstRate = 5; // Default 5% GST (field not in DB schema)
             const hsnCode = item.product?.hsnCode ?? '3004';
             const mrp = item.product?.mrp || item.price;
             const rate = item.price;  // selling price per unit (GST inclusive)
