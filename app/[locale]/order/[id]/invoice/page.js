@@ -14,7 +14,7 @@ function backCalcGst(amountInclGst, gstRate) {
 }
 
 const DELIVERY_GST_RATE = 18; // Transport = 18% GST
-// v2 - cache bust
+// v3 - cache bust
 
 export default async function InvoicePage({ params, searchParams }) {
     try {
@@ -32,7 +32,7 @@ export default async function InvoicePage({ params, searchParams }) {
                             select: {
                                 name: true, category: true, mrp: true, price: true,
                                 requiresPrescription: true, batchNumber: true,
-                                expiryDate: true, hsnCode: true,
+                                expiryDate: true,
                                 manufacturer: true, salt: true, packSize: true,
                                 discount: true
                             }
