@@ -31,7 +31,7 @@ export default async function InvoicePage({ params, searchParams }) {
                             select: {
                                 name: true, category: true, mrp: true, price: true,
                                 requiresPrescription: true, batchNumber: true,
-                                expiryDate: true, hsnCode: true, gstRate: true,
+                                expiryDate: true, hsnCode: true,
                                 manufacturer: true, salt: true, packSize: true,
                                 discount: true
                             }
