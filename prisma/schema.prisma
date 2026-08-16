@@ -173,10 +173,11 @@ model Order {
   experience              CustomerExperience?
   subOrders               SubOrder[]
   deliveryAssignments     DeliveryAssignment[]
+  deliveryJob             DeliveryJob?         @relation("DeliveryJobOrder")
 
   // --- Settlement ---
-  settlementStatus        String               @default("PENDING") // PENDING, SETTLED, PARTIAL
-  
+  settlementStatus String @default("PENDING") // PENDING, SETTLED, PARTIAL
+
   @@index([status])
   @@index([userId])
 }
@@ -379,22 +380,22 @@ model Retailer {
   subOrders          SubOrder[]
   prescriptionQuotes PrescriptionQuote[]
   reports            Report[]
-  
+
   // --- Settlement & Trust ---
-  bankAccountName    String?
-  bankAccountNumber  String?
-  bankIfsc           String?
-  bankUpi            String?
-  bankVerified       Boolean             @default(false)
-  trustLevel         String              @default("NEW") // NEW, VERIFIED, TRUSTED, PREMIUM, STRATEGIC
-  kycStatus          String              @default("PENDING") // PENDING, APPROVED, REJECTED
-  agreements         RetailerAgreement[]
-  settlementItems    SettlementItem[]
-  
+  bankAccountName   String?
+  bankAccountNumber String?
+  bankIfsc          String?
+  bankUpi           String?
+  bankVerified      Boolean             @default(false)
+  trustLevel        String              @default("NEW") // NEW, VERIFIED, TRUSTED, PREMIUM, STRATEGIC
+  kycStatus         String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  agreements        RetailerAgreement[]
+  settlementItems   SettlementItem[]
+
   // --- Compliance & Commission System ---
-  gstNumber          String?
-  agreedPlatformMargin Float @default(10.0) // Swastik Medicare 10% commission
-  riderPreference    String @default("SWASTIK") // SELF or SWASTIK
+  gstNumber            String?
+  agreedPlatformMargin Float   @default(10.0) // Swastik Medicare 10% commission
+  riderPreference      String  @default("SWASTIK") // SELF or SWASTIK
 }
 
 model Stockist {
@@ -567,22 +568,76 @@ model PharmacyInventory {
 }
 
 model DeliveryAgent {
-  id               String               @id @default(cuid())
-  userId           String               @unique
-  user             User                 @relation(fields: [userId], references: [id])
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id])
+
+  // Basic Profile
+  name             String?
   licenseNumber    String
   vehicleNumber    String
   phone            String
-  verified         Boolean              @default(false)
-  lat              Float?
-  lng              Float?
-  isOnline         Boolean              @default(false)
-  walletBalance    Float                @default(0.0)
-  createdAt        DateTime             @default(now())
-  deliveries       Order[]              @relation("AssignedDeliveries")
-  assignments      DeliveryAssignment[]
-  RiderLocationLog RiderLocationLog[]
-  DeliveryAlert    DeliveryAlert[]
+  city             String   @default("Gorakhpur")
+  area             String?
+  serviceRadius    Float    @default(5.0)
+  profilePhotoUrl  String?
+  vehicleType      String   @default("MOTORCYCLE") // BICYCLE, MOTORCYCLE, CAR, ELECTRIC_SCOOTER
+  deliveryCapacity Int      @default(3)
+  preferredAreas   String[] @default([])
+
+  // Availability
+  isOnline          Boolean   @default(false)
+  isAvailable       Boolean   @default(false)
+  lastActiveAt      DateTime?
+  workingHoursStart String    @default("09:00")
+  workingHoursEnd   String    @default("21:00")
+
+  // Onboarding & Verification
+  // Applied | Docs_Submitted | Under_Verification | Verified | Active | Suspended
+  onboardingStatus String  @default("Applied")
+  verified         Boolean @default(false)
+
+  // Performance Metrics
+  totalDeliveries        Int   @default(0)
+  successfulDeliveries   Int   @default(0)
+  cancelledDeliveries    Int   @default(0)
+  avgDeliveryTimeMinutes Float @default(0.0)
+  acceptanceRate         Float @default(100.0)
+  completionRate         Float @default(100.0)
+  customerRating         Float @default(5.0)
+  pharmacyRating         Float @default(5.0)
+  reliabilityScore       Float @default(100.0) // Composite 0-100
+
+  // Referral Tracking
+  referralSource    String?
+  riderReferralCode String? @unique
+  referredByRiderId String?
+
+  // Earnings (direct bank transfer model)
+  totalEarnings   Float @default(0.0)
+  pendingEarnings Float @default(0.0)
+  paidEarnings    Float @default(0.0)
+
+  // Legacy
+  walletBalance Float    @default(0.0)
+  lat           Float?
+  lng           Float?
+  createdAt     DateTime @default(now())
+
+  // Relations
+  deliveries           Order[]                    @relation("AssignedDeliveries")
+  assignments          DeliveryAssignment[]
+  RiderLocationLog     RiderLocationLog[]
+  DeliveryAlert        DeliveryAlert[]
+  documents            RiderDocument[]
+  deliveryJobs         DeliveryJob[]
+  riderOffers          RiderOffer[]
+  performanceSnapshots RiderPerformanceSnapshot[]
+  fraudFlags           RiderFraudFlag[]
+
+  @@index([onboardingStatus])
+  @@index([city, area])
+  @@index([isOnline, isAvailable])
 }
 
 model WalletTransaction {
@@ -816,20 +871,20 @@ model ReferralConnection {
 }
 
 model SubOrder {
-  id            String         @id @default(cuid())
-  orderId       String
-  order         Order          @relation(fields: [orderId], references: [id])
-  retailerId    String
-  retailer      Retailer       @relation(fields: [retailerId], references: [id])
-  userId        String?
-  user          User?          @relation(fields: [userId], references: [id])
-  items         Json // List of items from this specific retailer
-  total         Float
-  status        String         @default("Pending") // Pending, Invoice_Pending, Approved, Rejected, Shipped, Delivered
-  draftInvoices DraftInvoice[]
+  id             String          @id @default(cuid())
+  orderId        String
+  order          Order           @relation(fields: [orderId], references: [id])
+  retailerId     String
+  retailer       Retailer        @relation(fields: [retailerId], references: [id])
+  userId         String?
+  user           User?           @relation(fields: [userId], references: [id])
+  items          Json // List of items from this specific retailer
+  total          Float
+  status         String          @default("Pending") // Pending, Invoice_Pending, Approved, Rejected, Shipped, Delivered
+  draftInvoices  DraftInvoice[]
   settlementItem SettlementItem?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model DraftInvoice {
@@ -1353,10 +1408,10 @@ model CompanyProfile {
   drugLicense          String?
   pharmacyRegistration String?
   gstNumber            String?
-  certifications       Json?    // Array of {name, url}
-  innovationContent    Json?    // Array of initiatives or text blocks
-  researchInitiatives  Json?    // Array of {title, description}
-  partnerInformation   Json?    // Links or text
+  certifications       Json? // Array of {name, url}
+  innovationContent    Json? // Array of initiatives or text blocks
+  researchInitiatives  Json? // Array of {title, description}
+  partnerInformation   Json? // Links or text
   updatedAt            DateTime @updatedAt
 }
 
@@ -1416,7 +1471,7 @@ model ComplianceDocument {
   effectiveDate  DateTime @default(now())
   status         String   @default("PUBLISHED") // DRAFT, PUBLISHED, ARCHIVED
   pdfUrl         String?
-  updatedByAdmin String?  // Admin User ID
+  updatedByAdmin String? // Admin User ID
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
@@ -1426,8 +1481,8 @@ model SecurityAuditLog {
   userId       String?
   userRole     String?
   ipAddress    String?
-  action       String   // e.g., LOGIN_FAILED, RECORD_ACCESSED, CONSENT_REVOKED
-  resourceType String?  // e.g., PATIENT_RECORD, ADMIN_DASHBOARD
+  action       String // e.g., LOGIN_FAILED, RECORD_ACCESSED, CONSENT_REVOKED
+  resourceType String? // e.g., PATIENT_RECORD, ADMIN_DASHBOARD
   resourceId   String?
   details      Json?
   severity     String   @default("INFO") // INFO, WARNING, CRITICAL
@@ -1439,58 +1494,58 @@ model SecurityAuditLog {
 }
 
 model InvestorMetric {
-  id              String   @id @default(cuid())
-  metricKey       String   @unique // e.g., GMV_YTD, CAC, REPEAT_RATE
-  metricName      String
-  metricValue     String
-  isPubliclyVisible Boolean @default(false)
-  updatedByAdmin  String?
-  lastVerifiedAt  DateTime @default(now())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  metricKey         String   @unique // e.g., GMV_YTD, CAC, REPEAT_RATE
+  metricName        String
+  metricValue       String
+  isPubliclyVisible Boolean  @default(false)
+  updatedByAdmin    String?
+  lastVerifiedAt    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model ImpactMetric {
-  id              String   @id @default(cuid())
-  metricKey       String   @unique // e.g., RURAL_PATIENTS, FREE_CONSULTS
-  metricName      String
-  metricValue     String
-  isPubliclyVisible Boolean @default(true)
-  updatedByAdmin  String?
-  lastVerifiedAt  DateTime @default(now())
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                String   @id @default(cuid())
+  metricKey         String   @unique // e.g., RURAL_PATIENTS, FREE_CONSULTS
+  metricName        String
+  metricValue       String
+  isPubliclyVisible Boolean  @default(true)
+  updatedByAdmin    String?
+  lastVerifiedAt    DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 }
 
 model ProviderVerification {
-  id               String   @id @default(cuid())
-  providerType     String   // DOCTOR, PHARMACY, LAB, HOSPITAL, AMBULANCE
-  providerId       String   @unique // The ID of the actual provider record
-  status           String   @default("UNVERIFIED") // UNVERIFIED, SUBMITTED, UNDER_REVIEW, VERIFIED, SUSPENDED
-  documentsUrl     Json?    // Array of uploaded document URLs
+  id               String    @id @default(cuid())
+  providerType     String // DOCTOR, PHARMACY, LAB, HOSPITAL, AMBULANCE
+  providerId       String    @unique // The ID of the actual provider record
+  status           String    @default("UNVERIFIED") // UNVERIFIED, SUBMITTED, UNDER_REVIEW, VERIFIED, SUSPENDED
+  documentsUrl     Json? // Array of uploaded document URLs
   verifiedByAdmin  String?
   verificationDate DateTime?
   remarks          String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([providerType, status])
 }
 
 model GovernmentApplication {
-  id               String   @id @default(cuid())
-  programName      String   @unique // STARTUP_INDIA, ABDM, DHIS, GEM, BIRAC
-  status           String   @default("NOT_STARTED") // NOT_STARTED, PREPARING, APPLIED, APPROVED
-  applicationId    String?  // Reference/Certificate Number
+  id               String    @id @default(cuid())
+  programName      String    @unique // STARTUP_INDIA, ABDM, DHIS, GEM, BIRAC
+  status           String    @default("NOT_STARTED") // NOT_STARTED, PREPARING, APPLIED, APPROVED
+  applicationId    String? // Reference/Certificate Number
   applicationDate  DateTime?
   certificateUrl   String?
   requiredDocs     Json?
   missingDocs      Json?
   responsibleAgent String?
   targetDate       DateTime?
-  notes            String?  @db.Text
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  notes            String?   @db.Text
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 // ============================================================================
@@ -1498,18 +1553,18 @@ model GovernmentApplication {
 // ============================================================================
 
 model ApiToken {
-  id           String   @id @default(cuid())
-  userId       String   // References User.id (no FK constraint to keep User model intact)
-  label        String
-  token        String   @unique
-  scope        String[] // e.g., ["ORDER_READ", "PRESCRIPTION_WRITE", "PATIENT_CONSENT"]
-  environment  String   @default("SANDBOX") // SANDBOX, PRODUCTION
-  rateLimit    Int      @default(1000) // per day
-  lastUsedAt   DateTime?
-  expiresAt    DateTime?
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id          String    @id @default(cuid())
+  userId      String // References User.id (no FK constraint to keep User model intact)
+  label       String
+  token       String    @unique
+  scope       String[] // e.g., ["ORDER_READ", "PRESCRIPTION_WRITE", "PATIENT_CONSENT"]
+  environment String    @default("SANDBOX") // SANDBOX, PRODUCTION
+  rateLimit   Int       @default(1000) // per day
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([userId])
 }
@@ -1519,48 +1574,48 @@ model ApiToken {
 // ============================================================================
 
 model CommissionRule {
-  id              String   @id @default(cuid())
-  name            String   // e.g., "Default 5%", "Flat 50"
-  type            String   // "PERCENTAGE", "FIXED"
-  value           Float
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
+  id        String   @id @default(cuid())
+  name      String // e.g., "Default 5%", "Flat 50"
+  type      String // "PERCENTAGE", "FIXED"
+  value     Float
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 }
 
 model RetailerAgreement {
-  id              String   @id @default(cuid())
-  retailerId      String
-  retailer        Retailer @relation(fields: [retailerId], references: [id])
-  version         String
-  acceptedAt      DateTime @default(now())
-  ipAddress       String?
-  documentHash    String?
+  id           String   @id @default(cuid())
+  retailerId   String
+  retailer     Retailer @relation(fields: [retailerId], references: [id])
+  version      String
+  acceptedAt   DateTime @default(now())
+  ipAddress    String?
+  documentHash String?
 }
 
 model SettlementBatch {
-  id              String   @id @default(cuid())
-  batchRef        String   @unique // e.g. STL-2026-001
-  totalAmount     Float
-  status          String   @default("DRAFT") // DRAFT, PROCESSING, PAID
-  processedAt     DateTime?
-  reference       String?
-  items           SettlementItem[]
-  createdAt       DateTime @default(now())
+  id          String           @id @default(cuid())
+  batchRef    String           @unique // e.g. STL-2026-001
+  totalAmount Float
+  status      String           @default("DRAFT") // DRAFT, PROCESSING, PAID
+  processedAt DateTime?
+  reference   String?
+  items       SettlementItem[]
+  createdAt   DateTime         @default(now())
 }
 
 model SettlementItem {
-  id              String   @id @default(cuid())
-  batchId         String?
-  batch           SettlementBatch? @relation(fields: [batchId], references: [id])
-  retailerId      String
-  retailer        Retailer @relation(fields: [retailerId], references: [id])
-  subOrderId      String   @unique
-  subOrder        SubOrder @relation(fields: [subOrderId], references: [id])
-  grossAmount     Float
-  commission      Float
-  netAmount       Float
-  status          String   @default("ELIGIBLE") // ELIGIBLE, IN_BATCH, PAID, ON_HOLD
-  createdAt       DateTime @default(now())
+  id          String           @id @default(cuid())
+  batchId     String?
+  batch       SettlementBatch? @relation(fields: [batchId], references: [id])
+  retailerId  String
+  retailer    Retailer         @relation(fields: [retailerId], references: [id])
+  subOrderId  String           @unique
+  subOrder    SubOrder         @relation(fields: [subOrderId], references: [id])
+  grossAmount Float
+  commission  Float
+  netAmount   Float
+  status      String           @default("ELIGIBLE") // ELIGIBLE, IN_BATCH, PAID, ON_HOLD
+  createdAt   DateTime         @default(now())
 }
 
 // ============================================================================
@@ -1568,132 +1623,413 @@ model SettlementItem {
 // ============================================================================
 
 model MarketingCampaign {
-  id                    String             @id @default(cuid())
-  title                 String
-  objective             String             // AWARENESS, LEAD_GEN, PRODUCT_SALES, REFILL_RETENTION, B2B_SUPPLIER, DOCTOR_BOOKING
-  productOrService      String?            // Medicine Name, Lab Test, Doctor Specialty, B2B Bulk Offer
-  campaignType          String             // ORGANIC, PAID, HYBRID
-  targetAudienceGroup   String             // NEW_PROSPECTS, EXISTING_CUSTOMERS, HIGH_VALUE, B2B_RETAILERS, STOCKISTS, DOCTORS, CHRONIC_CARE
-  
+  id                  String  @id @default(cuid())
+  title               String
+  objective           String // AWARENESS, LEAD_GEN, PRODUCT_SALES, REFILL_RETENTION, B2B_SUPPLIER, DOCTOR_BOOKING
+  productOrService    String? // Medicine Name, Lab Test, Doctor Specialty, B2B Bulk Offer
+  campaignType        String // ORGANIC, PAID, HYBRID
+  targetAudienceGroup String // NEW_PROSPECTS, EXISTING_CUSTOMERS, HIGH_VALUE, B2B_RETAILERS, STOCKISTS, DOCTORS, CHRONIC_CARE
+
   // Geography
-  geographyCountry      String             @default("India")
-  geographyState        String             @default("Uttar Pradesh")
-  geographyDistrict     String?            @default("Gorakhpur")
-  geographyCity         String             @default("Gorakhpur")
-  geographyLocality     String?
-  geographyRadiusKm     Float              @default(15.0)
-  
+  geographyCountry  String  @default("India")
+  geographyState    String  @default("Uttar Pradesh")
+  geographyDistrict String? @default("Gorakhpur")
+  geographyCity     String  @default("Gorakhpur")
+  geographyLocality String?
+  geographyRadiusKm Float   @default(15.0)
+
   // Paid Promotion Intelligence
-  budget                Float              @default(0.0)
-  spent                 Float              @default(0.0)
-  paidRecommendation    String             @default("TEST_FIRST") // PROMOTE, TEST_FIRST, DO_NOT_PROMOTE
-  paidApprovalStatus    String             @default("PENDING") // PENDING, APPROVED, REJECTED
-  approvedBy            String?
-  
+  budget             Float   @default(0.0)
+  spent              Float   @default(0.0)
+  paidRecommendation String  @default("TEST_FIRST") // PROMOTE, TEST_FIRST, DO_NOT_PROMOTE
+  paidApprovalStatus String  @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy         String?
+
   // Lifecycle
-  status                String             @default("DRAFT") // DRAFT, PENDING_APPROVAL, ACTIVE, PAUSED, COMPLETED
-  performanceScore      Float              @default(0.0)
-  metrics               Json?              // { impressions, reach, views, clicks, enquiries, leads, orders, revenue, cpl, roas }
-  
-  contents              MarketingContent[]
-  leads                 MarketingLead[]
-  insights              MarketingInsight[]
-  
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  status           String @default("DRAFT") // DRAFT, PENDING_APPROVAL, ACTIVE, PAUSED, COMPLETED
+  performanceScore Float  @default(0.0)
+  metrics          Json? // { impressions, reach, views, clicks, enquiries, leads, orders, revenue, cpl, roas }
+
+  contents MarketingContent[]
+  leads    MarketingLead[]
+  insights MarketingInsight[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MarketingContent {
-  id                    String             @id @default(cuid())
-  campaignId            String
-  campaign              MarketingCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-  
-  contentType           String             // SHORT_VIDEO, EDUCATIONAL_VIDEO, PRODUCT_VIDEO, PROMOTIONAL_VIDEO, IMAGE_POST, EDUCATIONAL_POST, PRODUCT_ANNOUNCEMENT, BUSINESS_POST, ARTICLE, WHATSAPP_OFFER, SUPPLIER_PITCH
-  channel               String             // YOUTUBE, INSTAGRAM, FACEBOOK, WHATSAPP, LINKEDIN, WEBSITE
-  
-  title                 String
-  keyMessage            String
-  scriptOrCopy          String             @db.Text
-  visualPrompt          String?            @db.Text // AI Image/Video generator prompt
-  callToAction          String
-  targetAudience        String
-  targetGeography       String
-  
+  id         String            @id @default(cuid())
+  campaignId String
+  campaign   MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  contentType String // SHORT_VIDEO, EDUCATIONAL_VIDEO, PRODUCT_VIDEO, PROMOTIONAL_VIDEO, IMAGE_POST, EDUCATIONAL_POST, PRODUCT_ANNOUNCEMENT, BUSINESS_POST, ARTICLE, WHATSAPP_OFFER, SUPPLIER_PITCH
+  channel     String // YOUTUBE, INSTAGRAM, FACEBOOK, WHATSAPP, LINKEDIN, WEBSITE
+
+  title           String
+  keyMessage      String
+  scriptOrCopy    String  @db.Text
+  visualPrompt    String? @db.Text // AI Image/Video generator prompt
+  callToAction    String
+  targetAudience  String
+  targetGeography String
+
   // Scheduling & Human-in-the-Loop Approval
-  scheduledDate         DateTime?
-  scheduledTime         String?            // "10:00 AM", "06:30 PM"
-  approvalStatus        String             @default("PENDING_APPROVAL") // PENDING_APPROVAL, APPROVED, REJECTED
-  approvedBy            String?
-  approvalNotes         String?
-  isPublished           Boolean            @default(false)
-  publishedAt           DateTime?
-  externalPostUrl       String?
-  
+  scheduledDate   DateTime?
+  scheduledTime   String? // "10:00 AM", "06:30 PM"
+  approvalStatus  String    @default("PENDING_APPROVAL") // PENDING_APPROVAL, APPROVED, REJECTED
+  approvedBy      String?
+  approvalNotes   String?
+  isPublished     Boolean   @default(false)
+  publishedAt     DateTime?
+  externalPostUrl String?
+
   // Performance Tracking
-  impressions           Int                @default(0)
-  reach                 Int                @default(0)
-  views                 Int                @default(0)
-  likes                 Int                @default(0)
-  shares                Int                @default(0)
-  clicks                Int                @default(0)
-  enquiries             Int                @default(0)
-  leadsGenerated        Int                @default(0)
-  ordersGenerated       Int                @default(0)
-  revenueGenerated      Float              @default(0.0)
-  metrics               Json?
-  
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  impressions      Int   @default(0)
+  reach            Int   @default(0)
+  views            Int   @default(0)
+  likes            Int   @default(0)
+  shares           Int   @default(0)
+  clicks           Int   @default(0)
+  enquiries        Int   @default(0)
+  leadsGenerated   Int   @default(0)
+  ordersGenerated  Int   @default(0)
+  revenueGenerated Float @default(0.0)
+  metrics          Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model MarketingLead {
-  id                    String             @id @default(cuid())
-  campaignId            String?
-  campaign              MarketingCampaign? @relation(fields: [campaignId], references: [id])
-  
+  id         String             @id @default(cuid())
+  campaignId String?
+  campaign   MarketingCampaign? @relation(fields: [campaignId], references: [id])
+
   // Identity & Contact
-  fullName              String
-  phone                 String
-  email                 String?
-  businessName          String?
-  customerType          String             @default("PATIENT") // PATIENT, RETAILER, DOCTOR, STOCKIST, MANUFACTURER
-  location              String             // Locality, City
-  sourceChannel         String             // WHATSAPP, INSTAGRAM, FACEBOOK, YOUTUBE, WEBSITE, LINKEDIN
-  productInterest       String?
-  
+  fullName        String
+  phone           String
+  email           String?
+  businessName    String?
+  customerType    String  @default("PATIENT") // PATIENT, RETAILER, DOCTOR, STOCKIST, MANUFACTURER
+  location        String // Locality, City
+  sourceChannel   String // WHATSAPP, INSTAGRAM, FACEBOOK, YOUTUBE, WEBSITE, LINKEDIN
+  productInterest String?
+
   // AI Lead Scoring & Priority
-  leadScore             Int                @default(75) // 0 - 100
-  priorityRank          String             @default("B") // A (High), B (Medium), C (Low)
-  aiSummary             String?
-  
+  leadScore    Int     @default(75) // 0 - 100
+  priorityRank String  @default("B") // A (High), B (Medium), C (Low)
+  aiSummary    String?
+
   // Customer Finding Connection
-  linkedLeadId          String?            // Reference to core Lead model
-  assignedSalesperson   String?
-  status                String             @default("NEW") // NEW, CONTACTED, QUOTATION_SENT, CONVERTED_ORDER, REPEAT_CUSTOMER, LOST
-  firstOrderValue       Float?
-  lifetimeRevenue       Float              @default(0.0)
-  
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
-  
+  linkedLeadId        String? // Reference to core Lead model
+  assignedSalesperson String?
+  status              String  @default("NEW") // NEW, CONTACTED, QUOTATION_SENT, CONVERTED_ORDER, REPEAT_CUSTOMER, LOST
+  firstOrderValue     Float?
+  lifetimeRevenue     Float   @default(0.0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([phone])
   @@index([priorityRank])
   @@index([status])
 }
 
 model MarketingInsight {
-  id                    String             @id @default(cuid())
-  campaignId            String?
-  campaign              MarketingCampaign? @relation(fields: [campaignId], references: [id])
-  
-  category              String             // CONTENT_PERFORMANCE, CHANNEL_EFFICIENCY, GEOGRAPHY_HEATMAP, AUDIENCE_RESPONSE, RETARGETING_OPPORTUNITY
-  title                 String
-  insightText           String             @db.Text
-  whyItHappened         String             @db.Text
-  recommendedAction     String             @db.Text
-  confidenceScore       Float              @default(90.0)
-  isActioned            Boolean            @default(false)
-  
-  createdAt             DateTime           @default(now())
+  id         String             @id @default(cuid())
+  campaignId String?
+  campaign   MarketingCampaign? @relation(fields: [campaignId], references: [id])
+
+  category          String // CONTENT_PERFORMANCE, CHANNEL_EFFICIENCY, GEOGRAPHY_HEATMAP, AUDIENCE_RESPONSE, RETARGETING_OPPORTUNITY
+  title             String
+  insightText       String  @db.Text
+  whyItHappened     String  @db.Text
+  recommendedAction String  @db.Text
+  confidenceScore   Float   @default(90.0)
+  isActioned        Boolean @default(false)
+
+  createdAt DateTime @default(now())
 }
 
+// ============================================================================
+// RIDER DELIVERY INTELLIGENCE SYSTEM
+// ============================================================================
+
+model RiderDocument {
+  id              String        @id @default(cuid())
+  riderId         String
+  rider           DeliveryAgent @relation(fields: [riderId], references: [id])
+  // AADHAAR, PAN, DRIVING_LICENSE, VEHICLE_RC, PHOTO, POLICE_CERT, OTHER
+  docType         String
+  docUrl          String
+  // PENDING, APPROVED, REJECTED
+  status          String        @default("PENDING")
+  rejectionReason String?
+  expiryDate      DateTime?
+  uploadedAt      DateTime      @default(now())
+  reviewedAt      DateTime?
+  reviewedBy      String? // Admin userId
+
+  @@index([riderId])
+  @@index([status])
+}
+
+model DeliveryJob {
+  id      String @id @default(cuid())
+  orderId String @unique
+  order   Order  @relation("DeliveryJobOrder", fields: [orderId], references: [id])
+
+  // Pickup & Drop Coordinates
+  pickupLat     Float?
+  pickupLng     Float?
+  dropLat       Float?
+  dropLng       Float?
+  pickupAddress String?
+  dropAddress   String?
+
+  // Status lifecycle
+  // SEARCHING | OFFERED | ACCEPTED | PICKUP_CONFIRMED | IN_TRANSIT | DELIVERED | FAILED | CANCELLED
+  status String @default("SEARCHING")
+
+  // Rider Search State
+  searchRadiusKm    Float          @default(5.0)
+  offerCount        Int            @default(0)
+  offeredRiderIds   String[]       @default([]) // History of all riders offered
+  currentRiderId    String? // Currently offered rider
+  acceptedRiderId   String?
+  acceptedRider     DeliveryAgent? @relation(fields: [acceptedRiderId], references: [id])
+  suitabilityScores Json? // { riderId: score, ... }
+
+  // Timing
+  timeoutAt   DateTime? // When current offer expires
+  acceptedAt  DateTime?
+  pickedUpAt  DateTime?
+  deliveredAt DateTime?
+
+  // Failure & Manual Override
+  failureReason    String?
+  adminOverrideBy  String?
+  deliveryProofUrl String?
+
+  offers    RiderOffer[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@index([status])
+  @@index([acceptedRiderId])
+}
+
+model RiderOffer {
+  id      String        @id @default(cuid())
+  jobId   String
+  job     DeliveryJob   @relation(fields: [jobId], references: [id])
+  riderId String
+  rider   DeliveryAgent @relation(fields: [riderId], references: [id])
+
+  offeredAt   DateTime  @default(now())
+  respondedAt DateTime?
+  // PENDING | ACCEPTED | DECLINED | TIMEOUT
+  response    String    @default("PENDING")
+
+  suitabilityScore Float  @default(0.0)
+  distanceKm       Float?
+  estimatedMinutes Int?
+
+  @@index([jobId])
+  @@index([riderId])
+  @@index([response])
+}
+
+model RiderPerformanceSnapshot {
+  id      String        @id @default(cuid())
+  riderId String
+  rider   DeliveryAgent @relation(fields: [riderId], references: [id])
+
+  // DAILY | WEEKLY | MONTHLY
+  period     String
+  periodDate DateTime // Start of the period
+
+  deliveriesCompleted Int   @default(0)
+  deliveriesCancelled Int   @default(0)
+  avgTimeMinutes      Float @default(0.0)
+  acceptanceRate      Float @default(0.0)
+  completionRate      Float @default(0.0)
+  customerRating      Float @default(5.0)
+  pharmacyRating      Float @default(5.0)
+  reliabilityScore    Float @default(100.0)
+  earningsThisPeriod  Float @default(0.0)
+
+  // EXCELLENT | GOOD | AVERAGE | POOR
+  performanceTier String  @default("GOOD")
+  alerts          Json? // [{ type, message }]
+  reviewedByAdmin Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@unique([riderId, period, periodDate])
+  @@index([riderId])
+  @@index([period])
+}
+
+model RiderRecruitmentCampaign {
+  id         String  @id @default(cuid())
+  title      String
+  // WHATSAPP | SMS | QR_CODE | REFERRAL_LINK | WEBSITE | SOCIAL | PHARMACY_NETWORK
+  channel    String
+  targetArea String?
+  targetCity String  @default("Gorakhpur")
+
+  // DRAFT | ACTIVE | PAUSED | COMPLETED
+  status String @default("DRAFT")
+
+  // Funnel Metrics
+  impressions        Int @default(0)
+  clicks             Int @default(0)
+  applications       Int @default(0)
+  verifiedRiders     Int @default(0)
+  activatedRiders    Int @default(0)
+  firstDeliveryCount Int @default(0)
+  activeAfter30Days  Int @default(0)
+
+  acquisitionCost Float? // Cost per activated rider (if paid channel)
+  campaignContent Json? // { message, imagePrompt, templateName, qrCodeUrl }
+
+  startDate      DateTime?
+  endDate        DateTime?
+  createdByAdmin String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  applications_rel RiderApplication[]
+
+  @@index([status])
+  @@index([channel])
+}
+
+model RiderApplication {
+  id          String  @id @default(cuid())
+  name        String
+  phone       String
+  city        String  @default("Gorakhpur")
+  area        String?
+  vehicleType String  @default("MOTORCYCLE")
+
+  // Which campaign/referral code brought them
+  referralCode String?
+  campaignId   String?
+  campaign     RiderRecruitmentCampaign? @relation(fields: [campaignId], references: [id])
+
+  // Application lifecycle
+  // APPLIED | DOCS_SUBMITTED | UNDER_VERIFICATION | VERIFIED | ACTIVE | REJECTED
+  status          String  @default("APPLIED")
+  rejectionReason String?
+  notes           String?
+
+  // Linked DeliveryAgent once converted
+  convertedRiderId String?
+
+  // Fraud Analysis
+  fraudScore Float @default(0.0)
+  fraudFlags Json? // [{ type, detail }]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  referrals        RiderReferral[]
+  fraudFlagRecords RiderFraudFlag[]
+
+  @@index([status])
+  @@index([phone])
+  @@index([referralCode])
+}
+
+model RiderReferral {
+  id           String @id @default(cuid())
+  referralCode String
+
+  // Referrer
+  referrerId   String // DeliveryAgent.id or User.id
+  referrerType String // RIDER | CUSTOMER | PHARMACY | DOCTOR | EMPLOYEE
+
+  // Application + Converted Rider
+  applicationId String?
+  application   RiderApplication? @relation(fields: [applicationId], references: [id])
+  riderId       String? // Filled when application converts to DeliveryAgent
+
+  // Lifecycle
+  // INVITED | APPLIED | VERIFIED | ACTIVE | QUALIFIED | REWARD_PENDING | REWARD_PAID | CANCELLED
+  status String @default("INVITED")
+
+  // Qualifying conditions
+  qualifyingDeliveries    Int     @default(10) // How many deliveries needed
+  qualifyingDeliveriesMet Boolean @default(false)
+
+  // Reward (direct bank transfer)
+  rewardAmount Float     @default(0.0)
+  rewardPaidAt DateTime?
+  bankDetails  Json? // { accountName, accountNumber, ifsc, upi }
+
+  // Fraud review
+  fraudFlag           Boolean @default(false)
+  fraudReason         String?
+  adminReviewRequired Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([referrerId])
+  @@index([status])
+  @@index([referralCode])
+}
+
+model RiderFraudFlag {
+  id            String            @id @default(cuid())
+  riderId       String?
+  rider         DeliveryAgent?    @relation(fields: [riderId], references: [id])
+  applicationId String?
+  application   RiderApplication? @relation(fields: [applicationId], references: [id])
+
+  // DUPLICATE_PHONE | SELF_REFERRAL | CIRCULAR_REFERRAL | SUSPICIOUS_ACTIVITY | FAKE_DOCUMENTS | HIGH_FREQUENCY
+  flagType String
+  details  Json? // Supporting evidence
+  // LOW | MEDIUM | HIGH
+  severity String @default("MEDIUM")
+  // OPEN | REVIEWED | CLEARED | CONFIRMED
+  status   String @default("OPEN")
+
+  reviewedByAdmin String?
+  reviewNotes     String?
+  resolvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@index([status])
+  @@index([flagType])
+}
+
+model DeliveryZone {
+  id      String @id @default(cuid())
+  name    String
+  city    String @default("Gorakhpur")
+  area    String
+  polygon Json? // Array of { lat, lng } defining the zone boundary
+
+  // Supply & Demand Metrics
+  activeRiders           Int    @default(0)
+  ordersLast30Days       Int    @default(0)
+  avgDeliveryTimeMinutes Float  @default(0.0)
+  demandLevel            String @default("NORMAL") // LOW | NORMAL | HIGH | CRITICAL
+
+  // Shortage Intelligence
+  shortageFlag          Boolean @default(false)
+  shortageScore         Float   @default(0.0) // 0-100, higher = more critical
+  recommendedRiderCount Int     @default(0)
+  aiRecommendation      String? // Human-readable recommendation text
+
+  lastAnalyzedAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@unique([city, area])
+  @@index([shortageFlag])
+}
