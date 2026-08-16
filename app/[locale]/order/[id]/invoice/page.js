@@ -26,6 +26,7 @@ export default async function InvoicePage({ params, searchParams }) {
         const order = await prisma.order.findUnique({
             where: { id },
             include: {
+                assignedRetailer: true,
                 items: {
                     include: {
                         product: {
@@ -130,16 +131,34 @@ export default async function InvoicePage({ params, searchParams }) {
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '8px' }}>
                         <div>
-                            <div style={{ fontWeight: '900', fontSize: '1.1rem', color: '#1D4ED8' }}>SWASTIK MEDICARE</div>
-                            <div style={{ fontSize: '0.82rem', color: '#475569' }}>Civil Lines, Gorakhpur, UP - 273001</div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748B' }}>Ph: +91 79921 22974</div>
-                            <div style={{ fontSize: '0.78rem', color: '#64748B' }}>GSTIN: 09SWSTK1234M1ZX | D.L.: UP-GKP-2024-001</div>
+                            <div style={{ fontSize: '0.70rem', color: '#16A34A', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                                🏪 DISPENSING LICENSED PHARMACY (SELLER)
+                            </div>
+                            <div style={{ fontWeight: '900', fontSize: '1.15rem', color: '#1E293B' }}>
+                                {order.assignedRetailer?.shopName || "SWASTIK PARTNER PHARMACY"}
+                            </div>
+                            <div style={{ fontSize: '0.80rem', color: '#475569' }}>
+                                {order.assignedRetailer?.address || "Civil Lines, Gorakhpur, UP - 273001"}
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                                {order.assignedRetailer?.phone ? `Ph: +${order.assignedRetailer.phone}` : "Ph: +91 79921 22974"}
+                            </div>
+                            <div style={{ fontSize: '0.78rem', color: '#0F766E', fontWeight: '700' }}>
+                                {order.assignedRetailer?.licenseNumber ? `D.L. No: ${order.assignedRetailer.licenseNumber} (Form 20/21)` : "D.L. No: UP-GKP-2024-001 (Form 20/21)"}
+                                {order.assignedRetailer?.gstNumber ? ` | GSTIN: ${order.assignedRetailer.gstNumber}` : " | GSTIN: 09SWSTK1234M1ZX"}
+                            </div>
+                            <div style={{ fontSize: '0.70rem', color: '#6366F1', marginTop: '3px', fontWeight: '600' }}>
+                                Facilitated via Swastik Medicare Digital Health Intermediary Platform
+                            </div>
                         </div>
                         <div style={{ textAlign: 'right' }}>
                             <div style={{ fontSize: '0.88rem' }}>INVOICE NO: <strong>{invoiceNo}</strong></div>
                             <div style={{ fontSize: '0.85rem' }}>DATE: <strong>{dateStr}</strong></div>
+                            <div style={{ fontSize: '0.75rem', color: '#64748B', marginTop: '4px' }}>
+                                Fulfillment: {order.status?.replace(/_/g, ' ') || 'Processing'}
+                            </div>
                         </div>
                     </div>
 
@@ -301,22 +320,20 @@ export default async function InvoicePage({ params, searchParams }) {
                         {order.isPaid && ` | Date: ${dateStr}`}
                     </div>
 
-                    {/* ══ FOOTER ══ */}
+                    {/* ══ FOOTER & STATUTORY INTERMEDIARY DISCLAIMER ══ */}
                     <div style={{
                         marginTop: '14px', borderTop: '1px dashed #94A3B8', paddingTop: '8px',
-                        fontSize: '0.72rem', color: '#94A3B8', ...mono, lineHeight: '1.7'
+                        fontSize: '0.70rem', color: '#64748B', ...mono, lineHeight: '1.6'
                     }}>
-                        GST: Prices are MRP inclusive of GST as per Indian GST Law. | Delivery: HSN 9965 @18% |
-                        Free delivery on orders ≥ ₹500 within 6 km from Civil Lines, Gorakhpur. |
-                        Returns within 24 hrs, unopened only. | Computer generated invoice, no signature required.
+                        <strong>Statutory Marketplace Disclosure:</strong> Swastik Medicare is a technology platform / digital health intermediary. All pharmaceutical products listed on this invoice are sold, dispensed, packaged, and billed directly by the independent licensed retail pharmacy partner identified above pursuant to Form 20/21 Drugs and Cosmetics Rules. Swastik Medicare provides search, technology matching, payment routing, and logistics coordination. | Returns within 24 hrs for unsealed/damaged items only. | Computer-generated invoice.
                     </div>
 
                     <div style={{ textAlign: 'center', marginTop: '12px', paddingTop: '8px', borderTop: '1px solid #E2E8F0' }}>
-                        <div style={{ fontSize: '0.82rem', color: '#475569', marginBottom: '4px', ...mono }}>
-                            Thank you for choosing <strong style={{ color: '#1D4ED8' }}>SWASTIK MEDICARE</strong>
+                        <div style={{ fontSize: '0.78rem', color: '#475569', marginBottom: '4px', ...mono }}>
+                            Facilitated by <strong style={{ color: '#1D4ED8' }}>SWASTIK MEDICARE TECHNOLOGY PLATFORM</strong>
                         </div>
-                        <div style={{ fontSize: '0.72rem', color: '#94A3B8', marginBottom: '12px', ...mono }}>
-                            Ph: +91 79921 22974 | Civil Lines, Gorakhpur | GSTIN: 09SWSTK1234M1ZX
+                        <div style={{ fontSize: '0.70rem', color: '#94A3B8', marginBottom: '12px', ...mono }}>
+                            Support: +91 79921 22974 | support@swastikmed.online | www.swastikmed.online
                         </div>
                         <InvoicePrintButton />
                     </div>
