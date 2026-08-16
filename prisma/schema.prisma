@@ -1562,3 +1562,138 @@ model SettlementItem {
   status          String   @default("ELIGIBLE") // ELIGIBLE, IN_BATCH, PAID, ON_HOLD
   createdAt       DateTime @default(now())
 }
+
+// ============================================================================
+// AI MARKETING, VIDEO, POST & PROMOTION INTELLIGENCE SYSTEM
+// ============================================================================
+
+model MarketingCampaign {
+  id                    String             @id @default(cuid())
+  title                 String
+  objective             String             // AWARENESS, LEAD_GEN, PRODUCT_SALES, REFILL_RETENTION, B2B_SUPPLIER, DOCTOR_BOOKING
+  productOrService      String?            // Medicine Name, Lab Test, Doctor Specialty, B2B Bulk Offer
+  campaignType          String             // ORGANIC, PAID, HYBRID
+  targetAudienceGroup   String             // NEW_PROSPECTS, EXISTING_CUSTOMERS, HIGH_VALUE, B2B_RETAILERS, STOCKISTS, DOCTORS, CHRONIC_CARE
+  
+  // Geography
+  geographyCountry      String             @default("India")
+  geographyState        String             @default("Uttar Pradesh")
+  geographyDistrict     String?            @default("Gorakhpur")
+  geographyCity         String             @default("Gorakhpur")
+  geographyLocality     String?
+  geographyRadiusKm     Float              @default(15.0)
+  
+  // Paid Promotion Intelligence
+  budget                Float              @default(0.0)
+  spent                 Float              @default(0.0)
+  paidRecommendation    String             @default("TEST_FIRST") // PROMOTE, TEST_FIRST, DO_NOT_PROMOTE
+  paidApprovalStatus    String             @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedBy            String?
+  
+  // Lifecycle
+  status                String             @default("DRAFT") // DRAFT, PENDING_APPROVAL, ACTIVE, PAUSED, COMPLETED
+  performanceScore      Float              @default(0.0)
+  metrics               Json?              // { impressions, reach, views, clicks, enquiries, leads, orders, revenue, cpl, roas }
+  
+  contents              MarketingContent[]
+  leads                 MarketingLead[]
+  insights              MarketingInsight[]
+  
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+}
+
+model MarketingContent {
+  id                    String             @id @default(cuid())
+  campaignId            String
+  campaign              MarketingCampaign  @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  contentType           String             // SHORT_VIDEO, EDUCATIONAL_VIDEO, PRODUCT_VIDEO, PROMOTIONAL_VIDEO, IMAGE_POST, EDUCATIONAL_POST, PRODUCT_ANNOUNCEMENT, BUSINESS_POST, ARTICLE, WHATSAPP_OFFER, SUPPLIER_PITCH
+  channel               String             // YOUTUBE, INSTAGRAM, FACEBOOK, WHATSAPP, LINKEDIN, WEBSITE
+  
+  title                 String
+  keyMessage            String
+  scriptOrCopy          String             @db.Text
+  visualPrompt          String?            @db.Text // AI Image/Video generator prompt
+  callToAction          String
+  targetAudience        String
+  targetGeography       String
+  
+  // Scheduling & Human-in-the-Loop Approval
+  scheduledDate         DateTime?
+  scheduledTime         String?            // "10:00 AM", "06:30 PM"
+  approvalStatus        String             @default("PENDING_APPROVAL") // PENDING_APPROVAL, APPROVED, REJECTED
+  approvedBy            String?
+  approvalNotes         String?
+  isPublished           Boolean            @default(false)
+  publishedAt           DateTime?
+  externalPostUrl       String?
+  
+  // Performance Tracking
+  impressions           Int                @default(0)
+  reach                 Int                @default(0)
+  views                 Int                @default(0)
+  likes                 Int                @default(0)
+  shares                Int                @default(0)
+  clicks                Int                @default(0)
+  enquiries             Int                @default(0)
+  leadsGenerated        Int                @default(0)
+  ordersGenerated       Int                @default(0)
+  revenueGenerated      Float              @default(0.0)
+  metrics               Json?
+  
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+}
+
+model MarketingLead {
+  id                    String             @id @default(cuid())
+  campaignId            String?
+  campaign              MarketingCampaign? @relation(fields: [campaignId], references: [id])
+  
+  // Identity & Contact
+  fullName              String
+  phone                 String
+  email                 String?
+  businessName          String?
+  customerType          String             @default("PATIENT") // PATIENT, RETAILER, DOCTOR, STOCKIST, MANUFACTURER
+  location              String             // Locality, City
+  sourceChannel         String             // WHATSAPP, INSTAGRAM, FACEBOOK, YOUTUBE, WEBSITE, LINKEDIN
+  productInterest       String?
+  
+  // AI Lead Scoring & Priority
+  leadScore             Int                @default(75) // 0 - 100
+  priorityRank          String             @default("B") // A (High), B (Medium), C (Low)
+  aiSummary             String?
+  
+  // Customer Finding Connection
+  linkedLeadId          String?            // Reference to core Lead model
+  assignedSalesperson   String?
+  status                String             @default("NEW") // NEW, CONTACTED, QUOTATION_SENT, CONVERTED_ORDER, REPEAT_CUSTOMER, LOST
+  firstOrderValue       Float?
+  lifetimeRevenue       Float              @default(0.0)
+  
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  
+  @@index([phone])
+  @@index([priorityRank])
+  @@index([status])
+}
+
+model MarketingInsight {
+  id                    String             @id @default(cuid())
+  campaignId            String?
+  campaign              MarketingCampaign? @relation(fields: [campaignId], references: [id])
+  
+  category              String             // CONTENT_PERFORMANCE, CHANNEL_EFFICIENCY, GEOGRAPHY_HEATMAP, AUDIENCE_RESPONSE, RETARGETING_OPPORTUNITY
+  title                 String
+  insightText           String             @db.Text
+  whyItHappened         String             @db.Text
+  recommendedAction     String             @db.Text
+  confidenceScore       Float              @default(90.0)
+  isActioned            Boolean            @default(false)
+  
+  createdAt             DateTime           @default(now())
+}
+
