@@ -25,7 +25,7 @@ export default function GenericMedicineDirectory() {
 
     const handleOrderWhatsApp = (med) => {
         const message = `Hello Swastik Medicare! I want to order the Generic Medicine: ${med.genericName} (Substitute for ${med.commonBrand}). Please let me know the availability.`;
-        window.open(`https://wa.me/919876543210?text=${encodeURIComponent(message)}`, "_blank");
+        window.open(`https://wa.me/917992122974?text=${encodeURIComponent(message)}`, "_blank");
     };
 
     const handleLoadMore = () => {
