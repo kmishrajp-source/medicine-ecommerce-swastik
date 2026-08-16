@@ -65,6 +65,9 @@ model User {
   blogs               BlogPost[]
   RiderCashAccount    RiderCashAccount?
   Distributor         Distributor?
+  hospitalAppointments HospitalAppointment[]
+  insuranceProfiles   InsuranceProfile[]
+  healthcareSearches  HealthcareSearch[]
 
   // --- ABDM Integrations ---
   abhaProfile          AbhaProfile?
@@ -126,6 +129,8 @@ model Product {
   inventory           PharmacyInventory? // 1-to-1 operational link
   manufacturerId      String?
   manufacturerAccount Manufacturer?      @relation(fields: [manufacturerId], references: [id])
+  genericSourceRelations GenericMedicineRelation[] @relation("SourceProduct")
+  genericTargetRelations GenericMedicineRelation[] @relation("TargetProduct")
 
   @@index([name])
   @@index([category])
@@ -675,6 +680,8 @@ model InsuranceCompany {
   user        User?           @relation("CompanyUser")
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+  insuranceProfiles InsuranceProfile[]
+  insuranceNetworks InsuranceNetwork[]
 }
 
 model InsurancePlan {
@@ -688,8 +695,9 @@ model InsurancePlan {
   commissionRate Float // Percentage or Fixed amount
   features       String[] // Array of features
   leads          InsuranceLead[]
-  createdAt      DateTime         @default(now())
-  updatedAt      DateTime         @updatedAt
+  insuranceProfiles InsuranceProfile[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
 }
 
 model InsuranceLead {
@@ -739,6 +747,8 @@ model Hospital {
   doctors       Doctor[]      @relation("HospitalDoctors")
   appointments  Appointment[]
   labBookings   LabBooking[]
+  hospitalServices HospitalService[]
+  insuranceNetworks InsuranceNetwork[]
 }
 
 model Lead {
@@ -2032,4 +2042,123 @@ model DeliveryZone {
 
   @@unique([city, area])
   @@index([shortageFlag])
+}
+
+// -----------------------------------------------------------------------------
+// HEALTHCARE SERVICE INTELLIGENCE EXPANSION
+// -----------------------------------------------------------------------------
+
+model GenericMedicineRelation {
+  id              String   @id @default(cuid())
+  sourceProductId String
+  targetProductId String
+  sourceProduct   Product  @relation("SourceProduct", fields: [sourceProductId], references: [id])
+  targetProduct   Product  @relation("TargetProduct", fields: [targetProductId], references: [id])
+  
+  relationType    String   // "EXACT_EQUIVALENT", "THERAPEUTIC_ALTERNATIVE", "DIFFERENT_FORM"
+  activeIngredient String?
+  strength        String?
+  form            String?
+  
+  aiConfidence    Float    @default(0.0)
+  requiresReview  Boolean  @default(true) // ALWAYS true for therapeutic alternatives
+  verifiedByDoc   Boolean  @default(false)
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@unique([sourceProductId, targetProductId])
+  @@index([relationType])
+}
+
+model HospitalService {
+  id              String   @id @default(cuid())
+  hospitalId      String
+  hospital        Hospital @relation(fields: [hospitalId], references: [id])
+  department      String   // e.g., "Cardiology", "Emergency", "OPD"
+  serviceName     String
+  description     String?
+  is24x7          Boolean  @default(false)
+  hasAvailableSlots Boolean @default(true)
+  
+  appointments    HospitalAppointment[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model HospitalAppointment {
+  id              String   @id @default(cuid())
+  serviceId       String
+  service         HospitalService @relation(fields: [serviceId], references: [id])
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  
+  scheduledAt     DateTime
+  status          String   @default("REQUESTED") // REQUESTED, CONFIRMED, COMPLETED, CANCELLED
+  notes           String?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model InsuranceProfile {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  companyId       String
+  company         InsuranceCompany @relation(fields: [companyId], references: [id])
+  planId          String?
+  plan            InsurancePlan? @relation(fields: [planId], references: [id])
+  
+  policyNumber    String
+  policyName      String?
+  renewalDate     DateTime?
+  coverageAmount  Float?
+  
+  documents       InsuranceDocument[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model InsuranceDocument {
+  id              String   @id @default(cuid())
+  profileId       String
+  profile         InsuranceProfile @relation(fields: [profileId], references: [id])
+  
+  documentType    String   // "POLICY_CERTIFICATE", "CLAIM_FORM", "HOSPITAL_BILL"
+  documentUrl     String
+  aiSummary       String?  @db.Text
+  
+  createdAt       DateTime @default(now())
+}
+
+model InsuranceNetwork {
+  id              String   @id @default(cuid())
+  hospitalId      String
+  hospital        Hospital @relation(fields: [hospitalId], references: [id])
+  companyId       String
+  company         InsuranceCompany @relation(fields: [companyId], references: [id])
+  
+  status          String   @default("VERIFIED") // VERIFIED, PENDING, UNKNOWN
+  cashlessEnabled Boolean  @default(false)
+  lastVerifiedAt  DateTime @default(now())
+  
+  @@unique([hospitalId, companyId])
+}
+
+model HealthcareSearch {
+  id              String   @id @default(cuid())
+  userId          String?
+  user            User?    @relation(fields: [userId], references: [id])
+  
+  rawQuery        String
+  resolvedIntent  String   // "MEDICINE_SEARCH", "HOSPITAL_SEARCH", "AMBULANCE", "INSURANCE"
+  routingAgent    String
+  aiResponse      String?  @db.Text
+  isEmergency     Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
 }
