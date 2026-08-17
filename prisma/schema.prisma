@@ -368,6 +368,7 @@ model Retailer {
   city               String              @default("Gorakhpur")
   verified           Boolean             @default(false)
   isDirectory        Boolean             @default(false)
+  isGenericStore     Boolean             @default(false)
   rating             Float               @default(4.5)
   ratingCount        Int                 @default(0)
   status             String              @default("unverified") // unverified, verified, claimed
