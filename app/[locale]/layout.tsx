@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
-import VoiceAIAssistant from "@/components/VoiceAIAssistant";
+import SwastikVoiceAssistant from "@/components/SwastikVoiceAssistant";
 import SwastikChatWidget from "@/components/SwastikChatWidget";
 import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
 import Script from "next/script";
@@ -138,7 +138,7 @@ export default async function RootLayout({
           </div>
         </ClientProviders>
         
-        <VoiceAIAssistant />
+        <SwastikVoiceAssistant />
         <SwastikChatWidget />
         <AIRecoveryAssistant />
 
