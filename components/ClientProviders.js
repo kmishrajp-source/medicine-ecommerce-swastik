@@ -10,6 +10,8 @@ import React from "react";
 const AIRecoveryAssistant = dynamic(() => import('@/components/AIRecoveryAssistant'), { ssr: false });
 const SupportHub = dynamic(() => import('@/components/SupportHub'), { ssr: false });
 const CartDrawer = dynamic(() => import('@/components/CartDrawer'), { ssr: false });
+const SwastikVoiceAssistant = dynamic(() => import('@/components/SwastikVoiceAssistant'), { ssr: false });
+const SwastikChatWidget = dynamic(() => import('@/components/SwastikChatWidget'), { ssr: false });
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -52,6 +54,8 @@ export default function ClientProviders({ children, messages, locale }) {
                             <CartDrawer />
                             <SupportHub />
                             <AIRecoveryAssistant />
+                            <SwastikVoiceAssistant />
+                            <SwastikChatWidget />
                         </ErrorBoundary>
                     </CartProvider>
                 </FCMProvider>

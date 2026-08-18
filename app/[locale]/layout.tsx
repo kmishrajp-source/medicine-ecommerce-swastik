@@ -3,9 +3,6 @@ import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
 import ClientProviders from "@/components/ClientProviders";
-import SwastikVoiceAssistant from "@/components/SwastikVoiceAssistant";
-import SwastikChatWidget from "@/components/SwastikChatWidget";
-import AIRecoveryAssistant from "@/components/AIRecoveryAssistant";
 import Script from "next/script";
 
 const outfit = Outfit({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"] });
@@ -138,9 +135,6 @@ export default async function RootLayout({
           </div>
         </ClientProviders>
         
-        <SwastikVoiceAssistant />
-        <SwastikChatWidget />
-        <AIRecoveryAssistant />
 
         {/* Global Tracking Scripts */}
         <Script
