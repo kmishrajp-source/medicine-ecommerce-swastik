@@ -165,9 +165,9 @@ export default function SwastikChatWidget() {
 
                     {/* Input Area */}
                     <div className="p-3 bg-white border-t border-slate-200">
-                        {/* Quick Hindi hint chips */}
+                        {/* Quick hint chips */}
                         <div className="flex gap-1 mb-2 overflow-x-auto pb-1">
-                            {["Mujhe bukhar hai", "Metformin chahiye", "Side effects?"].map(chip => (
+                            {["What can you do?", "Find medicine", "Find doctor", "Track order", "Ambulance"].map(chip => (
                                 <button key={chip} onClick={() => setInput(chip)}
                                     className="text-xs whitespace-nowrap bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-full px-2.5 py-1 hover:bg-indigo-100 transition-colors flex-shrink-0">
                                     {chip}
