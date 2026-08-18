@@ -44,7 +44,7 @@ export default function JoinPage() {
                         <a href="#register" className="bg-slate-900 text-white px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-slate-800 transition-all">
                             Get Started Now
                         </a>
-                        <a href="https://wa.me/919999999999?text=Interested in joining Swastik Medicare" className="bg-emerald-500 text-white px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-emerald-600 transition-all flex items-center justify-center gap-3">
+                        <a href="https://wa.me/917992122974?text=Interested in joining Swastik Medicare" className="bg-emerald-500 text-white px-10 py-6 rounded-[2rem] font-black uppercase tracking-widest text-sm shadow-2xl hover:bg-emerald-600 transition-all flex items-center justify-center gap-3">
                             <i className="fa-brands fa-whatsapp text-xl"></i> Chat with Sales
                         </a>
                     </div>

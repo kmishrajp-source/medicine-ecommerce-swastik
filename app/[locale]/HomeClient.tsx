@@ -604,9 +604,9 @@ export default function HomeClient() {
              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20"></div>
              <div className="relative z-10 max-w-4xl mx-auto px-8">
                 <h2 className="text-5xl md:text-6xl font-black text-white uppercase tracking-tighter mb-8 leading-none">{tConv('join_today')}</h2>
-                <button className="bg-white text-indigo-600 px-12 py-6 rounded-[40px] font-black uppercase tracking-widest text-sm hover:bg-slate-100 transition-all shadow-2xl">
+                <a href="/signup" className="bg-white text-indigo-600 px-12 py-6 rounded-[40px] font-black uppercase tracking-widest text-sm hover:bg-slate-100 transition-all shadow-2xl inline-block">
                     Get Started Now
-                </button>
+                </a>
                 <div className="mt-8 text-white/60 font-black uppercase tracking-widest text-[10px]">Trusted by thousands in Uttar Pradesh</div>
              </div>
         </div>
