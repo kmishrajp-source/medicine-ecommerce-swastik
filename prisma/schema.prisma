@@ -1786,6 +1786,23 @@ model RiderDocument {
   @@index([status])
 }
 
+model ExternalDeliveryProvider {
+  id              String   @id @default(cuid())
+  name            String   @unique // e.g., "DUNZO", "SHADOWFAX", "PORTER"
+  apiUrl          String?
+  apiKey          String?
+  isActive        Boolean  @default(true)
+  baseFee         Float    @default(40.0)
+  perKmFee        Float    @default(10.0)
+  serviceCities   String[] @default(["Gorakhpur"])
+  priority        Int      @default(1) // Lower number = higher priority
+  supportedModes  String[] @default(["BIKE"])
+  status          String   @default("CONFIGURED") // LIVE, CONFIGURED, INTEGRATION_REQUIRED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  jobs            DeliveryJob[]
+}
+
 model DeliveryJob {
   id      String @id @default(cuid())
   orderId String @unique
@@ -1822,6 +1839,12 @@ model DeliveryJob {
   failureReason    String?
   adminOverrideBy  String?
   deliveryProofUrl String?
+
+  // Fallback / Orchestration State
+  deliveryMethod      String  @default("SWASTIK_RIDER") // SWASTIK_RIDER, EXTERNAL_PARTNER, RETAILER_DELIVERY, CUSTOMER_PICKUP
+  externalProviderId  String?
+  externalProvider    ExternalDeliveryProvider? @relation(fields: [externalProviderId], references: [id])
+  externalTrackingUrl String?
 
   offers    RiderOffer[]
   createdAt DateTime     @default(now())

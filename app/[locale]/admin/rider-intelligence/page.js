@@ -132,6 +132,25 @@ export default function RiderIntelligenceCenter() {
                         )}
                     </div>
 
+                    {/* Escalation & Fallbacks */}
+                    <div style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "12px", padding: "1.5rem", marginBottom: "2rem" }}>
+                        <h3 style={{ fontSize: "1rem", fontWeight: 700, margin: "0 0 1.5rem 0", color: "#94a3b8" }}>Delivery Fallback Matrix</h3>
+                        <div style={{ display: "grid", gap: "1rem" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>External Providers</div>
+                                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: summary.externalJobs > 0 ? "#f59e0b" : "white" }}>{summary.externalJobs}</div>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Retailer Delivery</div>
+                                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: summary.retailerJobs > 0 ? "#f59e0b" : "white" }}>{summary.retailerJobs}</div>
+                            </div>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div style={{ fontSize: "0.85rem", color: "#94a3b8" }}>Customer Pickup</div>
+                                <div style={{ fontSize: "1.1rem", fontWeight: 700, color: summary.customerPickupJobs > 0 ? "#ef4444" : "white" }}>{summary.customerPickupJobs}</div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Fraud & Referrals */}
                     <div style={{ background: "rgba(30,41,59,0.5)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "12px", padding: "1.5rem" }}>
                         <h3 style={{ fontSize: "1rem", fontWeight: 700, margin: "0 0 1.5rem 0", color: "#94a3b8" }}>Risk & Growth Queue</h3>
