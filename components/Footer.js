@@ -39,17 +39,19 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                {/* Column 3: Company */}
+                {/* Column 3: Company & Partners */}
                 <div>
-                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('company')}</h3>
+                    <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>Company & Partners</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/about" style={{ color: 'inherit', textDecoration: 'none' }}>{t('about_us')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/contact" style={{ color: 'inherit', textDecoration: 'none' }}>{t('contact_us')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/impact" style={{ color: 'inherit', textDecoration: 'none' }}>Social Impact</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/investor-relations" style={{ color: 'inherit', textDecoration: 'none' }}>Investor Relations</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/government-partnership" style={{ color: 'inherit', textDecoration: 'none' }}>Gov Partnerships</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/rural-health" style={{ color: 'inherit', textDecoration: 'none' }}>Rural Health Initiative</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/partner" style={{ color: 'inherit', textDecoration: 'none' }}>{t('partner_portal')}</Link></li>
+                        <li style={{ marginBottom: '10px', marginTop: '20px' }}><span style={{ color: '#9CA3AF', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Partner Logins</span></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/retailer/login" style={{ color: '#34D399', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-store mr-2"></i> Pharmacy Login</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/rider/dashboard" style={{ color: '#FBBF24', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-motorcycle mr-2"></i> Rider Login</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/agent/dashboard" style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-user-tie mr-2"></i> Sales Agent Login</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/doctor/dashboard" style={{ color: '#A78BFA', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-user-doctor mr-2"></i> Doctor Login</Link></li>
                     </ul>
                 </div>
 
