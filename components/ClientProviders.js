@@ -12,6 +12,7 @@ const SupportHub = dynamic(() => import('@/components/SupportHub'), { ssr: false
 const CartDrawer = dynamic(() => import('@/components/CartDrawer'), { ssr: false });
 const SwastikVoiceAssistant = dynamic(() => import('@/components/SwastikVoiceAssistant'), { ssr: false });
 const SwastikChatWidget = dynamic(() => import('@/components/SwastikChatWidget'), { ssr: false });
+const GlobalBackButton = dynamic(() => import('@/components/GlobalBackButton'), { ssr: false });
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -56,6 +57,7 @@ export default function ClientProviders({ children, messages, locale }) {
                             <AIRecoveryAssistant />
                             <SwastikVoiceAssistant />
                             <SwastikChatWidget />
+                            <GlobalBackButton />
                         </ErrorBoundary>
                     </CartProvider>
                 </FCMProvider>
