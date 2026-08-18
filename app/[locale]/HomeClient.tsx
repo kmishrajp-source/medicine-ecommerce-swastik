@@ -15,6 +15,7 @@ const BenefitsSection = dynamic(() => import('@/components/BenefitsSection'), { 
 const PricingSection = dynamic(() => import('@/components/PricingSection'), { ssr: true });
 const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: true });
 const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), { ssr: false });
+const UnifiedHealthcareSearch = dynamic(() => import('@/components/UnifiedHealthcareSearch'), { ssr: false });
 import WhatsAppLeadForm from "@/components/WhatsAppLeadForm";
 
 export default function HomeClient() {
@@ -265,8 +266,61 @@ export default function HomeClient() {
              </div>
         </div>
 
+        {/* =====================================================
+             UNIFIED HEALTHCARE SEARCH + SERVICE TILES
+        ====================================================== */}
+        <div className="relative py-16 px-6" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%)' }}>
+          <div className="max-w-6xl mx-auto">
+            {/* Section Header */}
+            <div className="text-center mb-10">
+              <span className="inline-block px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest mb-4" style={{ background: 'rgba(99,102,241,0.2)', color: '#818cf8', border: '1px solid rgba(99,102,241,0.3)' }}>
+                🤖 AI-Powered Healthcare
+              </span>
+              <h2 className="text-3xl md:text-5xl font-black text-white tracking-tight mb-3">How Can We Help You?</h2>
+              <p className="text-slate-400 text-sm">Search for anything — medicine, hospital, lab test, ambulance or insurance</p>
+            </div>
+
+            {/* Unified AI Search */}
+            <UnifiedHealthcareSearch />
+
+            {/* Service Tiles */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12">
+              {[
+                { href: '/shop-medicines', icon: '💊', label: 'Medicines', sub: 'Search · Generic · Upload Rx', color: '#6366f1' },
+                { href: '/doctors', icon: '👨‍⚕️', label: 'Doctor', sub: 'Find · Consult · Prescription', color: '#22c55e' },
+                { href: '/hospitals', icon: '🏥', label: 'Hospital', sub: 'Find · Services · Appointments', color: '#3b82f6' },
+                { href: '/labs', icon: '🧪', label: 'Lab Tests', sub: 'Find · Book · Home Collection', color: '#a855f7' },
+                { href: '/ambulance', icon: '🚑', label: 'Ambulance', sub: 'Find · Emergency · Track', color: '#ef4444' },
+                { href: '/insurance/dashboard', icon: '🛡️', label: 'Insurance', sub: 'My Policy · Network · Claim', color: '#f59e0b' },
+                { href: '/my-health-records', icon: '📋', label: 'My Health', sub: 'ABHA · Prescriptions · Reports', color: '#06b6d4' },
+                { href: '/track', icon: '🚚', label: 'Delivery', sub: 'Track Medicine · Track Order', color: '#84cc16' },
+              ].map((tile, i) => (
+                <a key={i} href={tile.href} style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: `1px solid rgba(255,255,255,0.08)`,
+                  borderRadius: '20px',
+                  padding: '20px',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  transition: 'all 0.2s',
+                  cursor: 'pointer'
+                }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = `rgba(255,255,255,0.08)`; (e.currentTarget as HTMLElement).style.borderColor = tile.color + '60'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)'; (e.currentTarget as HTMLElement).style.borderColor = 'rgba(255,255,255,0.08)'; }}
+                >
+                  <div style={{ fontSize: '2rem', lineHeight: 1 }}>{tile.icon}</div>
+                  <div style={{ fontSize: '0.95rem', fontWeight: 800, color: 'white' }}>{tile.label}</div>
+                  <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: 600, lineHeight: 1.4 }}>{tile.sub}</div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* IMPACT DASHBOARD */}
-        <div className="-mt-20 relative z-30 container px-8 mb-20">
+        <div className="relative z-30 container px-8 py-12 mb-8">
             <div className="bg-white rounded-[40px] p-10 md:p-12 shadow-2xl shadow-indigo-100/50 border border-slate-100">
                 <div className="flex items-center justify-between mb-8 pb-8 border-b border-slate-100">
                     <h3 className="text-sm font-black text-slate-900 uppercase tracking-[0.2em]"><i className="fa-solid fa-chart-line text-indigo-500 mr-2"></i> Live Ecosystem Impact</h3>
