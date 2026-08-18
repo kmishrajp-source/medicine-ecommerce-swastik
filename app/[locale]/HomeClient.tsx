@@ -291,9 +291,9 @@ export default function HomeClient() {
                 { href: '/hospitals', icon: '🏥', label: 'Hospital', sub: 'Find · Services · Appointments', color: '#3b82f6' },
                 { href: '/labs', icon: '🧪', label: 'Lab Tests', sub: 'Find · Book · Home Collection', color: '#a855f7' },
                 { href: '/ambulance', icon: '🚑', label: 'Ambulance', sub: 'Find · Emergency · Track', color: '#ef4444' },
-                { href: '/insurance/dashboard', icon: '🛡️', label: 'Insurance', sub: 'My Policy · Network · Claim', color: '#f59e0b' },
+                { href: '/medical-insurance', icon: '🛡️', label: 'Insurance', sub: 'Plans · Hospital Network · Help', color: '#f59e0b' },
                 { href: '/my-health-records', icon: '📋', label: 'My Health', sub: 'ABHA · Prescriptions · Reports', color: '#06b6d4' },
-                { href: '/track', icon: '🚚', label: 'Delivery', sub: 'Track Medicine · Track Order', color: '#84cc16' },
+                { href: '/profile', icon: '🚚', label: 'Delivery', sub: 'Track Medicine · Track Order', color: '#84cc16' },
               ].map((tile, i) => (
                 <a key={i} href={tile.href} style={{
                   background: 'rgba(255,255,255,0.04)',
