@@ -50,7 +50,32 @@ const programs = [
 
 export default function GovPartnershipClient() {
   const [activeTab, setActiveTab] = useState('abdm');
+  const [aiHelpPoint, setAiHelpPoint] = useState(null);
+  
   const active = programs.find(p => p.id === activeTab);
+
+  const getAiExplanation = (point) => {
+    const explanations = {
+      'ABHA Number & Address Linking': "We allow patients to create and link their 14-digit Ayushman Bharat Health Account (ABHA) directly from our app. This creates a unified identity for their health records across India.",
+      'Patient Consent Manager': "Before any doctor or hospital can view a patient's health records, they must request access. Our Consent Manager lets the patient approve or deny these requests securely.",
+      'FHIR-Compatible Health Records': "FHIR (Fast Healthcare Interoperability Resources) is a global standard for health data. By using this, prescriptions and lab reports generated on Swastik can be read by any other ABDM-compliant hospital.",
+      'Verified Healthcare Provider Registry': "All doctors and hospitals on Swastik Medicare are verified against the national Healthcare Professionals Registry (HPR) and Health Facility Registry (HFR).",
+      'Digital Prescription Tracking': "Instead of paper, doctors issue e-prescriptions that are cryptographically signed. This allows for automated tracking, easier refills, and zero errors in reading the prescription.",
+      'Paperless Lab Report Management': "Lab tests booked through Swastik deliver results directly to the patient's digital vault. The data is structured, meaning we can show trends (like sugar levels over 6 months) automatically.",
+      'Telemedicine Transaction Logs': "Every online consultation generates a secure, timestamped transaction log. This ensures accountability, prevents fraud, and complies with national telemedicine guidelines.",
+      'Audit-Ready Compliance Reports': "Our system automatically generates the necessary compliance reports required by the government to claim incentives under the DHIS scheme, saving hospitals hundreds of hours of manual paperwork.",
+      'Tax Exemption Eligibility': "Under Startup India, recognized startups can claim tax exemptions under Section 80IAC for 3 consecutive years out of their first 10 years, allowing us to reinvest profits into R&D.",
+      'Government Procurement Priority': "Recognized startups get exemptions from prior experience, prior turnover, and Earnest Money Deposit (EMD) requirements when bidding for government healthcare tenders.",
+      'Innovation Fund Access': "DPIIT recognition unlocks access to the ₹10,000 Crore Fund of Funds for Startups (FFS) and the Startup India Seed Fund Scheme (SISFS) for scaling our infrastructure.",
+      'BIRAC Grant Pipeline': "As a health-tech company, we become eligible for grants from the Biotechnology Industry Research Assistance Council (BIRAC) to fund our AI symptom checker and diagnostic R&D.",
+      'Medicine Supply to Govt. Hospitals': "By registering on GeM, Swastik Medicare can act as a direct supplier of bulk generic and branded medicines to government hospitals and dispensaries across states.",
+      'Lab Test Kits for Health Depts.': "We can bid to supply rapid test kits and diagnostic consumables directly to State Health Departments for public health screening camps.",
+      'Ambulance Services on GeM': "Our network of aggregated ambulances can be listed as a service on GeM, allowing government agencies to hire ambulance fleets during emergencies or elections.",
+      'MSME Quota Eligibility': "Government departments are mandated to procure a minimum of 25% of their total annual purchases from MSMEs. Our registration helps us tap into this reserved quota."
+    };
+    
+    return explanations[point] || "The AI is analyzing this feature. This represents a core capability of the Swastik Medicare platform designed to improve healthcare accessibility and compliance.";
+  };
 
   return (
     <div className="bg-slate-50 min-h-screen flex flex-col">
@@ -135,12 +160,45 @@ export default function GovPartnershipClient() {
                   <p className="text-slate-600 mb-8 leading-relaxed">{active.description}</p>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {active.points.map((point, i) => (
-                      <div key={i} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100">
+                      <button 
+                        key={i} 
+                        onClick={() => setAiHelpPoint(point)}
+                        className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-100 hover:bg-slate-100 hover:border-slate-200 transition-all text-left group"
+                      >
                         <i className={`fa-solid fa-check-circle text-${active.color}-500`}></i>
-                        <span className="font-semibold text-slate-700 text-sm">{point}</span>
-                      </div>
+                        <span className="font-semibold text-slate-700 text-sm group-hover:text-emerald-700">{point}</span>
+                        <i className="fa-solid fa-robot ml-auto text-slate-300 group-hover:text-emerald-500 text-xs"></i>
+                      </button>
                     ))}
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* AI Help Modal */}
+          {aiHelpPoint && (
+            <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
+              <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-emerald-100 animate-slide-up">
+                <div className="bg-emerald-50 border-b border-emerald-100 p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center">
+                      <i className="fa-solid fa-robot"></i>
+                    </div>
+                    <h3 className="font-bold text-emerald-900">AI Explanation</h3>
+                  </div>
+                  <button onClick={() => setAiHelpPoint(null)} className="text-emerald-500 hover:text-emerald-700 transition-colors w-8 h-8 rounded-full hover:bg-emerald-100 flex items-center justify-center">
+                    <i className="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+                <div className="p-6">
+                  <h4 className="font-bold text-slate-800 text-lg mb-3">{aiHelpPoint}</h4>
+                  <div className="text-slate-600 text-sm leading-relaxed whitespace-pre-wrap">
+                    {getAiExplanation(aiHelpPoint)}
+                  </div>
+                  <button onClick={() => setAiHelpPoint(null)} className="w-full mt-6 bg-slate-900 hover:bg-slate-800 text-white font-semibold py-2.5 rounded-lg transition-colors">
+                    Understood
+                  </button>
                 </div>
               </div>
             </div>
