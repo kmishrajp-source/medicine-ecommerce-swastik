@@ -105,11 +105,11 @@ export default function Footer() {
                         </div>
                     </div>
 
-                    <div style={{ background: 'rgba(255,255,255,0.1)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(249,115,22,0.3)' }}>
-                        <i className="fa-solid fa-certificate" style={{ fontSize: '1.5rem', color: '#F97316' }}></i>
+                    <div style={{ background: 'rgba(255,255,255,0.06)', padding: '10px 20px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid rgba(234,179,8,0.3)' }}>
+                        <i className="fa-solid fa-clock" style={{ fontSize: '1.5rem', color: '#EAB308' }}></i>
                         <div>
-                            <div style={{ fontSize: '0.8rem', color: '#FDBA74', textTransform: 'uppercase', letterSpacing: '1px' }}>Udyam MSME</div>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>Registered MSME Enterprise</div>
+                            <div style={{ fontSize: '0.8rem', color: '#FDE68A', textTransform: 'uppercase', letterSpacing: '1px' }}>Udyam MSME</div>
+                            <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: '#FCD34D' }}>Registration Under Process</div>
                         </div>
                     </div>
                 </div>
