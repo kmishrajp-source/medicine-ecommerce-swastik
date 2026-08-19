@@ -52,6 +52,8 @@ export default function Footer() {
                         <li style={{ marginBottom: '10px' }}><Link href="/rider/dashboard" style={{ color: '#FBBF24', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-motorcycle mr-2"></i> Rider Login</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/agent/dashboard" style={{ color: '#60A5FA', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-user-tie mr-2"></i> Sales Agent Login</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/doctor/dashboard" style={{ color: '#A78BFA', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-user-doctor mr-2"></i> Doctor Login</Link></li>
+                        <li style={{ marginBottom: '10px', marginTop: '20px' }}><span style={{ color: '#9CA3AF', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Research & Data</span></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/bio/bioinformatics" style={{ color: '#10B981', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-dna mr-2"></i> Bioinformatics Hub</Link></li>
                     </ul>
                 </div>
 
