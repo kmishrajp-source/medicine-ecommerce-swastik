@@ -70,6 +70,7 @@ model User {
   healthcareSearches  HealthcareSearch[]
   researchAlerts      ResearchAlert[]      @relation("UserResearchAlerts")
   bioinformaticsDatasets BioinformaticsDataset[] @relation("UserBioinformaticsDatasets")
+  revenueTransactions RevenueTransaction[] @relation("UserRevenueTransactions")
 
   // --- ABDM Integrations ---
   abhaProfile          AbhaProfile?
@@ -2316,4 +2317,134 @@ model BioinformaticsJob {
   updatedAt       DateTime @updatedAt
   
   @@index([datasetId])
+}
+
+// ============================================================================
+// PHASE 8: REVENUE ENGINE INTELLIGENCE & CAPITAL DEPLOYMENT
+// ============================================================================
+
+model RevenueTransaction {
+  id              String   @id @default(cuid())
+  transactionType String   // "PHARMACY_ORDER", "LAB_BOOKING", "DOCTOR_CONSULT", "SaaS_SUBSCRIPTION", "GENOMICS_TEST", "API_USAGE"
+  referenceId     String   // The ID of the Order, Booking, or Subscription
+  userId          String?  // The customer/patient
+  user            User?    @relation("UserRevenueTransactions", fields: [userId], references: [id])
+  providerId      String?  // Doctor, Retailer, Lab, etc.
+  
+  // Financial Metrics
+  customerPaid    Float    @default(0.0)
+  providerPayout  Float    @default(0.0)
+  platformFee     Float    @default(0.0)
+  commission      Float    @default(0.0)
+  deliveryCost    Float    @default(0.0)
+  paymentCost     Float    @default(0.0)
+  discounts       Float    @default(0.0)
+  netRevenue      Float    @default(0.0) // Swastik's take
+  grossMargin     Float    @default(0.0)
+  
+  status          String   @default("COMPLETED") // PENDING, COMPLETED, REFUNDED
+  createdAt       DateTime @default(now())
+  
+  @@index([transactionType])
+  @@index([userId])
+}
+
+model B2BContract {
+  id              String   @id @default(cuid())
+  organizationId  String   // Generic ID (e.g. Retailer.id, Hospital.id)
+  organizationType String  // "PHARMACY", "HOSPITAL", "LAB", "BIOTECH", "PHARMA"
+  
+  contractType    String   // "COMMISSION", "SaaS", "ENTERPRISE", "PROJECT"
+  commissionRate  Float    @default(0.0) // Percentage
+  monthlyFee      Float    @default(0.0)
+  annualFee       Float    @default(0.0)
+  
+  status          String   @default("ACTIVE") // ACTIVE, SUSPENDED, TERMINATED
+  startDate       DateTime @default(now())
+  endDate         DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([organizationType])
+}
+
+model B2BSubscription {
+  id              String   @id @default(cuid())
+  organizationId  String
+  organizationType String
+  planName        String   // "BIOINFORMATICS_PRO", "RESEARCH_ENTERPRISE", "AI_PLATFORM_PRO"
+  billingCycle    String   // "MONTHLY", "ANNUAL"
+  amount          Float
+  
+  status          String   @default("ACTIVE") // ACTIVE, CANCELLED, PAST_DUE
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model CapitalDeployment {
+  id              String   @id @default(cuid())
+  milestoneStage  String   // "STAGE_1", "STAGE_2", "STAGE_3"
+  category        String   // "TECHNOLOGY", "CLOUD", "AI_R&D", "STAFF", "LAB_PARTNERS"
+  
+  approvedBudget  Float    @default(0.0)
+  committedCapital Float   @default(0.0)
+  spentCapital    Float    @default(0.0)
+  
+  roiIndicator    Float    @default(0.0) // Metric representation of ROI
+  status          String   @default("PLANNED") // PLANNED, IN_PROGRESS, COMPLETED
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model FinancialForecast {
+  id              String   @id @default(cuid())
+  scenarioName    String   // "BASE_CASE", "CONSERVATIVE_CASE", "AGGRESSIVE_CASE"
+  periodMonths    Int      // 12, 24, 36, 60
+  
+  projectedRevenue Float   @default(0.0)
+  projectedCOGS    Float   @default(0.0)
+  operatingExpense Float   @default(0.0)
+  ebitda           Float   @default(0.0)
+  cashBurn         Float   @default(0.0)
+  runwayMonths     Float   @default(0.0)
+  
+  assumptions     Json?    // Documenting the assumptions behind the forecast
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model DrugDiscoveryTarget {
+  id              String   @id @default(cuid())
+  targetName      String   // e.g., "Protein Kinase X"
+  diseaseArea     String   // e.g., "Oncology"
+  evidenceLevel   String   // "HYPOTHESIS", "IN_VITRO", "PRECLINICAL"
+  
+  computationalScore Float @default(0.0)
+  aiSummary       String?  @db.Text
+  
+  status          String   @default("RESEARCH") // RESEARCH, VALIDATING, PARTNERED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  partnerships    ResearchPartnership[]
+}
+
+model ResearchPartnership {
+  id              String   @id @default(cuid())
+  partnerName     String   // Pharma or Biotech partner
+  targetId        String
+  target          DrugDiscoveryTarget @relation(fields: [targetId], references: [id])
+  
+  partnershipType String   // "SPONSORED_RESEARCH", "LICENSING", "MILESTONE"
+  contractValue   Float    @default(0.0)
+  status          String   @default("ACTIVE")
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }

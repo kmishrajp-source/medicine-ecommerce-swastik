@@ -54,6 +54,10 @@ export default function Footer() {
                         <li style={{ marginBottom: '10px' }}><Link href="/doctor/dashboard" style={{ color: '#A78BFA', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-user-doctor mr-2"></i> Doctor Login</Link></li>
                         <li style={{ marginBottom: '10px', marginTop: '20px' }}><span style={{ color: '#9CA3AF', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Research & Data</span></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/bio/bioinformatics" style={{ color: '#10B981', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-dna mr-2"></i> Bioinformatics Hub</Link></li>
+                        <li style={{ marginBottom: '10px', marginTop: '20px' }}><span style={{ color: '#9CA3AF', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>Executive Intelligence</span></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/admin/executive/revenue-intelligence" style={{ color: '#F472B6', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-chart-line mr-2"></i> Revenue Engine</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/admin/executive/capital-deployment" style={{ color: '#38BDF8', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-coins mr-2"></i> Capital Deployment</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/admin/b2b-crm" style={{ color: '#FBBF24', textDecoration: 'none', fontWeight: '600' }}><i className="fa-solid fa-building-user mr-2"></i> B2B CRM</Link></li>
                     </ul>
                 </div>
 
