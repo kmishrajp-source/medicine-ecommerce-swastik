@@ -1,0 +1,33 @@
+
+// --- Bio-Health Phase 6 & 7 Models ---
+
+model BioinformaticsDataset {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserBioinformaticsDatasets", fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?  @db.Text
+  fileUrl         String   // Secure cloud storage URL
+  format          String   // e.g., FASTQ, VCF, BAM
+  status          String   @default("UPLOADED") // UPLOADED, VALIDATED, CORRUPT
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  jobs            BioinformaticsJob[]
+  
+  @@index([userId])
+}
+
+model BioinformaticsJob {
+  id              String   @id @default(cuid())
+  datasetId       String
+  dataset         BioinformaticsDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  analysisType    String   // e.g., VARIANT_CALLING, ANNOTATION
+  status          String   @default("QUEUED") // QUEUED, PROCESSING, COMPLETED, FAILED
+  resultUrl       String?
+  log             String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([datasetId])
+}

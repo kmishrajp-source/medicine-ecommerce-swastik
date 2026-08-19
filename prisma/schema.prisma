@@ -68,6 +68,8 @@ model User {
   hospitalAppointments HospitalAppointment[]
   insuranceProfiles   InsuranceProfile[]
   healthcareSearches  HealthcareSearch[]
+  researchAlerts      ResearchAlert[]      @relation("UserResearchAlerts")
+  bioinformaticsDatasets BioinformaticsDataset[] @relation("UserBioinformaticsDatasets")
 
   // --- ABDM Integrations ---
   abhaProfile          AbhaProfile?
@@ -334,6 +336,7 @@ model LabTest {
   lab            Lab          @relation(fields: [labId], references: [id])
   name           String
   description    String?
+  category       String       @default("ROUTINE") // ROUTINE, GENETIC, MOLECULAR, BIOMARKER
   price          Float
   turnaroundTime String? // e.g. "24 hours"
   createdAt      DateTime     @default(now())
@@ -2241,4 +2244,76 @@ model AIGeneratedContent {
   metaData        Json?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// --- Bio-Health Engine Models ---
+
+model BiomedicalResearch {
+  id              String   @id @default(cuid())
+  title           String
+  source          String   // e.g., "Tier 1: Govt", "Tier 2: Peer Reviewed"
+  url             String?
+  publicationDate DateTime
+  topic           String   // e.g., "Genomics", "Biotechnology"
+  summary         String   @db.Text
+  evidenceLevel   String   // e.g., "Established", "Emerging", "Experimental"
+  status          String   // e.g., "Research", "Clinical", "Commercial"
+  limitations     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ResearchAlert {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation("UserResearchAlerts", fields: [userId], references: [id], onDelete: Cascade)
+  topic     String   // e.g., "Diabetes", "Genomics"
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+}
+
+model BiomarkerInfo {
+  id             String   @id @default(cuid())
+  name           String
+  definition     String   @db.Text
+  biologicalRole String   @db.Text
+  testType       String
+  evidence       String   @db.Text
+  limitations    String?  @db.Text
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// --- Bio-Health Phase 6 & 7 Models ---
+
+model BioinformaticsDataset {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserBioinformaticsDatasets", fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?  @db.Text
+  fileUrl         String   // Secure cloud storage URL
+  format          String   // e.g., FASTQ, VCF, BAM
+  status          String   @default("UPLOADED") // UPLOADED, VALIDATED, CORRUPT
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  jobs            BioinformaticsJob[]
+  
+  @@index([userId])
+}
+
+model BioinformaticsJob {
+  id              String   @id @default(cuid())
+  datasetId       String
+  dataset         BioinformaticsDataset @relation(fields: [datasetId], references: [id], onDelete: Cascade)
+  analysisType    String   // e.g., VARIANT_CALLING, ANNOTATION
+  status          String   @default("QUEUED") // QUEUED, PROCESSING, COMPLETED, FAILED
+  resultUrl       String?
+  log             String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([datasetId])
 }
