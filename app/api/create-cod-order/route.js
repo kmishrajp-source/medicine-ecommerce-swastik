@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { logFailure } from "@/lib/logger";
 import { sendSMS } from "@/lib/sms";
-import { assignOrderToNearestRetailer } from "@/utils/routing";
+import { executeIntelligentRouting } from "@/utils/intelligent-routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
@@ -172,9 +172,9 @@ export async function POST(req) {
             return createdOrder;
         });
 
-        // 4.5 Execute HyperLocal Routing (Non-Blocking)
+        // 4.5 Execute HyperLocal AI Routing (Simultaneous Dispatch)
         if (order && order.lat && order.lng) {
-            assignOrderToNearestRetailer(order.id).catch(e => console.error("Routing Exception:", e));
+            executeIntelligentRouting(order.id).catch(e => console.error("AI Routing Exception:", e));
             splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
             const p = guestPhone || session?.user?.phone;
             if (p) WhatsAppTriggers.orderConfirmed(p, order.id, amount, "COD").catch(e => console.log(e));

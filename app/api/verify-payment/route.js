@@ -4,7 +4,7 @@ import prisma from "@/lib/prisma";
 import { sendSMS } from "@/lib/sms";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { assignOrderToNearestRetailer } from "@/utils/routing";
+import { executeIntelligentRouting } from "@/utils/intelligent-routing";
 import { splitOrderIntoSubOrders } from "@/utils/marketplace";
 import { triggerWebhook } from "@/lib/webhooks";
 import { WhatsAppTriggers } from "@/lib/whatsapp";
@@ -308,9 +308,9 @@ export async function POST(req) {
             }
         }
 
-        // 3.5 Execute HyperLocal Routing (Non-Blocking)
+        // 3.5 Execute HyperLocal AI Routing (Simultaneous Dispatch)
         if (newOrder && newOrder.lat && newOrder.lng) {
-            assignOrderToNearestRetailer(newOrder.id).catch(e => console.error("Routing Exception:", e));
+            executeIntelligentRouting(newOrder.id).catch(e => console.error("Routing Exception:", e));
             // New Marketplace Split
             splitOrderIntoSubOrders(newOrder.id).catch(e => console.error("Marketplace Split Exception:", e));
             // Webhook Event

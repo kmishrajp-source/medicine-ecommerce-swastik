@@ -180,6 +180,10 @@ model Order {
   deliveryAssignments     DeliveryAssignment[]
   deliveryJob             DeliveryJob?         @relation("DeliveryJobOrder")
 
+  // --- Pickup Routing ---
+  pickupType              String               @default("RETAILER") // RETAILER, STOCKIST
+  pickupId                String?              // Will hold the Retailer ID or Stockist ID depending on pickupType
+
   // --- Settlement ---
   settlementStatus String @default("PENDING") // PENDING, SETTLED, PARTIAL
 
@@ -415,6 +419,7 @@ model Stockist {
   verified         Boolean     @default(false)
   createdAt        DateTime    @default(now())
   receivedOrders   BulkOrder[]
+  inventory        StockistInventory[]
 }
 
 model BulkOrder {
@@ -427,6 +432,17 @@ model BulkOrder {
   status      String    @default("Pending") // Pending, Accepted, Shipped, Delivered
   totalAmount Float
   createdAt   DateTime  @default(now())
+}
+
+model StockistInventory {
+  id           String   @id @default(cuid())
+  stockistId   String
+  stockist     Stockist @relation(fields: [stockistId], references: [id])
+  medicineName String   // Can map to Product name
+  stock        Int
+  price        Float    // Wholesale / Stockist Price
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
 }
 
 model Ambulance {
@@ -2185,4 +2201,44 @@ model HealthcareSearch {
   isEmergency     Boolean  @default(false)
   
   createdAt       DateTime @default(now())
+}
+
+// --- Generative AI Business Engine Models ---
+
+model AITask {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  priority    String   @default("LOW") // HIGH, MEDIUM, LOW
+  status      String   @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED
+  assignedTo  String?  // Could be an Admin User ID or Role
+  generatedBy String   @default("SYSTEM")
+  metaData    Json?    // Optional data about the task context
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model AIAuditLog {
+  id              String   @id @default(cuid())
+  actionType      String   // e.g., "MARKETING_GENERATION", "SUPPLIER_ANALYSIS"
+  userId          String?  // Admin who initiated or approved
+  aiModel         String   @default("gpt-4o")
+  inputContext    Json?    // Summary of data fed to the AI
+  outputData      Json?    // What the AI returned
+  approvalStatus  String   @default("AUTO") // AUTO, PENDING, APPROVED, REJECTED
+  actionTaken     Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}
+
+model AIGeneratedContent {
+  id              String   @id @default(cuid())
+  type            String   // MARKETING, RFQ, PRODUCT_DESC, NOTIFICATION
+  title           String?
+  content         String   @db.Text
+  targetId        String?  // ID of the product or campaign it refers to
+  status          String   @default("DRAFT") // DRAFT, PUBLISHED, REJECTED
+  approvedBy      String?
+  metaData        Json?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
