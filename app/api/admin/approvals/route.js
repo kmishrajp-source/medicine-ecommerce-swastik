@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
-import { sendWhatsAppNotification } from "@/lib/whatsapp";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -74,9 +74,10 @@ export async function POST(req) {
         // WhatsApp notification if verified
         if (verified && phoneToNotify) {
             try {
-                await sendWhatsAppNotification(
+                await sendWhatsAppMessage(
                     phoneToNotify,
-                    `🎉 CONGRATULATIONS ${partnerName || ''}!\n\nYour partner verification application on Swastik Medicare has been APPROVED by our administration.\n\nYou are now an official verified partner and can access all platform features.`
+                    "swastik_partner_approval",
+                    [partnerName || '', verified ? 'APPROVED' : 'REJECTED']
                 );
             } catch (e) {
                 console.warn("WhatsApp approval notice error:", e.message);

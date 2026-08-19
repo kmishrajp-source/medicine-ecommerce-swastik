@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
-import { sendWhatsAppNotification } from '@/lib/whatsapp';
+import { sendWhatsAppMessage } from '@/lib/whatsapp';
 
 // GET list of cash deposits with optional status filter
 export async function GET(req) {
@@ -110,9 +110,10 @@ export async function PATCH(req) {
             // 4. Send WhatsApp Notification to rider
             if (deposit.account.rider?.phone) {
                 try {
-                    await sendWhatsAppNotification(
+                    await sendWhatsAppMessage(
                         deposit.account.rider.phone,
-                        `✅ CASH DEPOSIT RECONCILED\n\nYour bank deposit of ₹${deposit.amount.toLocaleString()} (Ref: ${deposit.bankRef || 'N/A'}) has been confirmed by Admin.\n\nRemaining Cash Held: ₹${newCashHeld.toLocaleString()}\nLimit: ₹${account.cashSlab.toLocaleString()}`
+                        "cash_deposit_confirmed",
+                        [String(deposit.amount), deposit.bankRef || 'N/A', String(newCashHeld)]
                     );
                 } catch (e) {
                     console.warn("WhatsApp notification error:", e.message);
@@ -139,9 +140,10 @@ export async function PATCH(req) {
 
             if (deposit.account.rider?.phone) {
                 try {
-                    await sendWhatsAppNotification(
+                    await sendWhatsAppMessage(
                         deposit.account.rider.phone,
-                        `❌ CASH DEPOSIT REJECTED\n\nYour bank deposit request of ₹${deposit.amount.toLocaleString()} was rejected by Admin.\nReason: ${rejectedReason || 'Verification failed'}.\nPlease resubmit with valid reference/receipt.`
+                        "cash_deposit_rejected",
+                        [String(deposit.amount), rejectedReason || 'Verification failed']
                     );
                 } catch (e) {
                     console.warn("WhatsApp notification error:", e.message);

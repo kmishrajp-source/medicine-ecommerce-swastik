@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { sendWhatsAppNotification } from "@/lib/whatsapp";
+import { sendWhatsAppMessage } from "@/lib/whatsapp";
 
 export async function POST(req) {
     try {
@@ -96,9 +96,10 @@ export async function POST(req) {
 
                     if (phone) {
                         try {
-                            await sendWhatsAppNotification(
+                            await sendWhatsAppMessage(
                                 phone,
-                                `🚨 CASH HOLDING LIMIT EXCEEDED\n\nHello Rider, your current cash held is ₹${newCashHeld.toLocaleString()}, which exceeds your assigned limit of ₹${account.cashSlab.toLocaleString()}.\n\nPlease deposit the excess cash into the company bank account immediately to clear your slab.`
+                                "rider_cash_limit_exceeded",
+                                [String(newCashHeld), String(account.cashSlab)]
                             );
                         } catch (err) {
                             console.warn("Rider over-limit WhatsApp alert error:", err.message);
