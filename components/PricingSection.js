@@ -1,5 +1,6 @@
 "use client";
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function PricingSection() {
     const t = useTranslations('Conversion');
@@ -29,7 +30,7 @@ export default function PricingSection() {
                                 <i className="fa-solid fa-check text-emerald-500"></i> WhatsApp Lead System
                             </li>
                         </ul>
-                        <button className="w-full py-5 bg-slate-900 text-white rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-colors">Select Basic</button>
+                        <Link href="/join#register" className="w-full py-5 bg-slate-900 text-white rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-slate-800 transition-colors block text-center">Select Basic</Link>
                     </div>
 
                     {/* Featured Plan */}
@@ -52,7 +53,7 @@ export default function PricingSection() {
                                 <i className="fa-solid fa-bullhorn text-indigo-400"></i> Cross-Platform Promotion
                             </li>
                         </ul>
-                        <button className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30">Go Featured</button>
+                        <Link href="/join#register" className="w-full py-5 bg-indigo-600 text-white rounded-3xl font-black uppercase tracking-widest text-xs hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-500/30 block text-center">Go Featured</Link>
                     </div>
                 </div>
             </div>
