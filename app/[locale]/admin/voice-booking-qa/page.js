@@ -1,6 +1,5 @@
 'use client';
 import { useState } from 'react';
-import { Button, Card, CardBody, Input } from '@nextui-org/react';
 
 export default function VoiceBookingQA() {
   const [loading, setLoading] = useState(false);
@@ -38,75 +37,76 @@ export default function VoiceBookingQA() {
 
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">AI Booking Health Dashboard (QA)</h1>
-          <p className="text-default-500">Test voice booking intents in an isolated dummy environment.</p>
+          <p className="text-gray-500">Test voice booking intents in an isolated dummy environment.</p>
         </div>
       </div>
 
-      <Card className="bg-gradient-to-br from-primary-50 to-primary-100 border-none">
-        <CardBody className="gap-4">
-          <h3 className="font-semibold text-lg">Test Console (Real vs Test Environment Protected)</h3>
-          <p className="text-sm">
-            Requests sent from this console have the <code>X-Test-Mode</code> header attached. 
-            No real bookings or payments will be processed.
-          </p>
-          <div className="flex gap-4">
-            <Input 
-              placeholder="e.g., 'Book a lung doctor tomorrow. Yes book it.'"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleTestRun()}
-              className="flex-1"
-            />
-            <Button color="primary" isLoading={loading} onClick={handleTestRun}>
-              Run Test
-            </Button>
-          </div>
-        </CardBody>
-      </Card>
+      <div className="bg-blue-50 rounded-xl p-6 shadow-sm border border-blue-100 mb-6">
+        <h3 className="font-semibold text-lg mb-2">Test Console (Real vs Test Environment Protected)</h3>
+        <p className="text-sm text-gray-700 mb-4">
+          Requests sent from this console have the <code>X-Test-Mode</code> header attached. 
+          No real bookings or payments will be processed.
+        </p>
+        <div className="flex gap-4">
+          <input 
+            type="text"
+            placeholder="e.g., 'Book a lung doctor tomorrow. Yes book it.'"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleTestRun()}
+            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button 
+            disabled={loading} 
+            onClick={handleTestRun}
+            className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50"
+          >
+            {loading ? 'Running...' : 'Run Test'}
+          </button>
+        </div>
+      </div>
 
       {result && (
-        <Card>
-          <CardBody>
-            <h3 className="font-semibold text-lg mb-4">Execution Trace</h3>
-            <div className="space-y-4">
-              <div className="grid grid-cols-4 border-b pb-2">
-                <span className="text-default-500 font-medium col-span-1">STATUS</span>
-                <span className="col-span-3">
-                  {result.success ? (
-                    <span className="text-success font-semibold">SUCCESS</span>
-                  ) : (
-                    <span className="text-danger font-semibold">FAILED</span>
-                  )}
-                </span>
-              </div>
-              <div className="grid grid-cols-4 border-b pb-2">
-                <span className="text-default-500 font-medium col-span-1">INTENT</span>
-                <span className="col-span-3 font-mono">{result.intent}</span>
-              </div>
-              <div className="grid grid-cols-4 border-b pb-2">
-                <span className="text-default-500 font-medium col-span-1">ENVIRONMENT</span>
-                <span className="col-span-3">
-                   <span className="bg-warning-100 text-warning-800 px-2 py-1 rounded-md text-xs font-bold">TEST MODE (DUMMY)</span>
-                </span>
-              </div>
-              <div className="grid grid-cols-4 border-b pb-2">
-                <span className="text-default-500 font-medium col-span-1">EXTRACTED MSG</span>
-                <span className="col-span-3 text-default-700 whitespace-pre-wrap">{result.data?.message}</span>
-              </div>
-              <div className="grid grid-cols-4">
-                <span className="text-default-500 font-medium col-span-1">DATA / BOOKING</span>
-                <span className="col-span-3">
-                  <pre className="bg-default-100 p-4 rounded-lg text-sm overflow-auto">
-                    {JSON.stringify(result.data, null, 2)}
-                  </pre>
-                </span>
-              </div>
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <h3 className="font-semibold text-lg mb-4">Execution Trace</h3>
+          <div className="space-y-4">
+            <div className="grid grid-cols-4 border-b pb-2">
+              <span className="text-gray-500 font-medium col-span-1">STATUS</span>
+              <span className="col-span-3">
+                {result.success ? (
+                  <span className="text-green-600 font-semibold">SUCCESS</span>
+                ) : (
+                  <span className="text-red-600 font-semibold">FAILED</span>
+                )}
+              </span>
             </div>
-          </CardBody>
-        </Card>
+            <div className="grid grid-cols-4 border-b pb-2">
+              <span className="text-gray-500 font-medium col-span-1">INTENT</span>
+              <span className="col-span-3 font-mono">{result.intent}</span>
+            </div>
+            <div className="grid grid-cols-4 border-b pb-2">
+              <span className="text-gray-500 font-medium col-span-1">ENVIRONMENT</span>
+              <span className="col-span-3">
+                 <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-md text-xs font-bold">TEST MODE (DUMMY)</span>
+              </span>
+            </div>
+            <div className="grid grid-cols-4 border-b pb-2">
+              <span className="text-gray-500 font-medium col-span-1">EXTRACTED MSG</span>
+              <span className="col-span-3 text-gray-700 whitespace-pre-wrap">{result.data?.message}</span>
+            </div>
+            <div className="grid grid-cols-4">
+              <span className="text-gray-500 font-medium col-span-1">DATA / BOOKING</span>
+              <span className="col-span-3">
+                <pre className="bg-gray-100 p-4 rounded-lg text-sm overflow-auto">
+                  {JSON.stringify(result.data, null, 2)}
+                </pre>
+              </span>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
