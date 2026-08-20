@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { toast } from "react-hot-toast";
 
 const TrackingMap = dynamic(() => import("@/components/CustomerTrackingMap"), { ssr: false });
 
@@ -60,10 +59,10 @@ export default function CustomerTrackingPage({ params }) {
                 body: JSON.stringify({ instructions })
             });
             const data = await res.json();
-            if (data.success) toast.success("Instructions saved!");
-            else toast.error("Failed to save instructions.");
+            if (data.success) alert("Instructions saved!");
+            else alert("Failed to save instructions.");
         } catch(e) {
-            toast.error("Error saving instructions.");
+            alert("Error saving instructions.");
         }
         setSavingInstructions(false);
     };
@@ -79,10 +78,10 @@ export default function CustomerTrackingPage({ params }) {
             const data = await res.json();
             if (data.success) {
                 setTip(amount);
-                toast.success(`₹${amount} tip added!`);
+                alert(`₹${amount} tip added!`);
             }
         } catch(e) {
-            toast.error("Failed to add tip.");
+            alert("Failed to add tip.");
         }
         setSavingTip(false);
     };

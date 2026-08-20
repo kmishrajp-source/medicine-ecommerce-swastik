@@ -49,15 +49,16 @@ export async function POST(req) {
             // Update agent's live position
             await prisma.deliveryAgent.update({
                 where: { id: agentId },
-            data: {
-                lat,
-                lng,
-                heading: heading ?? null,
-                speed: speed ?? null,
-                lastPingAt: new Date(),
-                batteryLevel: batteryLevel ?? null,
-                isOnline: true
-            }
+                data: {
+                    lat,
+                    lng,
+                    heading: heading ?? null,
+                    speed: speed ?? null,
+                    lastPingAt: new Date(),
+                    batteryLevel: batteryLevel ?? null,
+                    isOnline: true
+                }
+            });
         }
 
         if (!isTestMode) {
