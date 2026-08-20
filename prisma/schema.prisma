@@ -71,6 +71,7 @@ model User {
   researchAlerts      ResearchAlert[]      @relation("UserResearchAlerts")
   bioinformaticsDatasets BioinformaticsDataset[] @relation("UserBioinformaticsDatasets")
   revenueTransactions RevenueTransaction[] @relation("UserRevenueTransactions")
+  voiceOrders         VoiceOrderIntent[]   @relation("UserVoiceOrders")
 
   // --- ABDM Integrations ---
   abhaProfile          AbhaProfile?
@@ -134,6 +135,7 @@ model Product {
   manufacturerAccount Manufacturer?      @relation(fields: [manufacturerId], references: [id])
   genericSourceRelations GenericMedicineRelation[] @relation("SourceProduct")
   genericTargetRelations GenericMedicineRelation[] @relation("TargetProduct")
+  compliance             MedicineCompliance?
 
   @@index([name])
   @@index([category])
@@ -189,6 +191,9 @@ model Order {
 
   // --- Settlement ---
   settlementStatus String @default("PENDING") // PENDING, SETTLED, PARTIAL
+
+  voiceOrder VoiceOrderIntent[] @relation("VoiceOrderRef")
+  auditLogs  OrderAuditLog[]
 
   @@index([status])
   @@index([userId])
@@ -278,6 +283,7 @@ model Prescription {
   order     Order?              @relation(fields: [orderId], references: [id])
   createdAt DateTime            @default(now())
   quotes    PrescriptionQuote[]
+  voiceOrder VoiceOrderIntent[] @relation("VoiceOrderPrescription")
 }
 
 model PrescriptionQuote {
@@ -410,6 +416,9 @@ model Retailer {
   gstNumber            String?
   agreedPlatformMargin Float   @default(10.0) // Swastik Medicare 10% commission
   riderPreference      String  @default("SWASTIK") // SELF or SWASTIK
+
+  voiceOrders        VoiceOrderIntent[]          @relation("VoiceOrderRetailer")
+  inventoryResponses RetailerInventoryResponse[]
 }
 
 model Stockist {
@@ -2447,4 +2456,93 @@ model ResearchPartnership {
   
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ============================================================================
+// PHASE 9: SPEAK-TO-BUY MEDICINE AI WORKFLOW
+// ============================================================================
+
+model MedicineCompliance {
+  id              String   @id @default(cuid())
+  productId       String   @unique
+  product         Product  @relation(fields: [productId], references: [id])
+  
+  isPrescriptionRequired Boolean @default(false)
+  isNarcotic            Boolean @default(false)
+  scheduleClass         String? // e.g., "H", "H1", "X"
+  maxDispenseQuantity   Int?
+  minAge                Int?
+  
+  complianceNotes       String? @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+model VoiceOrderIntent {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation("UserVoiceOrders", fields: [userId], references: [id])
+  
+  // State Machine: 
+  // INITIATED -> AUTHENTICATED -> MED_IDENTIFIED -> RX_CHECK -> 
+  // RETAILER_DISCOVERY -> RETAILER_CONFIRMED -> USER_CONFIRMED -> 
+  // PAYMENT_PENDING -> PAYMENT_SUCCESS -> RIDER_ASSIGNED -> DELIVERED
+  state           String   @default("INITIATED")
+  
+  // Extracted Data
+  rawTranscript   String   @db.Text
+  medicineName    String?
+  strength        String?
+  quantity        Int?
+  
+  // Workflow Links
+  prescriptionId  String?
+  prescription    Prescription? @relation("VoiceOrderPrescription", fields: [prescriptionId], references: [id])
+  retailerId      String?
+  retailer        Retailer? @relation("VoiceOrderRetailer", fields: [retailerId], references: [id])
+  orderId         String?
+  order           Order?   @relation("VoiceOrderRef", fields: [orderId], references: [id])
+  
+  pricingDetails  Json? // { mrp, margin, deliveryFee, totalCustomerPrice, retailerSettlement }
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  inventoryResponses RetailerInventoryResponse[]
+}
+
+model RetailerInventoryResponse {
+  id              String   @id @default(cuid())
+  voiceOrderId    String
+  voiceOrder      VoiceOrderIntent @relation(fields: [voiceOrderId], references: [id])
+  retailerId      String
+  retailer        Retailer @relation(fields: [retailerId], references: [id])
+  
+  hasExactMedicine Boolean @default(false)
+  hasCorrectStrength Boolean @default(false)
+  hasQuantity      Boolean @default(false)
+  withinExpiry     Boolean @default(false)
+  
+  quotedPrice      Float
+  status           String  @default("PENDING") // PENDING, CONFIRMED, REJECTED, TIMEOUT
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model OrderAuditLog {
+  id              String   @id @default(cuid())
+  orderId         String
+  order           Order    @relation(fields: [orderId], references: [id])
+  
+  actorType       String   // "AI", "USER", "RETAILER", "RIDER", "SYSTEM"
+  actorId         String?  // Reference ID
+  
+  action          String   // "MEDICINE_IDENTIFIED", "RX_VALIDATED", "RETAILER_CONFIRMED", "PICKUP_VERIFIED"
+  previousState   String?
+  newState        String?
+  reason          String?  @db.Text
+  
+  timestamp       DateTime @default(now())
+  
+  @@index([orderId])
 }

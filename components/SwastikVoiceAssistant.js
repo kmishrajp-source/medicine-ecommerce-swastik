@@ -75,6 +75,11 @@ export default function SwastikVoiceAssistant() {
   const buildReply = (data) => {
     if (!data) return "I found some results for you.";
     const intent = data.intent;
+    
+    // Check if there is a direct message from the AI agent (like SpeakToBuyAgent)
+    if (data.data?.message) return data.data.message;
+    if (data.message) return data.message;
+    
     if (intent === "MEDICAL_AI") return data.data?.message || data.message || "Here is what I found.";
     if (data.data?.found === false) return data.data.message || "I couldn't find what you were looking for.";
     if (intent === "AMBULANCE") return "🚨 Connecting you to emergency ambulance services immediately!";
@@ -118,7 +123,7 @@ export default function SwastikVoiceAssistant() {
         setChatHistory((prev) => [
           ...prev,
           { role: "user", text, lang: langCode },
-          { role: "ai", text: reply, intent: res.data.intent },
+          { role: "ai", text: reply, intent: res.data.intent, data: res.data.data },
         ]);
         speakOutLoud(reply, langCode);
         if (res.data.intent === "AMBULANCE") {
@@ -251,7 +256,7 @@ export default function SwastikVoiceAssistant() {
         setUnderstoodIntent(res.data.intent || "");
         setResultsData(res.data.data);
         setAiResponse(reply);
-        setChatHistory((prev) => [...prev, { role: "user", text }, { role: "ai", text: reply, intent: res.data.intent }]);
+        setChatHistory((prev) => [...prev, { role: "user", text }, { role: "ai", text: reply, intent: res.data.intent, data: res.data.data }]);
         speakOutLoud(reply, "english");
         if (res.data.intent === "AMBULANCE") {
           setTimeout(() => { router.push("/ambulance"); setIsOpen(false); }, 3000);
@@ -382,6 +387,26 @@ export default function SwastikVoiceAssistant() {
                 </div>
               )}
               {msg.text}
+              
+              {/* Dynamic Speak-To-Buy Actions */}
+              {msg.data?.showUploadUI && (
+                <div className="mt-3 bg-indigo-50 border border-indigo-200 p-2 rounded-xl text-center cursor-pointer hover:bg-indigo-100 transition-colors">
+                  <i className="fa-solid fa-file-medical text-indigo-500 mb-1"></i>
+                  <div className="text-[10px] font-bold text-indigo-700">Upload Prescription</div>
+                </div>
+              )}
+              {msg.data?.showConfirmUI && (
+                <div className="mt-3 flex gap-2">
+                  <button onClick={() => processTextAction("Yes, place order")} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wider">Confirm</button>
+                  <button onClick={() => processTextAction("Cancel")} className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-black py-2 rounded-lg transition-colors uppercase tracking-wider">Cancel</button>
+                </div>
+              )}
+              {msg.data?.showPaymentUI && (
+                <div className="mt-3 bg-gradient-to-r from-emerald-500 to-teal-500 p-2 rounded-xl text-center cursor-pointer hover:scale-[1.02] transition-transform shadow-md">
+                  <i className="fa-brands fa-google-pay text-white text-lg mb-1"></i>
+                  <div className="text-[10px] font-black text-white uppercase tracking-widest">Pay Securely</div>
+                </div>
+              )}
             </div>
           </div>
         ))}
