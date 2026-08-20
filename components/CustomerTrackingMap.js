@@ -60,7 +60,7 @@ export default function CustomerTrackingMap({
             L.marker([customerLat, customerLng], {
                 icon: L.divIcon({
                     className: "",
-                    html: `<div style="font-size: 26px; text-shadow: 0 2px 6px rgba(0,0,0,0.5);">🏠</div>`,
+                    html: `<div style="font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🏠</div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 30]
                 })
@@ -72,11 +72,21 @@ export default function CustomerTrackingMap({
             L.marker([retailerLat, retailerLng], {
                 icon: L.divIcon({
                     className: "",
-                    html: `<div style="font-size: 26px;">💊</div>`,
+                    html: `<div style="font-size: 26px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">🏪</div>`,
                     iconSize: [30, 30],
                     iconAnchor: [15, 30]
                 })
             }).addTo(map).bindPopup("Dispatched from Pharmacy");
+
+            // Draw route line if both retailer and customer are available
+            if (customerLat && customerLng) {
+                L.polyline([[retailerLat, retailerLng], [customerLat, customerLng]], {
+                    color: '#10B981', // green-500
+                    weight: 4,
+                    opacity: 0.5,
+                    dashArray: '8, 8'
+                }).addTo(map);
+            }
         }
 
         // Rider marker
@@ -86,22 +96,22 @@ export default function CustomerTrackingMap({
                 html: `
                     <div style="
                         width: 44px; height: 44px;
-                        background: linear-gradient(135deg, #6366F1, #4F46E5);
-                        border-radius: 50% 50% 50% 0;
-                        transform: rotate(${(riderHeading || 0) - 45}deg);
+                        background: #10B981;
+                        border-radius: 50%;
                         border: 3px solid white;
-                        box-shadow: 0 4px 16px rgba(99,102,241,0.6);
+                        box-shadow: 0 4px 12px rgba(16,185,129,0.5);
                         display: flex; align-items: center; justify-content: center;
-                        font-size: 18px;
+                        font-size: 22px;
+                        transition: all 0.3s ease;
                     ">
-                        <span style="transform: rotate(${-(riderHeading || 0) + 45}deg);">🏍️</span>
+                        🏍️
                     </div>
                 `,
                 iconSize: [44, 44],
-                iconAnchor: [22, 44]
+                iconAnchor: [22, 22] // center it
             });
 
-            riderMarkerRef.current = L.marker([riderLat, riderLng], { icon: riderIcon })
+            riderMarkerRef.current = L.marker([riderLat, riderLng], { icon: riderIcon, zIndexOffset: 1000 })
                 .addTo(map)
                 .bindPopup("Your Delivery Rider");
         }
@@ -113,32 +123,10 @@ export default function CustomerTrackingMap({
         const L = window.L;
 
         riderMarkerRef.current.setLatLng([riderLat, riderLng]);
-
-        // Update icon heading
-        const newIcon = L.divIcon({
-            className: "",
-            html: `
-                <div style="
-                    width: 44px; height: 44px;
-                    background: linear-gradient(135deg, #6366F1, #4F46E5);
-                    border-radius: 50% 50% 50% 0;
-                    transform: rotate(${(riderHeading || 0) - 45}deg);
-                    border: 3px solid white;
-                    box-shadow: 0 4px 16px rgba(99,102,241,0.6);
-                    display: flex; align-items: center; justify-content: center;
-                    font-size: 18px;
-                ">
-                    <span style="transform: rotate(${-(riderHeading || 0) + 45}deg);">🏍️</span>
-                </div>
-            `,
-            iconSize: [44, 44],
-            iconAnchor: [22, 44]
-        });
-        riderMarkerRef.current.setIcon(newIcon);
-
+        
         // Pan map to keep rider in view
-        leafletMapRef.current.panTo([riderLat, riderLng], { animate: true, duration: 1 });
-    }, [riderLat, riderLng, riderHeading]);
+        leafletMapRef.current.panTo([riderLat, riderLng], { animate: true, duration: 1.5 });
+    }, [riderLat, riderLng]);
 
     return (
         <div ref={mapRef} style={{ width: "100%", height: "100%" }} />

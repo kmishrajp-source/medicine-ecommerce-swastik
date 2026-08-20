@@ -169,8 +169,13 @@ model Order {
   deliveryCode            String? // Secret code for COD verification
   isPaid                  Boolean              @default(false)
   isDelivered             Boolean              @default(false)
+  deliveredAt             DateTime?
   codCollectedAmount      Float?               @default(0)
   codReconciled           Boolean              @default(false)
+  
+  // --- Tracking Enhancements ---
+  deliveryInstructions    String?
+  tipAmount               Float                @default(0)
   items                   OrderItem[]
   prescription            Prescription?
   deliveryProofUrl        String?
