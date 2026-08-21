@@ -409,7 +409,7 @@ export default function SwastikVoiceAssistant() {
                   <div className="text-[11px] text-slate-600 mb-1">🏥 {msg.data.specialty}</div>
                   <div className="text-[11px] text-slate-600 mb-3">📅 {msg.data.date || "Tomorrow"} at {msg.data.time || "10:00 AM"} · ₹{msg.data.fee || "TBD"}</div>
                   <div className="flex gap-2">
-                    <button onClick={() => processTextAction("yes confirm book it")} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black py-2 rounded-lg uppercase tracking-wider">✅ Confirm</button>
+                    <button onClick={() => processTextAction(`CONFIRM_DOCTOR_BOOKING | ${JSON.stringify({ doctorId: msg.data.doctorId, specialty: msg.data.specialty, providerName: msg.data.providerName })}`)} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black py-2 rounded-lg uppercase tracking-wider">✅ Confirm</button>
                     <button onClick={() => processTextAction("cancel")} className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-black py-2 rounded-lg uppercase tracking-wider">✕ Cancel</button>
                   </div>
                 </div>
