@@ -33,7 +33,6 @@ export default function CustomerTrackingPage({ params }) {
             if (data.success) {
                 setTracking(data);
                 if (data.deliveryInstructions && !instructions) setInstructions(data.deliveryInstructions);
-                if (data.tipAmount && tip === 0) setTip(data.tipAmount);
             }
         } catch (e) {
             console.error("Tracking fetch error:", e);

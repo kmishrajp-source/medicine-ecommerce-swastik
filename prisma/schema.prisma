@@ -175,7 +175,6 @@ model Order {
   
   // --- Tracking Enhancements ---
   deliveryInstructions    String?
-  tipAmount               Float                @default(0)
   items                   OrderItem[]
   prescription            Prescription?
   deliveryProofUrl        String?
