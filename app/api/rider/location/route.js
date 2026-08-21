@@ -59,7 +59,7 @@ export async function POST(req) {
                 isOnline: true
             }
         });
-
+        }
 
         if (!isTestMode) {
             // Log breadcrumb (keep every ping for route history)
