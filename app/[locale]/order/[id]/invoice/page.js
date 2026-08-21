@@ -72,7 +72,7 @@ export default async function InvoicePage({ params, searchParams }) {
                 ? new Date(item.product.expiryDate).toLocaleDateString('en-IN', { month: '2-digit', year: '2-digit' })
                 : '—';
             return {
-                name: item.product?.name || 'Medicine',
+                name: item.product?.name || item.productName || 'Medicine',
                 pack, qty, rate, gstRate, discPct, amt, mrp, batch, exp,
                 hsnCode, taxable, gst, cgst, sgst
             };
@@ -219,7 +219,7 @@ export default async function InvoicePage({ params, searchParams }) {
                                     </td>
                                     <td style={{ ...cellC, color: '#64748B' }}>—</td>
                                     <td style={{ ...cellC, fontWeight: '700' }}>1</td>
-                                    <td style={{ ...cellR }}>{deliveryCharge > 0 ? `₹${dGst.taxable.toFixed(2)}` : '₹0.00'}</td>
+                                    <td style={{ ...cellR }}>{deliveryCharge > 0 ? `₹${deliveryCharge.toFixed(2)}` : '₹0.00'}</td>
                                     <td style={{ ...cellC, color: '#7C3AED', fontWeight: '700' }}>{DELIVERY_GST_RATE}.00</td>
                                     <td style={{ ...cellC, color: '#94A3B8' }}>0.00</td>
                                     <td style={{ ...cellR, fontWeight: '700', color: deliveryCharge > 0 ? '#B45309' : '#16A34A' }}>

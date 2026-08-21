@@ -76,14 +76,16 @@ export async function POST(req) {
                 resolvedItems.push({
                     productId: String(item.id),
                     quantity: parseInt(item.quantity),
-                    price: parseFloat(item.price)
+                    price: parseFloat(item.price),
+                    productName: existingProduct.name // snapshot the name
                 });
             } else if (fallbackProduct) {
                 console.log(`Product ID ${item.id} not found. Using Fallback Product ${fallbackProduct.id}`);
                 resolvedItems.push({
                     productId: fallbackProduct.id, // Use valid ID
                     quantity: parseInt(item.quantity),
-                    price: parseFloat(item.price)
+                    price: parseFloat(item.price),
+                    productName: item.name || item.medicineName || 'Medicine' // snapshot name from cart
                 });
             }
         }
