@@ -49,16 +49,15 @@ export async function POST(req) {
             // Update agent's live position
             await prisma.deliveryAgent.update({
                 where: { id: agentId },
-                data: {
-                    lat,
-                    lng,
-                    heading: heading ?? null,
-                    speed: speed ?? null,
-                    lastPingAt: new Date(),
-                    batteryLevel: batteryLevel ?? null,
-                    isOnline: true
-                }
-            });
+            data: {
+                lat,
+                lng,
+                heading: heading ?? null,
+                speed: speed ?? null,
+                lastPingAt: new Date(),
+                batteryLevel: batteryLevel ?? null,
+                isOnline: true
+            }
         }
 
         if (!isTestMode) {
@@ -196,6 +195,7 @@ export async function GET(req) {
                 orderStatus: order.status,
                 address: order.address,
                 deliveryInstructions: order.deliveryInstructions || null,
+                tipAmount: order.tipAmount || 0,
                 deliveryCode: order.deliveryCode || null,
                 items: order.items.map(i => ({ name: i.product?.name, quantity: i.quantity, price: i.price, image: i.product?.image })),
                 customerPhone: order.user?.phone || order.guestPhone || null,

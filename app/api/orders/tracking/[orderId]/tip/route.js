@@ -33,15 +33,10 @@ export async function POST(req, { params }) {
             // Normally this would integrate with Razorpay/PhonePe to deduct the tip before saving.
             // For now, we update the metadata.
             
-            // Tip feature disabled to fix schema sync issue
-            /*
             await prisma.order.update({
                 where: { id: orderId },
                 data: { tipAmount: amount }
             });
-            */
-            
-            return NextResponse.json({ success: true, tipAmount: amount, message: 'Tip added successfully (Simulation)' });
         }
 
         return NextResponse.json({ success: true, tipAmount: amount, message: 'Tip added successfully' });

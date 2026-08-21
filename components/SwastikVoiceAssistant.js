@@ -75,21 +75,12 @@ export default function SwastikVoiceAssistant() {
   const buildReply = (data) => {
     if (!data) return "I found some results for you.";
     const intent = data.intent;
-
-    // Always prefer a direct message from the agent
+    
+    // Check if there is a direct message from the AI agent (like SpeakToBuyAgent)
     if (data.data?.message) return data.data.message;
     if (data.message) return data.message;
-
-    if (intent === "USER_CONFIRMATION_REQUIRED") {
-      const d = data.data || {};
-      return `I found ${d.providerName || 'a doctor'} (${d.specialty || 'General Physician'}) for ${d.date || 'tomorrow'} at ${d.time || '10:00 AM'}. Fee: ₹${d.fee || 'TBD'}. Shall I confirm the booking?`;
-    }
-    if (intent === "BOOKING_CONFIRMED") return data.data?.message || "✅ Your appointment is confirmed!";
-    if (intent === "BOOKING_FAILED") return "❌ Booking failed. Please try again or use the app.";
-    if (intent === "NO_PROVIDER_FOUND") return data.data?.message || "I couldn't find an available doctor. Showing nearby hospitals instead.";
-    if (intent === "AUTH_REQUIRED") return "Please sign in to your Swastik account to make a booking.";
-    if (intent === "EMERGENCY_ESCALATION") return data.data?.message || "🚨 This sounds urgent! Shall I book an emergency ambulance?";
-    if (intent === "MEDICAL_AI") return data.data?.message || "Here is what I found.";
+    
+    if (intent === "MEDICAL_AI") return data.data?.message || data.message || "Here is what I found.";
     if (data.data?.found === false) return data.data.message || "I couldn't find what you were looking for.";
     if (intent === "AMBULANCE") return "🚨 Connecting you to emergency ambulance services immediately!";
     if (intent === "MEDICINE_SEARCH") {
@@ -97,15 +88,11 @@ export default function SwastikVoiceAssistant() {
       if (data.data?.safetyDisclaimer) reply += " " + data.data.safetyDisclaimer;
       return reply;
     }
-    if (intent === "HOSPITAL_SEARCH") {
-      const d = data.data || {};
-      if (d.symptomMatch) return `Based on your symptoms, you should see a ${d.symptomMatch.icon || ''} ${d.symptomMatch.specialist}. Here are top hospitals in Gorakhpur:`;
-      return "Here are the top hospitals and doctors matching your query.";
-    }
+    if (intent === "HOSPITAL_SEARCH") return "Here are the top hospitals and doctors matching your query.";
     if (intent === "LAB_SEARCH") return "Here are the lab tests available near you.";
     if (intent === "DELIVERY_TRACK") return "To track your order, go to Profile → My Orders or tell me your order ID.";
     if (intent === "GENERAL_HELP") return data.data?.tip || "Hello! I can help you with medicines, doctors, lab tests, hospitals, and ambulances. Just ask!";
-    return "Got it! Let me help you with that.";
+    return "I received your request. Let me find that for you.";
   };
 
   const processTranscriptText = async (text, langCode) => {
@@ -401,37 +388,7 @@ export default function SwastikVoiceAssistant() {
               )}
               {msg.text}
               
-              {/* Doctor Booking Confirmation UI */}
-              {msg.intent === "USER_CONFIRMATION_REQUIRED" && msg.data && (
-                <div className="mt-3 bg-indigo-50 border border-indigo-200 rounded-xl p-3">
-                  <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest mb-2">Doctor Found</div>
-                  <div className="text-xs font-bold text-slate-800 mb-1">👨‍⚕️ {msg.data.providerName}</div>
-                  <div className="text-[11px] text-slate-600 mb-1">🏥 {msg.data.specialty}</div>
-                  <div className="text-[11px] text-slate-600 mb-3">📅 {msg.data.date || "Tomorrow"} at {msg.data.time || "10:00 AM"} · ₹{msg.data.fee || "TBD"}</div>
-                  <div className="flex gap-2">
-                    <button onClick={() => processTextAction(`CONFIRM_DOCTOR_BOOKING | ${JSON.stringify({ doctorId: msg.data.doctorId, specialty: msg.data.specialty, providerName: msg.data.providerName })}`)} className="flex-1 bg-emerald-500 hover:bg-emerald-600 text-white text-[10px] font-black py-2 rounded-lg uppercase tracking-wider">✅ Confirm</button>
-                    <button onClick={() => processTextAction("cancel")} className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] font-black py-2 rounded-lg uppercase tracking-wider">✕ Cancel</button>
-                  </div>
-                </div>
-              )}
-
-              {/* Hospital / Doctor Results Card */}
-              {msg.intent === "HOSPITAL_SEARCH" && msg.data?.hospitals && (
-                <div className="mt-3 space-y-2">
-                  {msg.data.hospitals.slice(0, 3).map((h, idx) => (
-                    <div key={idx} className="bg-slate-50 border border-slate-100 rounded-xl p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="font-bold text-[11px] text-slate-800">{h.name}</div>
-                        {h.verified && <span className="text-[8px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-black">✓ Verified</span>}
-                      </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">{h.address}</div>
-                      {h.contact && <a href={`tel:${h.contact}`} className="text-[10px] text-indigo-600 font-bold mt-1 block">📞 {h.contact}</a>}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Existing Speak-To-Buy Actions */}
+              {/* Dynamic Speak-To-Buy Actions */}
               {msg.data?.showUploadUI && (
                 <div className="mt-3 bg-indigo-50 border border-indigo-200 p-2 rounded-xl text-center cursor-pointer hover:bg-indigo-100 transition-colors">
                   <i className="fa-solid fa-file-medical text-indigo-500 mb-1"></i>

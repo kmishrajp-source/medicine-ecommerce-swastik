@@ -175,6 +175,7 @@ model Order {
   
   // --- Tracking Enhancements ---
   deliveryInstructions    String?
+  tipAmount               Float                @default(0)
   items                   OrderItem[]
   prescription            Prescription?
   deliveryProofUrl        String?
@@ -188,6 +189,10 @@ model Order {
   subOrders               SubOrder[]
   deliveryAssignments     DeliveryAssignment[]
   deliveryJob             DeliveryJob?         @relation("DeliveryJobOrder")
+
+  // --- Pickup Routing ---
+  pickupType              String               @default("RETAILER") // RETAILER, STOCKIST
+  pickupId                String?              // Will hold the Retailer ID or Stockist ID depending on pickupType
 
   // --- Settlement ---
   settlementStatus String @default("PENDING") // PENDING, SETTLED, PARTIAL

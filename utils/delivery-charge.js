@@ -50,10 +50,10 @@ function deg2rad(deg) {
 export function calcDeliveryCharge(distanceKm, cartTotal) {
     let dist = parseFloat(distanceKm.toFixed(2));
     
-    // DEMO SAFEGUARD: If a global tester uses their real GPS, they could be 5000+ km away.
-    // Cap the distance to simulate a local delivery within Gorakhpur.
+    // DEMO SAFEGUARD: Cap distance for global testers
     if (dist > 50) {
-        dist = 5.5; 
+        console.log(`[Demo Safeguard] Massive distance (${dist}km) detected. Capping to 5.5km.`);
+        dist = 5.5;
     }
 
     const total = parseFloat(cartTotal);
