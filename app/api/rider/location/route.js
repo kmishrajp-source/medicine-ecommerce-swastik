@@ -58,7 +58,8 @@ export async function POST(req) {
                 batteryLevel: batteryLevel ?? null,
                 isOnline: true
             }
-        }
+        });
+
 
         if (!isTestMode) {
             // Log breadcrumb (keep every ping for route history)
