@@ -183,7 +183,6 @@ model Order {
   integrityCheckAt        DateTime? // When customer verified it
   integrityCheckNotes     String? // Customer feedback if tampered
   createdAt               DateTime             @default(now())
-  updatedAt               DateTime             @updatedAt
   complaints              Complaint[]
   experience              CustomerExperience?
   subOrders               SubOrder[]
