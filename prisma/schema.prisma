@@ -183,15 +183,12 @@ model Order {
   integrityCheckAt        DateTime? // When customer verified it
   integrityCheckNotes     String? // Customer feedback if tampered
   createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
   complaints              Complaint[]
   experience              CustomerExperience?
   subOrders               SubOrder[]
   deliveryAssignments     DeliveryAssignment[]
   deliveryJob             DeliveryJob?         @relation("DeliveryJobOrder")
-
-  // --- Pickup Routing ---
-  pickupType              String               @default("RETAILER") // RETAILER, STOCKIST
-  pickupId                String?              // Will hold the Retailer ID or Stockist ID depending on pickupType
 
   // --- Settlement ---
   settlementStatus String @default("PENDING") // PENDING, SETTLED, PARTIAL

@@ -48,7 +48,14 @@ function deg2rad(deg) {
  * @returns {{ charge: number, isFree: boolean, breakdown: string }}
  */
 export function calcDeliveryCharge(distanceKm, cartTotal) {
-    const dist = parseFloat(distanceKm.toFixed(2));
+    let dist = parseFloat(distanceKm.toFixed(2));
+    
+    // DEMO SAFEGUARD: If a global tester uses their real GPS, they could be 5000+ km away.
+    // Cap the distance to simulate a local delivery within Gorakhpur.
+    if (dist > 50) {
+        dist = 5.5; 
+    }
+
     const total = parseFloat(cartTotal);
     const isFreeOrder = total >= FREE_DELIVERY_THRESHOLD;
     const extraKm = Math.max(0, dist - FREE_KM_RADIUS);

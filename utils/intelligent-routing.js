@@ -101,8 +101,6 @@ export async function executeIntelligentRouting(orderId) {
         const updatedOrder = await prisma.order.update({
             where: { id: orderId },
             data: {
-                pickupType: routingDecision,
-                pickupId: chosenPickupId,
                 assignedRetailerId: routingDecision === "RETAILER" ? chosenPickupId : null,
                 deliveryAgentId: chosenAgentId, // Direct assignment
                 status: "Out_for_Delivery" // Skipping wait queues
