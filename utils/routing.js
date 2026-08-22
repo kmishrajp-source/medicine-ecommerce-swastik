@@ -92,7 +92,7 @@ export async function assignOrderToNearestRetailer(orderId) {
         const deliveryAddress = order.address || 'Address not provided';
         const invoiceUrl = `https://www.swastikmed.online/order/${orderId}/invoice?guest=1`;
         const medicineList = order.items.map((item, i) =>
-            `${i + 1}. ${item.product?.name || 'Medicine'} x${item.quantity}${item.product?.packSize ? ` (${item.product.packSize})` : ''}`
+            `${i + 1}. ${item.productName || item.product?.name || 'Medicine'} x${item.quantity}${item.product?.packSize ? ` (${item.product.packSize})` : ''}`
         ).join('\n') || 'See invoice for details';
 
         // Send rich WhatsApp to the retailer with full medicine list + invoice link

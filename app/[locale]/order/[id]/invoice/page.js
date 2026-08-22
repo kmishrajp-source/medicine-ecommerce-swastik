@@ -72,7 +72,7 @@ export default async function InvoicePage({ params, searchParams }) {
                 ? new Date(item.product.expiryDate).toLocaleDateString('en-IN', { month: '2-digit', year: '2-digit' })
                 : '—';
             return {
-                name: item.product?.name || item.productName || 'Medicine',
+                name: item.productName || item.product?.name || 'Medicine',
                 pack, qty, rate, gstRate, discPct, amt, mrp, batch, exp,
                 hsnCode, taxable, gst, cgst, sgst
             };

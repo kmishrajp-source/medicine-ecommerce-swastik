@@ -38,7 +38,7 @@ export async function GET(req) {
             phone: order.guestPhone || "N/A",
             address: order.address,
             // deliveryCode removed for privacy hardening
-            items: order.items.map(item => `${item.product?.name || 'Unknown Product'} x${item.quantity}`).join(", ")
+            items: order.items.map(item => `${item.productName || item.product?.name || 'Unknown Product'} x${item.quantity}`).join(", ")
         }));
 
         return NextResponse.json({ success: true, orders: formattedOrders });

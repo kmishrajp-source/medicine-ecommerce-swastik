@@ -95,7 +95,7 @@ export default function AdminPrescriptions() {
                                             <strong style={{ display: 'block', marginBottom: '8px' }}>Medications to Approve:</strong>
                                             {selectedOrder.items.map(item => (
                                                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem', marginBottom: '4px' }}>
-                                                    <span>• {item.product.name} x {item.quantity}</span>
+                                                    <span>• {item.productName || item.product?.name} x {item.quantity}</span>
                                                     {item.product.isScheduleH1 && <span style={{ color: 'red', fontWeight: 700, fontSize: '0.7rem' }}>H1</span>}
                                                 </div>
                                             ))}

@@ -55,7 +55,7 @@ export async function GET(req) {
             return {
                 id: item.id,
                 date: item.order.createdAt,
-                productName: item.product?.name || "Unknown",
+                productName: item.productName || item.product?.name || "Unknown",
                 quantity: item.quantity,
                 buyingPrice: buyingPrice,
                 sellingPrice: sellingPrice,

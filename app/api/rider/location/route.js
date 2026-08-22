@@ -198,7 +198,7 @@ export async function GET(req) {
                 deliveryInstructions: order.deliveryInstructions || null,
                 tipAmount: order.tipAmount || 0,
                 deliveryCode: order.deliveryCode || null,
-                items: order.items.map(i => ({ name: i.product?.name, quantity: i.quantity, price: i.price, image: i.product?.image })),
+                items: order.items.map(i => ({ name: i.productName || i.product?.name, quantity: i.quantity, price: i.price, image: i.product?.image })),
                 customerPhone: order.user?.phone || order.guestPhone || null,
                 customerName: order.user?.name || order.guestName || null,
                 riderLat: agent?.lat || null,
