@@ -138,7 +138,7 @@ export default function Navbar({ cartCount, openCart }) {
                     {/* Account & Cart Actions */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexShrink: 0 }}>
                         <Link href="/support" className="hidden xl:block text-[9px] font-bold text-slate-400 hover:text-indigo-600 uppercase tracking-widest">{t('support')}</Link>
-                        <button onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative flex items-center gap-1">
+                        <button id="tour-cart-btn" onClick={openCart} className="p-2 text-slate-600 hover:text-blue-600 relative flex items-center gap-1">
                             <span className="text-xs font-bold">{cartCount}</span>
                             <i className="fa-solid fa-cart-shopping"></i>
                         </button>

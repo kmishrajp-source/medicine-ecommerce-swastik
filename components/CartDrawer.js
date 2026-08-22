@@ -68,6 +68,7 @@ export default function CartDrawer() {
                             </div>
                             
                             <Link
+                                id="tour-checkout-btn"
                                 href="/checkout"
                                 onClick={() => toggleCart(false)}
                                 className="btn btn-primary full-width"
