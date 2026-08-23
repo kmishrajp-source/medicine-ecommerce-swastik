@@ -103,34 +103,69 @@ export default function DoctorDemoSection() {
         },
         {
             id: 4,
-            titleEn: "4. Doorstep Medicine Delivery",
-            titleHi: "4. घर तक 10-मिनट में दवाई डिलीवरी",
-            icon: "fa-motorcycle",
+            titleEn: "4. Live Dispatch & Map Tracking",
+            titleHi: "4. लाइव ट्रैकिंग व राइडर लोकेशन",
+            icon: "fa-location-dot",
             color: "#059669",
             bg: "#d1fae5",
-            descEn: "Digital Rx connects to local PMBJP kendra / pharmacy. Swastik rider dispatches medicines to your door in 10-15 mins!",
-            descHi: "डिजिटल पर्चा सीधे नजदीकी जन औषधि केंद्र से जुड़ता है और स्वास्तिक राइडर दवाई 10-15 मिनट में आपके घर पहुंचाता है!",
-            previewBadge: "Step 4: Out for Delivery / डिलीवरी जारी",
+            descEn: "Track your rider live on the map! Get real-time WhatsApp updates, estimated time of arrival (ETA), and direct contact to the rider.",
+            descHi: "अपने डिलीवरी राइडर की लोकेशन लाइव मैप पर देखें! रियल-टाइम व्हाट्सएप मैसेज, डिलीवरी कोड और पहुंचने का समय ट्रैक करें।",
+            previewBadge: "Step 4: Live GPS Dispatch / लाइव राइडर मैप",
             previewContent: (
                 <div className="bg-emerald-900 text-white p-5 rounded-2xl shadow-xl text-left space-y-3">
-                    <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-2xl">
-                            <i className="fa-solid fa-motorcycle"></i>
+                    <div className="flex items-center justify-between border-b border-emerald-800 pb-2">
+                        <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                            <span className="text-xs font-bold text-emerald-300">Live Delivery GPS / लोकेशन जारी</span>
                         </div>
-                        <div>
-                            <h4 className="font-black text-sm text-white">Rider On The Way / राइडर रास्ते में है</h4>
-                            <p className="text-xs text-emerald-300 font-bold">Arriving in ~12 Minutes</p>
+                        <span className="text-[10px] bg-emerald-800 px-2 py-0.5 rounded text-emerald-100">ETA: 11 Mins</span>
+                    </div>
+                    <div className="bg-emerald-800/80 p-3 rounded-xl text-xs space-y-2">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-emerald-600 text-white flex items-center justify-center text-lg font-bold">
+                                🏍️
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-white text-xs">Rider: Vikram Singh</h4>
+                                <p className="text-[10px] text-emerald-200">Hero Splendor • UP 53 AB 4021</p>
+                            </div>
+                        </div>
+                        <div className="bg-emerald-950 p-2 rounded-lg text-[11px] flex justify-between items-center">
+                            <span>Delivery Secret OTP:</span>
+                            <span className="font-black text-amber-300 tracking-wider">7742</span>
                         </div>
                     </div>
-                    <div className="bg-emerald-800/80 p-3 rounded-xl text-xs space-y-1">
-                        <div className="flex justify-between text-emerald-200">
-                            <span>Pickup Store:</span>
-                            <span className="font-bold text-white">PMBJP Jan Aushadhi Kendra</span>
+                </div>
+            )
+        },
+        {
+            id: 5,
+            titleEn: "5. Referral Commission & Earnings",
+            titleHi: "5. रेफरल कोड से कमीशन और कमाई",
+            icon: "fa-sack-dollar",
+            color: "#d97706",
+            bg: "#fef3c7",
+            descEn: "Share your unique Referral Link with patients, friends, or doctors. Earn instant Level-1 & Level-2 commissions credited directly to your bank account!",
+            descHi: "अपना रेफरल लिंक मरीज, दोस्त या डॉक्टर को शेयर करें। जब भी वे ऑर्डर करेंगे, आपको तुरंत आपके बैंक खाते/वॉलेट में कमीशन मिलेगा!",
+            previewBadge: "Step 5: Referral Cash Credited / तुरंत कमीशन जमा",
+            previewContent: (
+                <div className="bg-gradient-to-br from-amber-600 to-orange-700 text-white p-5 rounded-2xl shadow-xl text-left space-y-3">
+                    <div className="flex items-center justify-between border-b border-amber-500/50 pb-2">
+                        <span className="text-xs font-black text-amber-200">💰 Referral Wallet / वॉलेट</span>
+                        <span className="text-[10px] bg-white/20 text-white font-bold px-2 py-0.5 rounded">Level 1 & 2 Active</span>
+                    </div>
+                    <div className="bg-black/20 p-3 rounded-xl space-y-1.5 text-xs">
+                        <div className="flex justify-between items-center">
+                            <span>Total Commission Earned:</span>
+                            <span className="font-black text-emerald-300 text-sm">₹4,250.00</span>
                         </div>
-                        <div className="flex justify-between text-emerald-200">
-                            <span>Cash to Pay (COD):</span>
-                            <span className="font-bold text-amber-300">₹140 (Save 75%)</span>
+                        <div className="flex justify-between text-[11px] text-amber-100 pt-1 border-t border-white/10">
+                            <span>Your Ref Code:</span>
+                            <span className="font-bold bg-white/20 px-2 py-0.5 rounded">REF-SW89</span>
                         </div>
+                    </div>
+                    <div className="bg-emerald-500 text-white p-2 rounded-xl text-[10px] font-bold text-center">
+                        🎉 ₹150 Commission Credited from Ramesh's Order!
                     </div>
                 </div>
             )
@@ -159,7 +194,7 @@ export default function DoctorDemoSection() {
                 </div>
 
                 {/* Step Selector Buttons */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-12">
                     {steps.map((step) => {
                         const isActive = step.id === activeStep;
                         return (
