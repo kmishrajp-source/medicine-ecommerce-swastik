@@ -229,6 +229,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
                         <li><Link href="/shop-medicines/homeopathy" className="hover:text-cyan-300 hover:bg-cyan-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-cyan-400"><i className="fa-solid fa-leaf mr-1"></i>Homeopathy</Link></li>
                         <li><Link href="/generic-medicines" className="hover:text-yellow-300 hover:bg-yellow-900/40 px-2 py-1.5 rounded-lg transition-all font-black text-yellow-400"><i className="fa-solid fa-pills mr-1"></i>Generic Meds</Link></li>
+                        <li><Link href="/generic-retailers" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-black text-emerald-400"><i className="fa-solid fa-store mr-1"></i>Generic Stores</Link></li>
                         <li><Link href="/upload-prescription" className="hover:text-indigo-200 hover:bg-indigo-900/50 px-2 py-1.5 rounded-lg transition-all font-bold text-indigo-300">{t('my_rx')}</Link></li>
                         <li><Link href="/refer" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('refer_earn')}</Link></li>
                         <li><Link href="/doctors" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('doctor_consult')}</Link></li>

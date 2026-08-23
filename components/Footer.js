@@ -30,6 +30,7 @@ export default function Footer() {
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('services')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop" style={{ color: 'inherit', textDecoration: 'none' }}>{t('order_medicine')}</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/generic-retailers" style={{ color: '#34D399', textDecoration: 'none', fontWeight: 'bold' }}>Generic Stores Directory</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/doctors" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_doctor')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/labs" style={{ color: 'inherit', textDecoration: 'none' }}>{t('lab_tests')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/ambulance" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_ambulance')}</Link></li>

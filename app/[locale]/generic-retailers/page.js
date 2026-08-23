@@ -9,6 +9,8 @@ export default function GenericRetailersDirectoryPage() {
     const { cartCount, toggleCart } = useCart();
     const [retailers, setRetailers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [selectedCity, setSelectedCity] = useState("All");
 
     useEffect(() => {
         fetchGenericRetailers();
@@ -28,6 +30,17 @@ export default function GenericRetailersDirectoryPage() {
         }
     };
 
+    const cities = ["All", ...new Set(retailers.map(r => r.city).filter(Boolean))];
+
+    const filteredRetailers = retailers.filter(r => {
+        const matchesCity = selectedCity === "All" || (r.city && r.city.toLowerCase() === selectedCity.toLowerCase());
+        const matchesSearch = !searchQuery || 
+            (r.shopName && r.shopName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (r.address && r.address.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (r.city && r.city.toLowerCase().includes(searchQuery.toLowerCase()));
+        return matchesCity && matchesSearch;
+    });
+
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
@@ -39,19 +52,46 @@ export default function GenericRetailersDirectoryPage() {
                         <i className="fa-solid fa-leaf mr-2"></i> Swastik Platform Mediator
                     </div>
                     <h1 className="text-4xl md:text-5xl font-black mb-6 tracking-tight leading-tight">
-                        Generic Medicine Retailers
+                        Generic Medicine Retailers & PMBJP Kendras
                     </h1>
                     <p className="text-lg text-emerald-100 font-medium max-w-2xl mx-auto leading-relaxed">
-                        Connect directly with verified PMBJP Kendras and Generic Medicine Stores. Swastik acts as a technology mediator, allowing you to order directly from the stores for maximum savings.
+                        Connect directly with verified PMBJP Kendras and Generic Medicine Stores. Save up to 80% on high-quality Jan Aushadhi and generic healthcare.
                     </p>
                 </div>
             </div>
 
             <main className="max-w-7xl mx-auto px-6 py-16">
+                {/* Search & Filter Bar */}
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 mb-12 flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div className="relative w-full md:w-1/2">
+                        <i className="fa-solid fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input 
+                            type="text" 
+                            placeholder="Search store name, area, or city..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full pl-12 pr-4 py-3.5 rounded-full border border-slate-200 focus:outline-none focus:border-emerald-500 font-medium text-sm"
+                        />
+                    </div>
+                    
+                    <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+                        <span className="text-xs font-bold text-slate-400 uppercase tracking-widest mr-2 whitespace-nowrap">City:</span>
+                        {cities.map(city => (
+                            <button
+                                key={city}
+                                onClick={() => setSelectedCity(city)}
+                                className={`px-4 py-2 rounded-full text-xs font-black transition-all whitespace-nowrap ${selectedCity === city ? 'bg-emerald-600 text-white shadow-md' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                            >
+                                {city}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-12">
                     <div>
                         <h2 className="text-2xl font-black text-slate-900 mb-2">Verified Generic Stores</h2>
-                        <p className="text-slate-500 font-medium">Found {retailers.length} stores in the network.</p>
+                        <p className="text-slate-500 font-medium">Showing {filteredRetailers.length} of {retailers.length} stores in the network.</p>
                     </div>
 
                     <div className="bg-white p-6 rounded-3xl shadow-sm border border-emerald-100 flex items-center gap-4 max-w-sm">
@@ -60,7 +100,7 @@ export default function GenericRetailersDirectoryPage() {
                          </div>
                          <div>
                             <p className="text-xs font-black text-slate-900 mb-1">Are you a Generic Store?</p>
-                            <a href="/partner" className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">Register on platform →</a>
+                            <a href="/distributor/register" className="text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:underline">Register on platform →</a>
                          </div>
                     </div>
                 </div>
@@ -72,20 +112,26 @@ export default function GenericRetailersDirectoryPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        {retailers.map(retailer => (
+                        {filteredRetailers.map(retailer => (
                             <GenericRetailerCard 
                                 key={retailer.id} 
                                 retailer={retailer} 
                             />
                         ))}
                         
-                        {retailers.length === 0 && (
+                        {filteredRetailers.length === 0 && (
                             <div className="col-span-full py-20 bg-white rounded-3xl border border-slate-200 text-center shadow-sm">
                                 <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <i className="fa-solid fa-shop-slash text-3xl text-slate-300"></i>
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-700 mb-2">No Generic Retailers Found</h3>
-                                <p className="text-slate-500 max-w-md mx-auto">We are currently onboarding PMBJP Kendras and Generic Retailers in this area. Please check back later.</p>
+                                <h3 className="text-xl font-bold text-slate-700 mb-2">No Stores Found</h3>
+                                <p className="text-slate-500 max-w-md mx-auto">No generic medicine stores matched your search criteria. Try clearing search filters.</p>
+                                <button 
+                                    onClick={() => { setSearchQuery(""); setSelectedCity("All"); }}
+                                    className="mt-4 px-6 py-2.5 bg-emerald-600 text-white rounded-full text-xs font-bold uppercase tracking-wider"
+                                >
+                                    Reset Filters
+                                </button>
                             </div>
                         )}
                     </div>
