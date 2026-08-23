@@ -1,81 +1,93 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
-export default function HowItWorksGuide() {
+export default function CompleteGuide() {
     const { cartCount, toggleCart } = useCart();
+    const [activeTab, setActiveTab] = useState('medicines');
 
-    const steps = [
-        {
-            icon: "🔍",
-            title: "1. Search for Medicines",
-            description: "Use the search bar at the top of the app to find your required medicines. You can search by brand name, generic name, or health condition.",
-            actionText: "Shop Medicines",
-            actionLink: "/shop",
-            color: "from-blue-500 to-cyan-500",
-            lightBg: "bg-blue-50"
-        },
-        {
-            icon: "🛒",
-            title: "2. Add to Cart",
-            description: "Check the price, generic alternatives for up to 80% savings, and add the medicines to your cart. Review your cart items before proceeding.",
-            color: "from-emerald-500 to-teal-500",
-            lightBg: "bg-emerald-50"
-        },
-        {
-            icon: "📋",
-            title: "3. Upload Prescription (If Required)",
-            description: "For prescription medicines (Rx), you will be prompted at checkout to upload a clear photo or PDF of your doctor's prescription. Our pharmacists will verify it quickly.",
-            color: "from-amber-500 to-orange-500",
-            lightBg: "bg-amber-50"
-        },
-        {
-            icon: "💳",
-            title: "4. Checkout & Payment",
-            description: "Enter your delivery address or share your live GPS location. Choose your preferred payment method: Online (UPI, Cards), Scan QR, or Cash on Delivery (COD).",
-            color: "from-purple-500 to-pink-500",
-            lightBg: "bg-purple-50"
-        },
-        {
-            icon: "🛵",
-            title: "5. Fast Delivery & Live Tracking",
-            description: "Once ordered, you can track your delivery rider in real-time from your Profile page! Receive your medicines safely at your doorstep within hours.",
-            actionText: "Track My Order",
-            actionLink: "/profile",
-            color: "from-red-500 to-rose-500",
-            lightBg: "bg-red-50"
-        }
+    // ── Tab Navigation ───────────────────────────────────────────────────────
+    const tabs = [
+        { id: 'medicines', icon: '💊', label: 'Order Medicines' },
+        { id: 'doctor', icon: '👨‍⚕️', label: 'Book Doctor' },
+        { id: 'track', icon: '📍', label: 'Track Delivery' },
+        { id: 'lab', icon: '🧪', label: 'Book Lab Test' },
+        { id: 'hospital', icon: '🏥', label: 'Find Hospital' },
+        { id: 'ambulance', icon: '🚑', label: 'Ambulance' },
+        { id: 'refer', icon: '💰', label: 'Earn Referrals' }
     ];
 
-    const otherServices = [
-        {
-            icon: "👨‍⚕️",
-            title: "Doctor Consultations",
-            desc: "Book top specialists for online video consults or in-person hospital visits.",
-            link: "/doctors"
+    // ── Guide Content ────────────────────────────────────────────────────────
+    const guides = {
+        medicines: {
+            title: "How to Order Medicines",
+            desc: "A simple guide to finding medicines, saving up to 80% with generics, and lightning-fast delivery.",
+            steps: [
+                { icon: "🔍", title: "1. Search & Select", desc: "Use the top search bar to find medicines by brand or generic name.", action: "Shop Now", link: "/shop", color: "text-blue-500", bg: "bg-blue-50" },
+                { icon: "📋", title: "2. Upload Prescription", desc: "For Rx medicines, safely upload a photo of your doctor's slip at checkout.", color: "text-emerald-500", bg: "bg-emerald-50" },
+                { icon: "💳", title: "3. Checkout & Pay", desc: "Add your address and choose Online Payment, Wallet, or Cash on Delivery.", color: "text-amber-500", bg: "bg-amber-50" }
+            ]
         },
-        {
-            icon: "🧪",
-            title: "Lab Tests",
-            desc: "Book blood tests and full body checkups with home sample collection.",
-            link: "/lab-tests"
+        doctor: {
+            title: "How to Consult a Doctor",
+            desc: "Book top specialists for online video consults or in-person clinic visits easily.",
+            steps: [
+                { icon: "🩺", title: "1. Choose Specialist", desc: "Go to Doctor Consult and pick a specialty (Cardiology, Neurology, etc.).", action: "Book Doctor", link: "/doctors", color: "text-purple-500", bg: "bg-purple-50" },
+                { icon: "🗓️", title: "2. Pick a Time Slot", desc: "Select an available date and time that works best for you.", color: "text-pink-500", bg: "bg-pink-50" },
+                { icon: "📱", title: "3. Connect & Consult", desc: "Join the video call or visit the clinic. Get your digital prescription instantly after.", color: "text-blue-500", bg: "bg-blue-50" }
+            ]
         },
-        {
-            icon: "🌿",
-            title: "Generic Stores",
-            desc: "Find PMBJP Jan Aushadhi Kendras near you and save up to 80%.",
-            link: "/generic-retailers"
+        track: {
+            title: "How to Track Delivery",
+            desc: "Watch your order arrive in real-time with our live GPS tracking system.",
+            steps: [
+                { icon: "👤", title: "1. Go to Profile", desc: "Click on your Profile in the top menu and open the 'My Orders' section.", action: "My Orders", link: "/profile", color: "text-emerald-500", bg: "bg-emerald-50" },
+                { icon: "📦", title: "2. Select Your Order", desc: "Find your active order and click the 'Track Order' button.", color: "text-amber-500", bg: "bg-amber-50" },
+                { icon: "🗺️", title: "3. View Live Map", desc: "See exactly where the rider is on the map and check the timeline steps.", color: "text-rose-500", bg: "bg-rose-50" }
+            ]
         },
-        {
-            icon: "🚑",
-            title: "Ambulance",
-            desc: "Book Basic, ICU, or Advanced life support ambulances instantly.",
-            link: "/ambulance"
+        lab: {
+            title: "How to Book a Lab Test",
+            desc: "Get blood tests and body checkups done safely with home sample collection.",
+            steps: [
+                { icon: "🔬", title: "1. Find Your Test", desc: "Search for specific tests (CBC, Thyroid) or full body health packages.", action: "View Lab Tests", link: "/lab-tests", color: "text-cyan-500", bg: "bg-cyan-50" },
+                { icon: "🏠", title: "2. Choose Location", desc: "Select 'Home Collection' or choose to visit a nearby partner lab.", color: "text-purple-500", bg: "bg-purple-50" },
+                { icon: "📄", title: "3. Digital Reports", desc: "Once tested, your secure medical reports are instantly available on your profile.", color: "text-green-500", bg: "bg-green-50" }
+            ]
+        },
+        hospital: {
+            title: "How to Book a Hospital OPD",
+            desc: "Connect directly with verified hospitals for OPD appointments or emergencies.",
+            steps: [
+                { icon: "🏥", title: "1. Search Hospitals", desc: "Browse hospitals by city, specialty, or the insurance they accept.", action: "Find Hospital", link: "/hospitals", color: "text-red-500", bg: "bg-red-50" },
+                { icon: "📅", title: "2. Request Booking", desc: "Click 'Book Appointment' to request an OPD slot with a specific department.", color: "text-blue-500", bg: "bg-blue-50" },
+                { icon: "✅", title: "3. Confirmation", desc: "The hospital desk will confirm your appointment via Swastik and WhatsApp.", color: "text-emerald-500", bg: "bg-emerald-50" }
+            ]
+        },
+        ambulance: {
+            title: "How to Book an Ambulance",
+            desc: "Fast, reliable emergency transport when you need it most. Call 108 for extreme emergencies.",
+            steps: [
+                { icon: "🆘", title: "1. Select Service Type", desc: "Choose between Basic Life Support, ICU/Ventilator, or Mortuary van.", action: "Book Ambulance", link: "/ambulance", color: "text-rose-500", bg: "bg-rose-50" },
+                { icon: "📍", title: "2. Share Location", desc: "Enter your pickup location and destination hospital.", color: "text-amber-500", bg: "bg-amber-50" },
+                { icon: "🚀", title: "3. Instant Dispatch", desc: "Our nearest verified partner driver is dispatched instantly with live tracking.", color: "text-purple-500", bg: "bg-purple-50" }
+            ]
+        },
+        refer: {
+            title: "How to Earn Referral Money",
+            desc: "Share the gift of health and earn ₹50 in your Swastik Wallet for every successful referral.",
+            steps: [
+                { icon: "🔗", title: "1. Get Your Code", desc: "Go to your Profile and copy your unique Swastik Referral Code.", action: "Go to Profile", link: "/profile", color: "text-green-500", bg: "bg-green-50" },
+                { icon: "📤", title: "2. Share with Friends", desc: "Send it via WhatsApp. Your friend gets a ₹50 Welcome Bonus when they sign up!", color: "text-blue-500", bg: "bg-blue-50" },
+                { icon: "💰", title: "3. Earn Cash", desc: "When your friend completes their first order, ₹50 is instantly credited to your wallet.", color: "text-amber-500", bg: "bg-amber-50" }
+            ]
         }
-    ];
+    };
+
+    const currentGuide = guides[activeTab];
 
     return (
         <div className="min-h-screen bg-slate-50 font-sans">
@@ -85,79 +97,85 @@ export default function HowItWorksGuide() {
             <div className="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 pt-32 pb-24 px-6 text-center text-white">
                 <div className="max-w-4xl mx-auto">
                     <div className="inline-block bg-white/10 px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wider mb-6 border border-white/20">
-                        📚 Customer Guide
+                        📚 Swastik Help Center
                     </div>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
-                        How to Order Medicines on <span className="text-blue-400">Swastik Medicare</span>
+                        Complete <span className="text-blue-400">Customer Guide</span>
                     </h1>
                     <p className="text-lg md:text-xl text-slate-300 font-medium max-w-2xl mx-auto leading-relaxed">
-                        A simple, step-by-step guide to finding your medicines, saving money with generics, and getting lightning-fast delivery.
+                        Step-by-step instructions on how to use every feature of the Swastik Medicare ecosystem.
                     </p>
                 </div>
             </div>
 
-            <main className="max-w-5xl mx-auto px-6 py-16 -mt-10 relative z-10">
-                {/* Steps Container */}
-                <div className="space-y-8">
-                    {steps.map((step, index) => (
-                        <div key={index} className="bg-white rounded-3xl p-6 md:p-10 shadow-lg shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row gap-8 items-center hover:-translate-y-1 transition-transform duration-300">
+            <main className="max-w-6xl mx-auto px-6 py-12 -mt-10 relative z-10">
+                <div className="flex flex-col lg:flex-row gap-8">
+                    
+                    {/* Sidebar Tabs */}
+                    <div className="lg:w-1/3 xl:w-1/4">
+                        <div className="bg-white rounded-3xl p-4 shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible sticky top-24">
+                            {tabs.map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    className={`flex items-center gap-4 px-5 py-4 rounded-2xl text-left font-bold transition-all whitespace-nowrap lg:whitespace-normal shrink-0 ${
+                                        activeTab === tab.id 
+                                        ? 'bg-blue-600 text-white shadow-md transform scale-[1.02]' 
+                                        : 'bg-transparent text-slate-600 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <span className="text-xl">{tab.icon}</span>
+                                    <span>{tab.label}</span>
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Guide Content Area */}
+                    <div className="lg:w-2/3 xl:w-3/4">
+                        <div className="bg-white rounded-3xl p-8 md:p-12 shadow-xl shadow-slate-200/50 border border-slate-100">
                             
-                            {/* Icon Box */}
-                            <div className={`w-24 h-24 md:w-32 md:h-32 rounded-3xl shrink-0 flex items-center justify-center text-5xl md:text-6xl ${step.lightBg} shadow-inner`}>
-                                {step.icon}
-                            </div>
+                            <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4">{currentGuide.title}</h2>
+                            <p className="text-lg text-slate-500 font-medium mb-10 pb-6 border-b border-slate-100">{currentGuide.desc}</p>
                             
-                            {/* Content */}
-                            <div className="flex-1 text-center md:text-left">
-                                <h3 className={`text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r ${step.color} mb-4`}>
-                                    {step.title}
-                                </h3>
-                                <p className="text-slate-600 text-lg font-medium leading-relaxed mb-6">
-                                    {step.description}
-                                </p>
-                                
-                                {step.actionText && (
-                                    <Link href={step.actionLink} className={`inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-white font-bold tracking-wide uppercase text-sm bg-gradient-to-r ${step.color} hover:opacity-90 transition-opacity shadow-md`}>
-                                        {step.actionText} <i className="fa-solid fa-arrow-right"></i>
-                                    </Link>
-                                )}
+                            <div className="space-y-6">
+                                {currentGuide.steps.map((step, idx) => (
+                                    <div key={idx} className="flex flex-col sm:flex-row gap-6 p-6 rounded-3xl border border-slate-100 hover:border-slate-200 hover:bg-slate-50 transition-colors">
+                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 ${step.bg}`}>
+                                            {step.icon}
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className={`text-xl font-bold mb-2 ${step.color}`}>{step.title}</h3>
+                                            <p className="text-slate-600 font-medium leading-relaxed mb-4">{step.desc}</p>
+                                            
+                                            {step.action && (
+                                                <Link href={step.link} className={`inline-flex items-center text-sm font-bold uppercase tracking-wider px-5 py-2.5 rounded-xl transition-opacity ${step.bg} ${step.color} hover:opacity-80`}>
+                                                    {step.action} <i className="fa-solid fa-arrow-right ml-2"></i>
+                                                </Link>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
 
                         </div>
-                    ))}
-                </div>
 
-                {/* Other Services Grid */}
-                <div className="mt-24 text-center">
-                    <h2 className="text-3xl font-black text-slate-900 mb-4">Explore More on Swastik</h2>
-                    <p className="text-slate-500 font-medium mb-12 max-w-xl mx-auto">We are more than just a pharmacy. Discover our complete healthcare ecosystem designed for your family's needs.</p>
-                    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {otherServices.map((service, idx) => (
-                            <Link href={service.link} key={idx} className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 transition-all group flex flex-col items-center text-center">
-                                <div className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300">{service.icon}</div>
-                                <h4 className="text-lg font-bold text-slate-900 mb-2">{service.title}</h4>
-                                <p className="text-sm text-slate-500 font-medium leading-relaxed">{service.desc}</p>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
+                        {/* Ask AI Banner inside content area */}
+                        <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-3xl p-8 border border-blue-100 flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div>
+                                <h3 className="text-xl font-black text-slate-900 mb-2 flex items-center gap-2">
+                                    <i className="fa-solid fa-robot text-blue-600"></i> Still confused?
+                                </h3>
+                                <p className="text-slate-600 font-medium">Ask our Swastik Voice AI any question in English or Hindi!</p>
+                            </div>
+                            <button 
+                                onClick={() => window.dispatchEvent(new CustomEvent('open-medical-ai'))}
+                                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shrink-0 shadow-lg shadow-blue-200"
+                            >
+                                Open Voice AI
+                            </button>
+                        </div>
 
-                {/* FAQ / Support Banner */}
-                <div className="mt-16 bg-blue-50 rounded-3xl p-8 md:p-12 text-center border border-blue-100">
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-2xl mx-auto mb-6">
-                        <i className="fa-solid fa-headset"></i>
-                    </div>
-                    <h3 className="text-2xl font-black text-slate-900 mb-4">Still need help?</h3>
-                    <p className="text-slate-600 font-medium mb-8 max-w-md mx-auto">Our Swastik Support team and Medical AI are always here to guide you.</p>
-                    
-                    <div className="flex flex-col sm:flex-row justify-center gap-4">
-                        <button onClick={() => window.dispatchEvent(new CustomEvent('open-medical-ai'))} className="bg-slate-900 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors">
-                            <i className="fa-solid fa-robot"></i> Ask Voice AI
-                        </button>
-                        <a href="https://wa.me/917992122974" target="_blank" rel="noopener noreferrer" className="bg-green-500 text-white px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-green-600 transition-colors">
-                            <i className="fa-brands fa-whatsapp text-lg"></i> Chat on WhatsApp
-                        </a>
                     </div>
                 </div>
             </main>
