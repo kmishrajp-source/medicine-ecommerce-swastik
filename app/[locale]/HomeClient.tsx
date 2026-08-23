@@ -16,6 +16,7 @@ const PricingSection = dynamic(() => import('@/components/PricingSection'), { ss
 const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: true });
 const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), { ssr: false });
 const UnifiedHealthcareSearch = dynamic(() => import('@/components/UnifiedHealthcareSearch'), { ssr: false });
+const DoctorDemoSection = dynamic(() => import('@/components/DoctorDemoSection'), { ssr: true });
 import WhatsAppLeadForm from "@/components/WhatsAppLeadForm";
 
 export default function HomeClient() {
@@ -265,6 +266,9 @@ export default function HomeClient() {
                 </div>
              </div>
         </div>
+
+        {/* BILINGUAL DOCTOR CONSULTATION & DIGITAL PRESCRIPTION DEMO */}
+        <DoctorDemoSection />
 
         {/* =====================================================
              UNIFIED HEALTHCARE SEARCH + SERVICE TILES
