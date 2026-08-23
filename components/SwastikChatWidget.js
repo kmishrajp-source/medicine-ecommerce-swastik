@@ -165,12 +165,17 @@ export default function SwastikChatWidget() {
 
                     {/* Input Area */}
                     <div className="p-3 bg-white border-t border-slate-200">
-                        {/* Quick hint chips */}
                         <div className="flex gap-1 mb-2 overflow-x-auto pb-1">
-                            {["What can you do?", "Find medicine", "Find doctor", "Track order", "Ambulance"].map(chip => (
-                                <button key={chip} onClick={() => setInput(chip)}
-                                    className="text-xs whitespace-nowrap bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-full px-2.5 py-1 hover:bg-indigo-100 transition-colors flex-shrink-0">
-                                    {chip}
+                            {[
+                                { text: "✨ Check Symptoms", prompt: "I have a fever and headache. What should I do?" },
+                                { text: "💊 Medicine Side Effects", prompt: "What are the side effects of Paracetamol?" },
+                                { text: "📄 Explain Lab Report", prompt: "Can you explain my CBC lab report?" },
+                                { text: "📋 Doses Help (Hindi)", prompt: "Doctor ne dawai BD likhi hai, iska kya matlab hai?" },
+                                { text: "🚑 Ambulance", prompt: "I need an ambulance" }
+                            ].map(chip => (
+                                <button key={chip.text} onClick={() => setInput(chip.prompt)}
+                                    className="text-xs font-medium whitespace-nowrap bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full px-3 py-1.5 hover:bg-indigo-100 hover:scale-105 transition-all flex-shrink-0 shadow-sm">
+                                    {chip.text}
                                 </button>
                             ))}
                         </div>
