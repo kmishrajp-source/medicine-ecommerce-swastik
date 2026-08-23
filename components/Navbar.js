@@ -239,6 +239,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 hover:bg-red-900/30 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ambulance')}</Link></li>
                         <li><Link href="/labs" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('labs')}</Link></li>
                         <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/40 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ai_assistant')}</Link></li>
+                        <li><Link href="/magazine" className="text-yellow-300 hover:text-yellow-100 hover:bg-yellow-900/40 px-2 py-1.5 rounded-lg transition-all font-bold"><i className="fa-regular fa-newspaper mr-1"></i>Magazine</Link></li>
                         <li className="opacity-40 self-center">|</li>
                         <li><Link href="/symptom-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-wand-sparkles text-[11px]"></i> {t('symptom_checker')}</Link></li>
                         <li><Link href="/prescription-analyzer" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-file-medical text-[11px]"></i> {t('rx_analyzer')}</Link></li>
@@ -280,6 +281,7 @@ export default function Navbar({ cartCount, openCart }) {
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ambulance" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fca5a5', textDecoration: 'none', fontWeight: 'bold' }}>Ambulance Services</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/labs" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('labs')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ai-assistant" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#93c5fd', textDecoration: 'none', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/magazine" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fde047', textDecoration: 'none', fontWeight: 'bold' }}><i className="fa-regular fa-newspaper mr-2"></i>Medical Magazine</Link></li>
                          
                          {/* Services */}
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
