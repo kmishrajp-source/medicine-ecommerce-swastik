@@ -26,7 +26,7 @@ export default function CompleteGuide() {
             title: "How to Order Medicines",
             desc: "A simple guide to finding medicines, saving up to 80% with generics, and lightning-fast delivery.",
             steps: [
-                { icon: "🔍", title: "1. Search & Select", desc: "Use the top search bar to find medicines by brand or generic name.", action: "Shop Now", link: "/shop", color: "text-blue-500", bg: "bg-blue-50" },
+                { icon: "🔍", title: "1. Search & Select", desc: "Use the top search bar to find medicines by brand or generic name.", action: "Shop Now", link: "/shop-medicines", color: "text-blue-500", bg: "bg-blue-50" },
                 { icon: "📋", title: "2. Upload Prescription", desc: "For Rx medicines, safely upload a photo of your doctor's slip at checkout.", color: "text-emerald-500", bg: "bg-emerald-50" },
                 { icon: "💳", title: "3. Checkout & Pay", desc: "Add your address and choose Online Payment, Wallet, or Cash on Delivery.", color: "text-amber-500", bg: "bg-amber-50" }
             ]
@@ -53,7 +53,7 @@ export default function CompleteGuide() {
             title: "How to Book a Lab Test",
             desc: "Get blood tests and body checkups done safely with home sample collection.",
             steps: [
-                { icon: "🔬", title: "1. Find Your Test", desc: "Search for specific tests (CBC, Thyroid) or full body health packages.", action: "View Lab Tests", link: "/lab-tests", color: "text-cyan-500", bg: "bg-cyan-50" },
+                { icon: "🔬", title: "1. Find Your Test", desc: "Search for specific tests (CBC, Thyroid) or full body health packages.", action: "View Lab Tests", link: "/labs", color: "text-cyan-500", bg: "bg-cyan-50" },
                 { icon: "🏠", title: "2. Choose Location", desc: "Select 'Home Collection' or choose to visit a nearby partner lab.", color: "text-purple-500", bg: "bg-purple-50" },
                 { icon: "📄", title: "3. Digital Reports", desc: "Once tested, your secure medical reports are instantly available on your profile.", color: "text-green-500", bg: "bg-green-50" }
             ]

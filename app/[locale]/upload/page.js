@@ -32,7 +32,7 @@ export default function UploadPrescription() {
 
         alert("Prescription Uploaded Successfully! Our pharmacist will review it and contact you shortly.");
         setIsUploading(false);
-        router.push("/shop");
+        router.push("/shop-medicines");
     };
 
     return (

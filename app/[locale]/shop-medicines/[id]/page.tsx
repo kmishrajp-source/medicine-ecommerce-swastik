@@ -25,7 +25,7 @@ export default function ProductDetails() {
         <>
             <Navbar cartCount={cartCount} openCart={() => toggleCart(true)} />
             <main className="container" style={{ marginTop: '120px', paddingBottom: '60px' }}>
-                <Link href="/shop" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: 'var(--text-light)' }}>
+                <Link href="/shop-medicines" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', color: 'var(--text-light)' }}>
                     <i className="fa-solid fa-arrow-left"></i> Back to Shop
                 </Link>
 
