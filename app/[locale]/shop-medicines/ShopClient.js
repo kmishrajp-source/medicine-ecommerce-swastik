@@ -28,6 +28,15 @@ export default function ShopClient({ initialProducts = [] }) {
     const [tourStep, setTourStep] = useState(0);
     const [targetRect, setTargetRect] = useState(null);
 
+    // We need isCartOpen to know when to recalculate step 3
+    const [isCartOpen, setIsCartOpen] = useState(false);
+    
+    // Wrapper for toggleCart to track state locally for the tour
+    const handleToggleCart = (state) => {
+        setIsCartOpen(state !== undefined ? state : !isCartOpen);
+        toggleCart(state);
+    };
+
     // Update target rect based on tour step
     useEffect(() => {
         if (tourStep === 0) return;
@@ -102,14 +111,7 @@ export default function ShopClient({ initialProducts = [] }) {
         return () => document.removeEventListener('click', handleClick);
     }, [tourStep]);
 
-    // We need isCartOpen to know when to recalculate step 3
-    const [isCartOpen, setIsCartOpen] = useState(false);
-    
-    // Wrapper for toggleCart to track state locally for the tour
-    const handleToggleCart = (state) => {
-        setIsCartOpen(state !== undefined ? state : !isCartOpen);
-        toggleCart(state);
-    };
+
 
 
     // Fetch products whenever category, search, or page changes
