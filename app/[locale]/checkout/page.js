@@ -19,6 +19,7 @@ export default function Checkout() {
     const { data: session } = useSession();
     const [eligibleForBonus, setEligibleForBonus] = useState(false);
     const [showUtrHelp, setShowUtrHelp] = useState(false);
+    const [deliveryInstructions, setDeliveryInstructions] = useState('');
 
     // ── Delivery Charge State ─────────────────────────────────────────────────
     const [deliveryInfo, setDeliveryInfo] = useState(null);   // { charge, isFree, distanceKm, breakdown, method }
@@ -199,7 +200,8 @@ export default function Checkout() {
                         lat: location?.lat,
                         lng: location?.lng,
                         deliveryCharge,
-                        prescriptionUrl: prescriptionUrl
+                        prescriptionUrl: prescriptionUrl,
+                        deliveryInstructions: deliveryInstructions.trim() || null
                     }),
                 });
 
@@ -242,7 +244,8 @@ export default function Checkout() {
                         transactionId: transactionId,
                         lat: location?.lat,
                         lng: location?.lng,
-                        deliveryCharge
+                        deliveryCharge,
+                        deliveryInstructions: deliveryInstructions.trim() || null
                     }),
                 });
 
@@ -331,7 +334,8 @@ export default function Checkout() {
                                 couponCode: discount > 0 ? couponCode : null,
                                 lat: location?.lat,
                                 lng: location?.lng,
-                                deliveryCharge
+                                deliveryCharge,
+                                deliveryInstructions: deliveryInstructions.trim() || null
                             })
                         });
 
@@ -461,8 +465,34 @@ export default function Checkout() {
                             value={formData.address}
                             onChange={handleInputChange}
                             required
-                            style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '20px' }}
+                            style={{ width: '100%', padding: '12px', border: '1px solid #ddd', borderRadius: '8px', marginBottom: '12px' }}
                         />
+
+                        {/* ── Delivery Instructions (B1 Enhancement) ── */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.85rem', fontWeight: '600', color: '#475569', marginBottom: '6px' }}>
+                                <span>📝</span> Delivery Instructions <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
+                            </label>
+                            <textarea
+                                id="delivery-instructions"
+                                placeholder="e.g. Ring the bell, leave at door, 2nd floor flat 4B, call on arrival..."
+                                value={deliveryInstructions}
+                                onChange={(e) => setDeliveryInstructions(e.target.value)}
+                                rows={2}
+                                maxLength={200}
+                                style={{
+                                    width: '100%', padding: '10px 12px', border: '1px solid #ddd',
+                                    borderRadius: '8px', fontSize: '0.9rem', resize: 'vertical',
+                                    fontFamily: 'inherit', lineHeight: '1.5',
+                                    transition: 'border-color 0.2s'
+                                }}
+                                onFocus={e => e.target.style.borderColor = '#0D8ABC'}
+                                onBlur={e => e.target.style.borderColor = '#ddd'}
+                            />
+                            <div style={{ textAlign: 'right', fontSize: '0.72rem', color: '#94a3b8', marginTop: '3px' }}>
+                                {deliveryInstructions.length}/200
+                            </div>
+                        </div>
 
                         {hasRxItems && (
                             <div style={{ background: '#FFF3E0', padding: '20px', borderRadius: '12px', marginBottom: '20px', border: '1px solid #FFE0B2' }}>

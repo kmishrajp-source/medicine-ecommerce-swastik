@@ -171,9 +171,75 @@ export default function CustomerTrackingPage({ params }) {
 
                 <div className="p-4 space-y-4">
 
+                    {/* ── Enhanced Visual Progress Stepper (B3 Enhancement) ── */}
+                    <style>{`
+                        @keyframes swastik-pulse-ring {
+                            0% { box-shadow: 0 0 0 0 rgba(22,163,74,0.5); }
+                            70% { box-shadow: 0 0 0 8px rgba(22,163,74,0); }
+                            100% { box-shadow: 0 0 0 0 rgba(22,163,74,0); }
+                        }
+                        .swastik-active-step {
+                            animation: swastik-pulse-ring 1.6s ease-out infinite;
+                        }
+                    `}</style>
+                    <div style={{
+                        background: 'white', borderRadius: '16px', padding: '20px 16px 16px',
+                        boxShadow: '0 1px 4px rgba(0,0,0,0.08)', border: '1px solid #f0f0f0'
+                    }}>
+                        <p style={{ fontSize: '0.7rem', fontWeight: '800', color: '#9ca3af', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '16px' }}>
+                            Order Progress
+                        </p>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', position: 'relative' }}>
+                            {STATUS_STEPS.map((step, idx) => {
+                                const isDone = idx <= (isDelivered ? STATUS_STEPS.length - 1 : currentStepIndex);
+                                const isActive = !isDelivered && idx === currentStepIndex;
+                                const isLast = idx === STATUS_STEPS.length - 1;
+                                const stepEmojis = ['📋', '✅', '💊', '🛵', '🎉'];
+                                return (
+                                    <div key={step.key} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
+                                        {/* Connector line */}
+                                        {!isLast && (
+                                            <div style={{
+                                                position: 'absolute', top: '14px', left: '50%', right: '-50%',
+                                                height: '3px', zIndex: 0,
+                                                background: idx < (isDelivered ? STATUS_STEPS.length - 1 : currentStepIndex)
+                                                    ? 'linear-gradient(90deg, #16a34a, #22c55e)' : '#e5e7eb',
+                                                borderRadius: '2px',
+                                                transition: 'background 0.5s'
+                                            }} />
+                                        )}
+                                        {/* Circle */}
+                                        <div
+                                            className={isActive ? 'swastik-active-step' : ''}
+                                            style={{
+                                                width: '28px', height: '28px', borderRadius: '50%', zIndex: 1,
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                                fontSize: '14px',
+                                                background: isDone ? (isActive ? '#16a34a' : '#dcfce7') : '#f3f4f6',
+                                                border: isDone ? (isActive ? '2px solid #16a34a' : '2px solid #86efac') : '2px solid #d1d5db',
+                                                transition: 'all 0.4s',
+                                                marginBottom: '6px'
+                                            }}
+                                        >
+                                            {isDone ? (isActive ? stepEmojis[idx] : '✓') : stepEmojis[idx]}
+                                        </div>
+                                        {/* Label */}
+                                        <p style={{
+                                            fontSize: '0.6rem', fontWeight: isActive ? '800' : isDone ? '600' : '500',
+                                            color: isActive ? '#15803d' : isDone ? '#4b5563' : '#9ca3af',
+                                            textAlign: 'center', lineHeight: '1.3', maxWidth: '56px'
+                                        }}>
+                                            {step.label}
+                                        </p>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
                     {/* Timeline */}
                     <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100">
-                        <h3 className="font-bold text-gray-900 mb-4">Delivery Status</h3>
+                        <h3 className="font-bold text-gray-900 mb-4">Delivery Details</h3>
                         <div className="relative border-l-2 border-gray-100 ml-3 space-y-6">
                             {STATUS_STEPS.map((step, idx) => {
                                 const isActive = idx === currentStepIndex;

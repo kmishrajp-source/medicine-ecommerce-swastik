@@ -18,7 +18,7 @@ export async function POST(req) {
 
         const body = await req.json();
         ({ amount, items } = body);
-        const { couponCode, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl, deliveryCharge } = body;
+        const { couponCode, guestName, guestEmail, guestPhone, address, paymentMethod, transactionId, lat, lng, prescriptionUrl, deliveryCharge, deliveryInstructions } = body;
 
         // Validate Coupon if present
         if (couponCode === 'FIRST100') {
@@ -107,6 +107,7 @@ export async function POST(req) {
             isDelivered: false,
             lat: lat ? parseFloat(lat) : null,
             lng: lng ? parseFloat(lng) : null,
+            deliveryInstructions: deliveryInstructions || null,
             items: {
                 create: resolvedItems
             }

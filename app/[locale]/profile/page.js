@@ -8,10 +8,50 @@ import { useCart } from "@/context/CartContext";
 export default function Profile() {
     const { data: session, status } = useSession();
     const router = useRouter();
-    const { addToCart } = useCart();
+    const { addToCart, toggleCart } = useCart();
     const [orders, setOrders] = useState([]);
     const [profile, setProfile] = useState(null);
     const [prescriptions, setPrescriptions] = useState([]);
+    const [reorderingId, setReorderingId] = useState(null);
+
+    const handleReorder = (order) => {
+        if (!order.items || order.items.length === 0) {
+            alert("No item details available to reorder.");
+            return;
+        }
+        setReorderingId(order.id);
+        let addedCount = 0;
+        let skippedRx = 0;
+        order.items.forEach(item => {
+            const product = item.product;
+            if (!product) return;
+            if (product.requiresPrescription) {
+                skippedRx++;
+                return; // Skip Rx items — require a new prescription upload
+            }
+            addToCart({
+                id: product.id,
+                name: item.productName || product.name,
+                price: product.price,
+                image: product.image || '/placeholder.png',
+                category: product.category,
+                requiresPrescription: false,
+                quantity: item.quantity
+            });
+            addedCount++;
+        });
+        setReorderingId(null);
+        if (addedCount > 0) {
+            toggleCart(true);
+            if (skippedRx > 0) {
+                alert(`✅ ${addedCount} item(s) added to cart!\n\n⚠️ ${skippedRx} prescription medicine(s) were skipped — please upload a fresh prescription during checkout.`);
+            }
+        } else if (skippedRx > 0) {
+            alert(`This order contained only prescription medicines.\nPlease place a new order and upload a fresh prescription.`);
+        } else {
+            alert("Could not re-add items. Please try adding them manually.");
+        }
+    };
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -193,6 +233,21 @@ export default function Profile() {
                                                     >
                                                         📍 Track
                                                     </button>
+                                                    {order.status === 'Delivered' && order.items && order.items.length > 0 && (
+                                                        <button
+                                                            onClick={() => handleReorder(order)}
+                                                            disabled={reorderingId === order.id}
+                                                            style={{
+                                                                padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer',
+                                                                background: reorderingId === order.id ? '#9ca3af' : '#16a34a',
+                                                                color: 'white', border: 'none', borderRadius: '8px',
+                                                                fontWeight: '700', whiteSpace: 'nowrap',
+                                                                transition: 'background 0.2s'
+                                                            }}
+                                                        >
+                                                            {reorderingId === order.id ? '...' : '🔄 Reorder'}
+                                                        </button>
+                                                    )}
                                                 </div>
                                             </td>
                                         </tr>

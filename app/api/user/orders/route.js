@@ -6,6 +6,7 @@ import { authOptions } from "@/lib/auth";
 /**
  * Fetches the complete Order History for the authenticated User.
  * This powers the Patient Profile Dashboard and links to the Live GPS Tracker.
+ * Now includes `items` so the Reorder button can re-populate the cart.
  */
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -30,7 +31,26 @@ export async function GET(req) {
                 createdAt: true,
                 paymentMethod: true,
                 isPaid: true,
-                isDelivered: true
+                isDelivered: true,
+                // Include items so the Reorder button can re-populate the cart
+                items: {
+                    select: {
+                        id: true,
+                        quantity: true,
+                        price: true,
+                        productName: true,
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                price: true,
+                                image: true,
+                                requiresPrescription: true,
+                                category: true
+                            }
+                        }
+                    }
+                }
             }
         });
 

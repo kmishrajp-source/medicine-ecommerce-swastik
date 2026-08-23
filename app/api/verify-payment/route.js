@@ -40,7 +40,8 @@ export async function POST(req) {
             targetId,
             targetType,
             leadId,
-            deliveryCharge
+            deliveryCharge,
+            deliveryInstructions
         } = body;
 
         // 1. Verify Signature
@@ -252,6 +253,7 @@ export async function POST(req) {
                     deliveryCode: deliveryCode,
                     isPaid: true,
                     isDelivered: false,
+                    deliveryInstructions: deliveryInstructions || null,
                     items: {
                         create: orderItems
                     }
