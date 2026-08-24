@@ -90,8 +90,48 @@ function MedicineResult({ result }) {
   );
 }
 
+function LabResult({ result }) {
+  return (
+    <div>
+      {result.message && (
+        <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', marginBottom: '16px', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'pre-wrap' }}>
+          {result.message}
+        </div>
+      )}
+      <div style={{ display: 'grid', gap: '12px' }}>
+        {(result.tests || []).map((t, i) => (
+          <div key={i} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a' }}>{t.name}</div>
+              {t.price && <span style={{ color: '#16a34a', fontWeight: 800 }}>₹{t.price}</span>}
+            </div>
+            <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '4px' }}>🏥 {t.labName}</div>
+            {t.homeCollectionAvailable && <div style={{ fontSize: '0.75rem', color: '#6366f1', marginTop: '6px', fontWeight: 700 }}>✅ Free Home Collection</div>}
+            <div style={{ fontSize: '0.75rem', color: '#475569', marginTop: '4px' }}>{t.preparationRequired}</div>
+          </div>
+        ))}
+      </div>
+      {result.actions?.length > 0 && (
+        <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
+          {result.actions.map((act, i) => (
+            <a key={i} href={act.link} style={{ background: i === 0 ? '#6366f1' : '#e2e8f0', color: i === 0 ? 'white' : '#475569', padding: '8px 16px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}>
+              {act.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function HospitalResult({ result }) {
   return (
+    <>
+    {result.message && (
+      <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px', marginBottom: '16px', fontSize: '0.9rem', color: '#1e293b', whiteSpace: 'pre-wrap' }}>
+        {result.message}
+      </div>
+    )}
     <div style={{ display: 'grid', gap: '12px' }}>
       {(result.hospitals || []).map((h, i) => (
         <div key={i} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px' }}>
@@ -105,6 +145,16 @@ function HospitalResult({ result }) {
         </div>
       ))}
     </div>
+    {result.actions?.length > 0 && (
+      <div style={{ display: 'flex', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
+        {result.actions.map((act, i) => (
+          <a key={i} href={act.link} style={{ background: i === 0 ? '#6366f1' : '#e2e8f0', color: i === 0 ? 'white' : '#475569', padding: '8px 16px', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}>
+            {act.label}
+          </a>
+        ))}
+      </div>
+    )}
+    </>
   );
 }
 
@@ -220,7 +270,7 @@ export default function UnifiedHealthcareSearch({ userId }) {
       case 'AMBULANCE': return <AmbulanceResult result={r} />;
       case 'INSURANCE': return <InsuranceResult result={r} />;
       case 'DELIVERY_TRACK': return <DeliveryResult result={r} />;
-      case 'LAB_SEARCH': return <HospitalResult result={{ hospitals: r.labs || [] }} />;
+      case 'LAB_SEARCH': return <LabResult result={r} />;
       default: return <GeneralHelpResult result={r} onSuggestionClick={handleChipClick} />;
     }
   };
