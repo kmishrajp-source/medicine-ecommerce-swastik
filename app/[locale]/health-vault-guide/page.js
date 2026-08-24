@@ -106,7 +106,7 @@ export default function HealthVaultGuidePage() {
             <Link href="/profile" className="bg-violet-600 hover:bg-violet-500 text-white font-black px-8 py-4 rounded-2xl transition-all shadow-xl shadow-violet-600/25">
               <i className="fa-solid fa-user-shield mr-2"></i>{T("Open My Health Vault", "मेरा हेल्थ वॉल्ट खोलें")}
             </Link>
-            <Link href="/genomics" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl transition-all">
+            <Link href="/bio" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold px-8 py-4 rounded-2xl transition-all">
               <i className="fa-solid fa-dna mr-2"></i>{T("Explore Bioinformatics", "बायोइन्फोर्मेटिक्स देखें")}
             </Link>
           </div>

@@ -116,7 +116,7 @@ export default function HomeVaultGuideSection() {
           <Link href="/health-vault-guide" className="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-7 py-4 rounded-2xl transition-all text-sm">
             <i className="fa-solid fa-circle-question mr-2"></i>{T("How Does This Work?", "यह कैसे काम करता है?")}
           </Link>
-          <Link href="/genomics" className="text-teal-400 hover:text-teal-300 font-bold text-sm flex items-center gap-2 transition-colors">
+          <Link href="/bio" className="text-teal-400 hover:text-teal-300 font-bold text-sm flex items-center gap-2 transition-colors">
             <i className="fa-solid fa-dna"></i>{T("Explore Bioinformatics →", "बायोइन्फोर्मेटिक्स देखें →")}
           </Link>
         </div>
