@@ -1,5 +1,5 @@
 "use client";
-import { Link } from '@/i18n/navigation';
+import { Link, useRouter } from '@/i18n/navigation';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AdBanner from "@/components/AdBanner";
@@ -17,9 +17,11 @@ const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: true 
 const LeadCapturePopup = dynamic(() => import('@/components/LeadCapturePopup'), { ssr: false });
 const UnifiedHealthcareSearch = dynamic(() => import('@/components/UnifiedHealthcareSearch'), { ssr: false });
 const DoctorDemoSection = dynamic(() => import('@/components/DoctorDemoSection'), { ssr: true });
+const HomeVaultGuideSection = dynamic(() => import('@/components/HomeVaultGuideSection'), { ssr: true });
 import WhatsAppLeadForm from "@/components/WhatsAppLeadForm";
 
 export default function HomeClient() {
+  const router = useRouter();
   const { cartCount, toggleCart, addToCart } = useCart();
   const [products, setProducts] = useState<any[]>([]);
   const [topDoctors, setTopDoctors] = useState<any[]>([]);
@@ -115,7 +117,7 @@ export default function HomeClient() {
                                     })
                                 }).catch(() => {});
                             }
-                            window.location.href = `/doctors?q=${encodeURIComponent(searchQuery)}`;
+                            router.push(`/doctors?q=${encodeURIComponent(searchQuery)}`);
                         }} className="relative flex flex-col bg-white p-2 rounded-[2.5rem] shadow-2xl border-4 border-white group-focus-within:border-indigo-100 transition-all overflow-hidden">
                             <div className="flex items-center w-full">
                                 <div className="flex-1 flex items-center px-6">
@@ -406,6 +408,9 @@ export default function HomeClient() {
                 </div>
             </div>
         </div>
+
+        {/* HEALTH VAULT & BIOINFORMATICS GUIDE SECTION */}
+        <HomeVaultGuideSection />
 
         {/* BEST SELLING (Elevated) */}
         <div className="container px-8">
