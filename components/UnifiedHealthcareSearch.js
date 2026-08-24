@@ -4,11 +4,13 @@ import axios from 'axios';
 
 const SUGGESTION_CHIPS = [
   { label: "💊 Generic for Glycomet", query: "Generic alternative for Glycomet 500" },
-  { label: "🏥 Hospital with Cardiology", query: "Find hospital with cardiology near me" },
+  { label: "📅 Book a cardiologist", query: "Book appointment with a cardiologist doctor" },
   { label: "🧪 Book CBC Blood Test", query: "Book CBC blood test with home collection" },
   { label: "🚑 I need ambulance", query: "I need an ambulance emergency" },
   { label: "🛡️ Insurance network check", query: "Does my insurance work at this hospital" },
-  { label: "👨‍⚕️ Find doctor", query: "Find a skin specialist doctor" },
+  { label: "👨‍⚕️ Book skin specialist", query: "I need to book an appointment with a skin specialist" },
+  { label: "🏥 Hospital with Cardiology", query: "Find hospital with cardiology near me" },
+  { label: "🦷 Book dental consultation", query: "Book a dental doctor appointment" },
 ];
 
 function GeneralHelpResult({ result, onSuggestionClick }) {
@@ -220,6 +222,88 @@ function InsuranceResult({ result }) {
   );
 }
 
+function BookingResult({ result, onConfirm }) {
+  const intentColor = {
+    BOOKING_CONFIRMED: { bg: '#f0fdf4', border: '#bbf7d0', icon: '✅', titleColor: '#166534' },
+    USER_CONFIRMATION_REQUIRED: { bg: '#eff6ff', border: '#bfdbfe', icon: '📅', titleColor: '#1e40af' },
+    EMERGENCY_ESCALATION: { bg: '#fef2f2', border: '#fecaca', icon: '🚨', titleColor: '#991b1b' },
+    AUTH_REQUIRED: { bg: '#fffbeb', border: '#fde68a', icon: '🔐', titleColor: '#92400e' },
+    NO_PROVIDER_FOUND: { bg: '#f8fafc', border: '#e2e8f0', icon: '🔍', titleColor: '#475569' },
+    BOOKING_FAILED: { bg: '#fef2f2', border: '#fecaca', icon: '❌', titleColor: '#991b1b' },
+  }[result.intent] || { bg: '#f8fafc', border: '#e2e8f0', icon: '🏥', titleColor: '#1e293b' };
+
+  return (
+    <div style={{ background: intentColor.bg, border: `1.5px solid ${intentColor.border}`, borderRadius: '16px', padding: '20px' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <div style={{ fontSize: '2rem', flexShrink: 0 }}>{intentColor.icon}</div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: 800, fontSize: '1rem', color: intentColor.titleColor, marginBottom: '8px' }}>
+            {result.intent === 'BOOKING_CONFIRMED' && 'Appointment Confirmed!'}
+            {result.intent === 'USER_CONFIRMATION_REQUIRED' && 'Ready to Book — Please Confirm'}
+            {result.intent === 'EMERGENCY_ESCALATION' && 'Medical Emergency Detected!'}
+            {result.intent === 'AUTH_REQUIRED' && 'Login Required'}
+            {result.intent === 'NO_PROVIDER_FOUND' && 'No Available Provider Found'}
+            {result.intent === 'BOOKING_FAILED' && 'Booking Failed'}
+            {!['BOOKING_CONFIRMED','USER_CONFIRMATION_REQUIRED','EMERGENCY_ESCALATION','AUTH_REQUIRED','NO_PROVIDER_FOUND','BOOKING_FAILED'].includes(result.intent) && 'Booking Status'}
+          </div>
+          <p style={{ fontSize: '0.9rem', color: '#374151', lineHeight: 1.6, marginBottom: '14px', whiteSpace: 'pre-line' }}>
+            {result.message}
+          </p>
+          {result.data && result.intent === 'USER_CONFIRMATION_REQUIRED' && (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '12px', marginBottom: '12px', fontSize: '0.8rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                {result.data.providerName && <span>👨‍⚕️ <strong>{result.data.providerName}</strong></span>}
+                {result.data.specialty && <span>🏥 {result.data.specialty}</span>}
+                {result.data.date && <span>📅 {result.data.date}</span>}
+                {result.data.time && <span>⏰ {result.data.time}</span>}
+                {result.data.fee && <span>💰 ₹{result.data.fee} Consultation Fee</span>}
+              </div>
+            </div>
+          )}
+          {result.data?.bookingId && (
+            <div style={{ background: 'white', borderRadius: '10px', padding: '10px', fontSize: '0.8rem', marginBottom: '12px', fontFamily: 'monospace', color: '#166534', fontWeight: 700 }}>
+              📋 Booking ID: {result.data.bookingId}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            {result.intent === 'USER_CONFIRMATION_REQUIRED' && (
+              <>
+                <button
+                  onClick={() => onConfirm && onConfirm('Yes, confirm the booking')}
+                  style={{ background: '#6366f1', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer' }}
+                >
+                  ✅ Yes, Book It!
+                </button>
+                <button
+                  onClick={() => onConfirm && onConfirm('No, cancel')}
+                  style={{ background: '#f1f5f9', color: '#64748b', border: 'none', padding: '10px 16px', borderRadius: '10px', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </>
+            )}
+            {result.intent === 'EMERGENCY_ESCALATION' && (
+              <a href="tel:108" style={{ background: '#ef4444', color: 'white', padding: '10px 20px', borderRadius: '10px', fontWeight: 800, fontSize: '0.9rem', textDecoration: 'none' }}>
+                🚨 Call 108 Now
+              </a>
+            )}
+            {result.intent === 'AUTH_REQUIRED' && (
+              <a href="/login" style={{ background: '#6366f1', color: 'white', padding: '10px 20px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', textDecoration: 'none' }}>
+                🔒 Login to Continue
+              </a>
+            )}
+            {result.intent === 'BOOKING_CONFIRMED' && (
+              <a href="/profile" style={{ background: '#16a34a', color: 'white', padding: '10px 20px', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', textDecoration: 'none' }}>
+                View My Appointments →
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UnifiedHealthcareSearch({ userId }) {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
@@ -248,6 +332,12 @@ export default function UnifiedHealthcareSearch({ userId }) {
     handleSearch(chipQuery);
   };
 
+  // For multi-turn booking confirmation flows
+  const handleBookingConfirm = (confirmationText) => {
+    setQuery(confirmationText);
+    handleSearch(confirmationText);
+  };
+
   const renderResult = () => {
     if (!result) return null;
     const { intent, result: r, error } = result;
@@ -271,6 +361,7 @@ export default function UnifiedHealthcareSearch({ userId }) {
       case 'INSURANCE': return <InsuranceResult result={r} />;
       case 'DELIVERY_TRACK': return <DeliveryResult result={r} />;
       case 'LAB_SEARCH': return <LabResult result={r} />;
+      case 'BOOKING_ORCHESTRATION': return <BookingResult result={r} onConfirm={handleBookingConfirm} />;
       default: return <GeneralHelpResult result={r} onSuggestionClick={handleChipClick} />;
     }
   };
