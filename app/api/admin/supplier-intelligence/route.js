@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { sendWhatsAppText } from '@/lib/whatsapp';
 
 export async function POST(req) {
     try {
@@ -9,78 +10,105 @@ export async function POST(req) {
         // Stage 1 & 2: Analyze Customer Order & Check Approved Suppliers
         if (action === 'analyze_order') {
             const { orderId, products } = body;
-            // Find existing approved suppliers (ErpSupplier) who can supply these products
-            // In a real app, we'd query ErpPoItem history or supplier catalogues
-            // Here we mock finding existing suppliers
+
+            // Look up real order if orderId provided
+            let orderProducts = products;
+            if (orderId && orderId !== 'ORD-TEST-123') {
+                const order = await prisma.order.findUnique({
+                    where: { id: orderId },
+                    include: { items: { include: { product: { select: { name: true, category: true } } } } }
+                });
+                if (order) {
+                    orderProducts = order.items.map(i => ({
+                        name: i.product?.name || i.productName,
+                        qty: i.quantity,
+                        category: i.product?.category || 'Healthcare'
+                    }));
+                }
+            }
+
             const existingSuppliers = await prisma.erpSupplier.findMany({
                 where: { status: 'ACTIVE' },
-                take: 2
+                take: 5
             });
-            
+
             return NextResponse.json({
                 success: true,
                 message: 'Order analyzed',
-                products: products || [{ name: 'Paracetamol 500mg', qty: 5000, category: 'Healthcare' }],
+                products: orderProducts || [{ name: 'Paracetamol 500mg', qty: 5000, category: 'Healthcare' }],
                 approvedSuppliers: existingSuppliers
             });
         }
 
-        // Stage 3 & 4: AI Supplier Discovery Agent -> Creates Supplier Prospects
+        // Stage 3 & 4: Real Supplier Discovery — queries DB first, no hardcoded mocks
         if (action === 'ai_discovery') {
             const { products } = body;
-            const prospectMocks = [
-                {
-                    name: 'Apollo Lifesciences Mfg',
-                    phone: '9876543210',
-                    type: 'Manufacturer',
-                    score: 95,
-                    location: 'Baddi, HP',
-                    details: {
-                        products: products,
-                        companyType: 'Manufacturer',
-                        verificationStatus: 'Pending',
-                        source: 'AI Public Directory Scrape',
-                        website: 'apollolifesciences.com'
-                    }
-                },
-                {
-                    name: 'Delhi Pharma Distributors',
-                    phone: '9988776655',
-                    type: 'Authorised Distributor',
-                    score: 75,
-                    location: 'Delhi',
-                    details: {
-                        products: products,
-                        companyType: 'Authorised Distributor',
-                        verificationStatus: 'Pending',
-                        source: 'Industry Directory',
-                        website: 'delhipharmadist.in'
-                    }
-                }
-            ];
+            const productNames = products?.map(p => p.name || p) || [];
 
-            const createdProspects = [];
-            for (const mock of prospectMocks) {
-                const lead = await prisma.lead.create({
-                    data: {
+            // 1. Search existing ErpSuppliers in DB
+            const existingSuppliers = await prisma.erpSupplier.findMany({
+                where: { status: 'ACTIVE' },
+                take: 10
+            });
+
+            // 2. Search existing supplier Leads in DB
+            const existingLeads = await prisma.lead.findMany({
+                where: {
+                    serviceType: 'supplier_prospect',
+                    status: { notIn: ['converted', 'rejected'] }
+                },
+                take: 10
+            });
+
+            let createdProspects = [];
+            if (existingSuppliers.length === 0 && existingLeads.length === 0) {
+                // No suppliers in DB yet — create discovery task records for the team to action
+                const categories = [...new Set(products?.map(p => p.category) || ['Healthcare'])];
+                for (const category of categories.slice(0, 3)) {
+                    const lead = await prisma.lead.create({
+                        data: {
+                            serviceType: 'supplier_prospect',
+                            source: 'discovery_needed',
+                            guestName: `[SEARCH REQUIRED] ${category} Supplier`,
+                            guestPhone: '0000000000',
+                            area: 'Gorakhpur / UP',
+                            qualityScore: 0,
+                            tags: ['unverified', 'discovery_needed'],
+                            status: 'new',
+                            details: JSON.stringify({
+                                products: productNames,
+                                category,
+                                verificationStatus: 'Pending',
+                                source: 'System Discovery Required'
+                            }),
+                            notes: `Supplier discovery needed for: ${productNames.join(', ')}. Please manually search indiamart.com or trade.india.com and update this record.`
+                        }
+                    });
+                    createdProspects.push(lead);
+                }
+            } else {
+                // Return real existing records from DB
+                createdProspects = [
+                    ...existingLeads,
+                    ...existingSuppliers.map(s => ({
+                        id: s.id,
+                        guestName: s.name,
+                        guestPhone: s.phone,
+                        area: s.address,
+                        status: 'verified',
                         serviceType: 'supplier_prospect',
-                        source: 'ai_discovery',
-                        guestName: mock.name,
-                        guestPhone: mock.phone,
-                        area: mock.location,
-                        qualityScore: mock.score,
-                        tags: [mock.type.toLowerCase().replace(' ', '_'), 'ai_discovered'],
-                        status: 'new',
-                        details: JSON.stringify(mock.details),
-                        notes: `AI discovered potential supplier for: ${products?.map(p => p.name).join(', ') || 'Unknown'}`
-                    }
-                });
-                createdProspects.push(lead);
+                        qualityScore: 90,
+                        notes: `Existing active ERP supplier`,
+                        details: JSON.stringify({ verificationStatus: 'Verified', source: 'ErpSupplier DB' })
+                    }))
+                ];
             }
 
             return NextResponse.json({
                 success: true,
-                message: 'AI discovered and created new supplier prospects',
+                message: existingSuppliers.length > 0 || existingLeads.length > 0
+                    ? `Found ${createdProspects.length} real supplier records from your database.`
+                    : `No suppliers in DB yet. Created ${createdProspects.length} discovery task(s) — update them with real supplier details.`,
                 prospects: createdProspects
             });
         }
@@ -88,13 +116,13 @@ export async function POST(req) {
         // Stage 5: Supplier Verification
         if (action === 'verify_supplier') {
             const { prospectId, verificationData } = body;
-            
+
             const prospect = await prisma.lead.findUnique({ where: { id: prospectId } });
             if (!prospect) throw new Error('Prospect not found');
 
             let details = {};
             if (prospect.details) details = JSON.parse(prospect.details);
-            
+
             details.verificationItems = verificationData || {
                 legalIdentity: 'Verified',
                 bankDetails: 'Verified',
@@ -105,37 +133,29 @@ export async function POST(req) {
 
             const updated = await prisma.lead.update({
                 where: { id: prospectId },
-                data: {
-                    isVerified: true,
-                    status: 'verified',
-                    details: JSON.stringify(details)
-                }
+                data: { isVerified: true, status: 'verified', details: JSON.stringify(details) }
             });
 
             return NextResponse.json({ success: true, message: 'Supplier verified', prospect: updated });
         }
 
-        // Stage 6 & 8: Human Compliance Approval & Add to Manufacturer/Supplier Database
+        // Stage 6 & 8: Human Compliance Approval & Add to Supplier Database
         if (action === 'approve_supplier') {
             const { prospectId, complianceNotes } = body;
 
             const prospect = await prisma.lead.findUnique({ where: { id: prospectId } });
             if (!prospect) throw new Error('Prospect not found');
-            
-            const details = JSON.parse(prospect.details || '{}');
 
-            // Convert Lead to ErpSupplier
             const newSupplier = await prisma.erpSupplier.create({
                 data: {
                     name: prospect.guestName || 'Unknown Supplier',
                     phone: prospect.guestPhone || '0000000000',
                     address: prospect.area || 'Unknown',
                     status: 'ACTIVE',
-                    notes: `Converted from AI Prospect. Compliance: ${complianceNotes}`
+                    notes: `Converted from Supplier Prospect. Compliance: ${complianceNotes}`
                 }
             });
 
-            // Mark prospect as converted
             await prisma.lead.update({
                 where: { id: prospectId },
                 data: { status: 'converted', notes: `Converted to ErpSupplier ${newSupplier.id}` }
@@ -144,11 +164,10 @@ export async function POST(req) {
             return NextResponse.json({ success: true, message: 'Supplier Approved and Added to DB', supplier: newSupplier });
         }
 
-        // Stage 7: Request Quotation (RFQ)
+        // Stage 7: RFQ — creates DB record AND sends real WhatsApp messages to suppliers
         if (action === 'send_rfq') {
             const { supplierIds, products } = body;
-            
-            // Create a procurement job to track this RFQ
+
             const procurementJob = await prisma.lead.create({
                 data: {
                     serviceType: 'procurement_job',
@@ -162,23 +181,43 @@ export async function POST(req) {
                 }
             });
 
-            return NextResponse.json({ success: true, message: 'RFQs dispatched to suppliers', jobId: procurementJob.id });
+            // Notify real suppliers via WhatsApp
+            let notifiedCount = 0;
+            if (supplierIds && supplierIds.length > 0) {
+                const suppliers = await prisma.erpSupplier.findMany({
+                    where: { id: { in: supplierIds } },
+                    select: { id: true, name: true, phone: true }
+                });
+
+                const productList = products?.map(p => `${p.name || p} (Qty: ${p.qty || 'TBD'})`).join(', ') || 'Multiple products';
+
+                for (const supplier of suppliers) {
+                    if (supplier.phone && supplier.phone !== '0000000000') {
+                        const msg = `📋 *RFQ from Swastik Medicare*\n\nDear ${supplier.name},\n\nWe request a quotation for:\n${productList}\n\nPlease reply with your best price, MOQ, and lead time.\n\nRef: JOB-${procurementJob.id.slice(-8)}\n\n_Swastik Medicare Procurement_`;
+                        try {
+                            const result = await sendWhatsAppText(supplier.phone, msg);
+                            if (result.success) notifiedCount++;
+                        } catch (e) { /* non-critical */ }
+                    }
+                }
+            }
+
+            return NextResponse.json({
+                success: true,
+                message: `RFQ created. ${notifiedCount} supplier(s) notified via WhatsApp.`,
+                jobId: procurementJob.id
+            });
         }
 
-        // Stage 9: Quotation Comparison & Receiving
+        // Stage 9: Quotation Receiving
         if (action === 'receive_quotation') {
             const { jobId, supplierId, quotationData } = body;
-            
+
             const job = await prisma.lead.findUnique({ where: { id: jobId } });
             const details = JSON.parse(job.details || '{}');
 
             if (!details.quotations) details.quotations = {};
-            
-            // Expected quotationData: { unitPrice, moq, discount, taxes, freight, leadTime }
-            details.quotations[supplierId] = {
-                ...quotationData,
-                receivedAt: new Date().toISOString()
-            };
+            details.quotations[supplierId] = { ...quotationData, receivedAt: new Date().toISOString() };
 
             const updated = await prisma.lead.update({
                 where: { id: jobId },
@@ -188,70 +227,47 @@ export async function POST(req) {
             return NextResponse.json({ success: true, message: 'Quotation received and logged', job: updated });
         }
 
-        // Stage 10, 11 & 12: Landed Cost, Margin Calc & AI Recommendation
+        // Stage 10-12: Landed Cost, Margin & AI Recommendation
         if (action === 'compare_and_recommend') {
             const { jobId, customerSellingPrice } = body;
-            
+
             const job = await prisma.lead.findUnique({ where: { id: jobId } });
             const details = JSON.parse(job.details || '{}');
             const quotes = details.quotations || {};
-            
+
             const results = [];
             let bestSupplier = null;
             let bestScore = -1;
 
             for (const [supplierId, quote] of Object.entries(quotes)) {
-                // Landed Cost = (Unit Price * Qty) - Discount + Taxes + Freight
-                // Assuming quote prices are per total required quantity for simplicity
                 const productCost = (quote.unitPrice * quote.qty) - (quote.discount || 0);
                 const landedCost = productCost + (quote.taxes || 0) + (quote.freight || 0);
-                
-                // Margin Calculation
                 const grossProfit = customerSellingPrice - landedCost;
                 const marginPercent = ((grossProfit / customerSellingPrice) * 100).toFixed(2);
 
-                // AI Scoring Heuristic
-                let score = 50; // base
+                let score = 50;
                 if (marginPercent > 20) score += 20;
                 else if (marginPercent > 10) score += 10;
-                
                 if (quote.leadTimeDays <= 3) score += 15;
                 else if (quote.leadTimeDays > 7) score -= 10;
-                
-                // Track results
-                const supplierResult = {
-                    supplierId,
-                    landedCost,
-                    grossProfit,
-                    marginPercent,
-                    score,
-                    reason: `Landed cost ₹${landedCost}, Margin ${marginPercent}%, Lead Time ${quote.leadTimeDays} days`
-                };
 
+                const supplierResult = { supplierId, landedCost, grossProfit, marginPercent, score,
+                    reason: `Landed cost ₹${landedCost}, Margin ${marginPercent}%, Lead Time ${quote.leadTimeDays} days` };
                 results.push(supplierResult);
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestSupplier = supplierResult;
-                }
+                if (score > bestScore) { bestScore = score; bestSupplier = supplierResult; }
             }
 
             details.comparisonResults = results;
             details.aiRecommendation = bestSupplier;
-
-            await prisma.lead.update({
-                where: { id: jobId },
-                data: { details: JSON.stringify(details) }
-            });
+            await prisma.lead.update({ where: { id: jobId }, data: { details: JSON.stringify(details) } });
 
             return NextResponse.json({ success: true, message: 'Analysis complete', recommendation: bestSupplier, results });
         }
 
-        // Stage 13 & 14: Human Approval & Purchase Order
+        // Stage 13 & 14: Approve PO
         if (action === 'approve_po') {
             const { jobId, approvedSupplierId, items } = body;
 
-            // Generate PO
             const po = await prisma.erpPurchaseOrder.create({
                 data: {
                     supplierId: approvedSupplierId,
@@ -271,7 +287,6 @@ export async function POST(req) {
                 include: { items: true, supplier: true }
             });
 
-            // Mark Job as Completed
             await prisma.lead.update({
                 where: { id: jobId },
                 data: { status: 'po_issued', notes: `PO Generated: ${po.poNumber}` }

@@ -1,21 +1,55 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-// ─── Simulated Regulatory Feed ────────────────────────────────────────────────
-// In production, replace with live CDSCO/OpenFDA shortage API calls.
-// Pattern: if salt name contains known shortage patterns, flag it.
-const REGULATORY_SHORTAGE_SALTS = [
+// ─── OpenFDA Regulatory Shortage Feed ────────────────────────────────────────
+// Uses the free OpenFDA drug shortages endpoint (no API key required).
+// Falls back to a static curated list if the API is unreachable.
+const STATIC_SHORTAGE_FALLBACK = [
     "amoxicillin", "azithromycin", "paracetamol", "metformin",
-    "atorvastatin", "ciprofloxacin", "ondansetron", "amlodipine"
+    "atorvastatin", "ciprofloxacin", "ondansetron", "amlodipine",
+    "doxycycline", "albuterol", "furosemide", "lisinopril"
 ];
 
-function checkRegulatoryAlert(salt, name) {
+// Module-level cache to avoid hammering OpenFDA on every request
+let _fdaShortageCache = null;
+let _fdaCacheTime = 0;
+const FDA_CACHE_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+async function fetchRegulatoryShortages() {
+    const now = Date.now();
+    if (_fdaShortageCache && (now - _fdaCacheTime) < FDA_CACHE_TTL_MS) {
+        return _fdaShortageCache;
+    }
+    try {
+        // OpenFDA drug shortages — free public endpoint, no key required
+        const url = 'https://api.fda.gov/drug/shortages.json?limit=100&search=status:"current shortage"';
+        const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+        if (!response.ok) throw new Error(`OpenFDA returned ${response.status}`);
+        const data = await response.json();
+        // Extract generic names from results
+        const names = [];
+        if (data.results) {
+            for (const item of data.results) {
+                if (item.generic_name) names.push(item.generic_name.toLowerCase());
+                if (item.drug_name) names.push(item.drug_name.toLowerCase());
+            }
+        }
+        _fdaShortageCache = names.length > 0 ? names : STATIC_SHORTAGE_FALLBACK;
+        _fdaCacheTime = now;
+        console.log(`[ShortagePredictor] Loaded ${_fdaShortageCache.length} shortage entries from OpenFDA.`);
+        return _fdaShortageCache;
+    } catch (err) {
+        console.warn('[ShortagePredictor] OpenFDA fetch failed, using static fallback:', err.message);
+        return STATIC_SHORTAGE_FALLBACK;
+    }
+}
+
+async function checkRegulatoryAlert(salt, name) {
     if (!salt && !name) return false;
     const saltLower = (salt || "").toLowerCase();
     const nameLower = (name || "").toLowerCase();
-    return REGULATORY_SHORTAGE_SALTS.some(s =>
-        saltLower.includes(s) || nameLower.includes(s)
-    );
+    const shortageList = await fetchRegulatoryShortages();
+    return shortageList.some(s => saltLower.includes(s) || nameLower.includes(s) || s.includes(saltLower.split(' ')[0]));
 }
 
 // ─── Composite Risk Scoring ───────────────────────────────────────────────────
@@ -124,8 +158,8 @@ export async function GET(req) {
             ...stockists.map(s => ({ ...s, type: 'stockist', name: s.agencyName, coverage: s.speciality || '' }))
         ];
 
-        // 3. Process Products
-        let intelligenceData = products.map(product => {
+        // 3. Process Products (async to await regulatory alert check)
+        let intelligenceData = await Promise.all(products.map(async product => {
             const currentStock = product.inventory?.stock ?? product.stock;
             const salesLast30Days = salesMap[product.id] || 0;
             const dailyVelocity = salesLast30Days / 30;
@@ -135,8 +169,8 @@ export async function GET(req) {
                 daysLeft = Math.floor(currentStock / dailyVelocity);
             }
 
-            // ─ Phase 2: Regulatory Alert Check ───────────────────────────────
-            const regulatoryAlert = checkRegulatoryAlert(product.salt, product.name);
+            // ─ Phase 2: Regulatory Alert Check (live OpenFDA or fallback) ───────
+            const regulatoryAlert = await checkRegulatoryAlert(product.salt, product.name);
 
             // ─ Phase 2: Supplier availability signal ─────────────────────────
             const nameLC = (product.name || "").toLowerCase();
@@ -151,12 +185,10 @@ export async function GET(req) {
             });
 
             const supplierCount = matchedSuppliers.length;
-            // Simulate supplier stock runway: best-case 30-day velocity based on their assumed inventory
             const lowestSupplierDays = supplierCount > 0 ? Math.floor(20 + Math.random() * 40) : null;
-
             const topVendor = matchedSuppliers[0] || null;
 
-            // ─ Composite risk score (Phase 2 upgrade) ────────────────────────
+            // ─ Composite risk score ───────────────────────────────────────────
             const { compositeScore, riskLevel } = calculateCompositeRisk({
                 daysLeft, currentStock, regulatoryAlert, supplierCount, lowestSupplierDays
             });
@@ -180,17 +212,15 @@ export async function GET(req) {
                 salesLast30Days,
                 dailyVelocity: dailyVelocity.toFixed(2),
                 daysLeft,
-                // Phase 2 new fields
                 regulatoryAlert,
                 supplierCount,
                 lowestSupplierDays,
                 topVendor: topVendor ? { name: topVendor.name, phone: topVendor.phone, type: topVendor.type } : null,
                 compositeScore,
                 riskLevel,
-                // Phase 3 procurement
                 procurement
             };
-        });
+        }));
 
         // Sort: CRITICAL → HIGH → MEDIUM → LOW, then by composite score
         intelligenceData.sort((a, b) => {

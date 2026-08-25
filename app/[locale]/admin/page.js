@@ -16,6 +16,8 @@ export default function AdminDashboard() {
     const [loading, setLoading] = useState(true);
     const [inventoryAlerts, setInventoryAlerts] = useState(null);
     const [pendingReturns, setPendingReturns] = useState(0);
+    const [actionLoading, setActionLoading] = useState({});
+    const [selectedStatus, setSelectedStatus] = useState({});
 
     useEffect(() => {
         fetch("/api/admin/inventory-alerts?threshold=10")
@@ -55,6 +57,42 @@ export default function AdminDashboard() {
             alert("Failed to connect to server: " + error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const ORDER_STATUSES = [
+        "Received", "Rx_Uploaded", "Pharmacist_Approved", "Ready_for_Packing",
+        "Out_for_Delivery", "Delivered", "Cancelled", "Refund_Pending", "Refunded"
+    ];
+
+    const handleOrderAction = async (orderId, action, extraData = {}) => {
+        const confirmed = action === 'cancel'
+            ? window.confirm('Cancel this order? Stock will be restored.')
+            : action === 'refund'
+            ? window.confirm('Initiate a refund for this order?')
+            : true;
+        if (!confirmed) return;
+
+        setActionLoading(prev => ({ ...prev, [orderId]: true }));
+        try {
+            const payload = { action, ...extraData };
+            if (action === 'update_status') payload.status = selectedStatus[orderId] || orders.find(o => o.id === orderId)?.status;
+            const res = await fetch(`/api/admin/orders/${orderId}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message);
+                fetchOrders();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        } catch (e) {
+            alert('Network error: ' + e.message);
+        } finally {
+            setActionLoading(prev => ({ ...prev, [orderId]: false }));
         }
     };
 
@@ -310,13 +348,14 @@ export default function AdminDashboard() {
                                         <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Shipping Address</th>
                                         <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#10B981', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Secret Code</th>
                                         <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Status Matrix</th>
+                                        <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Actions</th>
                                         <th style={{ padding: '20px', fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Invoice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {orders.length === 0 ? (
                                         <tr>
-                                            <td colSpan="7" style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
+                                            <td colSpan="8" style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
                                                 No active orders detected in the network.
                                             </td>
                                         </tr>
@@ -368,12 +407,61 @@ export default function AdminDashboard() {
                                                         fontWeight: '700',
                                                         textTransform: 'uppercase',
                                                         letterSpacing: '0.5px',
-                                                        background: order.status === 'Processing' ? 'rgba(245, 158, 11, 0.12)' : order.status === 'Delivered' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(59, 130, 246, 0.12)',
-                                                        border: order.status === 'Processing' ? '1px solid rgba(245, 158, 11, 0.3)' : order.status === 'Delivered' ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(59, 130, 246, 0.3)',
-                                                        color: order.status === 'Processing' ? '#fbbf24' : order.status === 'Delivered' ? '#34d399' : '#60a5fa'
+                                                        background: order.status === 'Delivered' ? 'rgba(16, 185, 129, 0.12)' : order.status === 'Cancelled' ? 'rgba(239,68,68,0.12)' : order.status?.includes('Refund') ? 'rgba(139,92,246,0.12)' : 'rgba(245, 158, 11, 0.12)',
+                                                        border: order.status === 'Delivered' ? '1px solid rgba(16, 185, 129, 0.3)' : order.status === 'Cancelled' ? '1px solid rgba(239,68,68,0.3)' : order.status?.includes('Refund') ? '1px solid rgba(139,92,246,0.3)' : '1px solid rgba(245, 158, 11, 0.3)',
+                                                        color: order.status === 'Delivered' ? '#34d399' : order.status === 'Cancelled' ? '#f87171' : order.status?.includes('Refund') ? '#a78bfa' : '#fbbf24'
                                                     }}>
                                                         {order.status}
                                                     </span>
+                                                </td>
+                                                <td style={{ padding: '20px', minWidth: '220px' }}>
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                                            <select
+                                                                value={selectedStatus[order.id] || order.status}
+                                                                onChange={e => setSelectedStatus(prev => ({ ...prev, [order.id]: e.target.value }))}
+                                                                style={{ flex: 1, background: '#1e293b', color: 'white', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '8px', padding: '6px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
+                                                            >
+                                                                {ORDER_STATUSES.map(s => <option key={s} value={s}>{s}</option>)}
+                                                            </select>
+                                                            <button
+                                                                disabled={actionLoading[order.id]}
+                                                                onClick={() => handleOrderAction(order.id, 'update_status')}
+                                                                style={{ padding: '6px 12px', background: '#10B981', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '0.72rem', cursor: 'pointer', opacity: actionLoading[order.id] ? 0.6 : 1 }}
+                                                            >
+                                                                Save
+                                                            </button>
+                                                        </div>
+                                                        <div style={{ display: 'flex', gap: '6px' }}>
+                                                            {!['Delivered','Cancelled','Refunded'].includes(order.status) && (
+                                                                <button
+                                                                    disabled={actionLoading[order.id]}
+                                                                    onClick={() => handleOrderAction(order.id, 'cancel')}
+                                                                    style={{ flex: 1, padding: '6px 10px', background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '8px', fontWeight: '700', fontSize: '0.72rem', cursor: 'pointer' }}
+                                                                >
+                                                                    ✕ Cancel
+                                                                </button>
+                                                            )}
+                                                            {['Delivered','Cancelled'].includes(order.status) && (
+                                                                <button
+                                                                    disabled={actionLoading[order.id]}
+                                                                    onClick={() => handleOrderAction(order.id, 'refund')}
+                                                                    style={{ flex: 1, padding: '6px 10px', background: 'rgba(139,92,246,0.15)', color: '#a78bfa', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '8px', fontWeight: '700', fontSize: '0.72rem', cursor: 'pointer' }}
+                                                                >
+                                                                    ↩ Refund
+                                                                </button>
+                                                            )}
+                                                            {order.status === 'Refund_Pending' && (
+                                                                <button
+                                                                    disabled={actionLoading[order.id]}
+                                                                    onClick={() => handleOrderAction(order.id, 'mark_refunded')}
+                                                                    style={{ flex: 1, padding: '6px 10px', background: 'rgba(16,185,129,0.15)', color: '#34d399', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '8px', fontWeight: '700', fontSize: '0.72rem', cursor: 'pointer' }}
+                                                                >
+                                                                    ✓ Mark Refunded
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <td style={{ padding: '20px' }}>
                                                     <button

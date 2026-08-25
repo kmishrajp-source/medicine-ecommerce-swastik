@@ -9,10 +9,7 @@ export async function POST(req) {
 
     // Security: Only allow ADMIN users to access the AI Business Executive
     if (!session || session.user.role !== "ADMIN") {
-      // Temporarily allow without session for testing if needed, but standard is restricted
-      // For now, let's enforce it but we can mock admin ID for local dev
-      console.warn("AI Executive: Unauthorized access attempt.");
-      // return NextResponse.json({ success: false, message: "Unauthorized. Admin access only." }, { status: 403 });
+      return NextResponse.json({ success: false, message: "Unauthorized. Admin access only." }, { status: 403 });
     }
 
     const adminId = session?.user?.id || "local-admin-dev";
