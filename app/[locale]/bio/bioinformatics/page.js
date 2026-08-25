@@ -16,75 +16,120 @@ export default function BioinformaticsHub() {
     const [uploadStep, setUploadStep] = useState("");
     const [selectedTab, setSelectedTab] = useState("datasets"); // datasets, upload, insights, abha
 
-    // Mock Sample Datasets in User Data Bank
-    const [userDatasets, setUserDatasets] = useState([
-        {
-            id: 'DS-9042',
-            fileName: 'Whole_Exome_Sequencing_v3.vcf',
-            type: 'GENOMIC_VCF',
-            fileSize: '48.2 MB',
-            uploadedAt: '2026-08-15',
-            status: 'PROCESSED',
-            aiSummary: 'No high-risk pathogenic variants detected. Normal drug metabolism profile.'
-        },
-        {
-            id: 'DS-8810',
-            fileName: 'Comprehensive_Blood_Panel_Aug2026.pdf',
-            type: 'LAB_REPORT',
-            fileSize: '2.4 MB',
-            uploadedAt: '2026-08-10',
-            status: 'PROCESSED',
-            aiSummary: 'HbA1c: 5.6% (Normal), Lipid Profile: Normal, Vitamin D: 32 ng/mL (Optimal).'
-        },
-        {
-            id: 'DS-7921',
-            fileName: 'Cardiac_Biomarker_RNAseq.fastq.gz',
-            type: 'RAW_FASTQ',
-            fileSize: '124.0 MB',
-            uploadedAt: '2026-07-28',
-            status: 'PROCESSED',
-            aiSummary: 'Normal expression across key MYH7 and TNNT2 cardiac markers.'
-        }
-    ]);
+    const [userDatasets, setUserDatasets] = useState([]);
+    const [pollingJobs, setPollingJobs] = useState(new Set());
 
-    const handleFileUploadSimulation = (e) => {
+    useEffect(() => {
+        if (session?.user) {
+            fetchDatasets();
+        }
+    }, [session]);
+
+    const fetchDatasets = async () => {
+        try {
+            const res = await fetch('/api/bio/bioinformatics/datasets');
+            const data = await res.json();
+            if (data.success) {
+                setUserDatasets(data.datasets);
+                
+                // If any datasets are still processing, ensure we're polling them
+                const processingDatasets = data.datasets.filter(d => d.status !== 'PROCESSED' && d.status !== 'FAILED' && d.jobId);
+                processingDatasets.forEach(d => {
+                    if (!pollingJobs.has(d.jobId)) {
+                        pollJob(d.jobId);
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Failed to fetch datasets:', e);
+        }
+    };
+
+    const pollJob = (jobId) => {
+        setPollingJobs(prev => new Set(prev).add(jobId));
+        
+        const interval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/bio/bioinformatics/job/${jobId}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    // Update dataset in state
+                    setUserDatasets(prev => prev.map(ds => {
+                        if (ds.jobId === jobId) {
+                            return { ...ds, progress: data.progress, pipelineStage: data.stage, status: data.status };
+                        }
+                        return ds;
+                    }));
+
+                    // Also update upload UI if it's the current upload
+                    setUploadProgress(data.progress);
+                    setUploadStep(`Running Pipeline: ${data.stage}...`);
+
+                    if (data.progress >= 100) {
+                        clearInterval(interval);
+                        setPollingJobs(prev => {
+                            const newSet = new Set(prev);
+                            newSet.delete(jobId);
+                            return newSet;
+                        });
+                        setUploadStep("Data Bank Ingestion Complete!");
+                        setTimeout(() => {
+                            setUploading(false);
+                            setSelectedTab("datasets");
+                            fetchDatasets(); // Refresh final state
+                        }, 1000);
+                    }
+                }
+            } catch (e) {
+                console.error('Polling error:', e);
+            }
+        }, 1500);
+    };
+
+    const handleFileUploadSimulation = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
         setUploading(true);
-        setUploadProgress(10);
-        setUploadStep("Reading genomic payload...");
+        setUploadProgress(5);
+        setUploadStep("Uploading file securely...");
 
-        setTimeout(() => {
-            setUploadProgress(40);
-            setUploadStep("Normalizing FASTQ/VCF data & alignment...");
-        }, 1200);
+        try {
+            const formData = new FormData();
+            formData.append('file', file);
 
-        setTimeout(() => {
-            setUploadProgress(75);
-            setUploadStep("Running AI Variant Calling & Privacy Encryption...");
-        }, 2400);
+            const res = await fetch('/api/bio/bioinformatics/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
 
-        setTimeout(() => {
-            setUploadProgress(100);
-            setUploadStep("Data Bank Ingestion Complete!");
+            if (data.success) {
+                setUploadStep("Initializing Bioinformatics Pipeline...");
+                // Add temp entry to UI
+                setUserDatasets(prev => [{
+                    id: data.datasetId,
+                    fileName: file.name,
+                    type: file.name.endsWith('.vcf') ? 'GENOMIC_VCF' : file.name.endsWith('.fastq') ? 'RAW_FASTQ' : 'LAB_REPORT',
+                    fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+                    uploadedAt: new Date().toISOString().split('T')[0],
+                    status: 'QUEUED',
+                    jobId: data.jobId,
+                    progress: 0,
+                    pipelineStage: 'INITIALIZING'
+                }, ...prev]);
 
-            const newDS = {
-                id: `DS-${Math.floor(1000 + Math.random() * 9000)}`,
-                fileName: file.name,
-                type: file.name.endsWith('.vcf') ? 'GENOMIC_VCF' : file.name.endsWith('.fastq') || file.name.endsWith('.gz') ? 'RAW_FASTQ' : 'LAB_REPORT',
-                fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
-                uploadedAt: new Date().toISOString().split('T')[0],
-                status: 'PROCESSED',
-                aiSummary: 'Successfully ingested into Swastik Computational Biology Engine. Zero high-risk variants.'
-            };
-
-            setUserDatasets(prev => [newDS, ...prev]);
-            setTimeout(() => {
+                pollJob(data.jobId);
+            } else {
+                alert(data.error || 'Upload failed');
                 setUploading(false);
-                setSelectedTab("datasets");
-            }, 1000);
-        }, 3600);
+            }
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert('Upload failed. Please try again.');
+            setUploading(false);
+        }
     };
 
     return (
@@ -183,36 +228,75 @@ export default function BioinformaticsHub() {
                         {selectedTab === "datasets" && (
                             <div className="space-y-6">
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                    {userDatasets.map((dataset) => (
-                                        <div key={dataset.id} className="bg-slate-800/80 border border-slate-700/80 hover:border-emerald-500/50 p-6 rounded-3xl transition-all space-y-4 flex flex-col justify-between">
-                                            <div>
-                                                <div className="flex justify-between items-start mb-3">
-                                                    <span className="bg-slate-700 text-emerald-400 font-mono text-[10px] font-bold px-2.5 py-1 rounded-md">
-                                                        {dataset.type}
-                                                    </span>
-                                                    <span className="text-[10px] text-slate-400 font-bold">{dataset.fileSize}</span>
-                                                </div>
-                                                <h4 className="font-black text-white text-base leading-snug line-clamp-2 mb-2">{dataset.fileName}</h4>
-                                                <p className="text-xs text-slate-400 font-medium">Uploaded: {dataset.uploadedAt}</p>
-                                            </div>
-
-                                            <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-700/50 space-y-1.5">
-                                                <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1">
-                                                    <i className="fa-solid fa-microchip"></i> AI Computation Summary
-                                                </span>
-                                                <p className="text-xs text-slate-300 font-medium leading-relaxed">{dataset.aiSummary}</p>
-                                            </div>
-
-                                            <div className="pt-2 flex gap-2">
-                                                <button onClick={() => alert(`Downloading normalized payload for ${dataset.fileName}...`)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5">
-                                                    <i className="fa-solid fa-download"></i> Download Payload
-                                                </button>
-                                                <button onClick={() => alert(`Full Diagnostic Report View: ${dataset.fileName}`)} className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 px-3 py-2.5 rounded-xl text-xs font-bold">
-                                                    <i className="fa-solid fa-eye"></i>
-                                                </button>
-                                            </div>
+                                    {userDatasets.length === 0 ? (
+                                        <div className="col-span-full text-center py-10 text-slate-400">
+                                            No datasets found. Upload your first genomic file to get started.
                                         </div>
-                                    ))}
+                                    ) : (
+                                        userDatasets.map((dataset) => (
+                                            <div key={dataset.id} className="bg-slate-800 border border-slate-700 rounded-2xl p-6 hover:border-slate-600 transition-colors flex flex-col justify-between">
+                                                <div>
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${
+                                                                dataset.type === 'GENOMIC_VCF' ? 'bg-purple-500/20 text-purple-400' :
+                                                                dataset.type === 'RAW_FASTQ' ? 'bg-blue-500/20 text-blue-400' :
+                                                                'bg-emerald-500/20 text-emerald-400'
+                                                            }`}>
+                                                                {dataset.type === 'GENOMIC_VCF' ? '🧬' : dataset.type === 'RAW_FASTQ' ? '🔬' : '📊'}
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold text-white text-sm line-clamp-1 break-all" title={dataset.fileName}>{dataset.fileName}</div>
+                                                                <div className="text-[10px] text-slate-400 flex gap-2 mt-1 font-bold">
+                                                                    <span>{dataset.type}</span>
+                                                                    <span>•</span>
+                                                                    <span>{dataset.fileSize}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <span className={`px-2.5 py-1 rounded-md text-[9px] font-black tracking-wider uppercase border ${
+                                                            dataset.status === 'PROCESSED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30' :
+                                                            dataset.status === 'FAILED' ? 'bg-red-500/10 text-red-400 border-red-500/30' :
+                                                            'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                                                        }`}>
+                                                            {dataset.status === 'PROCESSED' ? 'PROCESSED' : dataset.pipelineStage || 'PROCESSING'}
+                                                        </span>
+                                                    </div>
+
+                                                    {dataset.status !== 'PROCESSED' && dataset.status !== 'FAILED' && (
+                                                        <div className="mt-2 mb-4">
+                                                            <div className="flex justify-between text-[10px] font-bold text-amber-400/80 mb-1">
+                                                                <span>{dataset.pipelineStage}</span>
+                                                                <span>{dataset.progress}%</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-slate-700/50 rounded-full overflow-hidden">
+                                                                <div className="h-full bg-amber-500 transition-all duration-300" style={{ width: `${dataset.progress}%` }}></div>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {dataset.aiSummary && (
+                                                        <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-700/50 space-y-1.5 mt-2">
+                                                            <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest flex items-center gap-1">
+                                                                <i className="fa-solid fa-microchip"></i> AI Computation Summary
+                                                            </span>
+                                                            <p className="text-xs text-slate-300 font-medium leading-relaxed">{dataset.aiSummary}</p>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Actions */}
+                                                <div className="pt-4 flex gap-2 mt-4 border-t border-slate-700/50">
+                                                    <button onClick={() => alert(`Downloading normalized payload for ${dataset.fileName}...`)} className="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl text-[11px] flex items-center justify-center gap-1.5 transition-colors">
+                                                        <i className="fa-solid fa-download"></i> Payload
+                                                    </button>
+                                                    <button onClick={() => alert(`Full Diagnostic Report View: ${dataset.fileName}`)} className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold transition-colors">
+                                                        <i className="fa-solid fa-eye"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         )}
