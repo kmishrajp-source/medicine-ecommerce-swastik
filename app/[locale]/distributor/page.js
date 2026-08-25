@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function DistributorDashboard() {
     const { data: session } = useSession();
-    const [data, setData] = useState({ distributor: null, catalog: [], shortageAlerts: [], retailerNetwork: [] });
+    const [data, setData] = useState({ distributor: null, catalog: [], shortageAlerts: [], retailerNetwork: [], pendingRfqs: [], rfqStats: {} });
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("catalog"); // "catalog" | "alerts" | "retailers" | "settings"
     const [editBrands, setEditBrands] = useState("");
@@ -113,6 +113,7 @@ export default function DistributorDashboard() {
                 {/* Navigation Tabs */}
                 <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem", borderBottom: "1px solid rgba(255,255,255,0.1)", pb: "0.5rem" }}>
                     {[
+                        { id: "rfqs", label: `📋 Incoming RFQs (${data.rfqStats?.pending || 0})` },
                         { id: "catalog", label: `📦 Distribution Catalog (${data.catalog.length})` },
                         { id: "alerts", label: `🚨 Shortage Opportunities (${data.shortageAlerts.length})` },
                         { id: "retailers", label: `🏪 Retailer Network (${data.retailerNetwork.length})` },
@@ -136,6 +137,49 @@ export default function DistributorDashboard() {
                 {/* Tab Content */}
                 {loading ? (
                     <div style={{ padding: "4rem", textAlign: "center", color: "#9CA3AF" }}>Loading distribution portal...</div>
+                ) : activeTab === "rfqs" ? (
+                    <div>
+                        {data.pendingRfqs?.length === 0 ? (
+                            <div style={{ textAlign: "center", padding: "4rem", color: "#9CA3AF" }}>
+                                <div style={{ fontSize: "3rem", marginBottom: "12px" }}>📭</div>
+                                <p style={{ fontWeight: 600 }}>No pending RFQs in your area right now.</p>
+                                <p style={{ fontSize: "0.85rem" }}>When pharmacies or hospitals request quotations, they will appear here.</p>
+                            </div>
+                        ) : (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+                                {data.pendingRfqs.map(rfq => (
+                                    <div key={rfq.id} style={{ background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", borderRadius: "16px", padding: "1.5rem" }}>
+                                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
+                                            <div>
+                                                <div style={{ fontWeight: 900, color: "white", fontSize: "1rem" }}>📋 {rfq.rfqRef || rfq.id.slice(-8)}</div>
+                                                <div style={{ fontSize: "0.8rem", color: "#93C5FD", marginTop: "4px" }}>From: {rfq.retailer?.shopName} · {rfq.retailer?.city}</div>
+                                                {rfq.deliveryLocation && <div style={{ fontSize: "0.75rem", color: "#9CA3AF" }}>📍 Delivery: {rfq.deliveryLocation}</div>}
+                                                {rfq.requiredByDate && <div style={{ fontSize: "0.75rem", color: "#9CA3AF" }}>📅 Required by: {new Date(rfq.requiredByDate).toLocaleDateString()}</div>}
+                                            </div>
+                                            <button
+                                                onClick={() => {
+                                                    const items = rfq.items.map(i => `${i.quantity} ${i.unit || 'units'} of ${i.name}`).join(', ');
+                                                    const msg = encodeURIComponent(`Hello ${rfq.retailer?.shopName}, I am responding to your RFQ (${rfq.rfqRef || rfq.id.slice(-8)}) for: ${items}. Please share your best quotation requirements and we will respond within 24 hours.`);
+                                                    window.open(`https://wa.me/91${rfq.retailer?.phone}?text=${msg}`, "_blank");
+                                                }}
+                                                style={{ background: "#25D366", color: "white", border: "none", padding: "10px 16px", borderRadius: "10px", fontWeight: "bold", fontSize: "0.8rem", cursor: "pointer", whiteSpace: "nowrap" }}
+                                            >
+                                                📲 Respond via WA
+                                            </button>
+                                        </div>
+                                        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                                            {rfq.items.map((item, idx) => (
+                                                <div key={idx} style={{ background: "rgba(255,255,255,0.07)", padding: "6px 12px", borderRadius: "8px", fontSize: "0.8rem", color: "#E2E8F0" }}>
+                                                    <strong>{item.quantity} {item.unit}</strong> — {item.name}
+                                                    {item.targetPrice && <span style={{ color: "#34D399", marginLeft: "6px" }}>Target: ₹{item.targetPrice}</span>}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
                 ) : activeTab === "catalog" ? (
                     <div>
                         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.25rem" }}>

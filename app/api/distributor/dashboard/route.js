@@ -52,6 +52,34 @@ export async function GET(req) {
             select: { id: true, shopName: true, phone: true, address: true, verified: true }
         });
 
+        // Fetch pending B2B RFQs from retailers in the same city/coverage area
+        const cityRetailerIds = retailers.map(r => r.id);
+        const pendingRfqs = cityRetailerIds.length > 0 ? await prisma.bulkOrder.findMany({
+            where: {
+                retailerId: { in: cityRetailerIds },
+                status: 'B2B_RFQ_PENDING'
+            },
+            orderBy: { createdAt: 'desc' },
+            take: 20,
+            include: { retailer: { select: { shopName: true, phone: true, city: true } } }
+        }) : [];
+
+        const parsedRfqs = pendingRfqs.map(rfq => {
+            let data = {};
+            try { data = JSON.parse(rfq.items); } catch (e) {}
+            return {
+                id: rfq.id,
+                rfqRef: data.rfqRef,
+                retailer: rfq.retailer,
+                items: data.items || [],
+                deliveryLocation: data.deliveryLocation,
+                requiredByDate: data.requiredByDate,
+                notes: data.notes,
+                createdAt: rfq.createdAt,
+                status: rfq.status
+            };
+        });
+
         return NextResponse.json({
             success: true,
             distributor: distributor || {
@@ -70,7 +98,9 @@ export async function GET(req) {
                 stock: p.inventory?.stock ?? p.stock
             })),
             shortageAlerts,
-            retailerNetwork: retailers
+            retailerNetwork: retailers,
+            pendingRfqs: parsedRfqs,
+            rfqStats: { total: parsedRfqs.length, pending: parsedRfqs.filter(r => r.status === 'B2B_RFQ_PENDING').length }
         });
 
     } catch (error) {
