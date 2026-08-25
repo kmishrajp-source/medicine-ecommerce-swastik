@@ -7,7 +7,7 @@ import { useCart } from "../../../context/CartContext";
 import { getSpecialtiesFromQuery } from "@/lib/medical-intent";
 import { trackEvent, ANALYTICS_EVENTS } from "@/lib/analytics";
 
-const specialties = ["All", "General Physician", "Gynaecologist", "Paediatrician", "Orthopaedic", "Dermatologist", "Neurologist", "Cardiologist", "Urologist", "ENT Specialist"];
+const specialties = ["All", "General Physician", "Gynaecologist", "Paediatrician", "Orthopaedic", "Dermatologist", "Neurologist", "Cardiologist", "Urologist", "ENT Specialist", "Diabetologist / Endocrinologist", "Pulmonologist", "Gastroenterologist", "Nephrologist", "Oncologist", "Psychiatrist", "Emergency Medicine"];
 const symptomChips = ["Lungs", "Fever", "Heart", "Skin", "Stomach", "Bones", "Kids", "Women"];
 const areas = ["All", "Betiahata", "Golghar", "Gorakhnath", "Medical College", "Asuran", "Shahpur", "Basharatpur", "Kunraghat"];
 
@@ -73,17 +73,22 @@ export default function DoctorsClient() {
         trackEvent("funnel_doctor_search_step_landing", { path: "/doctors" });
     }, []);
 
+    const [hasDismissedSOS, setHasDismissedSOS] = useState(false);
+
     // Emergency Keyword Interceptor
     useEffect(() => {
         const criticalKeywords = ['ambulance', 'sos', 'emergency', 'icu', 'oxygen', 'urgent'];
         const query = searchQuery.toLowerCase();
         if (criticalKeywords.some(k => query.includes(k))) {
-            setShowSOS(true);
-            trackEvent(ANALYTICS_EVENTS.SOS, { query });
+            if (!hasDismissedSOS) {
+                setShowSOS(true);
+                trackEvent(ANALYTICS_EVENTS.SOS, { query });
+            }
         } else {
             setShowSOS(false);
+            setHasDismissedSOS(false); // Reset if they clear the emergency keyword
         }
-    }, [searchQuery]);
+    }, [searchQuery, hasDismissedSOS]);
 
     useEffect(() => {
         if (searchQuery.length > 2) {
@@ -321,7 +326,7 @@ export default function DoctorsClient() {
                                     <i className="fa-solid fa-phone-volume mr-3"></i> Call Emergency (7992122974)
                                 </a>
                                 <button 
-                                    onClick={() => setShowSOS(false)} 
+                                    onClick={() => { setShowSOS(false); setHasDismissedSOS(true); }} 
                                     className="block w-full bg-slate-100 text-slate-400 font-black py-4 rounded-2xl text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
                                 >
                                     Continue searching results

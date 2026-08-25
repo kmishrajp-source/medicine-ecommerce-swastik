@@ -104,9 +104,9 @@ export default function DirectoryCard({ item, type, onBook = () => {} }) {
                     </div>
                 </div>
 
-                {type === 'doctor' && (
+                {(type === 'doctor' || type === 'hospital') && (
                     <Link 
-                        href={`/doctors/${item.id}`}
+                        href={`/${type}s/${item.id}`}
                         className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-2 mb-6 hover:underline"
                     >
                         View Full Profile <i className="fa-solid fa-arrow-right-long"></i>
