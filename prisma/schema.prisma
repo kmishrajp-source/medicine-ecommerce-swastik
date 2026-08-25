@@ -70,6 +70,7 @@ model User {
   healthcareSearches  HealthcareSearch[]
   researchAlerts      ResearchAlert[]      @relation("UserResearchAlerts")
   bioinformaticsDatasets BioinformaticsDataset[] @relation("UserBioinformaticsDatasets")
+  genomicDatasets      GenomicDataset[]
   revenueTransactions RevenueTransaction[] @relation("UserRevenueTransactions")
   voiceOrders         VoiceOrderIntent[]   @relation("UserVoiceOrders")
 
@@ -2572,12 +2573,12 @@ model GenomicDataset {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
-  job             BioinformaticsJob?
+  job             GenomicAnalysisJob?
   
   @@index([userId])
 }
 
-model BioinformaticsJob {
+model GenomicAnalysisJob {
   id              String   @id @default(cuid())
   datasetId       String   @unique
   dataset         GenomicDataset @relation(fields: [datasetId], references: [id])
