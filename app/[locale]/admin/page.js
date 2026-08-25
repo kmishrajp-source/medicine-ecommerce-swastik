@@ -198,6 +198,7 @@ export default function AdminDashboard() {
                             gap: '10px'
                         }}>
                             {[
+                                { name: "🧠 BI Control Center", path: "/admin/bi-control-center", color: "#06B6D4", page: "analytics" },
                                 { name: "Inventory", path: "/admin/inventory", color: "#10B981", page: "inventory" },
                                 { name: "Approvals (Users)", path: "/admin/approvals", color: "#EF4444", page: "approvals" },
                                 { name: "👥 Staff Approvals", path: "/admin/staff-approvals", color: "#818cf8", page: "staff-approvals" },
