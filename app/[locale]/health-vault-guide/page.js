@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useCart } from "@/context/CartContext";
 
 const steps = [
