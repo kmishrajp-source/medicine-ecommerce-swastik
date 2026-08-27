@@ -20,23 +20,30 @@ export default function SwastikChatWidget() {
             setIsOpen(true);
             if (e.detail?.message) {
                 const autoMsg = e.detail.message;
-                setMessages(prev => [...prev, { role: "user", text: autoMsg }]);
-                setIsLoading(true);
-                try {
-                    const res = await fetch("/api/ai-assistant", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ message: autoMsg })
-                    });
-                    const data = await res.json();
-                    if (data.success) {
-                        setMessages(prev => [...prev, { role: "assistant", text: data.response }]);
-                    }
-                } catch (err) {
-                    setMessages(prev => [...prev, { role: "assistant", text: "Our team has been alerted. Please also try WhatsApp at +91-7992122974 for instant support." }]);
-                } finally {
-                    setIsLoading(false);
-                }
+                setMessages(prev => {
+                    const newMessages = [...prev, { role: "user", text: autoMsg }];
+                    // Move fetch inside to capture the latest state
+                    (async () => {
+                        setIsLoading(true);
+                        try {
+                            const res = await fetch("/api/ai-assistant", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ message: autoMsg, messages: newMessages })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                setMessages(current => [...current, { role: "assistant", text: data.response }]);
+                            }
+                        } catch (err) {
+                            setMessages(current => [...current, { role: "assistant", text: "Our team has been alerted. Please also try WhatsApp at +91-7992122974 for instant support." }]);
+                        } finally {
+                            setIsLoading(false);
+                        }
+                    })();
+                    return newMessages;
+                });
+
             }
         };
         window.addEventListener('swastik:open-chat', handleExternalOpen);
@@ -56,7 +63,8 @@ export default function SwastikChatWidget() {
         if (!input.trim()) return;
 
         const userText = input.trim();
-        setMessages(prev => [...prev, { role: "user", text: userText }]);
+        const newMessages = [...messages, { role: "user", text: userText }];
+        setMessages(newMessages);
         setInput("");
         setIsLoading(true);
 
@@ -64,7 +72,7 @@ export default function SwastikChatWidget() {
             const res = await fetch("/api/ai-assistant", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ message: userText })
+                body: JSON.stringify({ message: userText, messages: newMessages })
             });
             const data = await res.json();
             

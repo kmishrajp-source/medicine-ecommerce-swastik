@@ -4,7 +4,7 @@ import { translateToEnglish, addHindiPrefix } from "@/lib/hindi-translate";
 
 export async function POST(req) {
     try {
-        const { message } = await req.json();
+        const { message, messages } = await req.json();
 
         if (!message) {
             return NextResponse.json({ error: "Message is required" }, { status: 400 });
@@ -14,7 +14,7 @@ export async function POST(req) {
         const { translated, wasHindi } = translateToEnglish(message);
         const messageToProcess = wasHindi ? translated : message;
 
-        const aiResult = await processChatMessage(messageToProcess);
+        const aiResult = await processChatMessage(messageToProcess, messages);
 
         // Prepend Hindi acknowledgment if original message was Hindi/Hinglish
         const finalResponse = addHindiPrefix(aiResult.responseText, wasHindi);
