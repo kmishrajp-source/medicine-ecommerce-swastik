@@ -21,12 +21,12 @@ const steps = [
 ];
 
 const bioItems = [
-  { icon: "fa-dna", color: "text-violet-400", en: "Predict disease risk from your DNA", hi: "DNA से बीमारी का खतरा जानें" },
-  { icon: "fa-pills", color: "text-blue-400", en: "Find medicines that match your genes", hi: "आपके जीन के अनुसार दवा खोजें" },
-  { icon: "fa-apple-whole", color: "text-emerald-400", en: "Get a nutrition plan built for your biology", hi: "अपने शरीर के लिए अनुकूलित डाइट पाएं" },
-  { icon: "fa-microscope", color: "text-amber-400", en: "Early cancer detection via liquid biopsy", hi: "तरल बायोप्सी से प्रारंभिक कैंसर पहचान" },
-  { icon: "fa-viruses", color: "text-rose-400", en: "Gut microbiome & immunity analysis", hi: "आंत के बैक्टीरिया और इम्युनिटी विश्लेषण" },
-  { icon: "fa-brain", color: "text-indigo-400", en: "Neuro-genetic Alzheimer's risk check", hi: "न्यूरो-जेनेटिक अल्जाइमर जोखिम जांच" },
+  { icon: "fa-dna", color: "text-violet-400", href: "/bio/bioinformatics", en: "Predict disease risk from your DNA", hi: "DNA से बीमारी का खतरा जानें" },
+  { icon: "fa-pills", color: "text-blue-400", href: "/bio/pharmacogenomics", en: "Find medicines that match your genes", hi: "आपके जीन के अनुसार दवा खोजें" },
+  { icon: "fa-apple-whole", color: "text-emerald-400", href: "/health-vault-guide", en: "Get a nutrition plan built for your biology", hi: "अपने शरीर के लिए अनुकूलित डाइट पाएं" },
+  { icon: "fa-microscope", color: "text-amber-400", href: "/labs", en: "Early cancer detection via liquid biopsy", hi: "तरल बायोप्सी से प्रारंभिक कैंसर पहचान" },
+  { icon: "fa-viruses", color: "text-rose-400", href: "/bio/tests", en: "Gut microbiome & immunity analysis", hi: "आंत के बैक्टीरिया और इम्युनिटी विश्लेषण" },
+  { icon: "fa-brain", color: "text-indigo-400", href: "/bio/bioinformatics", en: "Neuro-genetic Alzheimer's risk check", hi: "न्यूरो-जेनेटिक अल्जाइमर जोखिम जांच" },
 ];
 
 export default function HomeVaultGuideSection() {
@@ -64,14 +64,14 @@ export default function HomeVaultGuideSection() {
           {steps.map((s, i) => {
             const c = s[lang];
             return (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-3xl p-7 hover:border-slate-600 hover:-translate-y-1 transition-all duration-300 group">
+              <Link key={i} href="/health-vault-guide" className="bg-slate-900 border border-slate-800 rounded-3xl p-7 hover:border-slate-600 hover:-translate-y-1 transition-all duration-300 group block">
                 <div className={`w-14 h-14 rounded-2xl ${s.bg} ${s.iconColor} flex items-center justify-center text-2xl mb-5 group-hover:scale-110 transition-transform`}>
                   <i className={`fa-solid ${s.icon}`}></i>
                 </div>
                 <div className={`text-[10px] font-black uppercase tracking-widest mb-2 ${s.iconColor}`}>{c.step}</div>
                 <h3 className="text-white font-black text-lg mb-3 leading-snug">{c.title}</h3>
                 <p className="text-slate-400 text-sm leading-relaxed">{c.desc}</p>
-              </div>
+              </Link>
             );
           })}
         </div>
@@ -97,12 +97,13 @@ export default function HomeVaultGuideSection() {
             </div>
             <div className="md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4">
               {bioItems.map((item, i) => (
-                <div key={i} className="flex items-center gap-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl px-5 py-4 hover:border-slate-600 transition-all">
-                  <div className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 ${item.color} text-lg`}>
+                <Link key={i} href={item.href} className="flex items-center gap-4 bg-slate-800/50 border border-slate-700/50 rounded-2xl px-5 py-4 hover:border-teal-500/50 hover:bg-slate-800 transition-all group cursor-pointer">
+                  <div className={`w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center flex-shrink-0 ${item.color} text-lg group-hover:scale-110 transition-transform`}>
                     <i className={`fa-solid ${item.icon}`}></i>
                   </div>
-                  <p className="text-slate-300 text-sm font-semibold leading-snug">{T(item.en, item.hi)}</p>
-                </div>
+                  <p className="text-slate-300 text-sm font-semibold leading-snug group-hover:text-white transition-colors">{T(item.en, item.hi)}</p>
+                  <i className="fa-solid fa-chevron-right text-slate-600 group-hover:text-teal-400 text-xs ml-auto transition-colors"></i>
+                </Link>
               ))}
             </div>
           </div>
