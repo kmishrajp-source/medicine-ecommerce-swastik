@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import bcrypt from "bcryptjs";
+import { CustomerIntelligenceAgent } from "@/lib/agents/CustomerIntelligenceAgent";
 
 // Basic helper to generate 4-digit code
 function generateDeliveryCode() {
@@ -221,6 +222,12 @@ export async function GET(req) {
             });
 
             return NextResponse.json({ success: true, monitoredCustomers: monitoredData });
+        }
+
+        // AGENTIC SYSTEM: Find inactive customers and draft retention campaigns
+        if (action === "find-inactive-customers") {
+            const result = await CustomerIntelligenceAgent.processInactivityTrigger();
+            return NextResponse.json(result);
         }
 
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });

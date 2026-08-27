@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { MasterOrchestrator } from '@/lib/agents/MasterOrchestrator';
+import { LogisticsAgent } from '@/lib/agents/LogisticsAgent';
 
 // Utility: haversine distance in km
 function haversine(lat1, lng1, lat2, lng2) {
@@ -143,6 +145,37 @@ export async function PATCH(req) {
 
     } catch (error) {
         console.error('Delivery Monitor PATCH Error:', error);
+        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+    }
+}
+
+// POST for webhook (e.g. tracking systems reporting a delay)
+export async function POST(req) {
+    try {
+        const body = await req.json();
+        const { event, data } = body;
+
+        // Example webhook payload: { event: "delivery_delayed", data: { orderId: "123", riderId: "abc", delayMinutes: 45 } }
+        if (event === "delivery_delayed") {
+            // AGENTIC SYSTEM: Route delay event to Master Orchestrator / Logistics Agent
+            console.log(`[DELIVERY WEBHOOK] Received delay event for order ${data.orderId}`);
+            
+            // Log to Master Orchestrator for tracking
+            await MasterOrchestrator.execute(
+                `Order ${data.orderId} delayed by ${data.delayMinutes} mins. Rider: ${data.riderId}`,
+                "SYSTEM_EVENT",
+                data
+            );
+
+            // Execute specific agent logic
+            const result = await LogisticsAgent.processDelayTrigger(data);
+            
+            return NextResponse.json({ success: true, result });
+        }
+
+        return NextResponse.json({ success: true, message: "Event ignored" });
+    } catch (error) {
+        console.error('Delivery Monitor Webhook Error:', error);
         return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 }
