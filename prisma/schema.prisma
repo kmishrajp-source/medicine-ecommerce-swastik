@@ -2589,3 +2589,33 @@ model GenomicAnalysisJob {
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// ============================================================================
+// PHASE 29: AGENTIC AI OS
+// ============================================================================
+
+model ApprovalRequest {
+  id              String   @id @default(cuid())
+  requestedById   String?
+  approvedById    String?
+  actionType      String
+  details         String   @db.Text
+  status          String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model AgentMemory {
+  id              String   @id @default(cuid())
+  agentId         String   // e.g. 'SUP_001'
+  entityId        String   // Reference to a Supplier, Customer, etc.
+  memoryType      String   // e.g. 'PERFORMANCE', 'INTERACTION_PATTERN'
+  memoryData      String   @db.Text // JSON string containing the memory
+  importance      Int      @default(1) // 1 to 5
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([agentId, entityId])
+}
