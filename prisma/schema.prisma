@@ -2619,3 +2619,49 @@ model AgentMemory {
 
   @@index([agentId, entityId])
 }
+
+model OmnichannelContent {
+  id             String    @id @default(cuid())
+  title          String
+  description    String?
+  category       String
+  contentType    String    // MEDICINE, HEALTH, OFFER, BLOG, DOCTOR, LAB, VIDEO, FAQ, etc.
+  websiteUrl     String?
+  imageUrl       String?
+  videoUrl       String?
+  cta            String?
+  status         String    @default("DRAFT") // DRAFT, PENDING_APPROVAL, APPROVED, PUBLISHED, FAILED, CANCELLED
+  authorId       String
+  publishDate    DateTime?
+
+  // AI-adapted channel-specific versions
+  websiteBody    String?   @db.Text
+  facebookBody   String?   @db.Text
+  instagramBody  String?   @db.Text
+  whatsappBody   String?   @db.Text
+  emailBody      String?   @db.Text
+  smsBody        String?
+
+  // Tracking
+  utmSource      String?
+  utmCampaign    String?
+  utmMedium      String?
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([status, publishDate])
+}
+
+model SocialConnection {
+  id             String    @id @default(cuid())
+  channel        String    @unique // FACEBOOK, INSTAGRAM, YOUTUBE, GOOGLE_BUSINESS, SMS, EMAIL, WHATSAPP
+  isConnected    Boolean   @default(false)
+  isApiAvailable Boolean   @default(false)
+  canPost        Boolean   @default(false)
+  canMessage     Boolean   @default(false)
+  canAnalytics   Boolean   @default(false)
+  status         String    @default("DISCONNECTED") // CONNECTED, DISCONNECTED, ERROR, TOKEN_EXPIRED
+  lastChecked    DateTime?
+  updatedAt      DateTime  @updatedAt
+}

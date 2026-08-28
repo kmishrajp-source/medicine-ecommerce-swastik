@@ -280,6 +280,7 @@ export default function AdminDashboard() {
                                 { name: "🧾 Competitor Bills", path: "/admin/competitor-bills", color: "#8B5CF6", page: "competitor-bills" },
                                 { name: "💰 Settlements", path: "/admin/settlements", color: "#10B981", page: "finance" },
                                 { name: "🏬 Retailer Trust", path: "/admin/retailers", color: "#6366F1", page: "finance" },
+                                { name: "🌐 Omnichannel Hub", path: "/admin/omnichannel", color: "#F43F5E", page: "analytics" },
 
                             ].filter(btn => !btn.page || canAccess(session?.user?.role, btn.page)).map((btn) => (
                                 <Link href={btn.path} key={btn.name} style={{
