@@ -1,1 +1,1 @@
-chore: trigger vercel redeploy
+feat: integrate viaSocket for AI Lead CRM synchronization
