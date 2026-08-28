@@ -76,6 +76,7 @@ const CHANNELS = [
         canAnalytics: false,
         status: "NOT_CONNECTED",
         note: "Pixel installed · Publishing API not connected",
+        connectUrl: "/api/admin/omnichannel/connect/FACEBOOK"
     },
     {
         id: "INSTAGRAM",
@@ -90,6 +91,7 @@ const CHANNELS = [
         canAnalytics: false,
         status: "NOT_CONNECTED",
         note: "Not connected",
+        connectUrl: "/api/admin/omnichannel/connect/INSTAGRAM"
     },
     {
         id: "YOUTUBE",
@@ -266,7 +268,20 @@ export default function OmnichannelHub() {
                                     </div>
                                 </div>
                                 {/* Notes */}
-                                <div style={{ fontSize: "0.75rem", color: "#9CA3AF" }}>{ch.note}</div>
+                                <div style={{ fontSize: "0.75rem", color: "#9CA3AF" }}>
+                                    {ch.note}
+                                    {ch.status === "NOT_CONNECTED" && ch.connectUrl && (
+                                        <div style={{ marginTop: 6 }}>
+                                            <Link href={ch.connectUrl} style={{
+                                                display: "inline-block", padding: "4px 10px", borderRadius: 6,
+                                                background: "rgba(59,130,246,0.1)", border: "1px solid rgba(59,130,246,0.3)",
+                                                color: "#60A5FA", fontSize: "0.7rem", fontWeight: 700, textDecoration: "none"
+                                            }}>
+                                                + Connect Account
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
                                 {/* Columns */}
                                 <div style={{ textAlign: "center" }}><CheckBadge value={ch.isConnected} /></div>
                                 <div style={{ textAlign: "center" }}><CheckBadge value={ch.isApiAvailable} /></div>

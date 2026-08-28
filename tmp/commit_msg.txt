@@ -1,1 +1,1 @@
-feat: add viaSocket Publishing Engine to Omnichannel
+feat: add Social OAuth Connections for Meta (Facebook/Instagram)

@@ -2663,5 +2663,10 @@ model SocialConnection {
   canAnalytics   Boolean   @default(false)
   status         String    @default("DISCONNECTED") // CONNECTED, DISCONNECTED, ERROR, TOKEN_EXPIRED
   lastChecked    DateTime?
+  accessToken    String?   @db.Text
+  refreshToken   String?   @db.Text
+  tokenExpiresAt DateTime?
+  accountId      String?
+  accountName    String?
   updatedAt      DateTime  @updatedAt
 }
