@@ -1,1 +1,1 @@
-feat: add OmnichannelContent + SocialConnection models and Omnichannel Hub admin page
+feat: add AI Content Adaptation API route for Omnichannel
