@@ -1,1 +1,1 @@
-feat: add Social OAuth Connections for Meta (Facebook/Instagram)
+feat: add AI Marketing Assistant chat with handoff to Content Library

@@ -29,6 +29,17 @@ export default function NewCampaign() {
     useEffect(() => {
         if (status === "unauthenticated") router.push("/login");
         else if (status === "authenticated" && session?.user?.role === "CUSTOMER") router.push("/");
+
+        // Check if we arrived from the AI Assistant Chat
+        const searchParams = new URLSearchParams(window.location.search);
+        if (searchParams.get("fromDraft") === "true") {
+            const draft = localStorage.getItem("omnichannel_master_draft");
+            if (draft) {
+                setMasterContent(draft);
+                // clear it out so a fresh reload doesn't populate it randomly
+                localStorage.removeItem("omnichannel_master_draft");
+            }
+        }
     }, [status, session, router]);
 
     const handleAdapt = async () => {
