@@ -76,7 +76,7 @@ export default function BioHealthHub() {
             <div className="text-4xl mb-4 relative">🧬</div>
             <h3 className="text-xl font-bold text-gray-900 mb-3 relative">Genomics Education</h3>
             <p className="text-gray-600 mb-6 relative">Learn about DNA, genes, sequencing, and how precision medicine works in simple terms.</p>
-            <Link href="/bio/bioinformatics" className="inline-block text-blue-600 font-semibold hover:text-blue-800 flex items-center group-hover:gap-2 transition-all">
+            <Link href="/bio/education" className="inline-block text-blue-600 font-semibold hover:text-blue-800 flex items-center group-hover:gap-2 transition-all">
               Start Learning <span className="ml-1">→</span>
             </Link>
           </div>
@@ -87,7 +87,7 @@ export default function BioHealthHub() {
             <div className="text-4xl mb-4 relative">🔬</div>
             <h3 className="text-xl font-bold text-gray-900 mb-3 relative">Biomedical Research</h3>
             <p className="text-gray-600 mb-6 relative">Explore verified summaries of the latest scientific papers, clinical trials, and discoveries.</p>
-            <Link href="/bio/pharmacogenomics" className="inline-block text-emerald-600 font-semibold hover:text-emerald-800 flex items-center group-hover:gap-2 transition-all">
+            <Link href="/bio/research" className="inline-block text-emerald-600 font-semibold hover:text-emerald-800 flex items-center group-hover:gap-2 transition-all">
               Browse Research <span className="ml-1">→</span>
             </Link>
           </div>
@@ -109,7 +109,7 @@ export default function BioHealthHub() {
             <div className="text-4xl mb-4 relative">🔔</div>
             <h3 className="text-xl font-bold text-gray-900 mb-3 relative">Research Alerts</h3>
             <p className="text-gray-600 mb-6 relative">Subscribe to AI-summarized alerts on specific health topics, diseases, or biotechnology trends.</p>
-            <Link href="/profile" className="inline-block text-amber-600 font-semibold hover:text-amber-800 flex items-center group-hover:gap-2 transition-all">
+            <Link href="/bio/alerts" className="inline-block text-amber-600 font-semibold hover:text-amber-800 flex items-center group-hover:gap-2 transition-all">
               Manage Alerts <span className="ml-1">→</span>
             </Link>
           </div>

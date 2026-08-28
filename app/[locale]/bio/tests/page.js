@@ -89,10 +89,10 @@ export default function GeneticTestsDiscovery() {
             </div>
             <div className="border-t border-gray-100 pt-6 mt-4">
                 <p className="text-gray-600 mb-4">Can't find your test?</p>
-                <button className="bg-rose-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-rose-700 transition">
-                    Request a Test
-                </button>
-                <p className="text-sm text-gray-400 mt-2">We'll help you find an appropriate laboratory.</p>
+                <Link href="/labs" className="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-blue-700 transition">
+                    Book Direct from Directory
+                </Link>
+                <p className="text-sm text-gray-400 mt-2">Find a verified diagnostic center near you to schedule a test.</p>
             </div>
           </div>
         ) : (
