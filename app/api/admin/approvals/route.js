@@ -3,6 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { sendWhatsAppMessage } from "@/lib/whatsapp";
+import { dispatchToViaSocket } from "@/lib/viasocket";
 
 export async function GET(req) {
     const session = await getServerSession(authOptions);
@@ -82,6 +83,14 @@ export async function POST(req) {
             } catch (e) {
                 console.warn("WhatsApp approval notice error:", e.message);
             }
+
+            // Dispatch to viaSocket for Drip Campaign Onboarding
+            await dispatchToViaSocket("partner_approved", {
+                type: type,
+                partnerId: id,
+                name: partnerName,
+                phone: phoneToNotify
+            }, process.env.VIASOCKET_ONBOARDING_WEBHOOK_URL);
         }
 
         return NextResponse.json({ success: true, verified });

@@ -1,1 +1,1 @@
-feat: integrate viaSocket for AI Lead CRM synchronization
+feat: integrate viaSocket for Partner Onboarding Drip Campaign
