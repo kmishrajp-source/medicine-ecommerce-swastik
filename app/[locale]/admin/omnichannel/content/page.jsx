@@ -12,6 +12,7 @@ export default function ContentLibrary() {
     const router = useRouter();
     const [content, setContent] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [actionLoading, setActionLoading] = useState(null);
 
     useEffect(() => {
         if (status === "unauthenticated") router.push("/login");
@@ -30,6 +31,27 @@ export default function ContentLibrary() {
             console.error("Failed to load content", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handlePublish = async (id) => {
+        if (!window.confirm("Approve and publish this content via viaSocket?")) return;
+        
+        setActionLoading(id);
+        try {
+            const res = await fetch(`/api/admin/omnichannel/content/${id}/publish`, { method: "POST" });
+            const data = await res.json();
+            if (data.success) {
+                alert("Successfully dispatched to viaSocket!");
+                fetchContent();
+            } else {
+                alert("Publish failed: " + data.error);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Network error.");
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -108,13 +130,28 @@ export default function ContentLibrary() {
                                                     </span>
                                                 </td>
                                                 <td style={{ padding: "16px 20px", textAlign: "right" }}>
-                                                    <button style={{
-                                                        background: "rgba(255,255,255,0.08)", color: "white",
-                                                        border: "none", padding: "6px 16px", borderRadius: 8,
-                                                        fontWeight: 600, cursor: "pointer", fontSize: "0.8rem"
-                                                    }}>
-                                                        View / Edit
-                                                    </button>
+                                                    <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+                                                        <button style={{
+                                                            background: "rgba(255,255,255,0.08)", color: "white",
+                                                            border: "none", padding: "6px 16px", borderRadius: 8,
+                                                            fontWeight: 600, cursor: "pointer", fontSize: "0.8rem"
+                                                        }}>
+                                                            View / Edit
+                                                        </button>
+                                                        {item.status === 'DRAFT' && (
+                                                            <button 
+                                                                onClick={() => handlePublish(item.id)}
+                                                                disabled={actionLoading === item.id}
+                                                                style={{
+                                                                background: "linear-gradient(135deg, #F43F5E 0%, #E11D48 100%)", color: "white",
+                                                                border: "none", padding: "6px 16px", borderRadius: 8,
+                                                                fontWeight: 700, cursor: actionLoading === item.id ? "not-allowed" : "pointer", fontSize: "0.8rem",
+                                                                boxShadow: "0 4px 10px rgba(244,63,94,0.2)"
+                                                            }}>
+                                                                {actionLoading === item.id ? "Sending..." : "Approve & Publish"}
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                             </tr>
                                         )

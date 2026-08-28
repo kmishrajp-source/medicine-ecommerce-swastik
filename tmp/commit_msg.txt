@@ -1,1 +1,1 @@
-feat: add Master Content Library UI and AI Editor
+feat: add viaSocket Publishing Engine to Omnichannel
