@@ -6,25 +6,29 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q') || '';
     
-    // Fetch Genetic and Molecular lab tests
-    const tests = await prisma.labTest.findMany({
+    // Fetch Master Tests instead of LabTests directly to prevent duplicates
+    const tests = await prisma.masterTest.findMany({
       where: {
         AND: [
           {
-            category: {
-              in: ['GENETIC', 'MOLECULAR', 'BIOMARKER']
-            }
+            status: "ACTIVE"
           },
           query ? {
-            name: {
-              contains: query,
-              mode: 'insensitive'
-            }
+            OR: [
+              { name: { contains: query, mode: 'insensitive' } },
+              { displayName: { contains: query, mode: 'insensitive' } },
+              { shortName: { contains: query, mode: 'insensitive' } },
+              { category: { contains: query, mode: 'insensitive' } }
+            ]
           } : {}
         ]
       },
       include: {
-        lab: true
+        offerings: {
+          include: {
+            lab: true
+          }
+        }
       },
       take: 20
     });

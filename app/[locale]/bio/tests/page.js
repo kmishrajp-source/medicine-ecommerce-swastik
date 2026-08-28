@@ -78,38 +78,62 @@ export default function GeneticTestsDiscovery() {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : tests.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
-            <p className="text-gray-500 text-lg">No genetic tests found matching your search.</p>
+          <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100 max-w-3xl mx-auto">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">No genetic tests are currently available for this search.</h3>
+            <p className="text-gray-500 text-lg mb-6">Try searching for:</p>
+            <div className="flex flex-wrap justify-center gap-3 mb-8">
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium cursor-pointer hover:bg-blue-100" onClick={() => fetchTests('NGS')}>• NGS</span>
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium cursor-pointer hover:bg-blue-100" onClick={() => fetchTests('BRCA')}>• BRCA</span>
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium cursor-pointer hover:bg-blue-100" onClick={() => fetchTests('Molecular')}>• Molecular testing</span>
+                <span className="px-4 py-2 bg-blue-50 text-blue-700 rounded-full font-medium cursor-pointer hover:bg-blue-100" onClick={() => fetchTests('Genetic screening')}>• Genetic screening</span>
+            </div>
+            <div className="border-t border-gray-100 pt-6 mt-4">
+                <p className="text-gray-600 mb-4">Can't find your test?</p>
+                <button className="bg-rose-600 text-white px-6 py-2 rounded-lg font-semibold shadow hover:bg-rose-700 transition">
+                    Request a Test
+                </button>
+                <p className="text-sm text-gray-400 mt-2">We'll help you find an appropriate laboratory.</p>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tests.map(test => (
-              <div key={test.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
-                <div className="p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
-                      {test.category}
-                    </span>
-                    <span className="text-lg font-bold text-gray-900">₹{test.price}</span>
+            {tests.map(test => {
+                // Determine lowest price and max turnaround
+                let lowestPrice = 0;
+                let turnaround = "Varies";
+                if (test.offerings && test.offerings.length > 0) {
+                    lowestPrice = Math.min(...test.offerings.map(o => o.price));
+                    turnaround = test.offerings[0].turnaroundTime || "Varies";
+                }
+                
+                return (
+                <div key={test.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition flex flex-col">
+                  <div className="p-6 flex-1">
+                    <div className="flex justify-between items-start mb-4">
+                      <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 text-xs font-bold rounded-full">
+                        {test.category}
+                      </span>
+                      {lowestPrice > 0 && <span className="text-lg font-bold text-gray-900">From ₹{lowestPrice}</span>}
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{test.displayName || test.name}</h3>
+                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                      {test.description || "No specific description available."}
+                    </p>
+                    
+                    <div className="bg-slate-50 p-3 rounded-lg text-sm mb-4">
+                      <p className="text-gray-700"><span className="font-semibold">Sample:</span> {test.sampleRequirements || "Verify with lab"}</p>
+                      <p className="text-gray-700 mt-1"><span className="font-semibold">Turnaround:</span> {turnaround}</p>
+                      <p className="text-gray-700 mt-1"><span className="font-semibold">Labs offering this test:</span> {test.offerings?.length || 0}</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{test.name}</h3>
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
-                    {test.description || "No specific description available."}
-                  </p>
-                  
-                  <div className="bg-slate-50 p-3 rounded-lg text-sm mb-4">
-                    <p className="text-gray-700"><span className="font-semibold">Lab:</span> {test.lab?.name || "Verified Provider"}</p>
-                    {test.turnaroundTime && (
-                      <p className="text-gray-700 mt-1"><span className="font-semibold">Turnaround:</span> {test.turnaroundTime}</p>
-                    )}
+                  <div className="p-6 pt-0 mt-auto">
+                    <Link href={`/bio/tests/${test.id}`} className="block w-full text-center bg-blue-50 text-blue-600 font-semibold py-2 rounded-lg hover:bg-blue-100 transition border border-blue-100">
+                      View Details
+                    </Link>
                   </div>
-
-                  <button className="w-full bg-blue-50 text-blue-600 font-semibold py-2 rounded-lg hover:bg-blue-100 transition border border-blue-100">
-                    View Details
-                  </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

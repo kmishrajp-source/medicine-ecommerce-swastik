@@ -353,6 +353,9 @@ model LabTest {
   category       String       @default("ROUTINE") // ROUTINE, GENETIC, MOLECULAR, BIOMARKER
   price          Float
   turnaroundTime String? // e.g. "24 hours"
+  masterTestId   String?
+  masterTest     MasterTest?  @relation(fields: [masterTestId], references: [id])
+  status         String       @default("ACTIVE")
   createdAt      DateTime     @default(now())
   bookings       LabBooking[]
 }
@@ -2651,6 +2654,32 @@ model OmnichannelContent {
   updatedAt      DateTime  @updatedAt
 
   @@index([status, publishDate])
+}
+
+model MasterTest {
+  id                 String    @id @default(cuid())
+  name               String
+  displayName        String?
+  shortName          String?
+  testCode           String?
+  category           String    // e.g., "Genetic Testing", "Molecular Testing"
+  subcategory        String?
+  description        String?   @db.Text
+  whatIsIt           String?   @db.Text
+  whatDoesItDetect   String?   @db.Text
+  whyOrdered         String?   @db.Text
+  resultMeaning      String?   @db.Text
+  potentialBenefits  String?   @db.Text
+  sampleRequirements String?   @db.Text
+  preparation        String?   @db.Text
+  status             String    @default("ACTIVE") // DRAFT, ACTIVE, ARCHIVED
+  source             String?
+  isTestData         Boolean   @default(false)
+  
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  offerings          LabTest[]
 }
 
 model SocialConnection {
