@@ -21,12 +21,12 @@ const steps = [
 ];
 
 const bioItems = [
-  { icon: "fa-dna", color: "text-violet-400", href: "/bio/bioinformatics", en: "Predict disease risk from your DNA", hi: "DNA से बीमारी का खतरा जानें" },
+  { icon: "fa-dna", color: "text-violet-400", href: "/bio/dna-disease-risk", en: "Predict disease risk from your DNA", hi: "DNA से बीमारी का खतरा जानें" },
   { icon: "fa-pills", color: "text-blue-400", href: "/bio/pharmacogenomics", en: "Find medicines that match your genes", hi: "आपके जीन के अनुसार दवा खोजें" },
-  { icon: "fa-apple-whole", color: "text-emerald-400", href: "/health-vault-guide", en: "Get a nutrition plan built for your biology", hi: "अपने शरीर के लिए अनुकूलित डाइट पाएं" },
-  { icon: "fa-microscope", color: "text-amber-400", href: "/labs", en: "Early cancer detection via liquid biopsy", hi: "तरल बायोप्सी से प्रारंभिक कैंसर पहचान" },
-  { icon: "fa-viruses", color: "text-rose-400", href: "/bio/tests", en: "Gut microbiome & immunity analysis", hi: "आंत के बैक्टीरिया और इम्युनिटी विश्लेषण" },
-  { icon: "fa-brain", color: "text-indigo-400", href: "/bio/bioinformatics", en: "Neuro-genetic Alzheimer's risk check", hi: "न्यूरो-जेनेटिक अल्जाइमर जोखिम जांच" },
+  { icon: "fa-apple-whole", color: "text-emerald-400", href: "/bio/nutrition", en: "Get a nutrition plan built for your biology", hi: "अपने शरीर के लिए अनुकूलित डाइट पाएं" },
+  { icon: "fa-microscope", color: "text-amber-400", href: "/bio/liquid-biopsy", en: "Early cancer detection via liquid biopsy", hi: "तरल बायोप्सी से प्रारंभिक कैंसर पहचान" },
+  { icon: "fa-viruses", color: "text-rose-400", href: "/bio/gut-microbiome", en: "Gut microbiome & immunity analysis", hi: "आंत के बैक्टीरिया और इम्युनिटी विश्लेषण" },
+  { icon: "fa-brain", color: "text-indigo-400", href: "/bio/alzheimers-risk", en: "Neuro-genetic Alzheimer's risk check", hi: "न्यूरो-जेनेटिक अल्जाइमर जोखिम जांच" },
 ];
 
 export default function HomeVaultGuideSection() {
