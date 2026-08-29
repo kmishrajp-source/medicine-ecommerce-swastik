@@ -429,6 +429,7 @@ model Retailer {
 
   voiceOrders        VoiceOrderIntent[]          @relation("VoiceOrderRetailer")
   inventoryResponses RetailerInventoryResponse[]
+  outreachCampaign   RetailerOutreachCampaign?
 }
 
 model Stockist {
@@ -2697,5 +2698,23 @@ model SocialConnection {
   tokenExpiresAt DateTime?
   accountId      String?
   accountName    String?
+  updatedAt      DateTime  @updatedAt
+}
+
+// --- Automated Outreach Campaign Models ---
+model RetailerOutreachCampaign {
+  id             String    @id @default(cuid())
+  retailerId     String    @unique
+  retailer       Retailer  @relation(fields: [retailerId], references: [id])
+  phone          String
+  day1Sent       Boolean   @default(false)
+  day1SentAt     DateTime?
+  day2Sent       Boolean   @default(false)
+  day2SentAt     DateTime?
+  day3Sent       Boolean   @default(false)
+  day3SentAt     DateTime?
+  responded      Boolean   @default(false)
+  aiVerdict      String?   // e.g., INTERESTED, NOT_INTERESTED, NEEDS_INFO
+  createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
