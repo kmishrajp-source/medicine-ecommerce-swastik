@@ -162,10 +162,6 @@ export default function HomeClient() {
                             <i className="fa-solid fa-file-medical" style={{ marginRight: '8px', fontSize: '12px' }}></i> {t('upload_rx')}
                         </Link>
                         
-                        {/* Retailers Directory Button */}
-                        <Link href="/healthcare-directory/store/gorakhpur" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
-                            <i className="fa-solid fa-shop" style={{ marginRight: '8px', fontSize: '12px' }}></i> Retailers in Gorakhpur
-                        </Link>
 
                         {/* Medicine Directory Button */}
                         <Link href="/shop-medicines" className="bg-white text-slate-900 border-2 border-slate-100 px-8 py-4 rounded-[2rem] font-black uppercase tracking-widest text-[10px] hover:border-indigo-600 transition-all text-center" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', minWidth: '180px', marginRight: '15px' }}>
@@ -363,7 +359,7 @@ export default function HomeClient() {
                 </div>
                 
                 {/* Local Urgency Bar */}
-                <div className="mt-12 pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="mt-12 pt-12 border-t border-slate-50 flex flex-col md:flex-row items-center justify-between gap-6 md:pl-24">
                      <div className="flex items-center gap-4">
                           <div className="flex -space-x-4">
                                {[1,2,3,4].map(i => <div key={i} className="w-10 h-10 rounded-full border-4 border-white bg-slate-200 overflow-hidden shadow-sm"><img src={`https://i.pravatar.cc/100?u=${i}`} alt={`Patient Avatar ${i}`} /></div>)}

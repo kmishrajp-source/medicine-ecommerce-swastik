@@ -280,6 +280,7 @@ export default function AdminDashboard() {
                                 // NEW SYSTEMS
                                 { name: "💵 COD Cash Mgmt", path: "/admin/cash-management", color: "#FBBF24", page: "cash-management" },
                                 { name: "🛰️ Fleet Monitor", path: "/admin/delivery-monitor", color: "#34D399", page: "delivery-monitor" },
+                                { name: "🏪 Retailers (GKP)", path: "/healthcare-directory/store/gorakhpur", color: "#10B981", page: "directory" },
                                 { name: "📦 Distributor Dir", path: "/distributor", color: "#A5B4FC", page: "directory" },
                                 { name: "💬 Mass WhatsApp", path: "/admin/mass-whatsapp", color: "#10B981", page: "mass-whatsapp" },
                                 { name: "🧾 Competitor Bills", path: "/admin/competitor-bills", color: "#8B5CF6", page: "competitor-bills" },
