@@ -274,11 +274,11 @@ export default function SwastikVoiceAssistant() {
     return (
       <button
         onClick={startListening}
-        className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[60] bg-gradient-to-br from-indigo-600 to-violet-600 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-2xl hover:scale-110 transition-all group"
+        className="fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] bg-gradient-to-br from-indigo-600 to-violet-600 text-white w-20 h-20 md:w-24 md:h-24 rounded-full flex justify-center items-center shadow-2xl hover:scale-110 transition-all group border-4 border-indigo-200"
         aria-label="Voice AI Assistant"
       >
-        <i className="fa-solid fa-microphone text-2xl group-hover:animate-pulse"></i>
-        <span className="absolute -top-1 -right-2 bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white animate-bounce shadow-sm">AI</span>
+        <i className="fa-solid fa-microphone text-4xl md:text-5xl group-hover:animate-pulse"></i>
+        <span className="absolute -top-1 -right-2 bg-rose-500 text-white text-xs font-black px-3 py-1 rounded-full border-2 border-white animate-bounce shadow-sm">AI</span>
       </button>
     );
   }
@@ -287,7 +287,7 @@ export default function SwastikVoiceAssistant() {
 
   return (
     <div
-      className={`fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[60] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 ${
+      className={`fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 ${
         isElderlyMode ? "w-[90vw] md:w-96" : "w-[340px]"
       }`}
       style={{ maxHeight: "85vh" }}
