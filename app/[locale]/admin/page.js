@@ -236,6 +236,11 @@ export default function AdminDashboard() {
                             gap: '10px'
                         }}>
                             {[
+                                // EXECUTIVE INTELLIGENCE
+                                { name: "📈 Revenue Engine", path: "/admin/executive/revenue-intelligence", color: "#F472B6", page: "analytics" },
+                                { name: "🪙 Capital Deploy", path: "/admin/executive/capital-deployment", color: "#38BDF8", page: "finance" },
+                                { name: "🏢 B2B CRM", path: "/admin/b2b-crm", color: "#FBBF24", page: "crm" },
+                                // EXISTING SYSTEMS
                                 { name: "🧠 BI Control Center", path: "/admin/bi-control-center", color: "#06B6D4", page: "analytics" },
                                 { name: "Inventory", path: "/admin/inventory", color: "#10B981", page: "inventory" },
                                 { name: "Approvals (Users)", path: "/admin/approvals", color: "#EF4444", page: "approvals" },
