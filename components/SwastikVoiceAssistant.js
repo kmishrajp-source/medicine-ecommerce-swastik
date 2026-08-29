@@ -274,7 +274,7 @@ export default function SwastikVoiceAssistant() {
     return (
       <button
         onClick={startListening}
-        className="fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] bg-gradient-to-br from-indigo-600 to-violet-600 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-2xl hover:scale-110 transition-all group"
+        className="fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[60] bg-gradient-to-br from-indigo-600 to-violet-600 text-white w-16 h-16 rounded-full flex justify-center items-center shadow-2xl hover:scale-110 transition-all group"
         aria-label="Voice AI Assistant"
       >
         <i className="fa-solid fa-microphone text-2xl group-hover:animate-pulse"></i>
@@ -287,7 +287,7 @@ export default function SwastikVoiceAssistant() {
 
   return (
     <div
-      className={`fixed bottom-24 md:bottom-6 left-4 md:left-6 z-[60] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 ${
+      className={`fixed bottom-24 md:bottom-6 right-4 md:right-6 z-[60] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-slate-100 flex flex-col transition-all duration-300 ${
         isElderlyMode ? "w-[90vw] md:w-96" : "w-[340px]"
       }`}
       style={{ maxHeight: "85vh" }}
