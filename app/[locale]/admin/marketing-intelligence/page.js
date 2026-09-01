@@ -276,31 +276,31 @@ export default function MarketingIntelligencePage() {
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-slate-400 text-xs font-bold uppercase tracking-wider block mb-1">Active Campaigns</span>
-                                <span className="text-2xl font-black text-white">{kpis.activeCampaigns || 3}</span>
+                                <span className="text-2xl font-black text-white">{kpis.activeCampaigns ?? 0}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-indigo-400 text-xs font-bold uppercase tracking-wider block mb-1">Total Reach</span>
-                                <span className="text-2xl font-black text-indigo-400">{(kpis.totalReach || 163100).toLocaleString()}</span>
+                                <span className="text-2xl font-black text-indigo-400">{(kpis.totalReach ?? 0).toLocaleString()}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-cyan-400 text-xs font-bold uppercase tracking-wider block mb-1">Video Views</span>
-                                <span className="text-2xl font-black text-cyan-400">{(kpis.totalViews || 94500).toLocaleString()}</span>
+                                <span className="text-2xl font-black text-cyan-400">{(kpis.totalViews ?? 0).toLocaleString()}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-emerald-400 text-xs font-bold uppercase tracking-wider block mb-1">Inbound Leads</span>
-                                <span className="text-2xl font-black text-emerald-400">{kpis.totalLeads || 258}</span>
+                                <span className="text-2xl font-black text-emerald-400">{kpis.totalLeads ?? 0}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-purple-400 text-xs font-bold uppercase tracking-wider block mb-1">Orders Won</span>
-                                <span className="text-2xl font-black text-purple-400">{kpis.totalOrders || 109}</span>
+                                <span className="text-2xl font-black text-purple-400">{kpis.totalOrders ?? 0}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-amber-400 text-xs font-bold uppercase tracking-wider block mb-1">Revenue Generated</span>
-                                <span className="text-2xl font-black text-amber-400">₹{(kpis.totalRevenue || 140900).toLocaleString()}</span>
+                                <span className="text-2xl font-black text-amber-400">₹{(kpis.totalRevenue ?? 0).toLocaleString()}</span>
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-rose-400 text-xs font-bold uppercase tracking-wider block mb-1">Avg. Cost / Lead</span>
-                                <span className="text-2xl font-black text-rose-400">{kpis.avgCpl || "₹42.50"}</span>
+                                <span className="text-2xl font-black text-rose-400">{kpis.avgCpl ?? —”"}</span>
                             </div>
                         </div>
 
@@ -312,12 +312,18 @@ export default function MarketingIntelligencePage() {
                                     <p className="text-slate-400 text-xs">Live tracking of reach, leads, orders, and revenue generated across media</p>
                                 </div>
                                 <span className="px-3 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full text-xs font-bold">
-                                    Overall Conversion: {kpis.conversionRate || "18.4%"}
+                                    {kpis.conversionRate ? `Overall Conversion: ${kpis.conversionRate}` : "No conversions yet"}
                                 </span>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {Object.entries(data.channelBreakdown || {}).map(([ch, stat]) => (
+                                {Object.entries(data.channelBreakdown || {}).length === 0 ? (
+                                <div className="col-span-3 py-12 text-center text-slate-500">
+                                    <i className="fa-solid fa-chart-bar text-3xl mb-3 block"></i>
+                                    <p className="text-sm font-bold">No channel data yet</p>
+                                    <p className="text-xs mt-1">Capture leads via the Lead Pipeline tab to see real channel performance here.</p>
+                                </div>
+                            ) : Object.entries(data.channelBreakdown || {}).map(([ch, stat]) => (
                                     <div key={ch} className="bg-slate-950 border border-slate-800/80 p-5 rounded-2xl relative overflow-hidden">
                                         <div className="flex items-center justify-between mb-3">
                                             <div className="flex items-center gap-2">
@@ -357,9 +363,9 @@ export default function MarketingIntelligencePage() {
                                     <i className="fa-solid fa-map-pin"></i>
                                 </span>
                                 <h4 className="text-base font-bold text-white mb-1">Top Performing Geography</h4>
-                                <p className="text-xs text-slate-300 mb-3">{kpis.topGeography || "Gorakhpur (Golghar & Medical College Hub)"}</p>
+                                <p className="text-xs text-slate-300 mb-3">{kpis.topGeography || "No geography data yet"}</p>
                                 <div className="text-[11px] text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                    <strong>AI Insight:</strong> Dense concentration of chronic patients with high 3-hour hyperlocal delivery adoption.
+                                    <strong>AI Insight:</strong> {kpis.topGeography ? "Dense concentration of chronic patients with high 3-hour hyperlocal delivery adoption." : "Capture leads with location data to see geographic insights."}
                                 </div>
                             </div>
 
@@ -368,9 +374,9 @@ export default function MarketingIntelligencePage() {
                                     <i className="fa-brands fa-whatsapp"></i>
                                 </span>
                                 <h4 className="text-base font-bold text-white mb-1">Top Converting Channel</h4>
-                                <p className="text-xs text-slate-300 mb-3">{kpis.topChannel || "WhatsApp & LinkedIn (B2B)"}</p>
+                                <p className="text-xs text-slate-300 mb-3">{kpis.topChannel || "No channel data yet"}</p>
                                 <div className="text-[11px] text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                    <strong>AI Insight:</strong> Direct 1-click prescription upload links on WhatsApp yield 34% conversion into delivered orders.
+                                    <strong>AI Insight:</strong> {kpis.topChannel ? "Direct 1-click prescription upload links on WhatsApp yield 34% conversion into delivered orders." : "Capture leads with source channels to see top converting channel."}
                                 </div>
                             </div>
 
@@ -379,9 +385,9 @@ export default function MarketingIntelligencePage() {
                                     <i className="fa-solid fa-pills"></i>
                                 </span>
                                 <h4 className="text-base font-bold text-white mb-1">Top High-Margin Product</h4>
-                                <p className="text-xs text-slate-300 mb-3">{kpis.topProduct || "Homeopathy & Ayurvedic Chronic Care"}</p>
+                                <p className="text-xs text-slate-300 mb-3">{kpis.topProduct || "No product data yet"}</p>
                                 <div className="text-[11px] text-slate-400 bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                    <strong>AI Insight:</strong> High repeat refill rate (28-day cycle) with zero substitution resistance.
+                                    <strong>AI Insight:</strong> {kpis.topProduct ? "High repeat refill rate (28-day cycle) with zero substitution resistance." : "Product insights will appear once orders are linked to marketing campaigns."}
                                 </div>
                             </div>
                         </div>

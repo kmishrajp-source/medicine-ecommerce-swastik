@@ -46,7 +46,7 @@ export async function GET(req) {
             orderBy: { createdAt: "desc" }
         });
 
-        // Calculate Aggregate KPI Metrics
+        // Calculate Aggregate KPI Metrics from real DB data
         const totalImpressions = allContents.reduce((acc, c) => acc + (c.impressions || 0), 0);
         const totalViews = allContents.reduce((acc, c) => acc + (c.views || 0), 0);
         const totalClicks = allContents.reduce((acc, c) => acc + (c.clicks || 0), 0);
@@ -55,36 +55,48 @@ export async function GET(req) {
         const totalOrders = marketingLeads.filter(l => l.status === "CONVERTED_ORDER" || l.status === "REPEAT_CUSTOMER").length;
         const totalRevenue = marketingLeads.reduce((acc, l) => acc + (l.lifetimeRevenue || l.firstOrderValue || 0), 0);
         const totalBudgetSpent = campaigns.reduce((acc, c) => acc + (c.spent || 0), 0);
-        const avgCpl = totalLeads > 0 && totalBudgetSpent > 0 ? (totalBudgetSpent / totalLeads).toFixed(2) : "₹42.50";
-        const conversionRate = totalLeads > 0 ? ((totalOrders / totalLeads) * 100).toFixed(1) + "%" : "18.4%";
+        const avgCpl = totalLeads > 0 && totalBudgetSpent > 0 ? `₹${(totalBudgetSpent / totalLeads).toFixed(2)}` : null;
+        const conversionRate = totalLeads > 0 ? `${((totalOrders / totalLeads) * 100).toFixed(1)}%` : null;
 
-        // Performance by Channel breakdown
-        const channelBreakdown = {
-            WHATSAPP: { reach: 14500, leads: 48, orders: 22, revenue: 18400, roas: "6.8x" },
-            INSTAGRAM: { reach: 38200, leads: 62, orders: 19, revenue: 15200, roas: "4.2x" },
-            YOUTUBE: { reach: 52000, leads: 35, orders: 14, revenue: 24600, roas: "5.1x" },
-            FACEBOOK: { reach: 29000, leads: 41, orders: 16, revenue: 11800, roas: "3.9x" },
-            LINKEDIN: { reach: 8400, leads: 18, orders: 7, revenue: 42000, roas: "8.4x" }, // High B2B ticket value
-            WEBSITE: { reach: 21000, leads: 54, orders: 31, revenue: 28900, roas: "N/A (Organic)" }
-        };
+        // Compute real channel breakdown from actual marketing leads in DB
+        const channelMap = {};
+        for (const lead of marketingLeads) {
+            const ch = lead.sourceChannel || "UNKNOWN";
+            if (!channelMap[ch]) channelMap[ch] = { leads: 0, orders: 0, revenue: 0, reach: 0 };
+            channelMap[ch].leads += 1;
+            if (lead.status === "CONVERTED_ORDER" || lead.status === "REPEAT_CUSTOMER") channelMap[ch].orders += 1;
+            channelMap[ch].revenue += (lead.lifetimeRevenue || lead.firstOrderValue || 0);
+        }
+        for (const ch of Object.keys(channelMap)) {
+            const spent = campaigns
+                .filter(c => c.campaignType && c.campaignType.includes(ch))
+                .reduce((s, c) => s + (c.spent || 0), 0);
+            const rev = channelMap[ch].revenue;
+            channelMap[ch].roas = spent > 0 ? `${(rev / spent).toFixed(1)}x` : "Organic";
+        }
+        const channelBreakdown = Object.keys(channelMap).length > 0 ? channelMap : {};
+
+        // Compute top channel by lead count
+        const topChannelEntry = Object.entries(channelMap).sort((a, b) => b[1].leads - a[1].leads)[0];
+        const topChannel = topChannelEntry ? topChannelEntry[0] : null;
 
         return NextResponse.json({
             success: true,
             kpis: {
-                activeCampaigns: campaigns.filter(c => c.status === "ACTIVE").length || 3,
-                totalReach: totalImpressions || 163100,
-                totalViews: totalViews || 94500,
-                totalClicks: totalClicks || 8240,
-                totalEnquiries: totalEnquiries || 512,
-                totalLeads: totalLeads || 258,
-                totalOrders: totalOrders || 109,
-                totalRevenue: totalRevenue || 140900,
-                totalBudgetSpent: totalBudgetSpent || 18500,
+                activeCampaigns: campaigns.filter(c => c.status === "ACTIVE").length,
+                totalReach: totalImpressions,
+                totalViews,
+                totalClicks,
+                totalEnquiries,
+                totalLeads,
+                totalOrders,
+                totalRevenue,
+                totalBudgetSpent,
                 avgCpl,
                 conversionRate,
-                topChannel: "WhatsApp & LinkedIn (B2B)",
-                topGeography: "Gorakhpur (Golghar & Medical College Hub)",
-                topProduct: "Homeopathy & Ayurvedic Chronic Care"
+                topChannel,
+                topGeography: null,
+                topProduct: null
             },
             campaigns,
             contents: allContents,
@@ -410,24 +422,55 @@ export async function POST(req) {
             let audienceResults = [];
 
             if (segmentType === "CHRONIC_REFILL_DUE") {
-                // Find customers whose last order was 25-35 days ago (monthly refill due)
-                const thirtyDaysAgo = new Date();
-                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-                
-                audienceResults = [
-                    { name: "Sunil Verma", phone: "9876543211", reason: "Blood Pressure & Diabetes Refill Due (Last order 28 days ago)", priority: "A" },
-                    { name: "Pooja Srivastava", phone: "9876543212", reason: "Homeopathy Dilution Refill Due (Last order 31 days ago)", priority: "A" },
-                    { name: "Ramesh Pandey", phone: "9876543213", reason: "Cardiac Care Routine Check Refill Due", priority: "A" }
-                ];
+                // Find real customers whose last order was 25-35 days ago
+                const daysAgo35 = new Date();
+                daysAgo35.setDate(daysAgo35.getDate() - 35);
+                const daysAgo25 = new Date();
+                daysAgo25.setDate(daysAgo25.getDate() - 25);
+
+                const refillDueOrders = await prisma.order.findMany({
+                    where: {
+                        createdAt: { gte: daysAgo35, lte: daysAgo25 },
+                        status: { in: ["DELIVERED", "COMPLETED"] }
+                    },
+                    include: { user: { select: { name: true, phone: true } } },
+                    take: 20
+                });
+
+                audienceResults = refillDueOrders.map(o => ({
+                    name: o.user?.name || o.customerName || "Customer",
+                    phone: o.user?.phone || o.phone || "",
+                    reason: `Order #${o.id?.slice(-6)} delivered ~${Math.floor((Date.now() - new Date(o.createdAt)) / 86400000)} days ago — refill due`,
+                    priority: "A"
+                })).filter(a => a.phone);
             } else if (segmentType === "CART_DROP_OFF") {
-                audienceResults = [
-                    { name: "Ananya Gupta", phone: "9876543214", reason: "Added Ayurvedic Care items to cart 4 hours ago", priority: "A" },
-                    { name: "Dr. Alok Nath", phone: "9876543215", reason: "Inquired about B2B bulk purchase quote", priority: "A" }
-                ];
+                // Find real carts abandoned in last 24 hours
+                const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+                const cartDropOffs = await prisma.lead.findMany({
+                    where: {
+                        serviceType: "cart_abandoned",
+                        createdAt: { gte: oneDayAgo }
+                    },
+                    take: 20
+                });
+                audienceResults = cartDropOffs.map(l => ({
+                    name: l.guestName || "Customer",
+                    phone: l.guestPhone || "",
+                    reason: `Abandoned cart — ${l.notes || "high-intent items added"}`,
+                    priority: "A"
+                })).filter(a => a.phone);
             } else {
-                audienceResults = [
-                    { name: "General Engaged Audience", count: 480, location: "Gorakhpur City", recommendedOffer: "10% Off Weekend Wellness" }
-                ];
+                // VIDEO_ENGAGED: find leads from video/social channels with high score
+                const videoLeads = await prisma.marketingLead.findMany({
+                    where: { sourceChannel: { in: ["YOUTUBE", "INSTAGRAM"] }, leadScore: { gte: 70 } },
+                    take: 20
+                });
+                audienceResults = videoLeads.map(l => ({
+                    name: l.fullName || "Customer",
+                    phone: l.phone || "",
+                    reason: `High engagement via ${l.sourceChannel} — Lead Score ${l.leadScore}/100`,
+                    priority: l.priorityRank || "B"
+                })).filter(a => a.phone);
             }
 
             return NextResponse.json({
