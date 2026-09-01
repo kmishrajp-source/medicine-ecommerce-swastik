@@ -300,7 +300,7 @@ export default function MarketingIntelligencePage() {
                             </div>
                             <div className="bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
                                 <span className="text-rose-400 text-xs font-bold uppercase tracking-wider block mb-1">Avg. Cost / Lead</span>
-                                <span className="text-2xl font-black text-rose-400">{kpis.avgCpl ?? —”"}</span>
+                                <span className="text-2xl font-black text-rose-400">{kpis.avgCpl ?? "—"}</span>
                             </div>
                         </div>
 
