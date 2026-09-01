@@ -372,7 +372,7 @@ export default function SupplierIntelligenceDashboard() {
                     )}
                 </main>
             </div>
-            <style jsx>{`
+            <style>{`
                 .spinner { animation: spin 2s linear infinite; display: inline-block; }
                 @keyframes spin { 100% { transform: rotate(360deg); } }
                 .animate-fade-in { animation: fadeIn 0.5s ease-out; }
