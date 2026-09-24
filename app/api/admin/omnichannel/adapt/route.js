@@ -3,15 +3,17 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-});
-
 export async function POST(req) {
     const session = await getServerSession(authOptions);
     if (!session || session.user.role !== 'ADMIN') {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    if (!process.env.OPENAI_API_KEY) {
+        return NextResponse.json({ success: false, error: "OpenAI API key not configured." }, { status: 503 });
+    }
+
+    const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
     try {
         const { masterContent, contentType, title } = await req.json();
