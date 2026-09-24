@@ -120,7 +120,7 @@ export default function ShopClient({ initialProducts = [] }) {
             const fetchFiltered = async () => {
                 setLoading(true);
                 try {
-                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&`;
+                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&excludeCategory=Homeopathy&`;
                     if (activeCategory !== 'All') url += `category=${encodeURIComponent(activeCategory)}&`;
                     if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
 
@@ -160,7 +160,9 @@ export default function ShopClient({ initialProducts = [] }) {
             ? true
             : rxFilter === "Rx" ? product.requiresPrescription
                 : !product.requiresPrescription;
-        return matchesRx;
+        // Homeopathy has its own dedicated page — never show here
+        const notHomeopathy = product.category !== "Homeopathy";
+        return matchesRx && notHomeopathy;
     });
 
     return (

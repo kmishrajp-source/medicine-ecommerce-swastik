@@ -58,6 +58,13 @@ export async function GET(req) {
 
         const where = {};
         if (category && category !== 'All') where.category = category;
+        
+        // Support excluding a category (e.g. Homeopathy has its own page)
+        const excludeCategory = searchParams.get('excludeCategory');
+        if (excludeCategory && !category) {
+            where.category = { not: excludeCategory };
+        }
+
         if (search) {
             where.OR = [
                 { name: { contains: search, mode: 'insensitive' } },
