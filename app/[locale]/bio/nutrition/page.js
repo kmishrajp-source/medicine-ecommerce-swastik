@@ -1,3 +1,13 @@
+
+
+
+
+
+
+
+
+
+
 "use client";
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -47,7 +57,7 @@ export default function PersonalizedNutritionPage() {
               {T("Find out if you are genetically predisposed to regain weight and whether a low-carb, low-fat, or balanced diet works best for your genotype.", "जानें कि क्या आपके शरीर का वजन जल्दी बढ़ता है और आपके लिए लो-कार्ब, लो-फैट या संतुलित डाइट में से क्या बेहतर है।")}
             </p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-xl mb-4">
               <i className="fa-solid fa-bolt"></i>
@@ -57,7 +67,7 @@ export default function PersonalizedNutritionPage() {
               {T("Identify genetic markers linked to lactose intolerance, gluten sensitivity, and caffeine metabolism.", "लैक्टोज असहिष्णुता, ग्लूटेन संवेदनशीलता और कैफीन मेटाबॉलिज्म से जुड़े आनुवंशिक मार्करों की पहचान करें।")}
             </p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center text-xl mb-4">
               <i className="fa-solid fa-capsules"></i>
@@ -67,7 +77,7 @@ export default function PersonalizedNutritionPage() {
               {T("Discover if you have a higher genetic requirement for Vitamin D, B12, Folate, or Iron.", "पता लगाएं कि क्या आपको आनुवंशिक रूप से विटामिन डी, बी12, फोलेट या आयरन की अधिक आवश्यकता है।")}
             </p>
           </div>
-          
+
           <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
             <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center text-xl mb-4">
               <i className="fa-solid fa-heart-pulse"></i>
@@ -96,7 +106,7 @@ export default function PersonalizedNutritionPage() {
             </Link>
           </div>
         </div>
-        
+
       </div>
     </div>
   );
