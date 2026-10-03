@@ -17,9 +17,11 @@ export default function AyurvedicShop() {
             .then(data => {
                 if (data.success) {
                     const ayurvedic = data.products.filter(p =>
-                        p.category === 'Ayurvedic' ||
-                        p.name?.toLowerCase().includes('herbal') ||
-                        p.description?.toLowerCase().includes('natural')
+                        p.category !== 'Homeopathy' && (
+                            p.category === 'Ayurvedic' ||
+                            p.name?.toLowerCase().includes('herbal') ||
+                            p.description?.toLowerCase().includes('natural')
+                        )
                     );
                     setProducts(ayurvedic);
                 }
