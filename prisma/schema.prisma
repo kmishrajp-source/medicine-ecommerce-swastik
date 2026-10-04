@@ -78,6 +78,15 @@ model User {
   abhaProfile          AbhaProfile?
   digitalHealthRecords DigitalHealthRecord[]
   consentRequests      ConsentRequest[]      @relation("PatientConsent")
+
+  // --- Acquisition & Growth Attribution ---
+  firstSource         String?
+  firstCampaign       String?
+  firstLandingPage    String?
+  latestSource        String?
+  latestCampaign      String?
+  whatsappSource      String?
+  phoneSource         String?
 }
 
 model SystemSettings {
@@ -200,6 +209,12 @@ model Order {
 
   voiceOrder VoiceOrderIntent[] @relation("VoiceOrderRef")
   auditLogs  OrderAuditLog[]
+
+  // --- Acquisition & Growth Attribution ---
+  source              String?
+  campaign            String?
+  landingPage         String?
+  utmParams           Json?
 
   @@index([status])
   @@index([userId])
@@ -819,6 +834,12 @@ model Lead {
   isVerified      Boolean   @default(false)
   lastAction      String? // Description of the most recent lead event
   tags            String[]  @default([]) // Array of tags for intelligent filtering
+  
+  // --- Acquisition & Growth Attribution ---
+  campaign            String?
+  landingPage         String?
+  utmParams           Json?
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 
