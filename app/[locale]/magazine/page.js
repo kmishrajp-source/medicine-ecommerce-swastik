@@ -165,6 +165,172 @@ const articlePool = [
             excerpt: "কৃত্রিম বুদ্ধিমত্তা মানুষের ক্ষমতার চেয়ে দ্রুত নতুন ওষুধ তৈরি করতে লাখ লাখ রাসায়নিক সংমিশ্রণ বিশ্লেষণ করছে।",
             content: "সাধারণত বাজারে একটি নতুন ওষুধ আনতে ১০-১৫ বছর এবং কোটি কোটি ডলার লাগে। গুগলের আলফাফোল্ডের মতো এআই সিস্টেমগুলি এটি পরিবর্তন করছে। প্রোটিন গঠন নির্ভুলভাবে অনুমান করে, এআই খুব দ্রুত সম্ভাব্য ওষুধের কার্যকারিতা অনুকরণ করতে পারে এবং ল্যাবের কাজ কয়েক বছর কমিয়ে দেয়।"
         }
+    },
+
+    // ── AYURVEDA ARTICLES ──
+    {
+        id: 9,
+        category: "Ayurveda",
+        image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Ashwagandha & Adaptogens: Ancient Roots, Modern Science",
+            excerpt: "Modern clinical research is confirming what Ayurveda knew for 3,000 years — adaptogenic herbs like Ashwagandha measurably reduce cortisol and fight stress.",
+            content: "Adaptogens are a class of plants that help the body adapt to stress and exert a normalizing effect. Ashwagandha (Withania somnifera), one of Ayurveda's most celebrated herbs, has been the subject of over 50 modern clinical trials. Studies published in peer-reviewed journals consistently show a 20–30% reduction in serum cortisol levels, improved testosterone in men, better sleep quality, and enhanced athletic performance. Swastik Medicare offers high-potency standardised Ashwagandha extracts."
+        },
+        hi: {
+            title: "अश्वगंधा और एडाप्टोजेन: प्राचीन जड़ें, आधुनिक विज्ञान",
+            excerpt: "आधुनिक नैदानिक अनुसंधान इस बात की पुष्टि कर रहा है जो आयुर्वेद 3,000 वर्षों से जानता था — अश्वगंधा जैसी एडाप्टोजेनिक जड़ी-बूटियां कोर्टिसोल को कम करती हैं।",
+            content: "एडाप्टोजेन पौधों का एक वर्ग है जो शरीर को तनाव के अनुकूल होने में मदद करता है। आयुर्वेद की सबसे प्रसिद्ध जड़ी-बूटियों में से एक अश्वगंधा पर 50 से अधिक आधुनिक नैदानिक परीक्षण हुए हैं। अध्ययन सीरम कोर्टिसोल में 20-30% की कमी, पुरुषों में बेहतर टेस्टोस्टेरोन, बेहतर नींद की गुणवत्ता और बेहतर एथलेटिक प्रदर्शन दिखाते हैं। स्वास्तिक मेडिकेयर उच्च-शक्ति मानकीकृत अश्वगंधा अर्क प्रदान करता है।"
+        },
+        bn: {
+            title: "অশ্বগন্ধা ও অ্যাডাপ্টোজেন: প্রাচীন শিকড়, আধুনিক বিজ্ঞান",
+            excerpt: "আধুনিক গবেষণা নিশ্চিত করছে যা আয়ুর্বেদ ৩,০০০ বছর ধরে জানত — অশ্বগন্ধার মতো অ্যাডাপ্টোজেনিক ভেষজ উদ্ভিদ কর্টিসল পরিমাপযোগ্যভাবে হ্রাস করে।",
+            content: "অ্যাডাপ্টোজেন হলো এমন উদ্ভিদের শ্রেণী যা শরীরকে মানসিক চাপের সাথে মানিয়ে নিতে সাহায্য করে। আয়ুর্বেদের সবচেয়ে বিখ্যাত ভেষজ অশ্বগন্ধার উপর ৫০টিরও বেশি আধুনিক ক্লিনিকাল ট্রায়াল হয়েছে। গবেষণায় সিরাম কর্টিসলে ২০-৩০% হ্রাস, পুরুষদের মধ্যে উন্নত টেস্টোস্টেরন এবং উন্নত ঘুমের মান দেখানো হয়েছে।"
+        }
+    },
+    {
+        id: 10,
+        category: "Ayurveda",
+        image: "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Triphala: The Three-Fruit Formula Modern Gastroenterology Is Studying",
+            excerpt: "This 2,000-year-old Ayurvedic formula combining Amla, Haritaki, and Bibhitaki is showing remarkable results in clinical trials for gut health and antioxidant protection.",
+            content: "Triphala is arguably the most widely used Ayurvedic formula in the world. Its three fruits — Amalaki (Indian Gooseberry), Haritaki, and Bibhitaki — together create a powerful synergistic effect. Modern research has validated its role in: improving gut motility and treating chronic constipation, providing potent anti-inflammatory and antioxidant effects (it contains more Vitamin C by weight than most citrus fruits), and demonstrating anti-cancer properties in in-vitro studies. It's a compound that bridges ancient wisdom and modern evidence-based medicine perfectly."
+        },
+        hi: {
+            title: "त्रिफला: तीन फलों का वह फॉर्मूला जिसे आधुनिक गैस्ट्रोएंटरोलॉजी पढ़ रही है",
+            excerpt: "आंवला, हरीतकी और बिभीतकी को मिलाने वाला यह 2,000 साल पुराना आयुर्वेदिक फॉर्मूला आंत स्वास्थ्य के लिए नैदानिक परीक्षणों में उल्लेखनीय परिणाम दिखा रहा है।",
+            content: "त्रिफला दुनिया में सबसे व्यापक रूप से उपयोग किया जाने वाला आयुर्वेदिक फॉर्मूला है। आधुनिक शोध ने इसकी भूमिका को मान्य किया है: पुरानी कब्ज का उपचार, शक्तिशाली एंटी-इंफ्लेमेटरी और एंटीऑक्सीडेंट प्रभाव, और कुछ कैंसर विरोधी गुण जो प्रयोगशाला अध्ययनों में देखे गए हैं। यह प्राचीन ज्ञान और आधुनिक साक्ष्य-आधारित चिकित्सा के बीच सेतु है।"
+        },
+        bn: {
+            title: "ত্রিফলা: তিনটি ফলের সেই সূত্র যা আধুনিক গ্যাস্ট্রোএন্টেরোলজি গবেষণা করছে",
+            excerpt: "আমলা, হরিতকী এবং বিভীতকী মিলিয়ে তৈরি এই ২,০০০ বছরের পুরানো আয়ুর্বেদিক সূত্র অন্ত্রের স্বাস্থ্যের ক্লিনিকাল ট্রায়ালে উল্লেখযোগ্য ফলাফল দেখাচ্ছে।",
+            content: "ত্রিফলা বিশ্বের সবচেয়ে বহুল ব্যবহৃত আয়ুর্বেদিক সূত্র। আধুনিক গবেষণা দীর্ঘস্থায়ী কোষ্ঠকাঠিন্যের চিকিৎসায় এর ভূমিকা, শক্তিশালী অ্যান্টি-ইনফ্লেমেটরি প্রভাব এবং ভিটামিন সি-এর উচ্চ পরিমাণ নিশ্চিত করেছে। এটি প্রাচীন জ্ঞান ও আধুনিক বিজ্ঞানের মধ্যে সেতু।"
+        }
+    },
+    {
+        id: 11,
+        category: "Ayurveda",
+        image: "https://images.unsplash.com/photo-1582560475093-ba66accbc424?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Panchakarma Detox: What Modern Research Says About Ayurveda's Most Powerful Therapy",
+            excerpt: "Panchakarma — the five classical Ayurvedic purification procedures — is being studied by modern researchers for its impact on metabolic syndrome and inflammation markers.",
+            content: "Panchakarma is Ayurveda's most comprehensive therapeutic program, involving five main procedures: Vamana (emesis), Virechana (purgation), Basti (enema), Nasya (nasal administration), and Raktamokshana (bloodletting). Modern investigations have shown Panchakarma can significantly reduce measurable inflammatory markers like CRP (C-Reactive Protein), improve lipid profiles in metabolic syndrome patients, and reduce toxic accumulation in adipose tissue. While it requires specialised supervision, its results are drawing serious academic interest globally."
+        },
+        hi: {
+            title: "पंचकर्म डिटॉक्स: आधुनिक शोध आयुर्वेद की सबसे शक्तिशाली चिकित्सा के बारे में क्या कहता है",
+            excerpt: "पंचकर्म — पांच शास्त्रीय आयुर्वेदिक शुद्धिकरण प्रक्रियाएं — को आधुनिक शोधकर्ताओं द्वारा मेटाबोलिक सिंड्रोम और सूजन मार्करों पर इसके प्रभाव के लिए अध्ययन किया जा रहा है।",
+            content: "पंचकर्म आयुर्वेद का सबसे व्यापक चिकित्सीय कार्यक्रम है जिसमें पांच मुख्य प्रक्रियाएं शामिल हैं: वमन, विरेचन, बस्ति, नस्य और रक्तमोक्षण। आधुनिक जांच से पता चला है कि पंचकर्म CRP जैसे मापने योग्य सूजन संबंधी मार्करों को काफी कम कर सकता है, मेटाबोलिक सिंड्रोम रोगियों में लिपिड प्रोफाइल में सुधार कर सकता है।"
+        },
+        bn: {
+            title: "পঞ্চকর্ম ডিটক্স: আয়ুর্বেদের সবচেয়ে শক্তিশালী চিকিৎসা সম্পর্কে আধুনিক গবেষণা কী বলছে",
+            excerpt: "পঞ্চকর্ম — পাঁচটি ক্লাসিক্যাল আয়ুর্বেদিক শুদ্ধিকরণ পদ্ধতি — বিপাকীয় সিন্ড্রোম এবং প্রদাহ মার্কারের উপর প্রভাবের জন্য আধুনিক গবেষকদের দ্বারা অধ্যয়ন করা হচ্ছে।",
+            content: "পঞ্চকর্ম হলো আয়ুর্বেদের সবচেয়ে ব্যাপক চিকিৎসা প্রোগ্রাম। আধুনিক গবেষণা দেখিয়েছে পঞ্চকর্ম সিআরপি-র মতো পরিমাপযোগ্য প্রদাহ সংক্রান্ত মার্কার উল্লেখযোগ্যভাবে কমাতে পারে এবং বিপাকীয় সিন্ড্রোম রোগীদের লিপিড প্রোফাইল উন্নত করতে পারে।"
+        }
+    },
+
+    // ── HOMEOPATHY ARTICLES ──
+    {
+        id: 12,
+        category: "Homeopathy",
+        image: "https://images.unsplash.com/photo-1471864190281-a93a3070b6de?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Arnica Montana: The Sports Medicine of Homeopathy",
+            excerpt: "From elite European football clubs to Olympic athletes — Arnica is the most widely used homeopathic remedy in sports for bruising, muscle soreness, and post-surgical recovery.",
+            content: "Arnica montana, a mountain daisy, is the flagship remedy of sports homeopathy. Used topically as a gel or internally as pillules, it is prescribed for bruising, muscle aches following exertion, shock, and post-operative swelling. Numerous professional sports teams in Europe routinely include Arnica in their medical kits. While the placebo debate continues in academia, empirical clinical usage across millions of patients globally makes it one of the world's most trusted natural anti-inflammatories."
+        },
+        hi: {
+            title: "अर्निका मोंटाना: होम्योपैथी की स्पोर्ट्स मेडिसिन",
+            excerpt: "यूरोपीय फुटबॉल क्लबों से लेकर ओलंपिक एथलीटों तक — अर्निका चोट, मांसपेशियों में दर्द और सर्जरी के बाद की रिकवरी के लिए होम्योपैथी में सबसे व्यापक रूप से उपयोग किया जाने वाला उपाय है।",
+            content: "अर्निका मोंटाना, एक पहाड़ी डेज़ी, स्पोर्ट्स होम्योपैथी का प्रमुख उपाय है। इसका उपयोग जेल के रूप में सामयिक रूप से या आंतरिक रूप से गोलियों के रूप में किया जाता है। यूरोप में कई पेशेवर खेल टीमें नियमित रूप से अपनी मेडिकल किट में अर्निका शामिल करती हैं।"
+        },
+        bn: {
+            title: "আর্নিকা মন্টানা: হোমিওপ্যাথির স্পোর্টস মেডিসিন",
+            excerpt: "ইউরোপীয় ফুটবল ক্লাব থেকে অলিম্পিক অ্যাথলেট পর্যন্ত — ক্ষতস্থান, পেশির ব্যথা এবং অস্ত্রোপচারের পরে সুস্থ হওয়ার জন্য আর্নিকা হোমিওপ্যাথিতে সবচেয়ে বেশি ব্যবহৃত প্রতিকার।",
+            content: "আর্নিকা মন্টানা, একটি পাহাড়ি ডেইজি, স্পোর্টস হোমিওপ্যাথির প্রধান ওষুধ। এটি জেল হিসেবে বা বড়ি হিসেবে প্রেসক্রাইব করা হয়। ইউরোপের অনেক পেশাদার ক্রীড়া দল তাদের মেডিকেল কিটে নিয়মিত আর্নিকা অন্তর্ভুক্ত করে।"
+        }
+    },
+    {
+        id: 13,
+        category: "Homeopathy",
+        image: "https://images.unsplash.com/photo-1559757148-5c350d0d3c56?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Homeopathy & Allergies: The Rhus Tox and Apis Mellifica Debate",
+            excerpt: "Homeopathic remedies for seasonal allergies, hay fever, and skin reactions have accumulated decades of anecdotal and trial evidence. We examine what science says.",
+            content: "Homeopathy's individualized approach to allergy treatment contrasts sharply with conventional antihistamines. Remedies like Apis Mellifica (from the bee) are used for swelling and allergic reactions; Allium Cepa (from red onion) for runny nose and watery eyes; and Rhus Toxicodendron for skin rashes with itching. A Lancet-published meta-analysis of homeopathic hay fever trials showed results 'consistently better than placebo.' While methodological debates continue, millions of patients in India, France, and Germany rely on these remedies as their first line of allergy defense."
+        },
+        hi: {
+            title: "होम्योपैथी और एलर्जी: रस टॉक्स और एपिस मेलिफिका की बहस",
+            excerpt: "मौसमी एलर्जी, हे फीवर और त्वचा प्रतिक्रियाओं के लिए होम्योपैथिक उपचारों ने दशकों के अनुभवजन्य साक्ष्य जमा किए हैं। हम जांचते हैं कि विज्ञान क्या कहता है।",
+            content: "होम्योपैथी का एलर्जी उपचार के लिए व्यक्तिगतकृत दृष्टिकोण पारंपरिक एंटीहिस्टामाइन से बिल्कुल अलग है। एपिस मेलिफिका सूजन और एलर्जी प्रतिक्रियाओं के लिए, एलियम सेपा बहती नाक के लिए और रस टॉक्स त्वचा पर चकत्ते के लिए उपयोग किया जाता है। लैंसेट-प्रकाशित मेटा-विश्लेषण ने दिखाया कि होम्योपैथी के परिणाम 'प्लेसबो से लगातार बेहतर' थे।"
+        },
+        bn: {
+            title: "হোমিওপ্যাথি ও অ্যালার্জি: রাস টক্স এবং অ্যাপিস মেলিফিকার বিতর্ক",
+            excerpt: "মৌসুমী অ্যালার্জি, হে ফিভার এবং ত্বকের প্রতিক্রিয়ার জন্য হোমিওপ্যাথিক প্রতিকারগুলি দশকের অভিজ্ঞতালব্ধ প্রমাণ সংগ্রহ করেছে।",
+            content: "অ্যাপিস মেলিফিকা ফোলাভাব এবং অ্যালার্জির প্রতিক্রিয়ার জন্য, অ্যালিয়াম সেপা সর্দি নাকের জন্য এবং রাস টক্স চুলকানি সহ ত্বকের ফুসকুড়ির জন্য ব্যবহার করা হয়। একটি ল্যান্সেট-প্রকাশিত মেটা-বিশ্লেষণে দেখা গেছে হোমিওপ্যাথির ফলাফল 'প্লেসেবোর চেয়ে ধারাবাহিকভাবে ভালো।'"
+        }
+    },
+
+    // ── BIOINFORMATICS ARTICLES ──
+    {
+        id: 14,
+        category: "Bioinformatics",
+        image: "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "AlphaFold 3: How AI Solved the Protein Folding Problem That Stumped Science for 50 Years",
+            excerpt: "Google DeepMind's AlphaFold predicted the 3D structures of virtually every known protein on Earth — a breakthrough that is transforming drug discovery and biology forever.",
+            content: "For 50 years, the 'protein folding problem' was one of biology's greatest mysteries: given a protein's amino acid sequence, how does it fold into its 3D shape? Shape determines function. AlphaFold 2 (2020) and the subsequent AlphaFold 3 (2024) solved this with near-experimental accuracy. The DeepMind team released the structures of over 200 million proteins publicly. This is directly accelerating drug discovery for diseases like malaria, antibiotic resistance, and rare genetic diseases — by allowing researchers to virtually design drugs that 'fit' a target protein's pocket without spending years in the lab."
+        },
+        hi: {
+            title: "AlphaFold 3: AI ने 50 साल की उस वैज्ञानिक पहेली को कैसे सुलझाया जो प्रोटीन फोल्डिंग से जुड़ी थी",
+            excerpt: "Google DeepMind के AlphaFold ने पृथ्वी पर लगभग हर ज्ञात प्रोटीन की 3D संरचनाओं की भविष्यवाणी की — एक सफलता जो दवा की खोज और जीव विज्ञान को हमेशा के लिए बदल रही है।",
+            content: "50 वर्षों से, 'प्रोटीन फोल्डिंग समस्या' जीव विज्ञान के सबसे बड़े रहस्यों में से एक थी। AlphaFold 2 (2020) और AlphaFold 3 (2024) ने इसे लगभग प्रयोगात्मक सटीकता के साथ हल किया। DeepMind टीम ने 200 मिलियन से अधिक प्रोटीन की संरचनाओं को सार्वजनिक रूप से जारी किया, जो मलेरिया, एंटीबायोटिक प्रतिरोध जैसी बीमारियों के लिए दवा की खोज में तेजी ला रही है।"
+        },
+        bn: {
+            title: "AlphaFold 3: এআই কীভাবে ৫০ বছরের প্রোটিন ফোল্ডিং সমস্যা সমাধান করল",
+            excerpt: "গুগল ডিপমাইন্ডের আলফাফোল্ড পৃথিবীর প্রায় প্রতিটি পরিচিত প্রোটিনের 3D কাঠামো অনুমান করেছে — একটি অগ্রগতি যা ড্রাগ আবিষ্কার এবং জীববিজ্ঞানকে চিরতরে পরিবর্তন করছে।",
+            content: "৫০ বছর ধরে প্রোটিন ফোল্ডিং সমস্যা জীববিজ্ঞানের অন্যতম বড় রহস্য ছিল। আলফাফোল্ড ২ (২০২০) এবং আলফাফোল্ড ৩ (২০২৪) এটি প্রায় পরীক্ষামূলক নির্ভুলতার সাথে সমাধান করেছে। ডিপমাইন্ড দল ২০০ মিলিয়নেরও বেশি প্রোটিনের কাঠামো প্রকাশ্যে প্রকাশ করেছে।"
+        }
+    },
+    {
+        id: 15,
+        category: "Bioinformatics",
+        image: "https://images.unsplash.com/photo-1576086213369-97a306d36557?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "CRISPR-Cas9 in 2025: The Gene Editing Revolution Enters the Clinic",
+            excerpt: "The world's first CRISPR-based medicines have been approved. We are officially in the era of rewriting the genetic source code of human disease.",
+            content: "CRISPR-Cas9 (Clustered Regularly Interspaced Short Palindromic Repeats) is a molecular 'scissors' tool borrowed from bacterial immune systems. In 2023, the FDA approved the first-ever CRISPR therapy — Casgevy — for sickle cell disease and beta-thalassemia. Patients with these life-long genetic conditions were functionally cured in clinical trials. CRISPR programs are now in Phase 2 and Phase 3 trials for conditions like Transthyretin Amyloidosis, certain cancers, and HIV. Bioinformatics tools are critical here — they guide which exact gene sequence to target and predict potential off-target edits to ensure safety."
+        },
+        hi: {
+            title: "2025 में CRISPR-Cas9: जीन संपादन क्रांति क्लिनिक में प्रवेश कर रही है",
+            excerpt: "दुनिया की पहली CRISPR-आधारित दवाएं अनुमोदित हो चुकी हैं। हम आधिकारिक तौर पर मानव रोग के आनुवंशिक स्रोत कोड को फिर से लिखने के युग में हैं।",
+            content: "CRISPR-Cas9 एक आणविक 'कैंची' उपकरण है। 2023 में, FDA ने सिकल सेल रोग के लिए पहली CRISPR थेरेपी — Casgevy — को मंजूरी दी। क्लिनिकल ट्रायल में इन आजीवन आनुवंशिक स्थितियों वाले रोगियों को कार्यात्मक रूप से ठीक किया गया। बायोइनफॉर्मेटिक्स टूल यहां महत्वपूर्ण हैं — वे सटीक जीन अनुक्रम को लक्षित करने में मदद करते हैं।"
+        },
+        bn: {
+            title: "২০২৫ সালে CRISPR-Cas9: জিন এডিটিং বিপ্লব ক্লিনিকে প্রবেশ করছে",
+            excerpt: "বিশ্বের প্রথম CRISPR-ভিত্তিক ওষুধ অনুমোদিত হয়েছে। আমরা আনুষ্ঠানিকভাবে মানব রোগের জিনগত উৎস কোড পুনরায় লেখার যুগে প্রবেশ করেছি।",
+            content: "CRISPR-Cas9 হলো একটি আণবিক 'কাঁচি' সরঞ্জাম। ২০২৩ সালে এফডিএ সিকেল সেল রোগের জন্য প্রথম CRISPR থেরাপি — ক্যাসজেভি — অনুমোদন করেছে। ক্লিনিকাল ট্রায়ালে এই আজীবন জিনগত রোগের রোগীরা কার্যত সুস্থ হয়েছেন। বায়োইনফরম্যাটিক্স সরঞ্জামগুলি নিরাপদ সম্পাদনা নিশ্চিত করতে গুরুত্বপূর্ণ ভূমিকা পালন করে।"
+        }
+    },
+    {
+        id: 16,
+        category: "Bioinformatics",
+        image: "https://images.unsplash.com/photo-1628595351029-c2bf17511435?q=80&w=800&auto=format&fit=crop",
+        en: {
+            title: "Pharmacogenomics: Why the Same Drug Works Differently in Different People",
+            excerpt: "Your genetic code determines how you metabolize medicines. The new science of pharmacogenomics is moving medicine from 'one size fits all' to precision treatment.",
+            content: "Two patients, same diagnosis, same drug — one is cured, one has a severe adverse reaction. The reason is pharmacogenomics. Your genes code for enzymes (like CYP2D6 and CYP2C19) that metabolize drugs. Genetic variants in these enzymes make some people 'poor metabolizers' (the drug builds to toxic levels) or 'ultra-rapid metabolizers' (the drug clears too fast to be effective). Bioinformatics tools analyze your genome to predict how you'll respond to hundreds of drugs before you even take them, preventing adverse drug reactions which cause thousands of hospitalizations in India annually."
+        },
+        hi: {
+            title: "फार्माकोजेनोमिक्स: वही दवा अलग-अलग लोगों में अलग-अलग क्यों काम करती है",
+            excerpt: "आपका आनुवंशिक कोड निर्धारित करता है कि आप दवाओं को कैसे चयापचय करते हैं। फार्माकोजेनोमिक्स का नया विज्ञान चिकित्सा को 'सभी के लिए एक आकार' से सटीक उपचार की ओर ले जा रहा है।",
+            content: "आपके जीन एंजाइम (जैसे CYP2D6) के लिए कोड करते हैं जो दवाओं का चयापचय करते हैं। बायोइनफॉर्मेटिक्स टूल आपके जीनोम का विश्लेषण करते हैं और सैकड़ों दवाओं के प्रति आपकी प्रतिक्रिया की भविष्यवाणी करते हैं, जिससे प्रतिकूल दवा प्रतिक्रियाओं को रोका जा सके।"
+        },
+        bn: {
+            title: "ফার্মাকোজেনোমিক্স: একই ওষুধ বিভিন্ন মানুষের মধ্যে কেন আলাদাভাবে কাজ করে",
+            excerpt: "আপনার জেনেটিক কোড নির্ধারণ করে আপনি কীভাবে ওষুধ বিপাক করবেন। ফার্মাকোজেনোমিক্সের নতুন বিজ্ঞান চিকিৎসাকে 'সবার জন্য এক আকার' থেকে নির্ভুল চিকিৎসার দিকে নিয়ে যাচ্ছে।",
+            content: "আপনার জিন এনজাইম কোড করে যা ওষুধ বিপাক করে। বায়োইনফরম্যাটিক্স সরঞ্জামগুলি আপনার জিনোম বিশ্লেষণ করে শত শত ওষুধে আপনার প্রতিক্রিয়া পূর্বাভাস দেয়, যা ভারতে প্রতি বছর হাজার হাজার হাসপাতালে ভর্তির কারণ হওয়া প্রতিকূল ওষুধ প্রতিক্রিয়া প্রতিরোধ করে।"
+        }
     }
 ];
 
