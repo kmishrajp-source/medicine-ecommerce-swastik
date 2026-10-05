@@ -26,7 +26,7 @@ export default function AyurvedicShop() {
     const [search, setSearch] = useState('');
 
     useEffect(() => {
-        fetch('/api/products?limit=200')
+        fetch('/api/products?limit=200&category=Ayurvedic')
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

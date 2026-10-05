@@ -57,12 +57,17 @@ export async function GET(req) {
         }
 
         const where = {};
-        if (category && category !== 'All') where.category = category;
+        if (category && category !== 'All') {
+            where.category = category;
+        } else {
+            // Default: Exclude Ayurvedic and Homeopathy from general 'All' shop / home page
+            where.category = { notIn: ['Ayurvedic', 'Homeopathy'] };
+        }
         
-        // Support excluding a category (e.g. Homeopathy has its own page)
+        // Support explicitly excluding a category from client side
         const excludeCategory = searchParams.get('excludeCategory');
         if (excludeCategory && !category) {
-            where.category = { not: excludeCategory };
+            where.category = { ...where.category, not: excludeCategory };
         }
 
         if (search) {

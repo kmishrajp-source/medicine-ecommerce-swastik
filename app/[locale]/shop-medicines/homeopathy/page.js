@@ -12,7 +12,7 @@ export default function HomeopathyShop() {
 
     useEffect(() => {
         // Fetch all products and filter for Homeopathy
-        fetch('/api/products')
+        fetch('/api/products?category=Homeopathy')
             .then(res => res.json())
             .then(data => {
                 if (data.success) {

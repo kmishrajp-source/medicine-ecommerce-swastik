@@ -120,7 +120,7 @@ export default function ShopClient({ initialProducts = [] }) {
             const fetchFiltered = async () => {
                 setLoading(true);
                 try {
-                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&excludeCategory=Homeopathy&`;
+                    let url = `/api/products?limit=${PAGE_SIZE}&offset=${(page - 1) * PAGE_SIZE}&`;
                     if (activeCategory !== 'All') url += `category=${encodeURIComponent(activeCategory)}&`;
                     if (searchQuery) url += `search=${encodeURIComponent(searchQuery)}`;
 

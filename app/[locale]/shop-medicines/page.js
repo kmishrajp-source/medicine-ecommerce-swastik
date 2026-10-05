@@ -23,6 +23,7 @@ export default async function Page({ params }) {
   let initialProducts = [];
   try {
       initialProducts = await prisma.product.findMany({
+          where: { category: { notIn: ['Ayurvedic', 'Homeopathy'] } },
           take: 60,
           orderBy: { createdAt: 'desc' }
       });
