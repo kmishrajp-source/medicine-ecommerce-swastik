@@ -2739,3 +2739,22 @@ model RetailerOutreachCampaign {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
 }
+
+// --- PHASE 6: AI Social Media & Content Repurposing Tracking ---
+model SocialContentCampaign {
+  id               String    @id @default(cuid())
+  campaignName     String    // e.g., "Diabetes Prevention Article"
+  platform         String    // ARTICLE, FACEBOOK, INSTAGRAM, WHATSAPP, GBP, VIDEO_SCRIPT
+  
+  // Tracking Metrics (No follower optimization!)
+  reach            Int       @default(0) // Impressions/Views
+  clicks           Int       @default(0) // Outbound clicks
+  whatsappInqs     Int       @default(0) // Users who clicked to WhatsApp
+  leadsGenerated   Int       @default(0) // Converted to named Lead
+  customersAcquired Int      @default(0) // Became paying customer
+  ordersGenerated  Int       @default(0) // Number of orders
+  revenueGenerated Float     @default(0) // Actual INR generated
+  
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
