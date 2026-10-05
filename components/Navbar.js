@@ -225,6 +225,7 @@ export default function Navbar({ cartCount, openCart }) {
                 <div className="max-w-7xl mx-auto" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', padding: '12px 20px', overflowX: 'auto', overflowY: 'visible', width: '100%' }}>
                     <ul className="nav-shining-link" style={{ display: 'flex', gap: '12px', listStyle: 'none', margin: 0, padding: 0, fontSize: '0.75rem', fontWeight: 600, whiteSpace: 'nowrap', width: '100%', justifyContent: 'flex-start', flexWrap: 'nowrap', color: 'rgba(255,255,255,0.9)', alignItems: 'center', overflow: 'visible' }}>
                         <li><Link href="/" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('home')}</Link></li>
+                        <li><Link href="/magazine" className="text-yellow-300 hover:text-yellow-100 hover:bg-yellow-900/40 px-2 py-1.5 rounded-lg transition-all font-bold"><i className="fa-regular fa-newspaper mr-1"></i>Magazine</Link></li>
                         <li><Link href="/switch" className="bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-slate-900 px-3 py-1.5 rounded-lg transition-all font-black shadow-lg shadow-orange-500/20 uppercase tracking-tighter"><i className="fa-solid fa-bolt mr-1"></i> Switch & Save ₹100</Link></li>
                         <li><Link href="/shop-medicines" className="hover:text-emerald-300 hover:bg-emerald-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-emerald-400">{tHome('shop_medicines')}</Link></li>
                         <li><Link href="/shop-medicines/homeopathy" className="hover:text-cyan-300 hover:bg-cyan-900/40 px-2 py-1.5 rounded-lg transition-all font-bold text-cyan-400"><i className="fa-solid fa-leaf mr-1"></i>Homeopathy</Link></li>
@@ -240,7 +241,7 @@ export default function Navbar({ cartCount, openCart }) {
                         <li><Link href="/ambulance" className="text-red-300 hover:text-red-100 hover:bg-red-900/30 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ambulance')}</Link></li>
                         <li><Link href="/labs" className="hover:text-white hover:bg-white/10 px-2 py-1.5 rounded-lg transition-all">{t('labs')}</Link></li>
                         <li><Link href="/ai-assistant" className="text-blue-300 hover:text-blue-100 hover:bg-blue-900/40 px-2 py-1.5 rounded-lg transition-all font-bold">{t('ai_assistant')}</Link></li>
-                        <li><Link href="/magazine" className="text-yellow-300 hover:text-yellow-100 hover:bg-yellow-900/40 px-2 py-1.5 rounded-lg transition-all font-bold"><i className="fa-regular fa-newspaper mr-1"></i>Magazine</Link></li>
+
                         <li className="opacity-40 self-center">|</li>
                         <li><Link href="/symptom-checker" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-wand-sparkles text-[11px]"></i> {t('symptom_checker')}</Link></li>
                         <li><Link href="/prescription-analyzer" className="hover:text-white opacity-90 transition-all flex items-center gap-2 hover:bg-white/10 px-2 py-1.5 rounded-lg"><i className="fa-solid fa-file-medical text-[11px]"></i> {t('rx_analyzer')}</Link></li>
@@ -266,6 +267,7 @@ export default function Navbar({ cartCount, openCart }) {
 
                     <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column' }}>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('home')}</Link></li>
+                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/magazine" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fde047', textDecoration: 'none', fontWeight: 'bold' }}><i className="fa-regular fa-newspaper mr-2"></i>Medical Magazine</Link></li>
                          
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'linear-gradient(90deg, #f59e0b 0%, #f97316 100%)' }}><Link href="/switch" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#1e293b', textDecoration: 'none', fontWeight: '900', display: 'flex', alignItems: 'center', gap: '8px', textTransform: 'uppercase' }}><i className="fa-solid fa-bolt text-white"></i> Switch & Save ₹100</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/shop-medicines" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold' }}>{tHome('shop_medicines')}</Link></li>
@@ -283,7 +285,7 @@ export default function Navbar({ cartCount, openCart }) {
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ambulance" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fca5a5', textDecoration: 'none', fontWeight: 'bold' }}>Ambulance Services</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/labs" onClick={() => setIsMobileMenuOpen(false)} style={{ color: 'white', textDecoration: 'none' }}>{t('labs')}</Link></li>
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/ai-assistant" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#93c5fd', textDecoration: 'none', fontWeight: 'bold' }}>{t('ai_assistant')}</Link></li>
-                         <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}><Link href="/magazine" onClick={() => setIsMobileMenuOpen(false)} style={{ color: '#fde047', textDecoration: 'none', fontWeight: 'bold' }}><i className="fa-regular fa-newspaper mr-2"></i>Medical Magazine</Link></li>
+
                          
                          {/* Services */}
                          <li style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
