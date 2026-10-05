@@ -334,50 +334,18 @@ const articlePool = [
     }
 ];
 
-// Helper: Calculate week number to rotate articles automatically
-function getCurrentWeekNumber() {
-    const epoch = new Date("2024-01-01T00:00:00Z"); // fixed start point
-    const now = new Date();
-    return Math.floor((now - epoch) / (7 * 24 * 60 * 60 * 1000));
-}
-
-// Get the 4 active articles for this week
-function getActiveArticles() {
-    const weekNum = getCurrentWeekNumber();
-    
-    // Reverse the pool so index 0 is the newest in the array context, 
-    // but we just cycle through it. 
-    // The "newest" article index cycles forward each week.
-    const newestIndex = weekNum % articlePool.length;
-    
-    const active = [];
-    for (let i = 0; i < 4; i++) {
-        // Go backwards to get the current week and 3 previous weeks
-        let idx = (newestIndex - i) % articlePool.length;
-        if (idx < 0) idx += articlePool.length; 
-        
-        // Add dynamic date labeling based on how many weeks ago it was "published"
-        const isCurrentWeek = i === 0;
-        const article = { ...articlePool[idx] };
-        
-        // We'll calculate localized labels at render-time, so we just set variables here
-        article.displayDateKey = isCurrentWeek ? "current" : `${i}_weeks_ago`;
-        article.isNew = isCurrentWeek;
-
-        active.push(article);
-    }
-    return active;
-}
+// All unique categories in the pool
+const ALL_CATEGORIES = ['All', ...Array.from(new Set(articlePool.map(a => a.category)))];
 
 export default function MedicalMagazinePage() {
     const { cartCount, toggleCart } = useCart();
     const [language, setLanguage] = useState('en'); // 'en', 'hi', or 'bn'
-    const [activeArticles, setActiveArticles] = useState([]);
+    const [activeCategory, setActiveCategory] = useState('All');
 
-    // Calculate on mount to avoid hydration mismatch
-    React.useEffect(() => {
-        setActiveArticles(getActiveArticles());
-    }, []);
+    // Filter articles by selected category
+    const activeArticles = activeCategory === 'All'
+        ? articlePool
+        : articlePool.filter(a => a.category === activeCategory);
 
     // Get localized date/meta details
     const getDateText = (key, lang) => {
@@ -491,13 +459,50 @@ export default function MedicalMagazinePage() {
             </div>
 
             <main className="max-w-5xl mx-auto px-6 py-16 -mt-10 relative z-20">
+
+                {/* Category Filter Tabs */}
+                <div className="flex flex-wrap gap-2 mb-12 justify-center">
+                    {ALL_CATEGORIES.map(cat => {
+                        const catColors = {
+                            'All': 'bg-indigo-600 text-white',
+                            'Ayurveda': 'bg-emerald-600 text-white',
+                            'Homeopathy': 'bg-blue-600 text-white',
+                            'Bioinformatics': 'bg-purple-600 text-white',
+                        };
+                        const isActive = activeCategory === cat;
+                        const activeColor = catColors[cat] || 'bg-slate-600 text-white';
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setActiveCategory(cat)}
+                                className={`px-5 py-2 rounded-full text-sm font-bold transition-all border-2 ${
+                                    isActive
+                                        ? `${activeColor} border-transparent shadow-lg scale-105`
+                                        : 'bg-white text-slate-600 border-slate-200 hover:border-indigo-300 hover:text-indigo-600'
+                                }`}
+                            >
+                                {cat === 'Ayurveda' ? '🌿 ' : cat === 'Homeopathy' ? '🔵 ' : cat === 'Bioinformatics' ? '🧬 ' : cat === 'All' ? '📰 ' : ''}
+                                {cat}
+                                <span className="ml-2 text-xs opacity-70">
+                                    ({cat === 'All' ? articlePool.length : articlePool.filter(a => a.category === cat).length})
+                                </span>
+                            </button>
+                        );
+                    })}
+                </div>
+
                 <div className="space-y-12">
                     {activeArticles.length === 0 ? (
-                        <div className="text-center py-20 text-slate-500">{ui.loading}</div>
+                        <div className="text-center py-20 text-slate-500">No articles found.</div>
                     ) : (
                         activeArticles.map((article, index) => {
                             const content = article[language];
                             const isEven = index % 2 === 0;
+                            const catBadgeColors = {
+                                'Ayurveda': 'bg-emerald-100 text-emerald-800',
+                                'Homeopathy': 'bg-blue-100 text-blue-800',
+                                'Bioinformatics': 'bg-purple-100 text-purple-800',
+                            };
 
                             return (
                                 <div key={article.id} className="bg-white rounded-[2rem] overflow-hidden shadow-xl shadow-slate-200/50 border border-slate-100 flex flex-col md:flex-row hover:-translate-y-1 hover:shadow-2xl transition-all duration-300 group">
@@ -511,21 +516,18 @@ export default function MedicalMagazinePage() {
                                             className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
                                         />
                                         <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-                                            <span className="bg-white/90 backdrop-blur-sm text-indigo-900 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg inline-block w-max">
+                                            <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg inline-block w-max backdrop-blur-sm ${
+                                                catBadgeColors[article.category] || 'bg-white/90 text-indigo-900'
+                                            }`}>
                                                 {article.category}
                                             </span>
-                                            {article.isNew && (
-                                                <span className="bg-rose-500/90 backdrop-blur-sm text-white text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-lg inline-block w-max animate-pulse">
-                                                    New 🔥
-                                                </span>
-                                            )}
                                         </div>
                                     </div>
 
                                     {/* Content Section */}
                                     <div className={`md:w-3/5 p-8 md:p-12 flex flex-col justify-center ${isEven ? 'md:order-2' : 'md:order-1'}`}>
-                                        <p className={`text-xs font-bold uppercase tracking-widest mb-3 ${article.isNew ? 'text-rose-500' : 'text-slate-400'}`}>
-                                            {getDateText(article.displayDateKey, language)}
+                                        <p className="text-xs font-bold uppercase tracking-widest mb-3 text-slate-400">
+                                            {article.category}
                                         </p>
                                         <h2 className="text-2xl md:text-3xl font-black text-slate-900 mb-4 leading-tight group-hover:text-indigo-600 transition-colors">
                                             {content.title}
