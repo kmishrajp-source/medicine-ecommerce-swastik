@@ -73,6 +73,7 @@ model User {
   genomicDatasets      GenomicDataset[]
   revenueTransactions RevenueTransaction[] @relation("UserRevenueTransactions")
   voiceOrders         VoiceOrderIntent[]   @relation("UserVoiceOrders")
+  researchContacts    ResearchContact[]
 
   // --- ABDM Integrations ---
   abhaProfile          AbhaProfile?
@@ -2786,4 +2787,74 @@ model WhatsAppEnquiry {
   
   @@index([source])
   @@index([phone])
+}
+
+// ============================================================================
+// PHASE: AI RESEARCH & BIOINFORMATICS
+// ============================================================================
+
+model ResearchOrganization {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // University, Hospital, Biotech, Pharma, etc.
+  country     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  projects    ResearchProject[]
+  contacts    ResearchContact[]
+}
+
+model ResearchContact {
+  id             String               @id @default(cuid())
+  userId         String?              // Optional link to existing User
+  user           User?                @relation(fields: [userId], references: [id])
+  organizationId String
+  organization   ResearchOrganization @relation(fields: [organizationId], references: [id])
+  name           String
+  email          String
+  phone          String?
+  position       String?
+  notes          String?              @db.Text
+  createdAt      DateTime             @default(now())
+  projects       ResearchProject[]
+}
+
+model ResearchProject {
+  id               String               @id @default(cuid())
+  title            String
+  researchArea     String
+  objective        String               @db.Text
+  problemStatement String               @db.Text
+  status           String               @default("NEW_INQUIRY") // INITIAL_REVIEW, PROPOSAL, ACTIVE, COMPLETED
+  budgetRange      String?
+  deadline         DateTime?
+  
+  organizationId   String
+  organization     ResearchOrganization @relation(fields: [organizationId], references: [id])
+  contactId        String
+  contact          ResearchContact      @relation(fields: [contactId], references: [id])
+  
+  hasDataset       Boolean              @default(false)
+  datasetType      String?
+  datasetSize      String?
+  
+  needsLabWork     Boolean              @default(false)
+  needsClinical    Boolean              @default(false)
+  ethicsStatus     String?
+  
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  
+  files            ResearchFile[]
+}
+
+model ResearchFile {
+  id             String          @id @default(cuid())
+  projectId      String
+  project        ResearchProject @relation(fields: [projectId], references: [id])
+  fileName       String
+  fileUrl        String          // Secure URL
+  fileType       String
+  isSensitive    Boolean         @default(true)
+  createdAt      DateTime        @default(now())
 }
