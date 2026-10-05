@@ -2758,3 +2758,32 @@ model SocialContentCampaign {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 }
+
+// --- PHASE 7: AI WhatsApp Funnel Tracking ---
+model WhatsAppEnquiry {
+  id             String    @id @default(cuid())
+  phone          String
+  customerName   String?
+  source         String    // GOOGLE, FACEBOOK, INSTAGRAM, REFERRAL, DIRECT
+  
+  // Funnel States
+  hasClicked     Boolean   @default(true)
+  hasEnquired    Boolean   @default(false)
+  hasPrescription Boolean  @default(false)
+  hasOrder       Boolean   @default(false)
+  hasPayment     Boolean   @default(false)
+  hasDelivery    Boolean   @default(false)
+  
+  revenue        Float     @default(0)
+  
+  // AI Tracking States
+  isUnanswered   Boolean   @default(true)
+  lastAgentReply DateTime?
+  lastUserMsg    DateTime  @default(now())
+  
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  
+  @@index([source])
+  @@index([phone])
+}
