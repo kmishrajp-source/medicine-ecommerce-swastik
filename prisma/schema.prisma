@@ -3170,6 +3170,7 @@ model MarketplaceOrder {
   paymentTerms         String?
   warrantyTerms        String?
   timelineDelivery     String?
+  paymentStatus        String            @default("PENDING") // PENDING, PAID, OVERDUE, WAIVED
   status               String            @default("ORDER_CONFIRMED")
   deliveryStatus       String            @default("PENDING_DISPATCH")
   trackingNumber       String?
