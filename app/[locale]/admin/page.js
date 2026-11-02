@@ -237,6 +237,7 @@ export default function AdminDashboard() {
                         }}>
                             {[
                                 // EXECUTIVE INTELLIGENCE
+                                { name: "🏥 Swastik HealthMart", path: "/admin/healthmart", color: "#10B981" },
                                 { name: "📈 Revenue Engine", path: "/admin/executive/revenue-intelligence", color: "#F472B6", page: "analytics" },
                                 { name: "🪙 Capital Deploy", path: "/admin/executive/capital-deployment", color: "#38BDF8", page: "finance" },
                                 { name: "🏢 B2B CRM", path: "/admin/b2b-crm", color: "#FBBF24", page: "crm" },

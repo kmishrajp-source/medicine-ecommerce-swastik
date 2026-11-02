@@ -24,16 +24,31 @@ export default function Footer() {
                         <a href="#" style={{ color: 'white', fontSize: '1.2rem' }}><i className="fa-brands fa-linkedin"></i></a>
                     </div>
                 </div>
-
                 {/* Column 2: Quick Links */}
                 <div>
                     <h3 style={{ fontSize: '1.1rem', marginBottom: '20px', borderBottom: '2px solid #3B82F6', display: 'inline-block' }}>{t('services')}</h3>
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
+                        {/* HealthMart — Compare & Get Quotes */}
+                        <li style={{ marginBottom: '12px' }}>
+                            <Link href="/healthmart" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'linear-gradient(90deg,#065f46,#047857)', color: '#6ee7b7', textDecoration: 'none', fontWeight: 'bold', padding: '5px 12px', borderRadius: '6px', fontSize: '0.92rem' }}>
+                                <i className="fa-solid fa-store-alt"></i>&nbsp;HealthMart
+                                <span style={{ background: '#10b981', color: 'white', fontSize: '0.65rem', padding: '1px 6px', borderRadius: '999px', fontWeight: '700', letterSpacing: '0.5px' }}>NEW</span>
+                            </Link>
+                        </li>
+                        <li style={{ marginBottom: '8px', paddingLeft: '4px' }}>
+                            <Link href="/healthmart" style={{ color: '#34D399', textDecoration: 'none', fontSize: '0.85rem' }}>&#x21B3; Compare &amp; Get Quotes</Link>
+                        </li>
+                        <li style={{ marginBottom: '8px', paddingLeft: '4px' }}>
+                            <Link href="/healthmart/provider/dashboard" style={{ color: '#34D399', textDecoration: 'none', fontSize: '0.85rem' }}>&#x21B3; Provider Dashboard</Link>
+                        </li>
+                        <li style={{ marginBottom: '14px', paddingLeft: '4px', borderBottom: '1px solid #1f2937', paddingBottom: '12px' }}>
+                            <Link href="/healthmart#post-requirement" style={{ color: '#34D399', textDecoration: 'none', fontSize: '0.85rem' }}>&#x21B3; Post a Requirement</Link>
+                        </li>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop-medicines" style={{ color: 'inherit', textDecoration: 'none' }}>{t('order_medicine')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/generic-retailers" style={{ color: '#34D399', textDecoration: 'none', fontWeight: 'bold' }}>Generic Stores Directory</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/doctors" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_doctor')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/labs" style={{ color: 'inherit', textDecoration: 'none' }}>{t('lab_tests')}</Link></li>
-                        <li style={{ marginBottom: '10px' }}><Link href="/bio/genetic-tests" style={{ color: '#A78BFA', textDecoration: 'none', fontWeight: 'bold' }}>🧬 Genetic Testing</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/bio/genetic-tests" style={{ color: '#A78BFA', textDecoration: 'none', fontWeight: 'bold' }}>&#x1F9EC; Genetic Testing</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/ambulance" style={{ color: 'inherit', textDecoration: 'none' }}>{t('book_ambulance')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop-medicines/ayurvedic" style={{ color: 'inherit', textDecoration: 'none' }}>{t('ayurveda')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/shop-medicines/homeopathy" style={{ color: 'inherit', textDecoration: 'none' }}>Homeopathy Shop</Link></li>

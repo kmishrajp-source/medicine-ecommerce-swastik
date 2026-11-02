@@ -10,7 +10,7 @@ const CATEGORIES = [
     "Gastrointestinal", "Neuro", "Antiallergic", "Antifungal", "Hormonal", "Ayurvedic"
 ];
 
-export default function ShopClient({ initialProducts = [] }) {
+export default function ShopClient({ initialProducts = [], initialTotalCount = 0 }) {
     const [activeCategory, setActiveCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
     const [rxFilter, setRxFilter] = useState("All"); // All, Rx, OTC
@@ -21,7 +21,7 @@ export default function ShopClient({ initialProducts = [] }) {
     const [allLoaded, setAllLoaded] = useState(false);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
-    const [totalCount, setTotalCount] = useState(0);
+    const [totalCount, setTotalCount] = useState(initialTotalCount || initialProducts.length);
     const PAGE_SIZE = 60;
 
     // --- Tour State ---
@@ -254,7 +254,7 @@ export default function ShopClient({ initialProducts = [] }) {
                             <i className="fa-solid fa-circle-play"></i> How to Order?
                         </button>
                         <div style={{ color: 'var(--text-light)', fontWeight: 600 }}>
-                            {filteredProducts.length} of {totalCount} Results
+                            {filteredProducts.length} of {totalCount || filteredProducts.length} Results
                         </div>
                     </div>
                 </div>

@@ -19,17 +19,23 @@ export default async function Page({ params }) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // Fetch initial products natively on the server for zero-latency LCP
+  // Fetch initial products and total count natively on the server for zero-latency LCP
   let initialProducts = [];
+  let totalProductsCount = 0;
   try {
-      initialProducts = await prisma.product.findMany({
-          where: { category: { notIn: ['Ayurvedic', 'Homeopathy'] } },
-          take: 60,
-          orderBy: { createdAt: 'desc' }
-      });
+      [initialProducts, totalProductsCount] = await Promise.all([
+          prisma.product.findMany({
+              where: { category: { notIn: ['Ayurvedic', 'Homeopathy'] } },
+              take: 60,
+              orderBy: { createdAt: 'desc' }
+          }),
+          prisma.product.count({
+              where: { category: { notIn: ['Ayurvedic', 'Homeopathy'] } }
+          })
+      ]);
   } catch (e) {
       console.error("SSR Products Fetch Error:", e);
   }
 
-  return <ShopClient initialProducts={initialProducts} />;
+  return <ShopClient initialProducts={initialProducts} initialTotalCount={totalProductsCount} />;
 }

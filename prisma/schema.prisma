@@ -88,6 +88,14 @@ model User {
   latestCampaign      String?
   whatsappSource      String?
   phoneSource         String?
+
+// --- Swastik HealthMart Marketplace Extensions ---
+  buyerEnquiries           BuyerEnquiry[]            @relation("BuyerEnquiries")
+  providerServiceListings  ProviderServiceListing[]  @relation("ProviderListings")
+  submittedQuotations      ProviderQuotation[]       @relation("ProviderQuotations")
+  enquiryMessages          EnquiryMessage[]          @relation("UserEnquiryMessages")
+  marketplaceDisputesFiled MarketplaceDispute[]      @relation("DisputeBuyer")
+  marketplaceOrders        MarketplaceOrder[]        @relation("BuyerOrders")
 }
 
 model SystemSettings {
@@ -2857,4 +2865,322 @@ model ResearchFile {
   fileType       String
   isSensitive    Boolean         @default(true)
   createdAt      DateTime        @default(now())
+}
+
+
+// ============================================================
+// SWASTIK HEALTHMART MARKETPLACE ENTITIES
+// ============================================================
+
+model MarketplaceCategory {
+  id                          String                   @id @default(cuid())
+  slug                        String                   @unique
+  name                        String
+  description                 String?
+  serviceType                 String
+  icon                        String                   @default("fa-solid fa-stethoscope")
+  bannerImage                 String?
+  requiredCredentials         Json?
+  permittedWorkflow           String                   @default("RFQ_AND_QUOTE")
+  supportsQuotationComparison Boolean                  @default(true)
+  supportsDirectBooking       Boolean                  @default(false)
+  supportsOnlinePayment       Boolean                  @default(false)
+  requiresManualConfirmation  Boolean                  @default(true)
+  applicableLocationRules     Json?
+  categoryFields              Json?
+  isActive                    Boolean                  @default(true)
+  sortOrder                   Int                      @default(0)
+  createdAt                   DateTime                 @default(now())
+  updatedAt                   DateTime                 @updatedAt
+
+  listings                    ProviderServiceListing[]
+  enquiries                   BuyerEnquiry[]
+
+  @@index([serviceType, isActive])
+}
+
+model ProviderServiceListing {
+  id                   String               @id @default(cuid())
+  categoryId           String
+  category             MarketplaceCategory  @relation(fields: [categoryId], references: [id])
+  userId               String?
+  user                 User?                @relation("ProviderListings", fields: [userId], references: [id])
+  providerType         String
+  providerId           String?
+  businessName         String
+  title                String
+  description          String
+  serviceLocations     String[]             @default(["Gorakhpur", "Uttar Pradesh", "Pan India"])
+  operatingHours       String?              @default("9:00 AM - 6:00 PM")
+  serviceAreas         String[]             @default(["Gorakhpur"])
+  basePrice            Float?
+  priceUnit            String?
+  pricingDetails       String?
+  availableOptions     Json?
+  isVerified           Boolean              @default(false)
+  verificationBadge    String?
+  verificationDetails  Json?
+  listingStatus        String               @default("ACTIVE")
+  isFeatured           Boolean              @default(false)
+  featuredUntil        DateTime?
+  rating               Float                @default(4.5)
+  reviewCount          Int                  @default(0)
+  totalQuotesGiven     Int                  @default(0)
+  avgResponseTimeHours Float                @default(2.5)
+  contactEmail         String?
+  contactPhone         String?
+  showPhonePublicly    Boolean              @default(false)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  quotations           ProviderQuotation[]
+  matches              EnquiryProviderMatch[]
+
+  @@index([providerType, listingStatus])
+  @@index([categoryId, isFeatured])
+}
+
+model BuyerEnquiry {
+  id                   String                 @id @default(cuid())
+  enquiryNumber        String                 @unique
+  buyerId              String?
+  buyer                User?                  @relation("BuyerEnquiries", fields: [buyerId], references: [id])
+  categoryId           String
+  category             MarketplaceCategory    @relation(fields: [categoryId], references: [id])
+  serviceType          String
+  title                String
+  description          String
+  quantity             Int?                   @default(1)
+  budgetRangeMin       Float?
+  budgetRangeMax       Float?
+  targetDeliveryDate   DateTime?
+  locationCity         String                 @default("Gorakhpur")
+  locationState        String                 @default("Uttar Pradesh")
+  locationPincode      String?
+  deliveryAddress      String?
+  categorySpecificData Json?
+  buyerName            String
+  buyerPhone           String
+  buyerEmail           String?
+  buyerOrganization    String?
+  isPhoneVerified      Boolean                @default(false)
+  isConsentGiven       Boolean                @default(true)
+  privacyMode          String                 @default("PROTECTED")
+  priority             String                 @default("MEDIUM")
+  status               String                 @default("SUBMITTED")
+  closureReason        String?
+  assignedAdminId      String?
+  adminNotes           String?
+  ipAddress            String?
+  source               String                 @default("marketplace_web")
+  acceptedQuotationId  String?
+  createdAt            DateTime               @default(now())
+  updatedAt            DateTime               @updatedAt
+
+  matches              EnquiryProviderMatch[]
+  quotations           ProviderQuotation[]
+  messages             EnquiryMessage[]
+  disputes             MarketplaceDispute[]
+  order                MarketplaceOrder?
+
+  @@index([status, priority])
+  @@index([categoryId, createdAt])
+}
+
+model EnquiryProviderMatch {
+  id             String                  @id @default(cuid())
+  enquiryId      String
+  enquiry        BuyerEnquiry            @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  listingId      String?
+  listing        ProviderServiceListing? @relation(fields: [listingId], references: [id])
+  providerType   String
+  providerId     String
+  matchScore     Float                   @default(100.0)
+  matchReasons   Json?
+  status         String                  @default("MATCHED")
+  isLeadUnlocked Boolean                 @default(false)
+  unlockedAt     DateTime?
+  unlockFee      Float?                  @default(0.0)
+  createdAt      DateTime                @default(now())
+
+  @@unique([enquiryId, providerType, providerId])
+  @@index([providerId, status])
+}
+
+model ProviderQuotation {
+  id                   String                  @id @default(cuid())
+  quoteNumber          String                  @unique
+  enquiryId            String
+  enquiry              BuyerEnquiry            @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  listingId            String?
+  listing              ProviderServiceListing? @relation(fields: [listingId], references: [id])
+  providerUserId       String?
+  providerUser         User?                   @relation("ProviderQuotations", fields: [providerUserId], references: [id])
+  providerType         String
+  providerId           String
+  providerBusinessName String
+  providerContactName  String?
+  providerPhone        String?
+  providerEmail        String?
+  subtotalAmount       Float
+  taxAmount            Float                   @default(0.0)
+  shippingOrServiceFee Float                   @default(0.0)
+  totalAmount          Float
+  currency             String                  @default("INR")
+  timelineDelivery     String?
+  warrantyTerms        String?
+  paymentTerms         String?
+  cancellationTerms    String?
+  inclusions           String[]                @default([])
+  exclusions           String[]                @default([])
+  notes                String?
+  validUntil           DateTime
+  status               String                  @default("SENT")
+  rejectionReason      String?
+  versionNumber        Int                     @default(1)
+  isRevised            Boolean                 @default(false)
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
+
+  verificationBadge    String?                 @default("SWASTIK_VERIFIED")
+  rating               Float?                  @default(4.7)
+  items                QuotationItem[]
+  revisions            QuotationRevision[]
+  order                MarketplaceOrder?
+
+  @@index([enquiryId, status])
+  @@index([providerId, status])
+}
+
+model QuotationItem {
+  id             String            @id @default(cuid())
+  quotationId    String
+  quotation      ProviderQuotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  itemName       String
+  description    String?
+  hsnOrSacCode   String?
+  quantity       Int               @default(1)
+  unitPrice      Float
+  taxRatePercent Float             @default(18.0)
+  taxAmount      Float             @default(0.0)
+  totalPrice     Float
+  sortOrder      Int               @default(0)
+  createdAt      DateTime          @default(now())
+}
+
+model QuotationRevision {
+  id                String            @id @default(cuid())
+  quotationId       String
+  quotation         ProviderQuotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  versionNumber     Int
+  snapshotData      Json
+  reasonForRevision String?
+  revisedByUserId   String?
+  createdAt         DateTime          @default(now())
+}
+
+model EnquiryMessage {
+  id               String       @id @default(cuid())
+  enquiryId        String
+  enquiry          BuyerEnquiry @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
+  senderUserId     String?
+  senderUser       User?        @relation("UserEnquiryMessages", fields: [senderUserId], references: [id])
+  senderType       String
+  senderName       String
+  message          String
+  attachmentUrls   String[]     @default([])
+  isReadByReceiver Boolean      @default(false)
+  createdAt        DateTime     @default(now())
+
+  @@index([enquiryId, createdAt])
+}
+
+model MarketplaceSubscription {
+  id                 String   @id @default(cuid())
+  providerType       String
+  providerId         String
+  planName           String
+  monthlyLeadQuota   Int      @default(10)
+  leadsUsedThisMonth Int      @default(0)
+  priorityListing    Boolean  @default(false)
+  pricePaid          Float    @default(0.0)
+  validFrom          DateTime @default(now())
+  validUntil         DateTime
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([providerType, providerId, isActive])
+}
+
+model MarketplaceLeadAccess {
+  id               String   @id @default(cuid())
+  enquiryId        String
+  providerType     String
+  providerId       String
+  unlockedAt       DateTime @default(now())
+  amountPaid       Float    @default(0.0)
+  billingReference String?
+  disputed         Boolean  @default(false)
+
+  @@unique([enquiryId, providerType, providerId])
+}
+
+model MarketplaceReview {
+  id                 String   @id @default(cuid())
+  listingId          String
+  buyerName          String
+  rating             Float    @default(5.0)
+  comment            String?
+  isVerifiedPurchase Boolean  @default(true)
+  isPublic           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+}
+
+model MarketplaceDispute {
+  id              String       @id @default(cuid())
+  enquiryId       String
+  enquiry         BuyerEnquiry @relation(fields: [enquiryId], references: [id])
+  filedByUserId   String
+  filedByUser     User         @relation("DisputeBuyer", fields: [filedByUserId], references: [id])
+  providerType    String
+  providerId      String
+  reason          String
+  description     String
+  status          String       @default("OPEN")
+  adminResolution String?
+  resolvedAt      DateTime?
+  createdAt       DateTime     @default(now())
+}
+
+
+model MarketplaceOrder {
+  id                   String            @id @default(cuid())
+  orderNumber          String            @unique
+  enquiryId            String            @unique
+  enquiry              BuyerEnquiry      @relation(fields: [enquiryId], references: [id])
+  quotationId          String            @unique
+  quotation            ProviderQuotation @relation(fields: [quotationId], references: [id])
+  buyerUserId          String?
+  buyerUser            User?             @relation("BuyerOrders", fields: [buyerUserId], references: [id])
+  providerId           String
+  providerBusinessName String
+  totalAmount          Float
+  currency             String            @default("INR")
+  paymentTerms         String?
+  warrantyTerms        String?
+  timelineDelivery     String?
+  status               String            @default("ORDER_CONFIRMED")
+  deliveryStatus       String            @default("PENDING_DISPATCH")
+  trackingNumber       String?
+  courierName          String?
+  deliveryNotes        String?
+  dispatchedAt         DateTime?
+  deliveredAt          DateTime?
+  cancelledAt          DateTime?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@index([enquiryId])
+  @@index([providerId])
 }

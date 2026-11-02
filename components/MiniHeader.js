@@ -7,6 +7,7 @@ export default function MiniHeader() {
         <div className="bg-[#f8fafc] border-b border-slate-200 py-2 px-6 hidden md:block overflow-hidden relative">
             <div className="max-w-7xl mx-auto flex justify-between items-center flex-nowrap" style={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div className="flex gap-4 items-center flex-nowrap" style={{ display: 'flex', flexWrap: 'nowrap', gap: '15px' }}>
+                    <Link href="/healthmart" className="flex items-center gap-1.5 text-[10px] font-black text-emerald-600 uppercase tracking-widest hover:text-emerald-700 transition-all shrink-0 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200"><i className="fa-solid fa-store text-emerald-600"></i> HealthMart Quotes <span className="bg-emerald-600 text-white px-1.5 py-0.2 rounded text-[7px]">NEW</span></Link>
                     <Link href="/doctors" className="flex items-center gap-2 text-[10px] font-black text-slate-500 uppercase tracking-widest hover:text-indigo-600 transition-all shrink-0">
                         <i className="fa-solid fa-phone-volume text-indigo-500"></i>
                         Phone Consult <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded text-[8px]">24x7</span>
