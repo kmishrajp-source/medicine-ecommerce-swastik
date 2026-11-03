@@ -83,6 +83,7 @@ export default function Footer() {
                     <ul style={{ listStyle: 'none', padding: 0, color: '#D1D5DB' }}>
                         <li style={{ marginBottom: '10px' }}><Link href="/trust-compliance" style={{ color: '#34D399', textDecoration: 'none', fontWeight: '600' }}>🛡️ Trust & Compliance</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/privacy-policy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link></li>
+                        <li style={{ marginBottom: '10px' }}><Link href="/delete-account" style={{ color: '#F87171', textDecoration: 'none', fontWeight: '600' }}>🗑️ Delete Account</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/terms-conditions" style={{ color: 'inherit', textDecoration: 'none' }}>Terms & Conditions</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/policy#refund" style={{ color: 'inherit', textDecoration: 'none' }}>{t('refund')}</Link></li>
                         <li style={{ marginBottom: '10px' }}><Link href="/developer/api-portal" style={{ color: '#818CF8', textDecoration: 'none', fontWeight: '600' }}>⚡ Developer API</Link></li>

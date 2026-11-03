@@ -301,6 +301,29 @@ export default function Profile() {
                 <div style={{ background: 'white', borderRadius: '16px', padding: '20px', boxShadow: 'var(--shadow-sm)' }}>
                     <PatientAppointments />
                 </div>
+                <div style={{ marginTop: '40px', padding: '20px', borderRadius: '16px', border: '1px solid #FEE2E2', background: '#FEF2F2' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#991B1B', marginBottom: '8px' }}>
+                        Account Settings &amp; Data Rights
+                    </h3>
+                    <p style={{ fontSize: '0.9rem', color: '#7F1D1D', marginBottom: '14px' }}>
+                        In compliance with Google Play Store data policies and privacy regulations, you have full control over your personal data.
+                    </p>
+                    <a
+                        href="/delete-account"
+                        style={{
+                            display: 'inline-block',
+                            padding: '8px 16px',
+                            background: '#DC2626',
+                            color: '#FFFFFF',
+                            borderRadius: '8px',
+                            textDecoration: 'none',
+                            fontSize: '0.85rem',
+                            fontWeight: '700'
+                        }}
+                    >
+                        Request Account &amp; Data Deletion
+                    </a>
+                </div>
             </div>
         </>
     );
