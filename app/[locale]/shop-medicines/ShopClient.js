@@ -254,7 +254,7 @@ export default function ShopClient({ initialProducts = [], initialTotalCount = 0
                             <i className="fa-solid fa-circle-play"></i> How to Order?
                         </button>
                         <div style={{ color: 'var(--text-light)', fontWeight: 600 }}>
-                            {filteredProducts.length} of {totalCount || filteredProducts.length} Results
+                            Showing {filteredProducts.length} of {Math.max(filteredProducts.length, totalCount || 0)} medicines
                         </div>
                     </div>
                 </div>

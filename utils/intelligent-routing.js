@@ -1,6 +1,7 @@
 import prisma from "@/lib/prisma";
 import { getDistanceFromLatLonInKm } from "./routing"; // Reuse existing distance logic
 import { WhatsAppTriggers, sendWhatsAppText } from "@/lib/whatsapp";
+import { sendSMS } from "@/lib/sms";
 
 /**
  * Intelligent Simultaneous Order Routing
@@ -19,10 +20,12 @@ export async function executeIntelligentRouting(orderId) {
             }
         });
 
-        if (!order || !order.lat || !order.lng) {
-            console.log(`[AI-ROUTING] Order ${orderId} has no coordinates. Manual assignment required.`);
+        if (!order) {
+            console.log(`[AI-ROUTING] Order ${orderId} not found.`);
             return null;
         }
+        const orderLat = order.lat || 26.7606;
+        const orderLng = order.lng || 83.3732;
 
         const items = order.items;
         let totalRetailerCost = 0;
@@ -70,7 +73,7 @@ export async function executeIntelligentRouting(orderId) {
             const retailers = await prisma.retailer.findMany({
                 where: { isOnline: true, lat: { not: null }, lng: { not: null } }
             });
-            const validRetailers = retailers.map(r => ({ ...r, distance: getDistanceFromLatLonInKm(order.lat, order.lng, r.lat, r.lng) }))
+            const validRetailers = retailers.map(r => ({ ...r, distance: getDistanceFromLatLonInKm(orderLat, orderLng, r.lat, r.lng) }))
                 .filter(r => r.distance <= 5.0).sort((a, b) => a.distance - b.distance);
             
             if (validRetailers.length > 0) {
@@ -87,7 +90,7 @@ export async function executeIntelligentRouting(orderId) {
         const agents = await prisma.deliveryAgent.findMany({
             where: { isOnline: true, lat: { not: null }, lng: { not: null } }
         });
-        const validAgents = agents.map(a => ({ ...a, distance: getDistanceFromLatLonInKm(order.lat, order.lng, a.lat, a.lng) }))
+        const validAgents = agents.map(a => ({ ...a, distance: getDistanceFromLatLonInKm(orderLat, orderLng, a.lat, a.lng) }))
             .sort((a, b) => a.distance - b.distance);
         
         let chosenAgentId = null;

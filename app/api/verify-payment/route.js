@@ -311,7 +311,7 @@ export async function POST(req) {
         }
 
         // 3.5 Execute HyperLocal AI Routing (Simultaneous Dispatch)
-        if (newOrder && newOrder.lat && newOrder.lng) {
+        if (newOrder) {
             executeIntelligentRouting(newOrder.id).catch(e => console.error("Routing Exception:", e));
             // New Marketplace Split
             splitOrderIntoSubOrders(newOrder.id).catch(e => console.error("Marketplace Split Exception:", e));

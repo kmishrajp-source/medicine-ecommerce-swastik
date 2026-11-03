@@ -29,7 +29,9 @@ export async function splitOrderIntoSubOrders(orderId) {
             include: { items: { include: { product: true } } }
         });
 
-        if (!order || !order.lat || !order.lng) return null;
+        if (!order) return null;
+        const orderLat = order.lat || 26.7606;
+        const orderLng = order.lng || 83.3732;
 
         // 1. Fetch available retailers within 10km (increased for marketplace reach)
         const retailers = await prisma.retailer.findMany({
@@ -56,7 +58,7 @@ export async function splitOrderIntoSubOrders(orderId) {
                 );
 
                 if (inventoryItem) {
-                    const distance = calculateDistance(order.lat, order.lng, retailer.lat, retailer.lng);
+                    const distance = calculateDistance(orderLat, orderLng, retailer.lat, retailer.lng);
                     if (distance < minDistance && distance <= 10.0) {
                         minDistance = distance;
                         bestRetailer = retailer;

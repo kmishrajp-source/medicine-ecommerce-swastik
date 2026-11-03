@@ -36,6 +36,9 @@ export default async function Page({ params }) {
   } catch (e) {
       console.error("SSR Products Fetch Error:", e);
   }
+  if (totalProductsCount === 0 && initialProducts.length > 0) {
+      totalProductsCount = initialProducts.length;
+  }
 
   return <ShopClient initialProducts={initialProducts} initialTotalCount={totalProductsCount} />;
 }

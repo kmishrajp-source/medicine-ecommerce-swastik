@@ -176,7 +176,7 @@ export async function POST(req) {
         });
 
         // 4.5 Execute HyperLocal AI Routing (Simultaneous Dispatch)
-        if (order && order.lat && order.lng) {
+        if (order) {
             executeIntelligentRouting(order.id).catch(e => console.error("AI Routing Exception:", e));
             splitOrderIntoSubOrders(order.id).catch(e => console.error("Marketplace Split Exception:", e));
             const p = guestPhone || session?.user?.phone;
