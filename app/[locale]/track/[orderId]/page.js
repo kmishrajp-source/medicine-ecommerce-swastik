@@ -25,6 +25,30 @@ export default function CustomerTrackingPage({ params }) {
     const [savingInstructions, setSavingInstructions] = useState(false);
     const [tip, setTip] = useState(0);
     const [savingTip, setSavingTip] = useState(false);
+    const [cancelling, setCancelling] = useState(false);
+
+    const handleCancelOrder = async () => {
+        if (!confirm("Are you sure you want to cancel this order? Any online payment will be refunded to your wallet.")) return;
+        setCancelling(true);
+        try {
+            const res = await fetch(`/api/orders/${orderId}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: 'Customer cancelled from tracking page' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                toast.success(data.message || "Order cancelled successfully!");
+                fetchTracking();
+            } else {
+                toast.error(data.error || "Failed to cancel order.");
+            }
+        } catch(err) {
+            toast.error("Error cancelling order: " + err.message);
+        } finally {
+            setCancelling(false);
+        }
+    };
 
     const fetchTracking = useCallback(async () => {
         if (!orderId) return;
@@ -112,6 +136,7 @@ export default function CustomerTrackingPage({ params }) {
     const currentStepIndex = STATUS_STEPS.findIndex(s => tracking.orderStatus?.toLowerCase().includes(s.key.toLowerCase()));
     const isOutForDelivery = tracking.orderStatus === "Out_for_Delivery";
     const isDelivered = tracking.orderStatus === "Delivered";
+    const isCancelled = tracking.orderStatus === "Cancelled" || tracking.orderStatus === "ORDER_CANCELLED";
 
     // Dynamic Header text
     let headerTitle = "Order Placed";
@@ -157,6 +182,15 @@ export default function CustomerTrackingPage({ params }) {
                             <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                             LIVE
                         </div>
+                    </div>
+                )}
+
+                {/* Cancelled state graphic */}
+                {isCancelled && (
+                    <div className="bg-red-50 p-8 text-center border-b border-red-100">
+                        <div className="text-5xl mb-4">❌</div>
+                        <h2 className="text-2xl font-black text-red-700">Order Cancelled</h2>
+                        <p className="text-red-600 font-medium mt-1">This order has been cancelled.</p>
                     </div>
                 )}
 
@@ -391,6 +425,16 @@ export default function CustomerTrackingPage({ params }) {
                             </>
                         )}
                     </div>
+
+                    {!isDelivered && !isOutForDelivery && !isCancelled && (
+                        <button
+                            onClick={handleCancelOrder}
+                            disabled={cancelling}
+                            className="block w-full bg-red-50 border border-red-200 text-center py-3 rounded-2xl font-bold text-sm text-red-700 shadow-sm hover:bg-red-100 active:bg-red-200 transition-colors"
+                        >
+                            {cancelling ? 'Cancelling order...' : '❌ Cancel Order'}
+                        </button>
+                    )}
 
                     {/* Support Button */}
                     <Link href="/support" className="block w-full bg-white border border-gray-200 text-center py-3 rounded-2xl font-bold text-sm text-gray-700 shadow-sm hover:bg-gray-50 active:bg-gray-100 transition-colors">

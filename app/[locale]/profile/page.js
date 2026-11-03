@@ -13,6 +13,30 @@ export default function Profile() {
     const [profile, setProfile] = useState(null);
     const [prescriptions, setPrescriptions] = useState([]);
     const [reorderingId, setReorderingId] = useState(null);
+    const [cancellingId, setCancellingId] = useState(null);
+
+    const handleCancelOrder = async (orderId) => {
+        if (!confirm("Are you sure you want to cancel this order? Any online payment will be refunded to your wallet.")) return;
+        setCancellingId(orderId);
+        try {
+            const res = await fetch(`/api/orders/${orderId}/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ reason: 'Customer requested cancellation via profile' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message || "Order cancelled successfully.");
+                setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status: 'Cancelled' } : o));
+            } else {
+                alert(data.error || "Failed to cancel order.");
+            }
+        } catch (err) {
+            alert("Error cancelling order: " + err.message);
+        } finally {
+            setCancellingId(null);
+        }
+    };
 
     const handleReorder = (order) => {
         if (!order.items || order.items.length === 0) {
@@ -213,8 +237,8 @@ export default function Profile() {
                                             <td style={{ padding: '12px 10px' }}>
                                                 <span style={{
                                                     padding: '4px 10px', borderRadius: '12px', fontSize: '0.78rem', fontWeight: '700',
-                                                    background: order.status === 'Delivered' ? '#DCFCE7' : '#DBEAFE',
-                                                    color: order.status === 'Delivered' ? '#15803D' : '#1D4ED8'
+                                                    background: order.status === 'Delivered' ? '#DCFCE7' : order.status === 'Cancelled' ? '#FEE2E2' : '#DBEAFE',
+                                                    color: order.status === 'Delivered' ? '#15803D' : order.status === 'Cancelled' ? '#DC2626' : '#1D4ED8'
                                                 }}>
                                                     {order.status.replace(/_/g, ' ')}
                                                 </span>
@@ -233,6 +257,21 @@ export default function Profile() {
                                                     >
                                                         📍 Track
                                                     </button>
+                                                    {['Received', 'Processing', 'Pharmacist_Approved', 'Ready_for_Packing', 'Pending_Retailer_Acceptance', 'Rx_Uploaded'].includes(order.status) && (
+                                                        <button
+                                                            onClick={() => handleCancelOrder(order.id)}
+                                                            disabled={cancellingId === order.id}
+                                                            style={{
+                                                                padding: '6px 12px', fontSize: '0.78rem', cursor: 'pointer',
+                                                                background: cancellingId === order.id ? '#9ca3af' : '#ef4444',
+                                                                color: 'white', border: 'none', borderRadius: '8px',
+                                                                fontWeight: '700', whiteSpace: 'nowrap',
+                                                                transition: 'background 0.2s'
+                                                            }}
+                                                        >
+                                                            {cancellingId === order.id ? '...' : '❌ Cancel'}
+                                                        </button>
+                                                    )}
                                                     {order.status === 'Delivered' && order.items && order.items.length > 0 && (
                                                         <button
                                                             onClick={() => handleReorder(order)}
