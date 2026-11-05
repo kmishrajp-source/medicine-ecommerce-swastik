@@ -162,6 +162,12 @@ export default function Checkout() {
             return;
         }
 
+        const cleanPhoneDigits = String(formData.phone).replace(/\D/g, '').replace(/^0+/, '').replace(/^91/, '');
+        if (cleanPhoneDigits.length !== 10) {
+            alert("Please enter a valid 10-digit mobile number (e.g., 9876543210). Numbers with missing digits or invalid format cannot receive order updates.");
+            return;
+        }
+
         if (!deliveryInfo && !loadingDelivery) {
             alert("Please wait for the delivery charge to be calculated, or provide a complete address/location first.");
             return;
@@ -451,7 +457,7 @@ export default function Checkout() {
                             <input
                                 type="tel"
                                 name="phone"
-                                placeholder="Phone Number"
+                                placeholder="10-Digit Mobile Number (e.g. 9876543210)" maxLength={13}
                                 value={formData.phone}
                                 onChange={handleInputChange}
                                 required
