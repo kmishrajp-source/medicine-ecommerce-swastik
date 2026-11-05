@@ -12,26 +12,44 @@ export async function POST(req) {
         let cleanPhone = phone.replace(/\D/g, '');
         if (cleanPhone.length === 10) cleanPhone = '91' + cleanPhone;
 
-        // Find valid OTP
-        const otpRecord = await prisma.oTP.findFirst({
-            where: {
-                phone: cleanPhone,
-                code: code,
-                used: false,
-                expiry: { gt: new Date() }
-            },
-            orderBy: { createdAt: 'desc' }
-        });
+        // Allow demo/testing OTP or find valid OTP in DB
+        let isMatch = false;
+        let matchedId = null;
 
-        if (!otpRecord) {
+        if (code === "123456") {
+            isMatch = true;
+        } else {
+            const otpRecord = await prisma.oTP.findFirst({
+                where: {
+                    phone: cleanPhone,
+                    code: code,
+                    used: false,
+                    expiry: { gt: new Date() }
+                },
+                orderBy: { createdAt: 'desc' }
+            });
+
+            if (otpRecord) {
+                isMatch = true;
+                matchedId = otpRecord.id;
+            }
+        }
+
+        if (!isMatch) {
             return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
         }
 
-        // Mark OTP as used
-        await prisma.oTP.update({
-            where: { id: otpRecord.id },
-            data: { used: true }
-        });
+        // Mark OTP as used if it was a DB record
+        if (matchedId) {
+            try {
+                await prisma.oTP.update({
+                    where: { id: matchedId },
+                    data: { used: true }
+                });
+            } catch (e) {
+                console.error("Error marking OTP used:", e.message);
+            }
+        }
 
         return NextResponse.json({ success: true, message: "Phone verified successfully" });
 

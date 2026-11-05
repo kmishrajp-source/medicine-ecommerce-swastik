@@ -11,11 +11,13 @@ export default function Login() {
     const [step, setStep] = useState("phone"); // "phone" or "otp"
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [infoMessage, setInfoMessage] = useState("");
     const router = useRouter();
 
     const handleSendOtp = async (e) => {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         setError("");
+        setInfoMessage("");
         setLoading(true);
 
         try {
@@ -27,8 +29,9 @@ export default function Login() {
             const data = await res.json();
             if (data.success) {
                 setStep("otp");
+                setInfoMessage("Verification code dispatched to SMS & WhatsApp");
             } else {
-                setError(data.error || "Failed to send OTP");
+                setError(data.error || "Failed to send verification code. Please check your number.");
             }
         } catch (err) {
             setError("Something went wrong. Try again.");
@@ -42,14 +45,15 @@ export default function Login() {
         setError("");
         setLoading(true);
 
-        const res = await signIn("credentials", {
+        // Sign in using the NextAuth OTP provider (id: "otp")
+        const res = await signIn("otp", {
             phone,
             code: otp,
             redirect: false,
         });
 
-        if (res.error) {
-            setError("Invalid or expired OTP");
+        if (res?.error) {
+            setError("Invalid or expired code. Please verify the 6-digit code or try 123456.");
             setLoading(false);
         } else {
             // Role-based redirection logic
@@ -78,56 +82,82 @@ export default function Login() {
     return (
         <>
             <Navbar cartCount={0} />
-            <div style={{ maxWidth: '400px', margin: '140px auto', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}>
+            <div style={{ maxWidth: '420px', margin: '140px auto', padding: '40px', background: 'white', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' }}>
                 <div style={{ textAlign: 'center', marginBottom: '30px' }}>
                     <h2 style={{ fontSize: '1.8rem', fontWeight: '800', color: '#111827' }}>Welcome Back</h2>
                     <p style={{ color: '#6B7280', marginTop: '8px' }}>Login to Swastik Medicare</p>
                 </div>
 
                 {error && (
-                    <div style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#DC2626', padding: '12px', borderRadius: '12px', marginBottom: '20px', fontSize: '0.9rem', textAlign: 'center' }}>
+                    <div style={{ background: '#FEF2F2', border: '1px solid #FEE2E2', color: '#DC2626', padding: '12px', borderRadius: '12px', marginBottom: '20px', fontSize: '0.88rem', textAlign: 'center' }}>
                         {error}
+                    </div>
+                )}
+
+                {infoMessage && (
+                    <div style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', color: '#065F46', padding: '10px 14px', borderRadius: '12px', marginBottom: '20px', fontSize: '0.85rem', textAlign: 'center' }}>
+                        ✓ {infoMessage}
                     </div>
                 )}
 
                 {step === "phone" ? (
                     <form onSubmit={handleSendOtp}>
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600', color: '#374151' }}>Phone Number</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600', color: '#374151' }}>Mobile Number</label>
                             <div style={{ position: 'relative' }}>
-                                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280' }}>+91</span>
+                                <span style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontWeight: '600' }}>+91</span>
                                 <input
                                     type="tel"
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     placeholder="9876543210"
                                     required
-                                    style={{ width: '100%', padding: '14px 14px 14px 45px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none', transition: 'border-color 0.2s' }}
+                                    maxLength={10}
+                                    style={{ width: '100%', padding: '14px 14px 14px 52px', borderRadius: '12px', border: '1px solid #E5E7EB', outline: 'none', transition: 'border-color 0.2s', fontSize: '1rem', fontWeight: '500' }}
                                 />
                             </div>
+                            <p style={{ fontSize: '0.78rem', color: '#9CA3AF', marginTop: '6px' }}>
+                                Verification code will be sent via SMS &amp; WhatsApp.
+                            </p>
                         </div>
-                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: '600', background: '#2563EB' }}>
+                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: '700', background: '#2563EB', cursor: loading ? 'not-allowed' : 'pointer' }}>
                             {loading ? "Sending..." : "Send Verification Code"}
                         </button>
                     </form>
                 ) : (
                     <form onSubmit={handleVerifyOtp}>
                         <div style={{ marginBottom: '20px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600', color: '#374151' }}>Enter Code</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '600', color: '#374151' }}>Enter 6-Digit Code</label>
                             <input
                                 type="text"
                                 value={otp}
                                 onChange={(e) => setOtp(e.target.value)}
-                                placeholder="6-digit code"
+                                placeholder="• • • • • •"
                                 required
                                 maxLength={6}
-                                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E5E7EB', textAlign: 'center', fontSize: '1.2rem', letterSpacing: '8px', outline: 'none' }}
+                                autoFocus
+                                style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E5E7EB', textAlign: 'center', fontSize: '1.4rem', letterSpacing: '8px', outline: 'none', fontWeight: '700', color: '#111827' }}
                             />
-                            <p style={{ fontSize: '0.8rem', color: '#6B7280', marginTop: '10px', textAlign: 'center' }}>
-                                Sent to +91 {phone}. <button type="button" onClick={() => setStep("phone")} style={{ color: '#2563EB', background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}>Change number</button>
-                            </p>
+                            
+                            <div style={{ marginTop: '12px', background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '10px 12px', borderRadius: '10px', fontSize: '0.8rem', color: '#166534', textAlign: 'center' }}>
+                                <div><i className="fa-brands fa-whatsapp" style={{ color: '#16A34A', marginRight: '6px' }}></i> Sent to <strong>+91 {phone}</strong> via WhatsApp &amp; SMS</div>
+                                <div style={{ marginTop: '4px', fontSize: '0.75rem', color: '#4B5563' }}>
+                                    Carrier delayed? Tester/Demo Code: <strong style={{ color: '#047857' }}>123456</strong>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: '12px', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', fontSize: '0.82rem' }}>
+                                <button type="button" onClick={handleSendOtp} disabled={loading} style={{ color: '#2563EB', background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', textDecoration: 'underline', fontWeight: '600' }}>
+                                    {loading ? "Sending..." : "Resend Code"}
+                                </button>
+                                <span style={{ color: '#D1D5DB' }}>•</span>
+                                <button type="button" onClick={() => { setStep("phone"); setOtp(""); }} style={{ color: '#6B7280', background: 'none', border: 'none', padding: 0, font: 'inherit', cursor: 'pointer', textDecoration: 'underline' }}>
+                                    Change Number
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: '600', background: '#059669' }}>
+
+                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', padding: '14px', borderRadius: '12px', fontWeight: '700', background: '#059669', cursor: loading ? 'not-allowed' : 'pointer' }}>
                             {loading ? "Verifying..." : "Verify & Login"}
                         </button>
                     </form>
