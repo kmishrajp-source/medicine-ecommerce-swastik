@@ -53,7 +53,7 @@ export default function Login() {
         });
 
         if (res?.error) {
-            setError("Invalid or expired code. Please verify the 6-digit code or try 123456.");
+            setError("Invalid or expired code. Please verify the 6-digit code or use 123456.");
             setLoading(false);
         } else {
             // Role-based redirection logic
@@ -139,11 +139,31 @@ export default function Login() {
                                 style={{ width: '100%', padding: '14px', borderRadius: '12px', border: '1px solid #E5E7EB', textAlign: 'center', fontSize: '1.4rem', letterSpacing: '8px', outline: 'none', fontWeight: '700', color: '#111827' }}
                             />
                             
-                            <div style={{ marginTop: '12px', background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '10px 12px', borderRadius: '10px', fontSize: '0.8rem', color: '#166534', textAlign: 'center' }}>
-                                <div><i className="fa-brands fa-whatsapp" style={{ color: '#16A34A', marginRight: '6px' }}></i> Sent to <strong>+91 {phone}</strong> via WhatsApp &amp; SMS</div>
-                                <div style={{ marginTop: '4px', fontSize: '0.75rem', color: '#4B5563' }}>
-                                    Carrier delayed? Tester/Demo Code: <strong style={{ color: '#047857' }}>123456</strong>
+                            <div style={{ marginTop: '12px', background: '#F0FDF4', border: '1px solid #BBF7D0', padding: '12px', borderRadius: '12px', fontSize: '0.82rem', color: '#166534', textAlign: 'center' }}>
+                                <div style={{ fontWeight: '600' }}><i className="fa-solid fa-paper-plane" style={{ color: '#16A34A', marginRight: '6px' }}></i> Sent to <strong>+91 {phone}</strong> via WhatsApp &amp; SMS</div>
+                                <div style={{ marginTop: '6px', fontSize: '0.76rem', color: '#4B5563' }}>
+                                    Carrier delayed or gateway credit pending?
                                 </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setOtp("123456")}
+                                    style={{
+                                        marginTop: "8px",
+                                        padding: "6px 14px",
+                                        background: "#DCFCE7",
+                                        border: "1px solid #16A34A",
+                                        color: "#166534",
+                                        borderRadius: "8px",
+                                        fontSize: "0.8rem",
+                                        fontWeight: "700",
+                                        cursor: "pointer",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                        gap: "6px"
+                                    }}
+                                >
+                                    ⚡ Click here to fill code: 123456
+                                </button>
                             </div>
 
                             <div style={{ marginTop: '12px', textAlign: 'center', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '14px', fontSize: '0.82rem' }}>
